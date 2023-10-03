@@ -1,0 +1,25 @@
+.horizontalHeaderBar
+{
+    display: block;
+    width: 100%;
+}
+.headerTab
+{
+    background-color: rgb(100 100 100 / 0.25);
+    display: inline-block;
+    margin-inline-end: 2px;
+    cursor: pointer;
+}
+.headerTabText
+{
+    margin: 30px 15px;
+    font-size: 20px;
+}
+.floatLeft
+{
+    float: left;
+}
+.floatRight
+{
+    float: right;
+}
