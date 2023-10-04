@@ -1,6 +1,99 @@
 <?php
-    // Must do cookie setting here, before any content is sent
-    // if the user's current cookie corresponds to an account, log them in
+include_once('templates/connection.php');
+include_once('templates/constants.php');
+
+// Must do cookie setting here, before any content is sent
+function createAndSetCookie()
+{
+    // create and set a cookie
+    $sessionID = rand(0, ((2<<32) -1));
+
+    $domain = ($_SERVER['HTTP_HOST'] != 'localhost') ? $_SERVER['HTTP_HOST'] : false;
+    $expiryDate = time()+$COOKIE_EXPIRY_TIME;
+    setcookie('session_id', $sessionID, $expiryDate, '/', $domain, false);
+
+    // store cookie in database
+    $result = $mysqli->query('INSERT INTO `<cookies>` (`<session_id>`, `<expiry_date>`)'.
+                            ' VALUES (\'' . $sessionIDhash . '\', \'' . $expiryDate . '\');');
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        print('Unable to contact database');
+        http_response_code(500);
+        exit(1);
+    }
+}
+
+function redirect($target)
+{
+    if (!empty($_SERVER['HTTPS']) && ('on' == $_SERVER['HTTPS'])) {
+		$uri = 'https://';
+	} else {
+		$uri = 'http://';
+	}
+	$uri .= $_SERVER['HTTP_HOST'];
+	header('Location: ' . $uri . $target);
+	exit(0);
+}
+
+// if the user's current cookie corresponds to an account, log them in
+if (!array_key_exists('session_id', $_COOKIE))
+{
+    createAndSetCookie();
+
+}
+else
+{
+    // get cookie
+    $sessionID = $_COOKIE['session_id'];
+    // lookup cookie in database
+    // output of sha256 will be 64-char string
+    $sessionIDhash = hash('sha256', $sessionID);
+    $result = $mysqli->query('SELECT * FROM `<cookies>` WHERE `<session_id>`=\'' . $sessionIDhash . '\';');
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        print('Unable to contact database');
+        http_response_code(500);
+        exit(0);
+    }
+    // check that result length is non-zero
+    if ($result->num_rows == 1)
+    {
+        // check that cookie is not expired
+        $row = $result->fetch_assoc();
+        if ($row['<expiryDate>'] < (time()+$COOKIE_EXPIRY_TIME))
+        {
+            // cookie has expired, delete and re-issue cookie
+            // delete cookie from database
+            $result = $mysqli->query('DELETE FROM `<cookies>` WHERE `<session_id>`=\'' . $sessionIDhash . '\';');
+            // check that query was successful
+            if (!$result)
+            {
+                // query failed, internal server error
+                print('Unable to contact database');
+                http_response_code(500);
+                exit(0);
+            }
+
+            // re-issue cookie
+            createAndSetCookie();
+        }
+        // check if this cookie is already tied to a user
+        elseif ($row['uid'] != '') // TODO
+        {
+            // redirect
+            redirect('/summary.php');
+        }
+    }
+    else
+    {
+        // cookie is not in database, re-issue cookie
+        createAndSetCookie();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -16,8 +109,27 @@
     <body>
         <?php readfile('templates/unauthenticated_header.html'); ?>
         <div class="container">
+            <div class="warning">
+                Password are transmitted over unsecure HTTP! Proceed with caution.
+            </div>
+            <div id="loginForm">
+                <text class="warning hidden" id="loginForm_errorMessage">Invalid username and/or password</text>
+                <div class="block loginFormField">
+                    <label for="loginForm_user">Username or email:</label>
+                    <br>
+                    <input type="text" id="loginForm_user">
+                </div>
+                <div class="block loginFormField">
+                    <label for="loginForm_password">Password:</label>
+                    <br>
+                    <input type="text" id="loginForm_password">
+                </div>
+                <div class="block loginFormField">
+                    <input type="button" id="loginForm_submit" value="Log in">
+                </div>
+            </div>
             <div>
-
+                <div class="fontfamily" id="signupMessage">Need an account? <a href="/signup.php">Sign Up</a></div>
             </div>
         </div>
     </body>

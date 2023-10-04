@@ -2,3 +2,11 @@
 {
     font-family: Arial, Verdana, Helvetica, sans-serif;
 }
+.block
+{
+    display: block;
+}
+.hidden
+{
+    display: none;
+}
