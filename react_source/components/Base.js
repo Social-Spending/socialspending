@@ -1,0 +1,60 @@
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View } from 'react-native';
+import { useState, useEffect } from 'react';
+
+import Header from './Header.js';
+import Footer from './Footer.js';
+
+export default function Base(props) {
+	
+	const [showShelf, setShowShelf] = useState(false);
+	
+	
+  return (
+	<View style = {styles.base}>
+		<Header loggedIn={props.loggedIn} showNotif={() => setShowShelf(!showShelf)} />
+		
+		<View style={[props.style, {flexWrap: 'nowrap', justifyContent:'flex-end', flexDirection:'row'}]}>
+			
+			<View style={styles.container}>
+			
+				{props.children}
+			</View>
+			
+			<View style={[styles.notifShelf,  showShelf ? {width:'10%'} : {width:'0%'},]}>
+			
+			</View>
+			
+		</View>
+		
+		<Footer />
+	</View>
+  );
+}
+
+
+
+const styles = StyleSheet.create({
+  base:{
+	  flex:1,
+	  width: '100%',
+	  height: '100%',
+	  flexWrap: 'nowrap',
+	  },
+container:{
+	  flex:1,
+	  width: '100%',
+	  height: 'auto',
+	  flexWrap: 'nowrap',
+	  justifyContent:'center',
+	  alignItems:'center'
+	  },
+	  notifShelf:{
+		  backgroundColor: '#555',
+		  height:'100%',
+		  transition: '500ms'
+		  
+		  
+	  }
+	  
+});
