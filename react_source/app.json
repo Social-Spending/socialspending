@@ -26,12 +26,16 @@
       "package": "com.ryderreed.SocialSpending"
     },
     "web": {
+      "bundler": "metro",
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
         "projectId": "12bc9ce8-8738-4aca-b731-2ae6ef4988eb"
       }
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }

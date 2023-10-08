@@ -1,25 +1,24 @@
 
 
 import { StyleSheet, Text, View, Pressable} from 'react-native';
-import ReactDOM from "react-dom";
-import useWindowDimensions from './Utils.js';
 
 import Button from './Button.js'
+import { HeaderLink, HeaderText } from './TextComponents.js'
 
 
 
-export default function Login({onLogin}) {
-		const { height, width } = useWindowDimensions();
+export default function Login() {
+		
   return (
   
     <View style={styles.login}>
 	
 		<Text id= 'loginForm_errorMessage' style={styles.error}></Text>
 	
-		<h3> Username </h3>
+		<HeaderText size={3} style={{padding: '1em'}}> Username </HeaderText>
         <input style={styles.input} id='loginForm_user' name="Username" />
 		
-		<h3> Password </h3>
+		<HeaderText size={3} style={{padding: '1em'}}> Password </HeaderText>
         <input style={styles.input}  id='loginForm_password' type='password' name="Password" />
 		
 		<Button style={styles.buttonContainer} label='Login' onClick={Submit} />
@@ -47,7 +46,7 @@ async function Submit(){
     {
         let response = await fetch(url, {method: 'POST', body: payload, credentials: 'same-origin'} );
 
-        if (response.ok)
+        if (response.ok && response.status === 200)
         {
             // success, redirect user
             // check if this url specifies a url to which to redirect
@@ -59,7 +58,7 @@ async function Submit(){
             // failed, display error message returned by server
             let errorDiv = document.getElementById('loginForm_errorMessage');
 			errorDiv.innerText = "Invalid Username or Password";
-            //errorDiv.innerText = await response.text();
+            errorDiv.innerText = await response.text();
             errorDiv.classList.remove('hidden');
         }
     }
@@ -81,7 +80,8 @@ const styles = StyleSheet.create({
   },
   input:{
 	  width:'50%',
-	  height: '8%',
+	  height: '2em',
+	  fontSize: '1.17em',
 	  boxShadow: '3px 3px 3px #9E9E9E',
 	  borderRadius: 10
   },

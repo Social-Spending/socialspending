@@ -8,11 +8,12 @@ import Footer from './Footer.js';
 export default function Base(props) {
 	
 	const [showShelf, setShowShelf] = useState(false);
+	const [loggedIn, setLoggedIn] = useState(true);
 	
 	
   return (
 	<View style = {styles.base}>
-		<Header loggedIn={props.loggedIn} showNotif={() => setShowShelf(!showShelf)} />
+		<Header loggedIn={loggedIn} showNotif={() => setShowShelf(!showShelf)} />
 		
 		<View style={[props.style, {flexWrap: 'nowrap', justifyContent:'flex-end', flexDirection:'row'}]}>
 			
@@ -21,7 +22,7 @@ export default function Base(props) {
 				{props.children}
 			</View>
 			
-			<View style={[styles.notifShelf,  showShelf ? {width:'10%'} : {width:'0%'},]}>
+			<View style={[styles.notifShelf,  showShelf ? {width:'15vw'} : {width:'0vh'},]}>
 			
 			</View>
 			

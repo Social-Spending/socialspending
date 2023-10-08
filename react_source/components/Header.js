@@ -1,11 +1,12 @@
 
 
 import { StyleSheet, Text, View, Image } from 'react-native';
+import { Link } from "expo-router";
 
 
-
-import useWindowDimensions from './Utils.js';
 import Button from './Button.js'
+
+import { HeaderLink, HeaderText } from './TextComponents.js'
 
 
 const Logo = require('../assets/images/logo.png');
@@ -13,14 +14,15 @@ const Bell = require('../assets/images/bx-bell.png');
 
 
 export default function Header({loggedIn, showNotif}) {
-	const { height, width } = useWindowDimensions();
 	
   return (
     <View style={styles.header}>
 	
 		<View style={styles.leftContainer}>
-		
-			<Image source={Logo}  style={styles.logo}/>
+			<Link href="/" asChild>
+				<Image source={Logo}  style={styles.logo}/>
+			</Link>
+			
 			<Links loggedIn={loggedIn}/>
 			
 		</View>
@@ -34,11 +36,11 @@ function Links({loggedIn}) {
 		return (
 			<View style ={styles.links}>
 			
-				<h3 style = {styles.text}> Groups </h3>
-				<h3 style = {styles.text}> Friends </h3>
+				<HeaderLink size={3} href="/groups" style={styles.text}> Groups </HeaderLink>
+				<HeaderLink size={3} href="/friends" style = {styles.text}> Friends </HeaderLink>
 
-				<h3 style = {styles.text}> FAQ </h3>
-				<h3 style = {styles.text}> About </h3>
+				<HeaderLink size={3} href="/faq" style = {styles.text}> FAQ </HeaderLink>
+				<HeaderLink size={3} href="/about" style = {styles.text}> About </HeaderLink>
 				
 			</View>
 		);
@@ -46,8 +48,8 @@ function Links({loggedIn}) {
 		return(
 			<View style ={styles.links}>
 			
-				<h3 style = {styles.text}> FAQ </h3>
-				<h3 style = {styles.text}> About </h3>
+				<HeaderLink size={3} href="/faq" style = {styles.text}> FAQ </HeaderLink>
+				<HeaderLink size={3} href="/about" style = {styles.text}> About </HeaderLink>
 				
 			</View>
 		);
@@ -58,16 +60,16 @@ function Account({loggedIn, showNotif}) {
 	if (loggedIn){
 		return (
 			<View style={styles.rightContainer}>
-				<Button style={styles.notif} icon={Bell} onClick={showNotif} />
-				<h3 style = {styles.text}>Account Name Here</h3>
+				<Button  icon={Bell} iconStyle={styles.notif} onClick={showNotif} />
+				<HeaderText size={3} style = {styles.text}>$AccountName</HeaderText>
 			</View>
 		);
 	}else{
 		return(
 			<View style={styles.rightContainer}>
-				<h3 style = {styles.text}>Login</h3>
-				<h3 style= {{color:'#f9f7f3'}}>|</h3>
-				<h3 style = {styles.text}>Signup</h3>
+				<HeaderLink size={3} href="/login" style={styles.text}>Login</HeaderLink>
+				<HeaderText size={3} style= {{color:'#f9f7f3'}}>|</HeaderText>
+				<HeaderLink size={3} href="/signup" style={styles.text}>Signup</HeaderLink>
 			</View>
 		);
 	}
@@ -103,14 +105,15 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   logo: {
-    aspectRatio: 1,
     justifyContent: 'flex-start',
     height: '100%',
+    width: '4vh',
     borderRadius: 18,
   },
   links: {
     flex:1,
     height: '100%',
+	width: 'auto',
 	flexDirection: 'row',
     justifyContent: 'flex-start',
 	alignItems: 'center',
@@ -121,9 +124,8 @@ const styles = StyleSheet.create({
 	  paddingLeft: '2.5%'
   },
   notif: {
-    width: '10%',
-    height: '50%',
-	fill: '#f9f7f3',
+    width: '3vh',
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
 	borderRadius: 10,

@@ -1,12 +1,10 @@
 
 
 import { StyleSheet, Text, View, Image } from 'react-native';
-import useWindowDimensions from './Utils.js';
 
 const Logo = require('../assets/images/logo.png');
 
 export default function Footer() {
-		const { height, width } = useWindowDimensions();
   return (
   
     <View style={styles.footer}>

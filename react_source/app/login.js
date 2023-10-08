@@ -1,19 +1,15 @@
-import { StatusBar } from 'expo-status-bar';
+
 import { StyleSheet, Text, View } from 'react-native';
-import { useState, useEffect } from 'react';
 
-import Header from './components/Header.js';
-import Footer from './components/Footer.js';
-import Base from './components/Base.js';
-import Login from './components/Login.js';
+import Base from '../components/Base.js';
+import Login from '../components/Login.js';
 
-export default function App() {
+export default function Page() {
 	
-	const [loggedIn, setLoggedIn] = useState(true);
 	
   return (
-	<Base style={styles.container} loggedIn={loggedIn}>
-	<Login onLogin={() => {setLoggedIn(!loggedIn)}}/>
+	<Base style={styles.container}>
+		<Login />
 	</Base>
   );
 }
