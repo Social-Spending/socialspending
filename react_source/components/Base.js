@@ -18,11 +18,10 @@ export default function Base(props) {
 		<View style={[props.style, {flexWrap: 'nowrap', justifyContent:'flex-end', flexDirection:'row'}]}>
 			
 			<View style={styles.container}>
-			
 				{props.children}
 			</View>
 			
-			<View style={[styles.notifShelf,  showShelf ? {width:'15vw'} : {width:'0vh'},]}>
+			<View style={[styles.notifShelf,  showShelf ? {width:'20vw'} : {width:'0vh'},]}>
 			
 			</View>
 			
@@ -41,6 +40,7 @@ const styles = StyleSheet.create({
 	  width: '100%',
 	  height: '100%',
 	  flexWrap: 'nowrap',
+	  
 	  },
 container:{
 	  flex:1,
@@ -48,7 +48,8 @@ container:{
 	  height: 'auto',
 	  flexWrap: 'nowrap',
 	  justifyContent:'center',
-	  alignItems:'center'
+	  alignItems:'center',
+	  
 	  },
 	  notifShelf:{
 		  backgroundColor: '#555',

@@ -1,13 +1,16 @@
 
 import { StyleSheet, Text, View } from 'react-native';
 
-
+import Base from '../components/Base.js';
+import Signup from '../components/Signup.js';
 
 export default function Page() {
 	
 	
   return (
-		<Text>Test</Text>
+	<Base style={styles.container}>
+		<Signup />
+	</Base>
   );
 }
 

@@ -3,12 +3,12 @@ import { StyleSheet, View, Pressable, Text, Image } from 'react-native';
 import { HeaderLink, HeaderText } from './TextComponents.js'
 
 
-export default function Button({ label, style, icon, iconStyle, onClick }) {
+export default function Button({label, style, icon, iconStyle, onClick, disabled}) {
   return (
     <View style={style}>
-      <Pressable style={styles.button} onPress={onClick}>
+      <Pressable style={styles.button} onPress={onClick} disabled={disabled}>
 		<Icon style={iconStyle} icon={icon}/>
-        <HeaderText size={3} style={styles.buttonLabel}>{label}</HeaderText>
+        <HeaderText size={5} style={styles.buttonLabel}>{label}</HeaderText>
       </Pressable>
     </View>
   );
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   buttonLabel: {
-    color: '#000',
+    color: '#FFF',
   },
   icon: {
     aspectRatio: 1,

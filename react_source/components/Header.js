@@ -37,10 +37,10 @@ function Links({loggedIn}) {
 			<View style ={styles.links}>
 			
 				<HeaderLink size={3} href="/groups" style={styles.text}> Groups </HeaderLink>
-				<HeaderLink size={3} href="/friends" style = {styles.text}> Friends </HeaderLink>
+				<HeaderLink size={3} href="/friends" style={styles.text}> Friends </HeaderLink>
 
-				<HeaderLink size={3} href="/faq" style = {styles.text}> FAQ </HeaderLink>
-				<HeaderLink size={3} href="/about" style = {styles.text}> About </HeaderLink>
+				<HeaderLink size={3} href="/faq" style={styles.text}> FAQ </HeaderLink>
+				<HeaderLink size={3} href="/about" style={styles.text}> About </HeaderLink>
 				
 			</View>
 		);
@@ -48,8 +48,8 @@ function Links({loggedIn}) {
 		return(
 			<View style ={styles.links}>
 			
-				<HeaderLink size={3} href="/faq" style = {styles.text}> FAQ </HeaderLink>
-				<HeaderLink size={3} href="/about" style = {styles.text}> About </HeaderLink>
+				<HeaderLink size={3} href="/faq" style={styles.text}> FAQ </HeaderLink>
+				<HeaderLink size={3} href="/about" style={styles.text}> About </HeaderLink>
 				
 			</View>
 		);
@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
 	top: 0,
 	zIndex: 1,
 	height: '4vh',
+	minHeight: '2em',
     width: '100%',
 	backgroundColor: '#0FA3B1',
 	alignSelf: 'top',
@@ -107,7 +108,8 @@ const styles = StyleSheet.create({
   logo: {
     justifyContent: 'flex-start',
     height: '100%',
-    width: '4vh',
+    width: '5vh',
+	minWidth: '2em',
     borderRadius: 18,
   },
   links: {
@@ -125,6 +127,7 @@ const styles = StyleSheet.create({
   },
   notif: {
     width: '3vh',
+	minWidth: '1.5em',
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',

@@ -11,7 +11,7 @@ export default function Footer() {
 	
 		<View style={styles.leftContainer}>
 		</View>
-		<Text style={{color:'#f9f7f3'}}>Copyright© SocialSpending 2023</Text>
+		<Text style={{color:'#f9f7f3'}}>Copyright SocialSpending© 2023</Text>
 		<View style={styles.rightContainer}>
 			
 		</View>
@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
 	zIndex: 1,
     width: '100%',
     height: '4vh',
+	minHeight: '1.75em',
 	backgroundColor: '#00000066',
 	alignSelf: 'top',
 	justifyContent: 'space-between',
