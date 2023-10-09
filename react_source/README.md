@@ -12,13 +12,26 @@
 
  ## Running on XAMPP
  - Move all files from ./dist to XAMPP's htdocs directory
- - Make sure bundles folder is in the htdocs directory and not a subdirectory
- - Add the following code to .htaccess changing index.html as needed if files were placed in subdirectory
+ - Make sure everything is in the htdocs directory
+ - Add the following code to .htaccess changing index.html
 ```
 Options -MultiViews
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.html [QSA,L]
+```
+
+## Compiling for Dev
+ - Run the compile_dev.ps1 powershell file
+ - Move all files from ./dist to XAMPP's htdocs/dev/ directory
+ - Add the following code to .htaccess
+ - All react links should now go through /dev/
+
+```
+Options -MultiViews
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^dev.*$ /dev/index.html [QSA,L]
 ```
 
  ## Installing Expo and Expo Router:
