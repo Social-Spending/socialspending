@@ -1,12 +1,9 @@
--- database.sql
--- This is a copy of the SQL instructions used to create the tables of the social_spending database
-
 -- phpMyAdmin SQL Dump
 -- version 5.1.1deb5ubuntu1
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 29, 2023 at 02:22 PM
+-- Generation Time: Oct 09, 2023 at 03:54 PM
 -- Server version: 10.6.12-MariaDB-0ubuntu0.22.04.1
 -- PHP Version: 8.1.2-1ubuntu2.14
 
@@ -23,6 +20,30 @@ SET time_zone = "+00:00";
 --
 -- Database: `social_spending`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cookies`
+--
+
+CREATE TABLE `cookies` (
+  `session_id` int(11) NOT NULL,
+  `UID` int(11) DEFAULT NULL,
+  `expiration_date` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `debts`
+--
+
+CREATE TABLE `debts` (
+  `creditor_id` int(11) NOT NULL,
+  `debtor_id` int(11) NOT NULL,
+  `amount` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -130,18 +151,17 @@ CREATE TABLE `transaction_participants` (
   `transaction_id` int(11) NOT NULL,
   `UID` int(11) NOT NULL,
   `has_approved` tinyint(1) NOT NULL COMMENT 'Whether the specified user has approved this transaction',
-  `is_creditor` tinyint(1) NOT NULL COMMENT 'Whether the specified user is the creditor for this transaction. Each transaction can only have one creditor',
-  `amount` int(11) NOT NULL COMMENT 'The amount the specified user owes/is owed in this transaction'
+  `amount` int(11) NOT NULL COMMENT 'The amount the specified user owes/is owed in this transaction. If negative, the user is a creditor'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Links users to transactions';
 
 --
 -- Dumping data for table `transaction_participants`
 --
 
-INSERT INTO `transaction_participants` (`transaction_id`, `UID`, `has_approved`, `is_creditor`, `amount`) VALUES
-(1, 1, 0, 1, 20),
-(1, 2, 0, 0, 10),
-(1, 3, 1, 0, 10);
+INSERT INTO `transaction_participants` (`transaction_id`, `UID`, `has_approved`, `amount`) VALUES
+(1, 1, 0, 20),
+(1, 2, 0, 10),
+(1, 3, 1, 10);
 
 -- --------------------------------------------------------
 
@@ -153,6 +173,7 @@ CREATE TABLE `users` (
   `UID` int(11) NOT NULL COMMENT 'User ID',
   `email` text NOT NULL COMMENT 'User''s email',
   `username` text NOT NULL COMMENT 'User''s username',
+  `salt` text NOT NULL,
   `pass_hash` text NOT NULL COMMENT 'User''s password hash'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -160,14 +181,28 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`UID`, `email`, `username`, `pass_hash`) VALUES
-(1, 'Matthew Duphily', 'Roasted715Jr', 'pass'),
-(2, 'Matthew Frances', 'Soap_Ninja', 'pass'),
-(3, 'Nick Jones', 'Vanquisher', 'pass');
+INSERT INTO `users` (`UID`, `email`, `username`, `salt`, `pass_hash`) VALUES
+(1, 'Matthew Duphily', 'Roasted715Jr', '0', 'pass'),
+(2, 'Matthew Frances', 'Soap_Ninja', '0', 'pass'),
+(3, 'Nick Jones', 'Vanquisher', '0', 'pass');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `cookies`
+--
+ALTER TABLE `cookies`
+  ADD PRIMARY KEY (`session_id`),
+  ADD KEY `cookies_ibfk_1` (`UID`);
+
+--
+-- Indexes for table `debts`
+--
+ALTER TABLE `debts`
+  ADD KEY `creditor` (`creditor_id`),
+  ADD KEY `debtor` (`debtor_id`);
 
 --
 -- Indexes for table `friendships`
@@ -250,25 +285,38 @@ ALTER TABLE `users`
 --
 
 --
+-- Constraints for table `cookies`
+--
+ALTER TABLE `cookies`
+  ADD CONSTRAINT `cookies_ibfk_1` FOREIGN KEY (`UID`) REFERENCES `users` (`UID`) ON DELETE SET NULL ON UPDATE SET NULL;
+
+--
+-- Constraints for table `debts`
+--
+ALTER TABLE `debts`
+  ADD CONSTRAINT `debts_ibfk_1` FOREIGN KEY (`creditor_id`) REFERENCES `users` (`UID`),
+  ADD CONSTRAINT `debts_ibfk_2` FOREIGN KEY (`debtor_id`) REFERENCES `users` (`UID`);
+
+--
 -- Constraints for table `friendships`
 --
 ALTER TABLE `friendships`
-  ADD CONSTRAINT `friendships_ibfk_1` FOREIGN KEY (`UID_1`) REFERENCES `users` (`UID`),
-  ADD CONSTRAINT `friendships_ibfk_2` FOREIGN KEY (`UID_2`) REFERENCES `users` (`UID`);
+  ADD CONSTRAINT `friendships_ibfk_1` FOREIGN KEY (`UID_1`) REFERENCES `users` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `friendships_ibfk_2` FOREIGN KEY (`UID_2`) REFERENCES `users` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `group_members`
 --
 ALTER TABLE `group_members`
-  ADD CONSTRAINT `group_members_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`),
-  ADD CONSTRAINT `group_members_ibfk_2` FOREIGN KEY (`UID`) REFERENCES `users` (`UID`);
+  ADD CONSTRAINT `group_members_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `group_members_ibfk_2` FOREIGN KEY (`UID`) REFERENCES `users` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `group_transactions`
 --
 ALTER TABLE `group_transactions`
-  ADD CONSTRAINT `group_transactions_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`),
-  ADD CONSTRAINT `group_transactions_ibfk_2` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`transaction_id`);
+  ADD CONSTRAINT `group_transactions_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `group_transactions_ibfk_2` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`transaction_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `transaction_participants`

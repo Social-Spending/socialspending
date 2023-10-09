@@ -31,7 +31,7 @@ git clone git@github.com:francesmatthew/socialspending.git .
 
 If you get an error during cloning, you may need to run the following command
 
-```
+```bash
 git config --global --add safe.directory /opt/lampp/htdocs/
 ```
 
@@ -39,15 +39,27 @@ From the XAMPP GUI, under the 'Manage Servers' tab, select the 'Start All' butto
 
 ## Setting up the database
 
-Once all your servers have been started, goto `http://localhost/phpmyadmin/`
+Once all your servers have been started, go to [http://localhost/phpmyadmin/](http://localhost/phpmyadmin/).
 
-Run the SQL instructions included in `database.sql` to create the tables in the social_spending database.
+Create a new database named `social_spending`.
+Afterwards, on the top navigation bar click `Import` then browse your computer for the `database.sql` file.
+Next, in the top left of your screen, click the house icon. On the top bar, click the `User Accounts` button.
+Click `Add user account`, then fill out the `User name` and `Password` fields as desired.
+You may leave the other fields as-is.
 
-Create a username and password for the application to access your database, filling in the password of your choosing.
-Remember this password, as you will need it in the next step.
-```sql
-CREATE USER 'php'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
-GRANT INSERT, UPDATE, DELETE, SELECT ON `social_spending`.* TO 'php'@'localhost';
+After creating the user, go back to `User accounts` and click on the user you just created.
+Check the box next to `Global Privileges` then click `Go`.
+The user account is now set up to access and manipulate databases.
+
+To access databases from PHP scripts, first edit the file `/opt/lampp/etc/httpd.conf`.
+At the very end of the file, insert the following code
+
+```
+SetEnv DB_USER "<Username>"
+SetEnv DB_PASS "<Password>"
+SetEnv DB "social_spending"
 ```
 
-Finally, fill in the password created in the above command in `$databasePassword` (line 5) of `templates/connection.php`
+replacing `<Username>` and `<Password>` with the credentials you created the new user with.
+
+To access the database from a PHP script, refer to `templates/connecton.php`.
