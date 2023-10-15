@@ -5,16 +5,26 @@ include_once('templates/constants.php');
 // Must do cookie setting here, before any content is sent
 function createAndSetCookie()
 {
+    
+    global $COOKIE_EXPIRY_TIME, $mysqli;
+
     // create and set a cookie
     $sessionID = rand(0, ((2<<32) -1));
+    $sessionIDhash = hash('sha256', $sessionID);
 
     $domain = ($_SERVER['HTTP_HOST'] != 'localhost') ? $_SERVER['HTTP_HOST'] : false;
     $expiryDate = time()+$COOKIE_EXPIRY_TIME;
     setcookie('session_id', $sessionID, $expiryDate, '/', $domain, false);
 
+    $expiryDate = date("Y-m-d H:i:s", $expiryDate);
+
     // store cookie in database
-    $result = $mysqli->query('INSERT INTO `<cookies>` (`<session_id>`, `<expiry_date>`)'.
-                            ' VALUES (\'' . $sessionIDhash . '\', \'' . $expiryDate . '\');');
+    $sql = "INSERT INTO cookies (session_id, expiration_date)
+                         VALUES (? , ?)";
+
+    $result = $mysqli->execute_query($sql, [$sessionIDhash, $expiryDate]);
+
+
     // check that query was successful
     if (!$result)
     {
@@ -50,7 +60,10 @@ else
     // lookup cookie in database
     // output of sha256 will be 64-char string
     $sessionIDhash = hash('sha256', $sessionID);
-    $result = $mysqli->query('SELECT * FROM `<cookies>` WHERE `<session_id>`=\'' . $sessionIDhash . '\';');
+
+    $sql = "SELECT * FROM cookies WHERE session_id = ?";
+    $result = $mysqli->execute_query($sql, [$sessionIDhash]);
+
     // check that query was successful
     if (!$result)
     {
@@ -64,11 +77,15 @@ else
     {
         // check that cookie is not expired
         $row = $result->fetch_assoc();
-        if ($row['<expiryDate>'] < (time()+$COOKIE_EXPIRY_TIME))
+
+        if ($row['expiration_date'] < (time()+$COOKIE_EXPIRY_TIME))
         {
             // cookie has expired, delete and re-issue cookie
             // delete cookie from database
-            $result = $mysqli->query('DELETE FROM `<cookies>` WHERE `<session_id>`=\'' . $sessionIDhash . '\';');
+
+            $sql = "DELETE FROM cookies WHERE session_id = ?";
+            $result = $mysqli->execute_query($sql, [$sessionIDhash]);
+
             // check that query was successful
             if (!$result)
             {

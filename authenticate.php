@@ -17,7 +17,7 @@ $sessionIDhash = hash('sha256', $sessionID);
 
 // check that cookie is actually present in database
 // lookup cookie
-$result = $mysqli->query('SELECT * FROM `<cookies>` WHERE `<session_id>`=\'' . $sessionIDhash . '\';');
+$result = $mysqli->query('SELECT * FROM `cookies` WHERE `session_id`=\'' . $sessionIDhash . '\';');
 // check that query was successful
 if (!$result)
 {
@@ -35,7 +35,7 @@ if ($result->num_rows != 1)
 }
 // check that cookie is not expired
 $row = $result->fetch_assoc();
-if ($row['<expiryDate>'] < (time()+$COOKIE_EXPIRY_TIME))
+if ($row['expiration_date'] < (time()+$COOKIE_EXPIRY_TIME))
 {
     print('session_id cookie has expired');
     http_response_code(403);
@@ -48,7 +48,10 @@ $user = $_POST['user'];
 $password = $_POST['password'];
 
 // lookup user by username or by email
-$result = $mysqli->query('SELECT * FROM `<users>` WHERE `<username>`=\'' . $user . '\' OR `<email>`=\'' . $user . '\';');
+$sql = "SELECT * FROM users     WHERE username = ? 
+                                OR  email = ?";
+
+$result = $mysqli->execute_query($sql, [$user, $user]);
 // check that query was successful
 if (!$result)
 {
@@ -62,15 +65,16 @@ if (!$result)
 if ($result->num_rows == 1)
 {
     $row = $result->fetch_assoc();
-    $passwordHash = $row['pass'];
+    $passwordHash = $row['pass_hash'];
     $uid = $row['uid'];
     // check password
     if (password_verify($password, $passwordHash))
     {
         // authentication success
         // associate this cookie with UID
-        $result = $mysqli->query('UPDATE `<cookies>` SET `uid`=\'' . $uid .
-                                '\' WHERE `sessionID`=\'' . $sessionIDhash . '\';');
+        $sql = "UPDATE cookies SET uid = ? WHERE session_id = ?";
+
+        $result = $mysqli->execute_query($sql, [$uid, $session_id]);
         // check status of query
         if (!$result)
         {

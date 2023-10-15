@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1deb5ubuntu1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Oct 09, 2023 at 03:54 PM
--- Server version: 10.6.12-MariaDB-0ubuntu0.22.04.1
--- PHP Version: 8.1.2-1ubuntu2.14
+-- Host: 127.0.0.1
+-- Generation Time: Oct 16, 2023 at 01:44 AM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,10 +28,15 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `cookies` (
-  `session_id` int(11) NOT NULL,
-  `UID` int(11) DEFAULT NULL,
-  `expiration_date` date NOT NULL
+  `session_id` char(64) NOT NULL,
+  `uid` int(11) DEFAULT NULL,
+  `expiration_date` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `cookies`
+--
+
 
 -- --------------------------------------------------------
 
@@ -170,7 +175,7 @@ INSERT INTO `transaction_participants` (`transaction_id`, `UID`, `has_approved`,
 --
 
 CREATE TABLE `users` (
-  `UID` int(11) NOT NULL COMMENT 'User ID',
+  `uid` int(11) NOT NULL COMMENT 'User ID',
   `email` text NOT NULL COMMENT 'User''s email',
   `username` text NOT NULL COMMENT 'User''s username',
   `salt` text NOT NULL,
@@ -181,7 +186,7 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`UID`, `email`, `username`, `salt`, `pass_hash`) VALUES
+INSERT INTO `users` (`uid`, `email`, `username`, `salt`, `pass_hash`) VALUES
 (1, 'Matthew Duphily', 'Roasted715Jr', '0', 'pass'),
 (2, 'Matthew Frances', 'Soap_Ninja', '0', 'pass'),
 (3, 'Nick Jones', 'Vanquisher', '0', 'pass');
@@ -195,7 +200,7 @@ INSERT INTO `users` (`UID`, `email`, `username`, `salt`, `pass_hash`) VALUES
 --
 ALTER TABLE `cookies`
   ADD PRIMARY KEY (`session_id`),
-  ADD KEY `cookies_ibfk_1` (`UID`);
+  ADD KEY `cookies_ibfk_1` (`uid`);
 
 --
 -- Indexes for table `debts`
@@ -248,7 +253,7 @@ ALTER TABLE `transaction_participants`
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`UID`),
+  ADD PRIMARY KEY (`uid`),
   ADD UNIQUE KEY `username` (`username`) USING HASH,
   ADD UNIQUE KEY `email` (`email`) USING HASH;
 
@@ -278,7 +283,7 @@ ALTER TABLE `transaction_participants`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `UID` int(11) NOT NULL AUTO_INCREMENT COMMENT 'User ID', AUTO_INCREMENT=4;
+  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT COMMENT 'User ID', AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
