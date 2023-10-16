@@ -14,7 +14,7 @@ function createAndSetSessionID($uid)
     $sessionID = rand(0, ((2<<32) -1));
     $sessionIDhash = hash('sha256', $sessionID);
 
-    $expiryDate = time()+$COOKIE_EXPIRY_TIME;
+    $expiryDate = time() + COOKIE_EXPIRY_TIME;
     $formattedExpiryDate = date("Y-m-d H:i:s", $expiryDate);
 
     // store cookie in database
@@ -28,7 +28,16 @@ function createAndSetSessionID($uid)
     {
         // set cookie on client
         $domain = ($_SERVER['HTTP_HOST'] != 'localhost') ? $_SERVER['HTTP_HOST'] : false;
-        setcookie('session_id', $sessionID, $expiryDate, '/', $domain, false);
+		$cookie_options = array(
+			'expires' 	=> $expiryDate,
+			'path' 		=> '/',
+			'domain' 	=> $domain,
+			'secure' 	=> false,
+			'httponly' 	=> false,
+			'samesite' 	=> 'Strict' // None || Lax || Strict
+			);
+
+		setcookie('session_id', $sessionID, $cookie_options);
         // update global var for rest of program
         $_COOKIE['session_id'] = $sessionID;
         return 0;
@@ -37,16 +46,19 @@ function createAndSetSessionID($uid)
     return 1;
 }
 
+// global var containing information about errors encountered in validateSessionID
+$_VALIDATE_COOKIE_ERRORNO = 0;
+// _VALIDATE_COOKIE_ERRORNO may take on the following values:
+const SESSION_ID_INVALID    = 1; // session_id cookie was not set, is expired, or is not in database
+const INTERNAL_SERVER_ERROR = 2; // database error
+
+
 // check if the session_ID cookie is valid
-// Return 0 if cookie is valid and tied to a user
-// Return 1 if cookies is invalid (cookie not set, is expired, or session_id not in database)
-// Return 2 if internal server error
-const SESSION_ID_VALID      = 0;
-const SESSION_ID_INVALID    = 1;
-const INTERNAL_SERVER_ERROR = 2;
+// Returns the user ID corresponding to the provided session_id cookie
+// If there is an error, return 0 and set $_VALIDATE_COOKIE_ERRORNO
 function validateSessionID()
 {
-    global $COOKIE_EXPIRY_TIME, $mysqli;
+    global $_VALIDATE_COOKIE_ERRORNO, $mysqli;
 
     // session id cookie must be set in request
     if (array_key_exists('session_id', $_COOKIE))
@@ -64,7 +76,8 @@ function validateSessionID()
         if (!$result)
         {
             // query failed, internal server error
-            return INTERNAL_SERVER_ERROR;
+            $_VALIDATE_COOKIE_ERRORNO = INTERNAL_SERVER_ERROR;
+            return 0;
         }
         // check that result length is non-zero
         if ($result->num_rows == 1)
@@ -72,7 +85,7 @@ function validateSessionID()
             // check that cookie is not expired
             $row = $result->fetch_assoc();
 
-            if ($row['expiration_date'] < (time()+$COOKIE_EXPIRY_TIME))
+            if ($row['expiration_date'] < (time()+COOKIE_EXPIRY_TIME))
             {
                 // cookie has expired
                 // delete cookie from database
@@ -84,21 +97,24 @@ function validateSessionID()
                 if (!$result)
                 {
                     // query failed, internal server error
-                    return INTERNAL_SERVER_ERROR;
+                    $_VALIDATE_COOKIE_ERRORNO = INTERNAL_SERVER_ERROR;
+                    return 0;
                 }
                 // cookie is still expired
-                return SESSION_ID_INVALID;
+                $_VALIDATE_COOKIE_ERRORNO = SESSION_ID_INVALID;
+                return 0;
             }
 
             // cookie not expired
             // check if this cookie is tied to a user
             elseif ($row['uid'] != '')
             {
-                return SESSION_ID_VALID;
+                return $row['uid'];
             }
         }
     }
-    return SESSION_ID_INVALID;
+    $_VALIDATE_COOKIE_ERRORNO = SESSION_ID_INVALID;
+    return 0;
 }
 
 ?>
