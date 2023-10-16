@@ -31,7 +31,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `cookies` (
   `session_id` char(64) NOT NULL,
-  `uid` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `expiration_date` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -59,15 +59,15 @@ CREATE TABLE `debts` (
 --
 
 CREATE TABLE `friendships` (
-  `UID_1` int(11) NOT NULL,
-  `UID_2` int(11) NOT NULL
+  `user_id_1` int(11) NOT NULL,
+  `user_id_2` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `friendships`
 --
 
-INSERT INTO `friendships` (`UID_1`, `UID_2`) VALUES
+INSERT INTO `friendships` (`user_id_1`, `user_id_2`) VALUES
 (1, 2),
 (1, 3),
 (2, 3);
@@ -98,14 +98,14 @@ INSERT INTO `groups` (`group_id`, `group_name`) VALUES
 
 CREATE TABLE `group_members` (
   `group_id` int(11) NOT NULL,
-  `UID` int(11) NOT NULL
+  `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Links groups and users that are a member of that group';
 
 --
 -- Dumping data for table `group_members`
 --
 
-INSERT INTO `group_members` (`group_id`, `UID`) VALUES
+INSERT INTO `group_members` (`group_id`, `user_id`) VALUES
 (1, 1),
 (1, 2),
 (1, 3);
@@ -156,7 +156,7 @@ INSERT INTO `transactions` (`transaction_id`, `name`, `date`, `description`) VAL
 
 CREATE TABLE `transaction_participants` (
   `transaction_id` int(11) NOT NULL,
-  `UID` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `has_approved` tinyint(1) NOT NULL COMMENT 'Whether the specified user has approved this transaction',
   `amount` int(11) NOT NULL COMMENT 'The amount the specified user owes/is owed in this transaction. If negative, the user is a creditor'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Links users to transactions';
@@ -165,7 +165,7 @@ CREATE TABLE `transaction_participants` (
 -- Dumping data for table `transaction_participants`
 --
 
-INSERT INTO `transaction_participants` (`transaction_id`, `UID`, `has_approved`, `amount`) VALUES
+INSERT INTO `transaction_participants` (`transaction_id`, `user_id`, `has_approved`, `amount`) VALUES
 (1, 1, 0, 20),
 (1, 2, 0, 10),
 (1, 3, 1, 10);
@@ -177,7 +177,7 @@ INSERT INTO `transaction_participants` (`transaction_id`, `UID`, `has_approved`,
 --
 
 CREATE TABLE `users` (
-  `uid` int(11) NOT NULL COMMENT 'User ID',
+  `user_id` int(11) NOT NULL COMMENT 'User ID',
   `email` text NOT NULL COMMENT 'User''s email',
   `username` text NOT NULL COMMENT 'User''s username',
   `pass_hash` char(255) NOT NULL COMMENT 'User''s password hash'
@@ -188,7 +188,7 @@ CREATE TABLE `users` (
 -- All users have default password of 'password'
 --
 
-INSERT INTO `users` (`uid`, `email`, `username`, `pass_hash`) VALUES
+INSERT INTO `users` (`user_id`, `email`, `username`, `pass_hash`) VALUES
 (1, 'Matthew Duphily', 'Roasted715Jr', '$2y$10$FUpW8V.MqjWJj.AK6hJvKePdO/fwHYoxPoBhoTRBDFiUAbK5DEdY.'),
 (2, 'Matthew Frances', 'Soap_Ninja', '$2y$10$Ox1lpVPL2uQHy5V0QANdEOHsVW.eIPPrh2TYUr5LxjBc.yb2oiw.u'),
 (3, 'Nick Jones', 'Vanquisher', '$2y$10$OWU6zV8dDl8euugC7nK0SObp.cCZfdjyqPMMnPDEhFJtEX1cC2H9u');
@@ -202,7 +202,7 @@ INSERT INTO `users` (`uid`, `email`, `username`, `pass_hash`) VALUES
 --
 ALTER TABLE `cookies`
   ADD PRIMARY KEY (`session_id`),
-  ADD KEY `cookies_ibfk_1` (`uid`);
+  ADD KEY `cookies_ibfk_1` (`user_id`);
 
 --
 -- Indexes for table `debts`
@@ -215,8 +215,8 @@ ALTER TABLE `debts`
 -- Indexes for table `friendships`
 --
 ALTER TABLE `friendships`
-  ADD KEY `UID_1` (`UID_1`),
-  ADD KEY `UID_2` (`UID_2`);
+  ADD KEY `user_id_1` (`user_id_1`),
+  ADD KEY `user_id_2` (`user_id_2`);
 
 --
 -- Indexes for table `groups`
@@ -228,7 +228,7 @@ ALTER TABLE `groups`
 -- Indexes for table `group_members`
 --
 ALTER TABLE `group_members`
-  ADD UNIQUE KEY `UID` (`UID`),
+  ADD UNIQUE KEY `user_id` (`user_id`),
   ADD KEY `group_id` (`group_id`) USING BTREE;
 
 --
@@ -248,14 +248,14 @@ ALTER TABLE `transactions`
 -- Indexes for table `transaction_participants`
 --
 ALTER TABLE `transaction_participants`
-  ADD KEY `UID` (`UID`),
+  ADD KEY `user_id` (`user_id`),
   ADD KEY `transaction_id` (`transaction_id`);
 
 --
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`uid`),
+  ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `username` (`username`) USING HASH,
   ADD UNIQUE KEY `email` (`email`) USING HASH;
 
@@ -285,7 +285,7 @@ ALTER TABLE `transaction_participants`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT COMMENT 'User ID', AUTO_INCREMENT=4;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'User ID', AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
@@ -295,28 +295,28 @@ ALTER TABLE `users`
 -- Constraints for table `cookies`
 --
 ALTER TABLE `cookies`
-  ADD CONSTRAINT `cookies_ibfk_1` FOREIGN KEY (`UID`) REFERENCES `users` (`UID`) ON DELETE SET NULL ON UPDATE SET NULL;
+  ADD CONSTRAINT `cookies_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE SET NULL;
 
 --
 -- Constraints for table `debts`
 --
 ALTER TABLE `debts`
-  ADD CONSTRAINT `debts_ibfk_1` FOREIGN KEY (`creditor_id`) REFERENCES `users` (`UID`),
-  ADD CONSTRAINT `debts_ibfk_2` FOREIGN KEY (`debtor_id`) REFERENCES `users` (`UID`);
+  ADD CONSTRAINT `debts_ibfk_1` FOREIGN KEY (`creditor_id`) REFERENCES `users` (`user_id`),
+  ADD CONSTRAINT `debts_ibfk_2` FOREIGN KEY (`debtor_id`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `friendships`
 --
 ALTER TABLE `friendships`
-  ADD CONSTRAINT `friendships_ibfk_1` FOREIGN KEY (`UID_1`) REFERENCES `users` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `friendships_ibfk_2` FOREIGN KEY (`UID_2`) REFERENCES `users` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `friendships_ibfk_1` FOREIGN KEY (`user_id_1`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `friendships_ibfk_2` FOREIGN KEY (`user_id_2`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `group_members`
 --
 ALTER TABLE `group_members`
   ADD CONSTRAINT `group_members_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `group_members_ibfk_2` FOREIGN KEY (`UID`) REFERENCES `users` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `group_members_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `group_transactions`
@@ -330,7 +330,7 @@ ALTER TABLE `group_transactions`
 --
 ALTER TABLE `transaction_participants`
   ADD CONSTRAINT `transaction_participants_ibfk_1` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`transaction_id`),
-  ADD CONSTRAINT `transaction_participants_ibfk_2` FOREIGN KEY (`UID`) REFERENCES `users` (`UID`);
+  ADD CONSTRAINT `transaction_participants_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
