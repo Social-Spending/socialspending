@@ -10,9 +10,11 @@ export function HeaderText(props) {
 
 export function HeaderLink(props) {
 
+
+
   return (
-	<Link style={props.style} href={props.href} asChild>
-		<Text style={pickStyle(props.size)}>{props.children}</Text>
+	<Link style={[pickStyle(props.size), props.style]} href={props.href} >
+		{props.children}
 	</Link>
   );
 }
@@ -43,38 +45,32 @@ function pickStyle(styleId){
 
 
 const styles = StyleSheet.create({
-  h1:{
-	  
+  h1:{  
 	  padding: '1em',
 	  fontSize: '2em',
 	  fontWeight: 'bolder'
   },
-  h2:{
-	  
+  h2:{	  
 	  padding: '.75em',
 	  fontSize: '1.5em',
 	  fontWeight: 'bolder'
   },
   h3:{
-	  
 	  padding: '.566em',
 	  fontSize: '1.17em',
 	  fontWeight: 'bolder'
   },
   h4:{
-	  
 	  padding: '.5em',
 	  fontSize: '1em',
 	  fontWeight: 'bolder'
   },
   h5:{
-	  
 	  padding: '.416em',
 	  fontSize: '.83em',
 	  fontWeight: 'bolder'
   },
   h6:{
-	  
 	  padding: '.33em',
 	  fontSize: '.67em',
 	  fontWeight: 'bolder'

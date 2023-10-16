@@ -1,13 +1,16 @@
 
 import { StyleSheet, Text, View } from 'react-native';
 
-
+import Base from '../components/Base.js';
+import Groups from '../components/Groups.js';
 
 export default function Page() {
 	
 	
   return (
-		<Text>Test</Text>
+	<Base style={styles.container}>
+		<Groups />
+	</Base>
   );
 }
 
