@@ -1,3 +1,5 @@
+-- SQL to setup the social_spending database
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
@@ -178,18 +180,18 @@ CREATE TABLE `users` (
   `uid` int(11) NOT NULL COMMENT 'User ID',
   `email` text NOT NULL COMMENT 'User''s email',
   `username` text NOT NULL COMMENT 'User''s username',
-  `salt` text NOT NULL,
-  `pass_hash` text NOT NULL COMMENT 'User''s password hash'
+  `pass_hash` char(255) NOT NULL COMMENT 'User''s password hash'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
+-- All users have default password of 'password'
 --
 
-INSERT INTO `users` (`uid`, `email`, `username`, `salt`, `pass_hash`) VALUES
-(1, 'Matthew Duphily', 'Roasted715Jr', '0', 'pass'),
-(2, 'Matthew Frances', 'Soap_Ninja', '0', 'pass'),
-(3, 'Nick Jones', 'Vanquisher', '0', 'pass');
+INSERT INTO `users` (`uid`, `email`, `username`, `pass_hash`) VALUES
+(1, 'Matthew Duphily', 'Roasted715Jr', '$2y$10$FUpW8V.MqjWJj.AK6hJvKePdO/fwHYoxPoBhoTRBDFiUAbK5DEdY.'),
+(2, 'Matthew Frances', 'Soap_Ninja', '$2y$10$Ox1lpVPL2uQHy5V0QANdEOHsVW.eIPPrh2TYUr5LxjBc.yb2oiw.u'),
+(3, 'Nick Jones', 'Vanquisher', '$2y$10$OWU6zV8dDl8euugC7nK0SObp.cCZfdjyqPMMnPDEhFJtEX1cC2H9u');
 
 --
 -- Indexes for dumped tables

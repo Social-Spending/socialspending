@@ -51,6 +51,12 @@ After creating the user, go back to `User accounts` and click on the user you ju
 Check the box next to `Global Privileges` then click `Go`.
 The user account is now set up to access and manipulate databases.
 
+Alternatively, use the following SQL to create the user, replacing `<username>` and `<password>` with values of your choosing:
+```sql
+CREATE USER '<username>'@'localhost' IDENTIFIED BY '<password>';
+GRANT INSERT, UPDATE, DELETE, SELECT ON school.* TO '<username>'@'localhost';
+```
+
 To access databases from PHP scripts, first edit the file `/opt/lampp/etc/httpd.conf`.
 At the very end of the file, insert the following code
 
