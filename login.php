@@ -35,7 +35,6 @@
 */
 
 include_once('templates/connection.php');
-include_once('templates/redirect.php');
 include_once('templates/cookies.php');
 
 // print a message encoded in JSON, set header status code, and exit
@@ -115,7 +114,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
                 handleDBError();
             }
             // cookie created successfully
-            // redirect to homepage
             returnMessage('Success', 200);
         }
     }
