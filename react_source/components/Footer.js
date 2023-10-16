@@ -27,12 +27,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '4vh',
 	minHeight: '1.75em',
-	backgroundColor: '#00000066',
+	backgroundColor: '#00000099',
 	alignSelf: 'top',
 	justifyContent: 'space-between',
 	alignItems: 'center',
 	flexDirection: 'row',
-	opacity: .7
+	opacity: .8
   },
   leftContainer: {
 	  flex:1,

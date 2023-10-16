@@ -106,7 +106,7 @@ async function Submit(){
         {
             // success, redirect user
             // check if this url specifies a url to which to redirect
-			let redirectTarget = '/login';
+			let redirectTarget = "/login";
             window.location.href = window.location.origin + redirectTarget;
         }
         else
@@ -128,11 +128,10 @@ async function Submit(){
 const styles = StyleSheet.create({
   login:{
 	  width:'50vh',
+	  minWidth: '27em',
 	  height: '70vh',
-	  minWidth: '26em',
+	  minHeight: '39em',
 	  backgroundColor: '#FFF',
-	  
-	  minHeight: '37em',
 	  boxShadow: '0px 0px 5px 5px #eee',
 	  borderRadius: 18,
 	  justifyContent: 'center',
@@ -171,7 +170,7 @@ const styles = StyleSheet.create({
 	  paddingTop: '2em',
 	  color: '#f7a072',
 	  paddingBottom: '.5em',
-	  alignSelf: 'flex-end',
+	  alignSelf: 'flex-end'
 	  },
   checkbox:{
 	  marginTop: '.75em',

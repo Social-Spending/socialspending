@@ -34,5 +34,4 @@ yarn-error.*
 
 # do not add artifacts of compiling the react
 dist/
-package.json
 package-lock.json

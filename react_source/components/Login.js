@@ -79,7 +79,7 @@ async function Submit(){
         {
             // success, redirect user
             // check if this url specifies a url to which to redirect
-            let redirectTarget = '/summary';
+            let redirectTarget = "/summary";
             window.location.href = window.location.origin + redirectTarget;
         }
         else
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
 	  paddingTop: '2em',
 	  color: '#f7a072',
 	  paddingBottom: '.5em',
-	  alignSelf: 'flex-end',
+	  alignSelf: 'flex-end'
 	  },
   checkbox:{
 	  marginTop: '.75em',
