@@ -9,56 +9,67 @@ import { HeaderLink, HeaderText } from './TextComponents.js'
 const Logo = require('../assets/images/LogoLong.png');
 
 export default function Login() {
-		
+
+	// make a quick GET request to login.php to check if the user's cookies are already authenticated
+	// assemble endpoint for authentication
+	let url = window.location.origin + '/login.php';
+	fetch(url, {credentials: 'same-origin'} ).then((response) => {
+		if (response.status == 200)
+		{
+			// redirect
+			window.location.href = window.location.origin + '/summary';
+		}
+	});
+
   return (
-  
+
     <View style={styles.login}>
-	
-		
+
+
 		<Image source={Logo}  style={styles.logo}/>
-		
-		
+
+
 		<HeaderText size={2} style={[styles.label, {paddingTop: 0}]}>Welcome</HeaderText>
 		<Text style={styles.text}>Please sign-in to your account below</Text>
-	
+
 		<Text id= 'loginForm_errorMessage' style={styles.error}></Text>
-	
+
 		<View style={styles.labelContainer}>
 			<HeaderText size={5} style={styles.label}>EMAIL OR USERNAME</HeaderText>
 		</View>
-		
+
         <input placeholder=" Enter your email or username" style={styles.input} id='loginForm_user' name="Username" />
-		
+
 		<View style={styles.labelContainer}>
 			<View style={{flexDirection: 'row', justifyContent: 'flex-start',width:'50%'}}>
 				<HeaderText size={5} style={styles.label}>PASSWORD</HeaderText>
 			</View>
-			
+
 			<View style={{flexDirection: 'row', justifyContent: 'flex-end',width:'50%'}}>
 			<HeaderLink href="/forgot" size={5} style={styles.forgot}>Forgot Password?</HeaderLink>
 			</View>
 		</View>
         <input placeholder=" Password" style={styles.input}  id='loginForm_password' type='password' name="Password" />
-		
+
 		<View style={[styles.labelContainer, {width:'78%'}]}>
 			<input type="checkbox" style={styles.checkbox} id="loginForm_remember"/>
 			<Text style={[styles.text, {marginTop:'.6em'}]}> Remember Me?</Text>
 		</View>
-		
+
 		<Button style={styles.buttonContainer} label='Login' onClick={Submit} />
-		
+
 		<View style={{flexDirection: 'row', justifyContent: 'flex-start', paddingTop: '2em'}}>
 			<Text style={styles.text}>New to our platform? </Text>
 			<Link href="/signup" style={[styles.text, {color: '#f7a072'}]}>Create an Account</Link>
 		</View>
-			
+
 	</View>
   );
 }
 
 async function Submit(){
 
-	
+
 	let userTextbox = document.getElementById('loginForm_user');
     let passwordTextbox = document.getElementById('loginForm_password');
 
@@ -75,25 +86,23 @@ async function Submit(){
     {
         let response = await fetch(url, {method: 'POST', body: payload, credentials: 'same-origin'} );
 
-        if (response.ok && response.status === 200 && response.type != 'error')
-        {
-            // success, redirect user
-            // check if this url specifies a url to which to redirect
-            let redirectTarget = "/summary";
-            window.location.href = window.location.origin + redirectTarget;
-        }
-        else
+        if (response.status == 200)
+		{
+			// redirect
+			window.location.href = window.location.origin + '/summary';
+		}
+		else
         {
             // failed, display error message returned by server
             let errorDiv = document.getElementById('loginForm_errorMessage');
-			errorDiv.innerText = "Invalid Username or Password";
-            errorDiv.innerText = await response.text();
+			let responseJSON = await response.json();
+			errorDiv.innerText = responseJSON['message'];
             errorDiv.classList.remove('hidden');
         }
     }
     catch (error)
     {
-        console.log("error in in POST request to login (/authenticate.php)");
+        console.log("error in in POST request to login (/login.php)");
         console.log(error);
     }
 }
@@ -137,7 +146,7 @@ const styles = StyleSheet.create({
 	  paddingTop: '2em',
 	  paddingBottom: '.5em',
 	  color: '#777',
-	  
+
   },
   forgot:{
 	  paddingTop: '2em',
@@ -167,5 +176,5 @@ const styles = StyleSheet.create({
 	borderRadius: 4,
 	boxShadow: '3px 3px 3px #aaa',
   },
-  
+
 });
