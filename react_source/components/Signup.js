@@ -102,7 +102,7 @@ async function Submit(){
     {
         let response = await fetch(url, {method: 'POST', body: payload, credentials: 'same-origin'} );
 
-        if (response.ok && response.status === 200 && response.type != 'error')
+        if (await response.ok && await response.status === 200 && await response.type != 'error')
         {
             // success, redirect user
             // check if this url specifies a url to which to redirect

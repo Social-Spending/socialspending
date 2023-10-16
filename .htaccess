@@ -8,4 +8,4 @@ RedirectMatch 404 database.sql
 Options -MultiViews
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^dev.*$ /dev/index.html [QSA,L]
+RewriteRule ^ index.html [QSA,L]

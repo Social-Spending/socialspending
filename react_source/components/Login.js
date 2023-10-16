@@ -68,7 +68,7 @@ async function Submit(){
     payload.append('password', passwordTextbox.value);
 
     // assemble endpoint for authentication
-    let url = window.location.origin + '/authenticate.php';
+    let url = window.location.origin + '/login.php';
 
     // do the POST request
     try
