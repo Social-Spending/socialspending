@@ -1,5 +1,6 @@
 <?php
 include_once('templates/connection.php');
+include_once('templates/cookies.php');
 
 /*
 Transactions PHP Endpoint
@@ -14,7 +15,7 @@ Transactions PHP Endpoint
                         deleteTransaction($json_obj)
 
     Helper Functions:   encapsulateTransactionData($row)
-                        verifyTransactionData($json_obj)
+                        validateTransactionData($json_obj)
 
 
     Notes:
@@ -128,7 +129,7 @@ Returns all transactions associated with a given user
 */
 function getTransactions($uid)
 {   
-    global $mysqli;
+    global $mysqli, $_COOKIE;
 
     //Retrieves all information about transactions that $uid particpated in
     $sql = "SELECT  transaction_participants.uid AS uid,
