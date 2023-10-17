@@ -6,7 +6,7 @@
         - Response:
             - Status Codes:
                 - 200 if session_id cookie is authenticated
-                - 403 if session_id cookie is not set, or is set but not valid
+                - 401 if session_id cookie is not set, or is set but not valid
                 - 500 if the database could not be reached
             - Content-Type:application/json
             - body: serialized JSON in the following format
@@ -23,7 +23,7 @@
         - Response:
             - Status Codes:
                 - 200 if authentication is successful
-                - 403 if provided credentials are invalid
+                - 401 if provided credentials are invalid
                 - 400 if form data is not present
                 - 500 if the database could not be reached
             - Content-Type:application/json
@@ -36,23 +36,7 @@
 
 include_once('templates/connection.php');
 include_once('templates/cookies.php');
-
-// print a message encoded in JSON, set header status code, and exit
-function returnMessage($msg, $status)
-{
-    $resultJSON = array();
-    $resultJSON['message'] = $msg;
-    header('Content-Type: application/json');
-    http_response_code($status);
-    print(json_encode($resultJSON));
-    exit(0);
-
-}
-
-function handleDBError()
-{
-    returnMessage('Unable to contact database', 500);
-}
+include_once('templates/jsonMessage.php');
 
 // if the user's current cookie corresponds to an account, log them in
 if (validateSessionID())
@@ -71,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
 {
     // the cookie was checked in code above
     // GET has no meaning beyond this
-    returnMessage('Invalid session_id cookie or cookie not present', 403);
+    returnMessage('Invalid session_id cookie or cookie not present', 401);
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
@@ -119,8 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     }
 
     // user not found of passwords dont match
-    // return status code 403 and print error message
-    returnMessage('Invalid username and/or password', 403);
+    // return status code 401 and print error message
+    returnMessage('Invalid username and/or password', 401);
 }
 
 returnMessage('Unsupported HTTP Request type', 400);
