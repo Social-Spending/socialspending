@@ -1,3 +1,31 @@
+/*
+ *  Functions:
+ *      checkEmail: Checks value of email field and prevents user from submitting if not a valid email
+ *          @param: emailRef - reference to email field
+ *          @param: errorRef - reference to error text field to output error text
+ *          @return: boolean - validity of email
+ *          
+ *      checkPassword: Checks value of password field and prevents user from submitting if not equal to verify password field
+ *          @param: passwordRef - reference to password field
+ *          @param: verifyRef   - reference to verify password field
+ *          @param: errorRef    - reference to error text field to output error text
+ *          @return: boolean    - validity of password
+ *          
+ *      checkUsername: Checks value of username field and prevents user from submitting if too short
+ *          @param: userRef     - reference to username field
+ *          @param: errorRef    - reference to error text field to print error text to
+ *          @return: boolean    - validity of username
+ *          
+ *      Submit: Creates a post request to /signup.php containing values of email, username, and password fields.
+ *          @param: userRef     - reference to username field
+ *          @param: emailRef    - reference to email field
+ *          @param: passwordRef - reference to password field
+ *          @param: errorRef    - reference to error text field to print error text to
+ *          
+*/
+
+
+
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState, useRef } from 'react';
 import { Link, router } from "expo-router";
@@ -129,7 +157,7 @@ async function Submit(userRef, emailRef, passwordRef, errorRef) {
     try {
         let response = await fetch("/signup.php", { method: 'POST', body: payload, credentials: 'same-origin' });
 
-        if (response.status === 200) {
+        if (response.ok) {
             // success, redirect user
             // check if this url specifies a url to which to redirect
             router.replace("/login");

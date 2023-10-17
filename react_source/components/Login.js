@@ -1,3 +1,13 @@
+/*
+ *  Functions:
+ *      Submit: Creates a post request to /login.php containing values of username, and password fields.
+ *          @param: userRef     - reference to username field
+ *          @param: passwordRef - reference to password field
+ *          @param: errorRef    - reference to error text field to print error text to
+ *          
+*/
+
+
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { Link, router } from "expo-router";
 import { useRef } from 'react';
@@ -72,7 +82,7 @@ async function Submit(userRef, passwordRef, errorRef) {
     try {
         let response = await fetch("/login.php", { method: 'POST', body: payload, credentials: 'same-origin' });
 
-        if (response.status == 200) {
+        if (response.ok) {
             // redirect
             router.replace("/summary");
         }
