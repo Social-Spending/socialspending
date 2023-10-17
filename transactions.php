@@ -16,6 +16,7 @@ Transactions PHP Endpoint
 
     Helper Functions:   encapsulateTransactionData($row)
                         validateTransactionData($json_obj)
+                        checkParticipantsForUser($array, $user_id)
 
 
     Notes:
@@ -23,8 +24,7 @@ Transactions PHP Endpoint
         In the current state, this DOES NOT integrate with the debt computation
         mechanisms. JSON objects could use some better notation for follow-on usage.
 
-        Includes some error checking, but is not safe against malicious usage. There
-        is no permission checking, any request can modify anything.
+        Includes some error checking, but is not safe against malicious usage.
 
     TODO:
 
@@ -128,9 +128,9 @@ function getTransactions($user_id)
 {   
     global $mysqli;
 
-    $passed_user_id = validateSessionID();
+    $passed_user_id = intval(validateSessionID());
 
-    if ($passed_user_id === 0 || $passed_user_id !== $user_id) 
+    if ($passed_user_id === 0 || $passed_user_id !== intval($user_id)) 
     {
         // Forbidden, bad cookie
         http_response_code(401);
@@ -179,7 +179,7 @@ function getTransaction($transaction_id) {
 
     global $mysqli;
 
-    $passed_user_id = validateSessionID();
+    $passed_user_id = intval(validateSessionID());
 
     if ($passed_user_id === 0) 
     {
@@ -230,7 +230,7 @@ function checkParticipantsForUser($array, $user_id)
 
     foreach($array['transaction_participants'] as $participant)
     {
-        if ($participant['user_id'] === $user_id) {
+        if (intval($participant['user_id']) === $user_id) {
             return true;
         }
     }
@@ -312,7 +312,7 @@ function addNewTransaction($data)
 
     // At this point, we can assume that JSON data is valid
 
-    $passed_user_id = validateSessionID();
+    $passed_user_id = intval(validateSessionID());
 
     // Unathorized, no user_id associated with cookie OR
     // User attempted to access transaction they are not a part of
@@ -388,7 +388,7 @@ function updateExistingTransaction($data)
         return;
     }
 
-    $passed_user_id = validateSessionID();
+    $passed_user_id = intval(validateSessionID());
 
     // Unathorized, no user_id associated with cookie OR
     // User attempted to access transaction they are not a part of
@@ -493,7 +493,7 @@ function deleteTransaction($transaction_id)
     $data['transaction_participants'] = $transaction_participants;
 
 
-    $passed_user_id = validateSessionID();
+    $passed_user_id = intval(validateSessionID());
 
     // Unathorized, no user_id associated with cookie OR
     // User attempted to delete transaction they are not a part of
