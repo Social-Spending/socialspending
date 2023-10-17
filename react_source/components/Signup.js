@@ -102,19 +102,18 @@ async function Submit(){
     {
         let response = await fetch(url, {method: 'POST', body: payload, credentials: 'same-origin'} );
 
-        if (await response.ok && await response.status === 200 && await response.type != 'error')
+        if (response.ok)
         {
             // success, redirect user
-            // check if this url specifies a url to which to redirect
-			let redirectTarget = "/login";
+			let redirectTarget = "/summary";
             window.location.href = window.location.origin + redirectTarget;
         }
         else
         {
             // failed, display error message returned by server
             let errorDiv = document.getElementById('signupForm_errorMessage');
-			errorDiv.innerText = "An error occured";
-            errorDiv.innerText = await response.text();
+			let responseJSON = await response.json();
+			errorDiv.innerText = responseJSON['message'];
             errorDiv.classList.remove('hidden');
         }
     }
