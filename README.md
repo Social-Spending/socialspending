@@ -4,7 +4,7 @@ An application to easily manage and track split expenses between a group of frie
 
 ## Dependencies
 
-THe only dependency is XAMPP v8.2.4
+The only dependency is XAMPP v8.2.4
 
 ## Linux Setup
 
