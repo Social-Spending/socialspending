@@ -8,8 +8,8 @@
             - 'password': password of the new user
         - Response:
             - Status Codes:
-                - 200 if authentication is successful
-                - 403 if provided credentials are invalid
+                - 200 if user was created successfully
+                - 403 if user is already logged in
                 - 400 if form data is not present
                 - 500 if the database could not be reached
             - Content-Type:application/json
