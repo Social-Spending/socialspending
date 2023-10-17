@@ -1,65 +1,61 @@
-
-
-import { StyleSheet, Text, View, Pressable, Image } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
+import { useState } from 'react';
 import { Link } from "expo-router";
 
 import Button from './Button.js'
-import { HeaderLink, HeaderText } from './TextComponents.js'
+import { HeaderText } from './TextComponents.js'
 
 const Logo = require('../assets/images/LogoLong.png');
 
-let disabled = false;
+
 
 export default function Login() {
 
+    const [emailDisabled, setEmailDisabled] = useState(true);
+    const [passwordDisabled, setPasswordDisabled] = useState(true);
+    const [usernameDisabled, setUsernameDisabled] = useState(true);
 
+    const onEmailChange = () => { setEmailDisabled(checkEmail()); }
+    const onPasswordChange = () => { setPasswordDisabled(checkPassword()); }
+    const onUsernameChange = () => { setUsernameDisabled(checkUsername()); }
 
     return (
 
         <View style={styles.login}>
 
-
             <Image source={Logo} style={styles.logo} />
-
 
             <HeaderText size={2} style={[styles.label, { paddingTop: 0 }]}>Create your Account</HeaderText>
             <Text style={styles.text}>Create an account to get started with Social Spending</Text>
 
-            <Text id='signupForm_errorMessage' style={styles.error}></Text>
+            <Text id='signupForm_errorMessage' style={[styles.error, { paddingTop: 0 }]}></Text>
 
             <View style={styles.labelContainer}>
                 <HeaderText size={5} style={styles.label}>EMAIL</HeaderText>
+                <Text id='email_errorMessage' style={styles.error}></Text>
             </View>
-
-            <input type='email' placeholder=" Enter your email address" style={styles.input} id='signupForm_email' name="Email" />
+            <input type='email' placeholder=" Enter your email address" style={styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
 
             <View style={styles.labelContainer}>
                 <HeaderText size={5} style={styles.label}>USERNAME</HeaderText>
+                <Text id='username_errorMessage' style={styles.error}></Text>
             </View>
-
-            <input placeholder=" Enter your desired username" style={styles.input} id='signupForm_user' name="Username" />
+            <input placeholder=" Enter your desired username" style={styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
 
             <View style={styles.labelContainer}>
                 <HeaderText size={5} style={styles.label}>PASSWORD</HeaderText>
             </View>
-            <input placeholder=" Password" style={styles.input} id='signupForm_password' type='password' name="Password" onInput={checkPassword} />
+            <input placeholder=" Password" style={styles.input} id='signupForm_password' type='password' name="Password" onInput={onPasswordChange} />
 
             <View style={styles.labelContainer}>
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-start', width: '50%' }}>
-                    <HeaderText size={5} style={styles.label}>VERIFY PASSWORD</HeaderText>
-                </View>
-
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%' }}>
-                    <Text id='password_errorMessage' style={styles.error}></Text>
-                </View>
+                <HeaderText size={5} style={styles.label}>VERIFY PASSWORD</HeaderText>
+                <Text id='password_errorMessage' style={styles.error}></Text>
             </View>
-            <input placeholder=" Verify Password" style={styles.input} id='signupForm_verifyPassword' type='password' name="Password" onInput={checkPassword} />
+            <input placeholder=" Verify Password" style={styles.input} id='signupForm_verifyPassword' type='password' name="Password" onInput={onPasswordChange} />
 
+            <Button disabled={emailDisabled || passwordDisabled || usernameDisabled} style={styles.buttonContainer} label='Create Account' onClick={Submit} />
 
-
-            <Button style={styles.buttonContainer} label='Create Account' onClick={Submit} />
-
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', paddingTop: '2em' }}>
+            <View style={{ flexDirection: 'row', paddingTop: '2em' }}>
                 <Text style={styles.text}>Already have an account? </Text>
                 <Link href="/login" style={[styles.text, { color: '#f7a072' }]}>Login</Link>
             </View>
@@ -68,18 +64,54 @@ export default function Login() {
     );
 }
 
+function checkEmail() {
+    let email = document.getElementById('signupForm_email');
+    let errorDiv = document.getElementById('email_errorMessage');
+
+    // Standard RFC 5322 Compliant email regex obtained from here https://emailregex.com/
+    const regex = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+    const match = email.value.match(regex);
+
+    if (match) {
+        errorDiv.innerText = "";
+        return false;
+
+    } else {
+        errorDiv.innerText = "Please enter a valid email address";
+        return true;
+    }
+}
+
+function checkUsername() {
+    let username = document.getElementById('signupForm_user');
+    let errorDiv = document.getElementById('username_errorMessage');
+
+    if (username.value.length >= 4) {
+        errorDiv.innerText = "";
+        return false;
+
+    } else {
+        errorDiv.innerText = "Username must be at least 4 characters";
+        return true;
+    }
+}
+
 function checkPassword() {
     let password = document.getElementById('signupForm_password');
     let verify = document.getElementById('signupForm_verifyPassword');
     let errorDiv = document.getElementById('password_errorMessage');
+
     if (password.value != verify.value) {
         errorDiv.innerText = "Passwords do not match";
-        disabled = true;
+        return true;
+
     } else {
         errorDiv.innerText = "";
-        disabled = false;
+        return false;
     }
 }
+
+
 
 async function Submit() {
 
@@ -149,11 +181,13 @@ const styles = StyleSheet.create({
     },
     error: {
         paddingTop: '1.75em',
+        paddingRight: '.416em',
+        paddingLeft: '.416em',
         color: '#F00'
     },
     labelContainer: {
         flexDirection: 'row',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
         width: '80%'
     },
     label: {

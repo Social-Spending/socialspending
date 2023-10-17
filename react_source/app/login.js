@@ -1,10 +1,19 @@
-
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import Base from '../components/Base.js';
 import Login from '../components/Login.js';
 
 export default function Page() {
+
+    // make a quick GET request to login.php to check if the user's cookies are already authenticated
+    // assemble endpoint for authentication
+    let url = window.location.origin + '/login.php';
+    fetch(url, { credentials: 'same-origin' }).then((response) => {
+        if (response.status == 200) {
+            // redirect
+            window.location.href = window.location.origin + '/summary';
+        }
+    });
 
 
     return (

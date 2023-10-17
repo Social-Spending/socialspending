@@ -1,5 +1,3 @@
-
-
 import { StyleSheet, Text, View, Pressable, Image } from 'react-native';
 import { Link } from "expo-router";
 
@@ -10,15 +8,6 @@ const Logo = require('../assets/images/LogoLong.png');
 
 export default function Login() {
 
-    // make a quick GET request to login.php to check if the user's cookies are already authenticated
-    // assemble endpoint for authentication
-    let url = window.location.origin + '/login.php';
-    fetch(url, { credentials: 'same-origin' }).then((response) => {
-        if (response.status == 200) {
-            // redirect
-            window.location.href = window.location.origin + '/summary';
-        }
-    });
 
     return (
 
