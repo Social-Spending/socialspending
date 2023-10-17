@@ -160,7 +160,7 @@ async function Submit(userRef, emailRef, passwordRef, errorRef) {
         if (response.ok) {
             // success, redirect user
             // check if this url specifies a url to which to redirect
-            router.replace("/login");
+            router.replace("/summary");
 
         }
         else {
