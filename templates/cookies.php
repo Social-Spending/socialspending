@@ -6,7 +6,7 @@ include_once('templates/constants.php');
 // Must do cookie setting before any content is sent
 // Return 0 if no error
 // Return 1 if error
-function createAndSetSessionID($uid)
+function createAndSetSessionID($user_id)
 {
     global $mysqli;
 
@@ -18,10 +18,10 @@ function createAndSetSessionID($uid)
     $formattedExpiryDate = date("Y-m-d H:i:s", $expiryDate);
 
     // store cookie in database
-    $sql = "INSERT INTO cookies (session_id, expiration_date, uid)
+    $sql = "INSERT INTO cookies (session_id, expiration_date, user_id)
                          VALUES (? , ?, ?)";
 
-    $result = $mysqli->execute_query($sql, [$sessionIDhash, $formattedExpiryDate, $uid]);
+    $result = $mysqli->execute_query($sql, [$sessionIDhash, $formattedExpiryDate, $user_id]);
 
     // check that query was successful
     if ($result)
@@ -107,9 +107,9 @@ function validateSessionID()
 
             // cookie not expired
             // check if this cookie is tied to a user
-            elseif ($row['uid'] != '')
+            elseif ($row['user_id'] != '')
             {
-                return $row['uid'];
+                return $row['user_id'];
             }
         }
     }
