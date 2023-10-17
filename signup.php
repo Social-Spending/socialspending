@@ -33,8 +33,8 @@ if ($result->num_rows === 0)
 {
     
 	
-		// get max uid so far
-		$result 	= $mysqli->query('SELECT MAX(user_id) as max_uid FROM users');
+		// get max user_id so far
+		$result 	= $mysqli->query('SELECT MAX(user_id) as max_user_id FROM users');
 		
 		if (!$result)
 		{
@@ -46,12 +46,12 @@ if ($result->num_rows === 0)
 		
 		$row = mysqli_fetch_array($result);
 		
-        // generate and associate this UID and password hash
-		$uid = $row["max_uid"] + 1;
+        // generate and associate this user_id and password hash
+		$user_id = $row["max_user_id"] + 1;
 		$passwordHash = password_hash($password,  PASSWORD_BCRYPT);
 		
 		//insert new user into database
-		$result 	= $mysqli->query('INSERT INTO users (user_id, email, username, pass_hash) VALUES (\'' . $uid . '\', \'' . $email . '\', \'' . $user . '\', \'' . $passwordHash . '\');');
+		$result 	= $mysqli->query('INSERT INTO users (user_id, email, username, pass_hash) VALUES (\'' . $user_id . '\', \'' . $email . '\', \'' . $user . '\', \'' . $passwordHash . '\');');
 								
 							
         // check status of query

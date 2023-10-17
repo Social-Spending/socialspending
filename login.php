@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     $user = $_POST['user'];
     $password = $_POST['password'];
     // lookup user by username or by email
-    $sql = "SELECT uid, pass_hash FROM users     WHERE username = ?
+    $sql = "SELECT user_id, pass_hash FROM users     WHERE username = ?
                                     OR  email = ?";
 
     $result = $mysqli->execute_query($sql, [$user, $user]);
@@ -102,13 +102,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     {
         $row = $result->fetch_assoc();
         $passwordHash = $row['pass_hash'];
-        $uid = $row['uid'];
+        $user_id = $row['user_id'];
         // check password
         if (password_verify($password, $passwordHash))
         {
             // authentication success
-            // associate this cookie with UID
-            if (createAndSetSessionID($uid))
+            // associate this cookie with user_id
+            if (createAndSetSessionID($user_id))
             {
                 // an error occurred
                 handleDBError();
