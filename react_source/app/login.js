@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 
 import Base from '../components/Base.js';
 import Login from '../components/Login.js';
@@ -7,11 +8,10 @@ export default function Page() {
 
     // make a quick GET request to login.php to check if the user's cookies are already authenticated
     // assemble endpoint for authentication
-    let url = window.location.origin + '/login.php';
-    fetch(url, { credentials: 'same-origin' }).then((response) => {
+    fetch("/login.php", { credentials: 'same-origin' }).then((response) => {
         if (response.status == 200) {
             // redirect
-            window.location.href = window.location.origin + '/summary';
+            router.replace("/summary");
         }
     });
 

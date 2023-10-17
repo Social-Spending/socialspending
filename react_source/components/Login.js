@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View, Pressable, Image } from 'react-native';
-import { Link } from "expo-router";
+import { StyleSheet, Text, View, Image } from 'react-native';
+import { Link, router } from "expo-router";
+import { useRef } from 'react';
 
 import Button from './Button.js'
 import { HeaderLink, HeaderText } from './TextComponents.js'
@@ -8,6 +9,11 @@ const Logo = require('../assets/images/LogoLong.png');
 
 export default function Login() {
 
+    const onSubmit = () => { Submit(userRef, passwordRef, errorMessageRef); }
+
+    const errorMessageRef   = useRef(null);
+    const userRef           = useRef(null);
+    const passwordRef       = useRef(null);
 
     return (
 
@@ -20,13 +26,13 @@ export default function Login() {
             <HeaderText size={2} style={[styles.label, { paddingTop: 0 }]}>Welcome</HeaderText>
             <Text style={styles.text}>Please sign-in to your account below</Text>
 
-            <Text id='loginForm_errorMessage' style={styles.error}></Text>
+            <Text ref={errorMessageRef} id='loginForm_errorMessage' style={styles.error}></Text>
 
             <View style={styles.labelContainer}>
                 <HeaderText size={5} style={styles.label}>EMAIL OR USERNAME</HeaderText>
             </View>
 
-            <input placeholder=" Enter your email or username" style={styles.input} id='loginForm_user' name="Username" />
+            <input ref={userRef} placeholder=" Enter your email or username" style={styles.input} id='loginForm_user' name="Username" />
 
             <View style={styles.labelContainer}>
                 <View style={{ flexDirection: 'row', justifyContent: 'flex-start', width: '50%' }}>
@@ -37,14 +43,14 @@ export default function Login() {
                     <HeaderLink href="/forgot" size={5} style={styles.forgot}>Forgot Password?</HeaderLink>
                 </View>
             </View>
-            <input placeholder=" Password" style={styles.input} id='loginForm_password' type='password' name="Password" />
+            <input ref={passwordRef} placeholder=" Password" style={styles.input} id='loginForm_password' type='password' name="Password" />
 
             <View style={[styles.labelContainer, { width: '78%' }]}>
                 <input type="checkbox" style={styles.checkbox} id="loginForm_remember" />
                 <Text style={[styles.text, { marginTop: '.6em' }]}> Remember Me?</Text>
             </View>
 
-            <Button style={styles.buttonContainer} label='Login' onClick={Submit} />
+            <Button style={styles.buttonContainer} label='Login' onClick={onSubmit} />
 
             <View style={{ flexDirection: 'row', justifyContent: 'flex-start', paddingTop: '2em' }}>
                 <Text style={styles.text}>New to our platform? </Text>
@@ -55,34 +61,26 @@ export default function Login() {
     );
 }
 
-async function Submit() {
-
-
-    let userTextbox = document.getElementById('loginForm_user');
-    let passwordTextbox = document.getElementById('loginForm_password');
+async function Submit(userRef, passwordRef, errorRef) {
 
     // pul username and password in form data for a POST request
     let payload = new URLSearchParams();
-    payload.append('user', userTextbox.value);
-    payload.append('password', passwordTextbox.value);
-
-    // assemble endpoint for authentication
-    let url = window.location.origin + '/login.php';
+    payload.append('user', userRef.current.value);
+    payload.append('password', passwordRef.current.value);
 
     // do the POST request
     try {
-        let response = await fetch(url, { method: 'POST', body: payload, credentials: 'same-origin' });
+        let response = await fetch("/login.php", { method: 'POST', body: payload, credentials: 'same-origin' });
 
         if (response.status == 200) {
             // redirect
-            window.location.href = window.location.origin + '/summary';
+            router.replace("/summary");
         }
         else {
             // failed, display error message returned by server
-            let errorDiv = document.getElementById('loginForm_errorMessage');
             let responseJSON = await response.json();
-            errorDiv.innerText = responseJSON['message'];
-            errorDiv.classList.remove('hidden');
+            errorRef.current.innerText = responseJSON['message'];
+            errorRef.current.classList.remove('hidden');
         }
     }
     catch (error) {
