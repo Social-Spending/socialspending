@@ -23,13 +23,14 @@ export default function Base(props) {
                     {props.children}
                 </View>
 
-                <View style={[styles.notifShelf, showShelf ? { width: '20vw' } : { width: '0vh' },]}>
-
+                <View style={[styles.notifShelf, showShelf ? { width: '20vw' } : { width: '0vh' }]}>
+                    
                 </View>
+
+                <Footer />
 
             </View>
 
-            <Footer />
         </View>
     );
 }
@@ -46,14 +47,16 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        width: '100%',
+        top: '-2vh',
         height: 'auto',
+        width: '100%',
         flexWrap: 'nowrap',
         justifyContent: 'center',
         alignItems: 'center',
 
     },
     notifShelf: {
+        zIndex:2,
         backgroundColor: '#555',
         height: '100%',
         transition: '500ms'

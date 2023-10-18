@@ -9,12 +9,11 @@ import Button from './Button.js'
 import { HeaderLink, HeaderText } from './TextComponents.js'
 
 
-const Logo = require('../assets/images/logo.png');
-const Bell = require('../assets/images/bx-bell.png');
+const Logo = require('../assets/images/logo/logo-64.png');
+import Bell from '../assets/images/bx-bell.svg';
 
 
 export default function Header({ loggedIn, showNotif }) {
-
     return (
         <View style={styles.header}>
 
@@ -60,7 +59,7 @@ function Account({ loggedIn, showNotif }) {
     if (loggedIn) {
         return (
             <View style={styles.rightContainer}>
-                <Button icon={Bell} iconStyle={styles.notif} onClick={showNotif} />
+                <Button svg={Bell} iconStyle={styles.notif} onClick={showNotif} />
                 <HeaderText size={3} style={styles.text}>$AccountName</HeaderText>
             </View>
         );
@@ -94,6 +93,7 @@ const styles = StyleSheet.create({
     leftContainer: {
         flex: 1,
         height: '100%',
+        paddingLeft: '1em',
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     logo: {
         justifyContent: 'flex-start',
         height: '100%',
-        width: '5vh',
+        width: '4vh',
         minWidth: '2em',
         borderRadius: 18,
     },
@@ -132,5 +132,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 10,
+        fill: '#f9f7f3'
     },
 });

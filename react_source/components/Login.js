@@ -15,7 +15,7 @@ import { useRef } from 'react';
 import Button from './Button.js'
 import { HeaderLink, HeaderText } from './TextComponents.js'
 
-const Logo = require('../assets/images/LogoLong.png');
+const Logo = require('../assets/images/logo/logo-name-128x64.png');
 
 export default function Login() {
 

@@ -33,7 +33,7 @@ import { Link, router } from "expo-router";
 import Button from './Button.js'
 import { HeaderText } from './TextComponents.js'
 
-const Logo = require('../assets/images/LogoLong.png');
+const Logo = require('../assets/images/logo/logo-name-128x64.png');
 
 
 
@@ -42,6 +42,9 @@ export default function Login() {
     const [emailDisabled    , setEmailDisabled]      = useState(true);
     const [passwordDisabled , setPasswordDisabled]   = useState(true);
     const [usernameDisabled , setUsernameDisabled]   = useState(true);
+
+    // Refs must be used in the same component they were declared in call any of these functions from a component executes them in said 
+    // components where the refs are null. This fixes that by rerouting the function to run in this component
 
     const onEmailChange     = () => { setEmailDisabled      (checkEmail(emailRef, emailErrorMessageRef)); }
     const onPasswordChange  = () => { setPasswordDisabled   (checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
