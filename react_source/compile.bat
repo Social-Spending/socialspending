@@ -1,5 +1,7 @@
 @echo off
 
+call npm install
+
 call npx expo export -p web
 
 if errorlevel 0 goto move

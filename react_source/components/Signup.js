@@ -75,24 +75,24 @@ export default function Login() {
                 <HeaderText size={5} style={styles.label}>EMAIL</HeaderText>
                 <Text ref={emailErrorMessageRef} id='email_errorMessage' style={styles.error}></Text>
             </View>
-            <input ref={emailRef} type='email' placeholder=" Enter your email address" style={styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
+            <input tabIndex={1} ref={emailRef} type='email' placeholder=" Enter your email address" style={styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
 
             <View style={styles.labelContainer}>
                 <HeaderText size={5} style={styles.label}>USERNAME</HeaderText>
                 <Text ref={userErrorMessageRef} id='username_errorMessage' style={styles.error}></Text>
             </View>
-            <input ref={userRef} placeholder=" Enter your desired username" style={styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
+            <input tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
 
             <View style={styles.labelContainer}>
                 <HeaderText size={5} style={styles.label}>PASSWORD</HeaderText>
             </View>
-            <input ref={passwordRef} placeholder=" Password" style={styles.input} id='signupForm_password' type='password' name="Password" onInput={onPasswordChange} />
+            <input tabIndex={3} ref={passwordRef} placeholder=" Password" style={styles.input} id='signupForm_password' type='password' name="Password" onInput={onPasswordChange} />
 
             <View style={styles.labelContainer}>
                 <HeaderText size={5} style={styles.label}>VERIFY PASSWORD</HeaderText>
                 <Text ref={passwordErrorMessageRef} id='password_errorMessage' style={styles.error}></Text>
             </View>
-            <input ref={passwordVerifyRef} placeholder=" Verify Password" style={styles.input} id='signupForm_verifyPassword' type='password' name="Password" onInput={onPasswordChange} />
+            <input tabIndex={4} ref={passwordVerifyRef} placeholder=" Verify Password" style={styles.input} id='signupForm_verifyPassword' type='password' name="Password" onInput={onPasswordChange} />
 
             <Button disabled={emailDisabled || passwordDisabled || usernameDisabled} style={styles.buttonContainer} label='Create Account' onClick={onSubmit} />
 
@@ -163,7 +163,7 @@ async function Submit(userRef, emailRef, passwordRef, errorRef) {
         if (response.ok) {
             // success, redirect user
             // check if this url specifies a url to which to redirect
-            router.replace("/summary");
+            router.push("/summary");
 
         }
         else {

@@ -1,5 +1,7 @@
 #! /bin/bash
 
+npm install
+
 npx expo export -p web
 
 if [ "$?" -eq "0" ]

@@ -19,11 +19,12 @@ const Logo = require('../assets/images/logo/logo-name-128x64.png');
 
 export default function Login() {
 
-    const onSubmit = () => { Submit(userRef, passwordRef, errorMessageRef); }
+    const onSubmit = () => { Submit(userRef, passwordRef, rememberRef, errorMessageRef); }
 
     const errorMessageRef   = useRef(null);
     const userRef           = useRef(null);
     const passwordRef       = useRef(null);
+    const rememberRef       = useRef(null);
 
     return (
 
@@ -42,7 +43,7 @@ export default function Login() {
                 <HeaderText size={5} style={styles.label}>EMAIL OR USERNAME</HeaderText>
             </View>
 
-            <input ref={userRef} placeholder=" Enter your email or username" style={styles.input} id='loginForm_user' name="Username" />
+            <input tabIndex={1} ref={userRef} placeholder=" Enter your email or username" style={styles.input} id='loginForm_user' name="Username" />
 
             <View style={styles.labelContainer}>
                 <View style={{ flexDirection: 'row', justifyContent: 'flex-start', width: '50%' }}>
@@ -53,10 +54,10 @@ export default function Login() {
                     <HeaderLink href="/forgot" size={5} style={styles.forgot}>Forgot Password?</HeaderLink>
                 </View>
             </View>
-            <input ref={passwordRef} placeholder=" Password" style={styles.input} id='loginForm_password' type='password' name="Password" />
+            <input tabIndex={2} ref={passwordRef} placeholder=" Password" style={styles.input} id='loginForm_password' type='password' name="Password" />
 
             <View style={[styles.labelContainer, { width: '78%' }]}>
-                <input type="checkbox" style={styles.checkbox} id="loginForm_remember" />
+                <input tabIndex={3} ref={rememberRef} type="checkbox" style={styles.checkbox} id="loginForm_remember" />
                 <Text style={[styles.text, { marginTop: '.6em' }]}> Remember Me?</Text>
             </View>
 
@@ -71,12 +72,13 @@ export default function Login() {
     );
 }
 
-async function Submit(userRef, passwordRef, errorRef) {
+async function Submit(userRef, passwordRef, rememberRef, errorRef) {
 
     // pul username and password in form data for a POST request
     let payload = new URLSearchParams();
     payload.append('user', userRef.current.value);
     payload.append('password', passwordRef.current.value);
+    payload.append('remember', rememberRef.current.value);
 
     // do the POST request
     try {
@@ -84,7 +86,7 @@ async function Submit(userRef, passwordRef, errorRef) {
 
         if (response.ok) {
             // redirect
-            router.replace("/summary");
+            router.push("/summary");
         }
         else {
             // failed, display error message returned by server

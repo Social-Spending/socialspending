@@ -1,15 +1,19 @@
 import { StyleSheet, View, Pressable, Text, Image } from 'react-native';
 
+import { useState } from 'react';
+
 import { HeaderLink, HeaderText } from './TextComponents.js'
 
 
 
 export default function Button({ label, style, icon, svg, iconStyle, onClick, disabled }) {
+    const [hover, setHover] = useState(false);
+
     return (
         <View style={style}>
-            <Pressable style={styles.button} onPress={onClick} disabled={disabled}>
+            <Pressable style={[styles.button, disabled ? styles.disabled : (hover ? styles.hover : {})]} onPress={onClick} disabled={disabled} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
                 <Icon svg={svg} style={iconStyle} icon={icon} />
-                <ButtonText label={label} />
+                <ButtonText disabled={disabled} label={label} />
             </Pressable>
         </View>
     );
@@ -33,7 +37,7 @@ function Icon(props) {
 function ButtonText(props) {
     if (props.label) {
         return (
-            <HeaderText size={5} style={styles.buttonLabel}>{props.label}</HeaderText>
+            <HeaderText size={5} style={props.disabled ? styles.buttonLabelDisabled : styles.buttonLabel }>{props.label}</HeaderText>
         );
     } else {
         return;
@@ -41,6 +45,14 @@ function ButtonText(props) {
 }
 
 const styles = StyleSheet.create({
+    disabled: {
+        backgroundColor: "#66666633",
+        borderRadius: 10,
+    },
+    hover: {
+        backgroundColor: "#cccccc55",
+        borderRadius: 10,
+    },
     button: {
         borderRadius: 10,
         width: '100%',
@@ -54,6 +66,9 @@ const styles = StyleSheet.create({
     },
     buttonLabel: {
         color: '#FFF',
+    },
+    buttonLabelDisabled: {
+        color: '#ccc',
     },
     icon: {
         aspectRatio: 1,
