@@ -3,6 +3,14 @@
 include_once('templates/connection.php');
 include_once('templates/constants.php');
 
+// Generates a random string of hex in a cryptographically secure way
+// random_bytes is secure but rand is not
+// Dont go less than 16
+function generateToken($length = 20)
+{
+    return bin2hex(random_bytes($length));
+}
+
 // Must do cookie setting before any content is sent
 // Return 0 if no error
 // Return 1 if error
@@ -11,7 +19,7 @@ function createAndSetSessionID($user_id)
     global $mysqli;
 
     // create and set a cookie
-    $sessionID = rand(0, ((2<<32) -1));
+    $sessionID = generateToken();
     $sessionIDhash = hash('sha256', $sessionID);
 
     $expiryDate = time() + COOKIE_EXPIRY_TIME;
