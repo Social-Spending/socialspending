@@ -1,13 +1,12 @@
-import { StyleSheet, Text, View, Pressable, Image } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useState, useEffect } from 'react';
 
 import { Link } from "expo-router";
 
 
-import Button from './Button.js'
-import { HeaderLink, HeaderText } from './TextComponents.js'
+import { HeaderText } from './TextComponents.js'
 
-
+const LoadingGif = require('../assets/images/loading/loading-1-64.gif');
 
 export default function Groups(props) {
 
@@ -39,8 +38,7 @@ function GroupList() {
         // On load asynchronously request groups and construct the list
         async function getItems() {
 
-            groupItems = await generateGroupList();
-            setGroupItems(groupItems);
+            setGroupItems(await generateGroupList());
         }
         getItems();
 
@@ -50,6 +48,7 @@ function GroupList() {
         //List hasnt loaded yet show nothing
         return (
             <View style={styles.groupList}>
+                <Image source={LoadingGif} style={styles.loading} />
             </View>
 
         );
@@ -83,7 +82,7 @@ function GroupItem(props) {
             <View style={styles.groupListItem} >
 
                 <Text size={3} style={styles.groupText}>{props.name}</Text>
-                <View style={{ width: '15%', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
+                <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text size={3} style={[styles.groupText, { fontSize: '.66em' }, props.owed >= 0 ? { color: '#0fa3b1' } : { color: '#f7a072' }]}>{text}</Text>
                     <Text size={3} style={[styles.groupText, props.owed >= 0 ? { color: '#0fa3b1' } : { color: '#f7a072' }]}>${Math.abs(props.owed)}</Text>
                 </View>
@@ -199,6 +198,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#f7a072',
         borderRadius: 4,
         boxShadow: '3px 3px 3px #aaa',
+    },
+    loading: {
+        height: '4em',
+        width: '4em',
+        minWidth: '2em',
+        borderRadius: 1,
     },
 
 });

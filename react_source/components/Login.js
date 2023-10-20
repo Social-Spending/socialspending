@@ -1,6 +1,6 @@
 /*
  *  Functions:
- *      Submit: Creates a post request to /login.php containing values of username, and password fields.
+ *      submitForm: Creates a post request to /login.php containing values of username, and password fields.
  *          @param: userRef     - reference to username field
  *          @param: passwordRef - reference to password field
  *          @param: errorRef    - reference to error text field to print error text to
@@ -19,7 +19,7 @@ const Logo = require('../assets/images/logo/logo-name-128x64.png');
 
 export default function Login() {
 
-    const onSubmit = () => { Submit(userRef, passwordRef, rememberRef, errorMessageRef); }
+    const onSubmit = () => { submitForm(userRef, passwordRef, rememberRef, errorMessageRef); }
 
     const errorMessageRef   = useRef(null);
     const userRef           = useRef(null);
@@ -46,13 +46,8 @@ export default function Login() {
             <input tabIndex={1} ref={userRef} placeholder=" Enter your email or username" style={styles.input} id='loginForm_user' name="Username" />
 
             <View style={styles.labelContainer}>
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-start', width: '50%' }}>
                     <HeaderText size={5} style={styles.label}>PASSWORD</HeaderText>
-                </View>
-
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%' }}>
-                    <HeaderLink href="/forgot" size={5} style={styles.forgot}>Forgot Password?</HeaderLink>
-                </View>
+                    <HeaderLink href="/forgot" size={5} style={styles.forgot}>Forgot Password?</HeaderLink> 
             </View>
             <input tabIndex={2} ref={passwordRef} placeholder=" Password" style={styles.input} id='loginForm_password' type='password' name="Password" />
 
@@ -72,7 +67,7 @@ export default function Login() {
     );
 }
 
-async function Submit(userRef, passwordRef, rememberRef, errorRef) {
+async function submitForm(userRef, passwordRef, rememberRef, errorRef) {
 
     // pul username and password in form data for a POST request
     let payload = new URLSearchParams();
@@ -133,7 +128,7 @@ const styles = StyleSheet.create({
     },
     labelContainer: {
         flexDirection: 'row',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
         width: '80%'
     },
     label: {

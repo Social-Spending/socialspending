@@ -220,7 +220,7 @@ function getTransaction($transaction_id) {
     }
 
 
-    $json_data = json_encode(array_values($response));
+    $json_data = json_encode($response);
     header('Content-Type: application/json');
     echo $json_data;
     return;

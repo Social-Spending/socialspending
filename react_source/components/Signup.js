@@ -16,7 +16,7 @@
  *          @param: errorRef    - reference to error text field to print error text to
  *          @return: boolean    - validity of username
  *          
- *      Submit: Creates a post request to /signup.php containing values of email, username, and password fields.
+ *      submitForm: Creates a post request to /signup.php containing values of email, username, and password fields.
  *          @param: userRef     - reference to username field
  *          @param: emailRef    - reference to email field
  *          @param: passwordRef - reference to password field
@@ -49,7 +49,7 @@ export default function Login() {
     const onEmailChange     = () => { setEmailDisabled      (checkEmail(emailRef, emailErrorMessageRef)); }
     const onPasswordChange  = () => { setPasswordDisabled   (checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
     const onUsernameChange  = () => { setUsernameDisabled   (checkUsername(userRef, userErrorMessageRef)); }
-    const onSubmit          = () => { Submit                (userRef, emailRef, passwordRef, errorMessageRef); }
+    const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, errorMessageRef); }
 
     const errorMessageRef           = useRef(null);
     const emailErrorMessageRef      = useRef(null);
@@ -148,7 +148,7 @@ function checkPassword(passwordRef, verifyRef, errorRef) {
 
 
 
-async function Submit(userRef, emailRef, passwordRef, errorRef) {
+async function submitForm(userRef, emailRef, passwordRef, errorRef) {
 
     // pul username and password in form data for a POST request
     let payload = new URLSearchParams();
