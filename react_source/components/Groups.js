@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState, useEffect } from 'react';
 
 import { Link } from "expo-router";
@@ -6,7 +6,7 @@ import { Link } from "expo-router";
 
 import { HeaderText } from './TextComponents.js'
 
-const LoadingGif = require('../assets/images/loading/loading-1-64.gif');
+const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
 export default function Groups(props) {
 

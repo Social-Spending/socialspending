@@ -1,10 +1,26 @@
+/*
+ *  TransactionInfo:
+ *  
+ *      Displays the name, id, date, description, and a participants list for a given transaction
+ *      Participants list shows names, and how much each person paid/owes - links back to their profile
+ *      
+ *      props:
+ *          id: ID of transaction to pull from database and display
+ *          json: json data that has already been returned from the database in another call - when set overwrites id and prevents from making a database request
+ * 
+ *      TODO:
+ *          Implement approved/pending/denied 
+ */
+
+
+
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { Link } from "expo-router";
 import { useState, useEffect } from 'react';
 
 import { HeaderText } from './TextComponents.js'
 
-const LoadingGif = require('../assets/images/loading/loading-1-64.gif');
+const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
 
 export default function TransactionInfo({ id, json }) {
@@ -84,7 +100,11 @@ export default function TransactionInfo({ id, json }) {
     }
 }
 
-
+/*
+ *  getParticipants: Creates an array contianing the DOM elements for each participant
+ *      @param participantList  - JSON Array containing a list of JSON Objects for participants
+ *      @return array           - Array of DOM elements to be rendered
+ */
 function getParticipants(participantList) {
 
     let outputList = [];
@@ -99,6 +119,13 @@ function getParticipants(participantList) {
 
 }
 
+/*
+ *  ListItem: Assembles DOM elements for a single list entry
+ *      @param id           - user_id of participant
+ *      @param name         - username of participant
+ *      @param owed         - how much the participant paid/owes
+ *      @return DOM element - 
+ */
 function ListItem(props) {
 
     let text = props.owed >= 0 ? "Paid" : "Owes";
@@ -120,7 +147,12 @@ function ListItem(props) {
     );
 }
 
-async function getTransaction(transactionId, errorRef) {
+/*
+ *  getTransaction: Gets transaction data from the server using transaction.php endpoint
+ *      @param transactionId - id of transaction to fetch
+ *      @return JSON Object  - JSON object containing data for transaction or an error message
+ */
+async function getTransaction(transactionId) {
 
     try {
         let url = "/transactions.php?transaction_id=" + transactionId;
