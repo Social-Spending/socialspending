@@ -33,7 +33,7 @@ import { Link, router } from "expo-router";
 import Button from './Button.js'
 import { HeaderText } from './TextComponents.js'
 
-const Logo = require('../assets/images/LogoLong.png');
+const Logo = require('../assets/images/logo/logo-name-128x64.png');
 
 
 
@@ -42,6 +42,9 @@ export default function Login() {
     const [emailDisabled    , setEmailDisabled]      = useState(true);
     const [passwordDisabled , setPasswordDisabled]   = useState(true);
     const [usernameDisabled , setUsernameDisabled]   = useState(true);
+
+    // Refs must be used in the same component they were declared in call any of these functions from a component executes them in said 
+    // components where the refs are null. This fixes that by rerouting the function to run in this component
 
     const onEmailChange     = () => { setEmailDisabled      (checkEmail(emailRef, emailErrorMessageRef)); }
     const onPasswordChange  = () => { setPasswordDisabled   (checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
@@ -72,24 +75,24 @@ export default function Login() {
                 <HeaderText size={5} style={styles.label}>EMAIL</HeaderText>
                 <Text ref={emailErrorMessageRef} id='email_errorMessage' style={styles.error}></Text>
             </View>
-            <input ref={emailRef} type='email' placeholder=" Enter your email address" style={styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
+            <input tabIndex={1} ref={emailRef} type='email' placeholder=" Enter your email address" style={styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
 
             <View style={styles.labelContainer}>
                 <HeaderText size={5} style={styles.label}>USERNAME</HeaderText>
                 <Text ref={userErrorMessageRef} id='username_errorMessage' style={styles.error}></Text>
             </View>
-            <input ref={userRef} placeholder=" Enter your desired username" style={styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
+            <input tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
 
             <View style={styles.labelContainer}>
                 <HeaderText size={5} style={styles.label}>PASSWORD</HeaderText>
             </View>
-            <input ref={passwordRef} placeholder=" Password" style={styles.input} id='signupForm_password' type='password' name="Password" onInput={onPasswordChange} />
+            <input tabIndex={3} ref={passwordRef} placeholder=" Password" style={styles.input} id='signupForm_password' type='password' name="Password" onInput={onPasswordChange} />
 
             <View style={styles.labelContainer}>
                 <HeaderText size={5} style={styles.label}>VERIFY PASSWORD</HeaderText>
                 <Text ref={passwordErrorMessageRef} id='password_errorMessage' style={styles.error}></Text>
             </View>
-            <input ref={passwordVerifyRef} placeholder=" Verify Password" style={styles.input} id='signupForm_verifyPassword' type='password' name="Password" onInput={onPasswordChange} />
+            <input tabIndex={4} ref={passwordVerifyRef} placeholder=" Verify Password" style={styles.input} id='signupForm_verifyPassword' type='password' name="Password" onInput={onPasswordChange} />
 
             <Button disabled={emailDisabled || passwordDisabled || usernameDisabled} style={styles.buttonContainer} label='Create Account' onClick={onSubmit} />
 
@@ -160,7 +163,7 @@ async function Submit(userRef, emailRef, passwordRef, errorRef) {
         if (response.ok) {
             // success, redirect user
             // check if this url specifies a url to which to redirect
-            router.replace("/login");
+            router.push("/summary");
 
         }
         else {

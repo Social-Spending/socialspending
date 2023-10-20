@@ -34,4 +34,5 @@ yarn-error.*
 
 # do not add artifacts of compiling the react
 dist/
+App.js
 

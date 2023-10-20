@@ -1,6 +1,8 @@
 <?php
+
 include_once('templates/connection.php');
 include_once('templates/cookies.php');
+include_once('templates/constants.php');
 
 /*
 Transactions PHP Endpoint
@@ -66,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     } 
     // No other valid GET requests, fail out
     else {
-        http_response_code(400);
+        http_response_code(HTTP_BAD_REQUEST);
         return;
     }
 } 
@@ -89,12 +91,14 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST")
 UPDATE Request
     - Requires JSON object in body
 */
-elseif ($_SERVER["REQUEST_METHOD"] == "UPDATE")
+elseif ($_SERVER["REQUEST_METHOD"] == "PUT")
 {
-    if (!empty($_POST)) 
+    $_PUT = file_get_contents("php://input");
+
+    if (!empty($_PUT)) 
     {
-        if (is_string($_POST) && json_decode($_POST, true)) {
-            updateExistingTransaction($_POST);
+        if (is_string($_PUT) && json_decode($_PUT, true)) {
+            updateExistingTransaction($_PUT);
         }
     }
 }
@@ -106,15 +110,15 @@ DELETE Request
 
 */
 elseif ($_SERVER["REQUEST_METHOD"] == "DELETE")
-{
+{    
     //Check that user_id was passed as URL parameter
-    if (isset($_DELETE['transaction_id'])) 
+    if (isset($_GET['transaction_id'])) 
     {
-        deleteTransaction($_DELETE['transaction_id']);
+        deleteTransaction($_GET['transaction_id']);
         return;
     } else {
         // No user_id passed, bad request. Cannot retrieve all transactions for everyone
-        http_response_code(400);
+        http_response_code(HTTP_BAD_REQUEST);
         return;
     }
 }
@@ -130,11 +134,17 @@ function getTransactions($user_id)
 
     $passed_user_id = intval(validateSessionID());
 
-    if ($passed_user_id === 0 || $passed_user_id !== intval($user_id)) 
+    if ($passed_user_id === 0) 
     {
-        // Forbidden, bad cookie
-        http_response_code(401);
+        // Forbidden, no identifier
+        http_response_code(HTTP_UNAUTHORIZED);
         return;
+    }
+
+    if ($passed_user_id !== intval($user_id))
+    {
+        // User attempted to access resource they cannot access
+        http_response_code(HTTP_FORBIDDEN);
     }
 
     //Retrieves all information about transactions that $user_id particpated in
@@ -184,7 +194,8 @@ function getTransaction($transaction_id) {
     if ($passed_user_id === 0) 
     {
         // Unathorized, no user_id associated with cookie
-        http_response_code(401);
+        http_response_code(HTTP_UNAUTHORIZED);
+        return;
     }
 
     //Retrieves all information about transactions that $user_id particpated in
@@ -204,7 +215,7 @@ function getTransaction($transaction_id) {
     // User attempted to access transaction they are not a part of
     if (!checkParticipantsForUser($response, $passed_user_id))
     {
-        http_response_code(401);
+        http_response_code(HTTP_FORBIDDEN);
         return;
     }
 
@@ -306,7 +317,7 @@ function addNewTransaction($data)
 
     // If invalid data, return HTTP_400 (Bad Request)
     if (!validateTransactionData($data)) {  
-        http_response_code(400);
+        http_response_code(HTTP_BAD_REQUEST);
         return;
     }
 
@@ -314,12 +325,17 @@ function addNewTransaction($data)
 
     $passed_user_id = intval(validateSessionID());
 
-    // Unathorized, no user_id associated with cookie OR
-    // User attempted to access transaction they are not a part of
-    if ($passed_user_id === 0 ||
-        !checkParticipantsForUser($data, $passed_user_id)) 
+    // Unathorized, no user_id associated with cookie
+    if ($passed_user_id === 0)
     {
-        http_response_code(401);
+        http_response_code(HTTP_UNAUTHORIZED);
+        return;
+    }
+
+    // User attempted to access transaction they are not a part of
+    if (!checkParticipantsForUser($data, $passed_user_id))
+    {
+        http_response_code(HTTP_FORBIDDEN);
         return;
     }
 
@@ -337,7 +353,7 @@ function addNewTransaction($data)
     //$response === true if insertion successful
     if ($response !== true) {
         //JSON was valid, clearly something internal (HTTP_500) occured
-        http_response_code(500);
+        http_response_code(HTTP_INTERNAL_SERVER_ERROR);
         return;
     }
 
@@ -357,7 +373,7 @@ function addNewTransaction($data)
         //$response === true if insertion successful
         if ($response !== true) {
             //JSON was valid, clearly something internal (HTTP_500) occured
-            http_response_code(500);
+            http_response_code(HTTP_INTERNAL_SERVER_ERROR);
             return;
         }
     }
@@ -384,20 +400,27 @@ function updateExistingTransaction($data)
     // If invalid data, return HTTP_400 (Bad Request)
     // Need an existing transaction d
     if (!validateTransactionData($data) || !isset($data['transaction_id'])) {  
-        http_response_code(400);
+        http_response_code(HTTP_BAD_REQUEST);
         return;
     }
 
     $passed_user_id = intval(validateSessionID());
 
     // Unathorized, no user_id associated with cookie OR
-    // User attempted to access transaction they are not a part of
-    if ($passed_user_id === 0 ||
-        !checkParticipantsForUser($data, $passed_user_id)) 
+    if ($passed_user_id === 0)
     {
-        http_response_code(401);
+        http_response_code(HTTP_UNAUTHORIZED);
         return;
     }
+
+    // User attempted to access transaction they are not a part of
+    if (!checkParticipantsForUser($data, $passed_user_id))
+    {
+        http_response_code(HTTP_FORBIDDEN);
+        return;
+    }
+
+    
 
 
     $sql = "UPDATE  transactions
@@ -482,11 +505,18 @@ function deleteTransaction($transaction_id)
 
 
     // Need to get participants for specified transaction for data security
-    $sql = "SELECT  transaction_participants.user_id AS user_id,
+    $sql = "SELECT  transaction_participants.user_id AS user_id
             FROM transaction_participants
             WHERE transaction_id = ?";
-    
-    $transaction_participants = $mysqli->execute_query($sql, [$transaction_id]);
+
+    $transaction_participants = $mysqli->execute_query($sql, [intval($transaction_id)]);
+
+    // No transaction found, return 404
+    if (mysqli_num_rows($transaction_participants) == 0)
+    {
+        http_response_code(HTTP_NOT_FOUND);
+        return;
+    }
 
     //Format in such a way that we can use checkParticipantsForUser helper function
     $data = array();
@@ -496,11 +526,16 @@ function deleteTransaction($transaction_id)
     $passed_user_id = intval(validateSessionID());
 
     // Unathorized, no user_id associated with cookie OR
-    // User attempted to delete transaction they are not a part of
-    if ($passed_user_id === 0 ||
-        !checkParticipantsForUser($data, $passed_user_id)) 
+    if ($passed_user_id === 0)
     {
-        http_response_code(401);
+        http_response_code(HTTP_UNAUTHORIZED);
+        return;
+    }
+
+    // User attempted to access transaction they are not a part of
+    if (!checkParticipantsForUser($data, $passed_user_id))
+    {
+        http_response_code(HTTP_FORBIDDEN);
         return;
     }
 
@@ -512,7 +547,7 @@ function deleteTransaction($transaction_id)
 
     //$response === true if delete successful
     if ($response !== true) {
-        http_response_code(400);
+        http_response_code(HTTP_BAD_REQUEST);
         return;
     }
 }

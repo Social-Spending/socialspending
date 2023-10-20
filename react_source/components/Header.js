@@ -9,12 +9,11 @@ import Button from './Button.js'
 import { HeaderLink, HeaderText } from './TextComponents.js'
 
 
-const Logo = require('../assets/images/logo.png');
-const Bell = require('../assets/images/bx-bell.png');
+const Logo = require('../assets/images/logo/logo-64.png');
+import Bell from '../assets/images/bxs-bell.svg';
 
 
 export default function Header({ loggedIn, showNotif }) {
-
     return (
         <View style={styles.header}>
 
@@ -60,8 +59,8 @@ function Account({ loggedIn, showNotif }) {
     if (loggedIn) {
         return (
             <View style={styles.rightContainer}>
-                <Button icon={Bell} iconStyle={styles.notif} onClick={showNotif} />
-                <HeaderText size={3} style={styles.text}>$AccountName</HeaderText>
+                <Button svg={Bell} iconStyle={styles.notif} onClick={showNotif} />
+                <HeaderText size={3} style={[styles.text, { paddingLeft: '1em' }]}>$AccountName</HeaderText>
             </View>
         );
     } else {
@@ -82,7 +81,7 @@ const styles = StyleSheet.create({
         position: 'sticky',
         top: 0,
         zIndex: 1,
-        height: '4vh',
+        height: '5vh',
         minHeight: '2em',
         width: '100%',
         backgroundColor: '#0FA3B1',
@@ -90,16 +89,24 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
+
+        borderWidth: 1.5,
+        borderTopStyle: 'none',
+        borderRightStyle: 'none',
+        borderLeftStyle: 'none',
+        
     },
     leftContainer: {
-        flex: 1,
+        width: 'auto',
         height: '100%',
+        paddingLeft: '1em',
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
+
     },
     rightContainer: {
-        flex: 1,
+        width: 'auto',
         height: '100%',
         flexDirection: 'row',
         alignItems: 'center',
@@ -107,8 +114,8 @@ const styles = StyleSheet.create({
     },
     logo: {
         justifyContent: 'flex-start',
-        height: '100%',
-        width: '5vh',
+        height: '4.5vh',
+        width: '4.5vh',
         minWidth: '2em',
         borderRadius: 18,
     },
@@ -119,11 +126,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
+
+        paddingLeft: '1em',
     },
     text: {
+        fontSize: '1.1em',
+        fontWeight: '600',
         color: '#f9f7f3',
-        paddingRight: '2.5%',
-        paddingLeft: '2.5%'
+        paddingRight: '.5em',
+        paddingLeft: '.5em'
     },
     notif: {
         width: '3vh',
@@ -132,5 +143,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 10,
+        fill: '#f9f7f3'
     },
 });
