@@ -1,6 +1,7 @@
+import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View } from 'react-native';
-import { useState, useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useState } from 'react';
 
 import Header from './Header.js';
 import Footer from './Footer.js';
@@ -49,6 +50,7 @@ const styles = StyleSheet.create({
         flex: 1,
         top: '-2vh',
         height: 'auto',
+        minHeight: '45em',
         width: '100%',
         flexWrap: 'nowrap',
         justifyContent: 'center',
@@ -56,7 +58,7 @@ const styles = StyleSheet.create({
 
     },
     notifShelf: {
-        zIndex:2,
+        zIndex: 2,
         backgroundColor: '#555',
         height: '100%',
         transition: '500ms'

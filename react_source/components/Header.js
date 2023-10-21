@@ -1,6 +1,6 @@
+import * as globals from '../utils/globals.js'
 
-
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, View, Image } from 'react-native';
 import { Link } from "expo-router";
 
 
@@ -17,7 +17,7 @@ export default function Header({ loggedIn, showNotif }) {
     return (
         <View style={styles.header}>
 
-            <View style={styles.leftContainer}>
+            <View style={styles.container}>
                 <Link href="/" asChild>
                     <Image source={Logo} style={styles.logo} />
                 </Link>
@@ -33,7 +33,7 @@ export default function Header({ loggedIn, showNotif }) {
 function Links({ loggedIn }) {
     if (loggedIn) {
         return (
-            <View style={styles.links}>
+            <View style={styles.container}>
 
                 <HeaderLink size={3} href="/groups" style={styles.text}> Groups </HeaderLink>
                 <HeaderLink size={3} href="/friends" style={styles.text}> Friends </HeaderLink>
@@ -45,7 +45,7 @@ function Links({ loggedIn }) {
         );
     } else {
         return (
-            <View style={styles.links}>
+            <View style={styles.container}>
 
                 <HeaderLink size={3} href="/faq" style={styles.text}> FAQ </HeaderLink>
                 <HeaderLink size={3} href="/about" style={styles.text}> About </HeaderLink>
@@ -58,16 +58,16 @@ function Links({ loggedIn }) {
 function Account({ loggedIn, showNotif }) {
     if (loggedIn) {
         return (
-            <View style={styles.rightContainer}>
+            <View style={styles.container}>
                 <Button svg={Bell} iconStyle={styles.notif} onClick={showNotif} />
                 <HeaderText size={3} style={[styles.text, { paddingLeft: '1em' }]}>$AccountName</HeaderText>
             </View>
         );
     } else {
         return (
-            <View style={styles.rightContainer}>
+            <View style={styles.container}>
                 <HeaderLink size={3} href="/login" style={styles.text}>Login</HeaderLink>
-                <HeaderText size={3} style={{ color: '#f9f7f3' }}>|</HeaderText>
+                <HeaderText size={3} style={{ color: globals.COLOR_BEIGE }}>|</HeaderText>
                 <HeaderLink size={3} href="/signup" style={styles.text}>Signup</HeaderLink>
             </View>
         );
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
         height: '5vh',
         minHeight: '2em',
         width: '100%',
-        backgroundColor: '#0FA3B1',
+        backgroundColor: globals.COLOR_BLUE,
         alignSelf: 'top',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -96,21 +96,13 @@ const styles = StyleSheet.create({
         borderLeftStyle: 'none',
         
     },
-    leftContainer: {
+    container: {
         width: 'auto',
         height: '100%',
         paddingLeft: '1em',
         flexDirection: 'row',
-        justifyContent: 'flex-start',
         alignItems: 'center',
 
-    },
-    rightContainer: {
-        width: 'auto',
-        height: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
     },
     logo: {
         justifyContent: 'flex-start',
@@ -119,30 +111,20 @@ const styles = StyleSheet.create({
         minWidth: '2em',
         borderRadius: 18,
     },
-    links: {
-        flex: 1,
-        height: '100%',
-        width: 'auto',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-
-        paddingLeft: '1em',
-    },
     text: {
         fontSize: '1.1em',
         fontWeight: '600',
-        color: '#f9f7f3',
+        color: globals.COLOR_BEIGE,
         paddingRight: '.5em',
         paddingLeft: '.5em'
     },
     notif: {
-        width: '3vh',
+        width: '4vh',
         minWidth: '1.5em',
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 10,
-        fill: '#f9f7f3'
+        fill: globals.COLOR_BEIGE
     },
 });

@@ -1,4 +1,5 @@
-import { StyleSheet } from 'react-native';
+import * as globals from '../utils/globals.js'
+
 import { router } from 'expo-router';
 
 import Base from '../components/Base.js';
@@ -17,27 +18,8 @@ export default function Page() {
 
 
     return (
-        <Base style={styles.container}>
+        <Base style={globals.styles.container}>
             <Login />
         </Base>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        position: 'relative',
-        width: '100%',
-        flex: 1,
-        backgroundColor: '#f9f7f3',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    darkContainer: {
-        position: 'relative',
-        width: '100%',
-        flex: 1,
-        backgroundColor: '#2B2D42',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-});

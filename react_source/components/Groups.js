@@ -1,10 +1,9 @@
+import * as globals from "../utils/globals.js";
+
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState, useEffect } from 'react';
 
 import { Link } from "expo-router";
-
-
-import { HeaderText } from './TextComponents.js'
 
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
@@ -15,11 +14,11 @@ export default function Groups(props) {
         <View style={[styles.groups, props.style]}>
 
             <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
-                <HeaderText size={2} style={[styles.label]}>GROUPS</HeaderText>
-                <HeaderText href="/newGroup" size={3} style={styles.newGroup}>Create New Group</HeaderText>
+                <Text style={[globals.styles.h2, styles.label]}>GROUPS</Text>
+                <Text href="/newGroup" style={[globals.styles.h3, styles.newGroup]}>Create New Group</Text>
             </View>
 
-            <View style={{ alignSelf: 'center', height: '1px', width: '92%', backgroundColor: '#bbb' }} />
+            <View style={{ alignSelf: 'center', height: '1px', width: '92%', backgroundColor: globals.COLOR_GRAY }} />
 
 
             <GroupList />
@@ -47,8 +46,8 @@ function GroupList() {
     if (groupItems === null) {
         //List hasnt loaded yet show nothing
         return (
-            <View style={styles.groupList}>
-                <Image source={LoadingGif} style={styles.loading} />
+            <View style={globals.styles.list}>
+                <Image source={LoadingGif} style={globals.styles.loading} />
             </View>
 
         );
@@ -56,11 +55,11 @@ function GroupList() {
     } else {
         //List has been returned, render it
         return (
-            <View style={styles.groupList}>
-                <View style={[styles.groupListItem, { position: 'sticky', top: 0, zIndex: 1 }]} >
-                    <HeaderText size={3} style={[styles.groupText, { marginBottom: '-.5em' }]}>GROUP NAME</HeaderText>
-                    <View style={{ width: '15%', paddingRight: '.5em', minWidth: '5em', alignItems: 'flex-end' }}>
-                        <HeaderText size={3} style={[styles.groupText, { marginBottom: '-.5em' }]}>BALANCE</HeaderText>
+            <View style={globals.styles.list}>
+                <View style={[globals.styles.listItem, { position: 'sticky', top: 0, zIndex: 1 }]} >
+                    <Text style={[globals.styles.h3, globals.styles.listText, { marginBottom: '-.5em' }]}>GROUP NAME</Text>
+                    <View style={{ width: 'auto', paddingRight: '.5em', minWidth: '5em', alignItems: 'flex-end' }}>
+                        <Text style={[globals.styles.h3, globals.styles.listText, { marginBottom: '-.5em' }]}>BALANCE</Text>
                     </View>
                 </View>
                 {groupItems}
@@ -75,16 +74,17 @@ function GroupList() {
 function GroupItem(props) {
 
     let text = props.owed >= 0 ? "You're Owed" : "You Owe";
+    let color = props.owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
 
     return (
 
         <Link href={'/groups/' + props.id} asChild>
-            <View style={styles.groupListItem} >
+            <View style={globals.styles.listItem} >
 
-                <Text size={3} style={styles.groupText}>{props.name}</Text>
+                <Text style={globals.styles.listText}>{props.name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
-                    <Text size={3} style={[styles.groupText, { fontSize: '.66em' }, props.owed >= 0 ? { color: '#0fa3b1' } : { color: '#f7a072' }]}>{text}</Text>
-                    <Text size={3} style={[styles.groupText, props.owed >= 0 ? { color: '#0fa3b1' } : { color: '#f7a072' }]}>${Math.abs(props.owed)}</Text>
+                    <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
+                    <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed)}</Text>
                 </View>
 
             </View>
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
         width: '35vw',
         minHeight: '20em',
         height: '25vw',
-        backgroundColor: '#FFF',
+        backgroundColor: globals.COLOR_WHITE,
         minWidth: '20em',
         boxShadow: '0px 0px 5px 5px #eee',
 
@@ -123,87 +123,20 @@ const styles = StyleSheet.create({
         alignItems: 'left',
         overflow: 'hidden'
     },
-    groupList: {
-        flex: 1,
-        width: '92%',
-
-        marginTop: '1em',
-        marginBottom: '1em',
-
-        justifyContent: 'flex-start',
-        alignItems: 'left',
-        alignSelf: 'center',
-
-        backgroundColor: '#FFF',
-
-        overflowY: 'scroll',
-        scrollbarWidth: 'thin',
-
-        //borderWidth: '1px',
-        borderColor: '#ddd',
-
-    },
-
-    groupListItem: {
-        marginTop: '1em',
-        backgroundColor: '#FFF',
-        paddingBottom: '1em',
-        justifyContent: 'space-between',
-        alignItems: 'left',
-        flexDirection: 'row',
-
-    },
-    groupText: {
-        fontSize: '1.17em',
-        paddingTop: 0,
-        paddingLeft: '2%',
-        paddingRight: '2%',
-        paddingBottom: 0,
-        color: '#777'
-    },
     label: {
         marginLeft: '3%',
         paddingLeft: ' .5em',
         paddingTop: '2em',
         paddingBottom: '0em',
-        color: '#777',
-
+        color: globals.COLOR_GRAY,
     },
     newGroup: {
         marginRight: '3%',
         paddingRight: ' .5em',
         paddingTop: '2em',
         paddingBottom: '0em',
-        color: '#f7a072',
+        color: globals.COLOR_ORANGE,
         alignSelf: 'flex-end',
-    },
-    checkbox: {
-        marginTop: '.75em',
-        color: '#777',
-        backgroundColor: 'red'
-    },
-    text: {
-        color: '#777',
-        fontSize: '.83em',
-        fontWeight: 600
-    },
-    buttonContainer: {
-        width: '75%',
-        height: '1.75em',
-        fontSize: '1.17em',
-        marginHorizontal: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: '1em',
-        backgroundColor: '#f7a072',
-        borderRadius: 4,
-        boxShadow: '3px 3px 3px #aaa',
-    },
-    loading: {
-        height: '4em',
-        width: '4em',
-        minWidth: '2em',
-        borderRadius: 1,
-    },
+    }
 
 });

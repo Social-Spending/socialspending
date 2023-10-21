@@ -1,8 +1,8 @@
+import * as globals from '../utils/globals.js'
+
 import { StyleSheet, View, Pressable, Text, Image } from 'react-native';
 
 import { useState } from 'react';
-
-import { HeaderLink, HeaderText } from './TextComponents.js'
 
 
 
@@ -11,7 +11,7 @@ export default function Button({ label, style, icon, svg, iconStyle, onClick, di
 
     return (
         <View style={style}>
-            <Pressable style={[styles.button, disabled ? styles.disabled : (hover ? styles.hover : {})]} onPress={onClick} disabled={disabled} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+            <Pressable style={[styles.button, disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {})]} onPress={onClick} disabled={disabled} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
                 <Icon svg={svg} style={iconStyle} icon={icon} />
                 <ButtonText disabled={disabled} label={label} />
             </Pressable>
@@ -37,7 +37,7 @@ function Icon(props) {
 function ButtonText(props) {
     if (props.label) {
         return (
-            <HeaderText size={5} style={props.disabled ? styles.buttonLabelDisabled : styles.buttonLabel }>{props.label}</HeaderText>
+            <Text style={[globals.styles.h5, props.disabled ? styles.buttonLabelDisabled : styles.buttonLabel ]} >{props.label}</Text>
         );
     } else {
         return;
@@ -45,14 +45,6 @@ function ButtonText(props) {
 }
 
 const styles = StyleSheet.create({
-    disabled: {
-        backgroundColor: "#66666633",
-        borderRadius: 10,
-    },
-    hover: {
-        backgroundColor: "#cccccc55",
-        borderRadius: 10,
-    },
     button: {
         borderRadius: 10,
         width: '100%',
@@ -65,7 +57,7 @@ const styles = StyleSheet.create({
         paddingRight: 8,
     },
     buttonLabel: {
-        color: '#FFF',
+        color: globals.COLOR_WHITE,
     },
     buttonLabelDisabled: {
         color: '#ccc',
@@ -74,6 +66,5 @@ const styles = StyleSheet.create({
         aspectRatio: 1,
         justifyContent: 'flex-start',
         height: '100%',
-        borderRadius: 18,
     },
 });

@@ -24,20 +24,19 @@
  *          
 */
 
-
+import * as globals from '../utils/globals.js'
 
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState, useRef } from 'react';
 import { Link, router } from "expo-router";
 
 import Button from './Button.js'
-import { HeaderText } from './TextComponents.js'
 
 const Logo = require('../assets/images/logo/logo-name-128x64.png');
 
 
 
-export default function Login() {
+export default function Signup() {
 
     const [emailDisabled    , setEmailDisabled]      = useState(true);
     const [passwordDisabled , setPasswordDisabled]   = useState(true);
@@ -62,43 +61,43 @@ export default function Login() {
 
     return (
 
-        <View style={styles.login}>
+        <View style={styles.singup}>
 
             <Image source={Logo} style={styles.logo} />
 
-            <HeaderText size={2} style={[styles.label, { paddingTop: 0 }]}>Create your Account</HeaderText>
-            <Text style={styles.text}>Create an account to get started with Social Spending</Text>
+            <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>Create your Account</Text>
+            <Text style={[globals.styles.text, { paddingTop: '1em'}]}>Create an account to get started with Social Spending</Text>
 
-            <Text ref={errorMessageRef} id='signupForm_errorMessage' style={[styles.error, { paddingTop: 0 }]}></Text>
+            <Text ref={errorMessageRef} id='signupForm_errorMessage' style={[globals.styles.error, { paddingTop: 0 }]}></Text>
 
-            <View style={styles.labelContainer}>
-                <HeaderText size={5} style={styles.label}>EMAIL</HeaderText>
-                <Text ref={emailErrorMessageRef} id='email_errorMessage' style={styles.error}></Text>
+            <View style={globals.styles.labelContainer}>
+                <Text style={[globals.styles.h5, globals.styles.label]}>EMAIL</Text>
+                <Text ref={emailErrorMessageRef} id='email_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <input tabIndex={1} ref={emailRef} type='email' placeholder=" Enter your email address" style={styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
+            <input tabIndex={1} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
 
-            <View style={styles.labelContainer}>
-                <HeaderText size={5} style={styles.label}>USERNAME</HeaderText>
-                <Text ref={userErrorMessageRef} id='username_errorMessage' style={styles.error}></Text>
+            <View style={globals.styles.labelContainer}>
+                <Text style={[globals.styles.h5, globals.styles.label]}>USERNAME</Text>
+                <Text ref={userErrorMessageRef} id='username_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <input tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
+            <input tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
 
-            <View style={styles.labelContainer}>
-                <HeaderText size={5} style={styles.label}>PASSWORD</HeaderText>
+            <View style={globals.styles.labelContainer}>
+                <Text style={[globals.styles.h5, globals.styles.label]}>PASSWORD</Text>
             </View>
-            <input tabIndex={3} ref={passwordRef} placeholder=" Password" style={styles.input} id='signupForm_password' type='password' name="Password" onInput={onPasswordChange} />
+            <input tabIndex={3} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' type='password' name="Password" onInput={onPasswordChange} />
 
-            <View style={styles.labelContainer}>
-                <HeaderText size={5} style={styles.label}>VERIFY PASSWORD</HeaderText>
-                <Text ref={passwordErrorMessageRef} id='password_errorMessage' style={styles.error}></Text>
+            <View style={globals.styles.labelContainer}>
+                <Text style={[globals.styles.h5, globals.styles.label]}>VERIFY PASSWORD</Text>
+                <Text ref={passwordErrorMessageRef} id='password_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <input tabIndex={4} ref={passwordVerifyRef} placeholder=" Verify Password" style={styles.input} id='signupForm_verifyPassword' type='password' name="Password" onInput={onPasswordChange} />
+            <input tabIndex={4} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' type='password' name="Password" onInput={onPasswordChange} />
 
-            <Button disabled={emailDisabled || passwordDisabled || usernameDisabled} style={styles.buttonContainer} label='Create Account' onClick={onSubmit} />
+            <Button disabled={emailDisabled || passwordDisabled || usernameDisabled} style={globals.styles.formButton} label='Create Account' onClick={onSubmit} />
 
             <View style={{ flexDirection: 'row', paddingTop: '2em' }}>
-                <Text style={styles.text}>Already have an account? </Text>
-                <Link href="/login" style={[styles.text, { color: '#f7a072' }]}>Login</Link>
+                <Text style={globals.styles.text}>Already have an account? </Text>
+                <Link href="/login" style={[globals.styles.text, { color: globals.COLOR_ORANGE }]}>Login</Link>
             </View>
 
         </View>
@@ -180,12 +179,12 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef) {
 }
 
 const styles = StyleSheet.create({
-    login: {
+    singup: {
         width: '50vh',
         minWidth: '27em',
         height: '70vh',
         minHeight: '39em',
-        backgroundColor: '#FFF',
+        backgroundColor: globals.COLOR_WHITE,
         boxShadow: '0px 0px 5px 5px #eee',
         borderRadius: 18,
         justifyContent: 'center',
@@ -197,58 +196,7 @@ const styles = StyleSheet.create({
         minWidth: '2em',
         borderRadius: 1,
     },
-    input: {
-        width: '75%',
-        height: '2.5em',
-        fontSize: '.86em',
-        borderRadius: 2,
-        borderTopStyle: 'none',
-        borderRightStyle: 'none',
-        borderLeftStyle: 'none'
-    },
-    error: {
-        paddingTop: '1.75em',
-        paddingRight: '.416em',
-        paddingLeft: '.416em',
-        color: '#F00'
-    },
-    labelContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '80%'
-    },
-    label: {
-        paddingTop: '2em',
-        paddingBottom: '.5em',
-        color: '#777'
-    },
-    forgot: {
-        paddingTop: '2em',
-        color: '#f7a072',
-        paddingBottom: '.5em',
-        alignSelf: 'flex-end'
-    },
-    checkbox: {
-        marginTop: '.75em',
-        color: '#777',
-        backgroundColor: 'red'
-    },
-    text: {
-        color: '#777',
-        fontSize: '.83em',
-        fontWeight: 600
-    },
-    buttonContainer: {
-        width: '75%',
-        height: '1.75em',
-        fontSize: '1.17em',
-        marginHorizontal: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: '1em',
-        backgroundColor: '#f7a072',
-        borderRadius: 4,
-        boxShadow: '3px 3px 3px #aaa',
-    },
+    
+    
 
 });
