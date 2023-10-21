@@ -6,16 +6,20 @@ import { useState } from 'react';
 
 
 
-export default function Button({ label, style, icon, svg, iconStyle, onClick, disabled }) {
+export default function Button({ label, style, hoverStyle, iconStyle, icon, svg, onClick, disabled }) {
     const [hover, setHover] = useState(false);
 
     return (
-        <View style={style}>
-            <Pressable style={[styles.button, disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {})]} onPress={onClick} disabled={disabled} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+        
+        <Pressable style={[styles.button, style]} onPress={onClick} disabled={disabled} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+            <View style={[styles.button, hoverStyle, disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {})]} >
+            
                 <Icon svg={svg} style={iconStyle} icon={icon} />
                 <ButtonText disabled={disabled} label={label} />
-            </Pressable>
-        </View>
+            </View>
+           
+        </Pressable>
+        
     );
 }
 
@@ -46,7 +50,7 @@ function ButtonText(props) {
 
 const styles = StyleSheet.create({
     button: {
-        borderRadius: 10,
+        borderRadius: 1,
         width: '100%',
         height: '100%',
         alignItems: 'center',
@@ -60,7 +64,7 @@ const styles = StyleSheet.create({
         color: globals.COLOR_WHITE,
     },
     buttonLabelDisabled: {
-        color: '#ccc',
+        color: '#dfdfdf',
     },
     icon: {
         aspectRatio: 1,

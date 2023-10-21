@@ -1,13 +1,10 @@
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, View, Image } from 'react-native';
+import { StyleSheet, View, Image, Text } from 'react-native';
 import { Link } from "expo-router";
-
+import { useState } from 'react';
 
 import Button from './Button.js'
-
-import { HeaderLink, HeaderText } from './TextComponents.js'
-
 
 const Logo = require('../assets/images/logo/logo-64.png');
 import Bell from '../assets/images/bxs-bell.svg';
@@ -35,11 +32,11 @@ function Links({ loggedIn }) {
         return (
             <View style={styles.container}>
 
-                <HeaderLink size={3} href="/groups" style={styles.text}> Groups </HeaderLink>
-                <HeaderLink size={3} href="/friends" style={styles.text}> Friends </HeaderLink>
+                <HeaderLink href="/groups" style={[globals.styles.h3, styles.text]}> Groups </HeaderLink>
+                <HeaderLink href="/friends" style={[globals.styles.h3, styles.text]}> Friends </HeaderLink>
 
-                <HeaderLink size={3} href="/faq" style={styles.text}> FAQ </HeaderLink>
-                <HeaderLink size={3} href="/about" style={styles.text}> About </HeaderLink>
+                <HeaderLink href="/faq" style={[globals.styles.h3, styles.text]}> FAQ </HeaderLink>
+                <HeaderLink href="/about" style={[globals.styles.h3, styles.text]}> About </HeaderLink>
 
             </View>
         );
@@ -47,8 +44,8 @@ function Links({ loggedIn }) {
         return (
             <View style={styles.container}>
 
-                <HeaderLink size={3} href="/faq" style={styles.text}> FAQ </HeaderLink>
-                <HeaderLink size={3} href="/about" style={styles.text}> About </HeaderLink>
+                <HeaderLink href="/faq" style={[globals.styles.h3, styles.text]}> FAQ </HeaderLink>
+                <HeaderLink href="/about" style={[globals.styles.h3, styles.text]}> About </HeaderLink>
 
             </View>
         );
@@ -59,19 +56,37 @@ function Account({ loggedIn, showNotif }) {
     if (loggedIn) {
         return (
             <View style={styles.container}>
-                <Button svg={Bell} iconStyle={styles.notif} onClick={showNotif} />
-                <HeaderText size={3} style={[styles.text, { paddingLeft: '1em' }]}>$AccountName</HeaderText>
+                <Button style={styles.notif} hoverStyle={styles.notif} svg={Bell} iconStyle={styles.bell} onClick={showNotif} />
+                <HeaderText style={[globals.styles.h3, styles.text, { paddingLeft: '1em' }]}>$AccountName</HeaderText>
             </View>
         );
     } else {
         return (
             <View style={styles.container}>
-                <HeaderLink size={3} href="/login" style={styles.text}>Login</HeaderLink>
-                <HeaderText size={3} style={{ color: globals.COLOR_BEIGE }}>|</HeaderText>
-                <HeaderLink size={3} href="/signup" style={styles.text}>Signup</HeaderLink>
+                <HeaderLink href="/login" style={[globals.styles.h3, styles.text]}>Login</HeaderLink>
+                <Text style={[ styles.text, { color: globals.COLOR_BEIGE }]}>|</Text>
+                <HeaderLink href="/signup" style={[globals.styles.h3, styles.text]}>Signup</HeaderLink>
             </View>
         );
     }
+}
+
+function HeaderText(props) {
+    const [hover, setHover] = useState(false);
+
+    return (
+        <Text style={[props.style, hover ? globals.styles.hover : {}]} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>{props.children}</Text>
+    );
+}
+
+function HeaderLink(props) {
+    const [hover, setHover] = useState(false);
+
+    return (
+        <Link style={[props.style, hover ? globals.styles.hover : {}]} href={props.href} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+            {props.children}
+        </Link>
+    );
 }
 
 
@@ -109,22 +124,36 @@ const styles = StyleSheet.create({
         height: '4.5vh',
         width: '4.5vh',
         minWidth: '2em',
+        minHeight: '2em',
         borderRadius: 18,
     },
     text: {
         fontSize: '1.1em',
         fontWeight: '600',
         color: globals.COLOR_BEIGE,
+        
         paddingRight: '.5em',
-        paddingLeft: '.5em'
+        paddingLeft: '.5em',
+
+        paddingTop: '.275em',
+        height: '2em',
+        borderRadius: '2em',
     },
     notif: {
-        width: '4vh',
+        width: '2em',
+        minWidth: '2em',
+        height: '2em',
+        minHeight: '2em',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: '50%',
+    },
+    bell: {
+        width: '1.5em',
         minWidth: '1.5em',
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 10,
         fill: globals.COLOR_BEIGE
     },
 });

@@ -15,7 +15,7 @@ import { useRef } from 'react';
 
 import Button from './Button.js'
 
-const Logo = require('../assets/images/logo/logo-name-128x64.png');
+const Logo = require('../assets/images/logo/logo-name-64.png');
 
 export default function Login() {
 
@@ -109,8 +109,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     logo: {
-        height: '4em',
-        width: '8em',
+        height: '3em',
+        width: '9em',
         minWidth: '2em',
         borderRadius: 1,
     },
