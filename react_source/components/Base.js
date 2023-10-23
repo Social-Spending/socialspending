@@ -6,6 +6,7 @@ import { useState } from 'react';
 import Header from './Header.js';
 import Footer from './Footer.js';
 import { getCookieValue } from "./Utils.js";
+import Notifications from "./Notifications.js";
 
 export default function Base(props) {
 
@@ -24,8 +25,8 @@ export default function Base(props) {
                     {props.children}
                 </View>
 
-                <View style={[styles.notifShelf, showShelf ? { width: '20vw' } : { width: '0vh' }]}>
-                    
+                <View style={[styles.notifShelf, showShelf ? {width: '20vw', /*visibility: "visible",*/ display: "block"} : {width: '0vh', /*visibility: "hidden",*/ display: "none"}]}>
+                    <Notifications />
                 </View>
 
                 <Footer />
