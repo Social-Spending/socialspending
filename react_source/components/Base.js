@@ -25,9 +25,9 @@ export default function Base(props) {
                     {props.children}
                 </View>
 
-                <View style={[styles.notifShelf, showShelf ? {width: '20vw', /*visibility: "visible",*/ display: "block"} : {width: '0vh', /*visibility: "hidden",*/ display: "none"}]}>
-                    <Notifications />
-                </View>
+                
+                <Notifications show={showShelf} />
+                
 
                 <Footer />
 
