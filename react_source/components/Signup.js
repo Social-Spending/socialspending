@@ -17,13 +17,15 @@ import Button from './Button.js'
 
 const Logo = require('../assets/images/logo/logo-name-64.png');
 
-
+import ShowSvg from '../assets/images/bx-show.svg';
+import HideSvg from '../assets/images/bx-hide.svg';
 
 export default function Signup() {
 
     const [emailDisabled    , setEmailDisabled]      = useState(true);
     const [passwordDisabled , setPasswordDisabled]   = useState(true);
     const [usernameDisabled , setUsernameDisabled]   = useState(true);
+    const [showPassword     , setShowPassword]       = useState(false);
 
     // Refs must be used in the same component they were declared in call any of these functions from a component executes them in said 
     // components where the refs are null. This fixes that by rerouting the function to run in this component
@@ -32,6 +34,13 @@ export default function Signup() {
     const onPasswordChange  = () => { setPasswordDisabled   (checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
     const onUsernameChange  = () => { setUsernameDisabled   (checkUsername(userRef, userErrorMessageRef)); }
     const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, errorMessageRef); }
+
+    const changePasswordVisibility = () => {
+        if (passwordRef.current) {
+            setShowPassword(!showPassword);
+            passwordRef.current.type = !showPassword ? "text" : "password";
+        }
+    }
 
     const errorMessageRef           = useRef(null);
     const emailErrorMessageRef      = useRef(null);
@@ -65,8 +74,10 @@ export default function Signup() {
             </View>
             <input tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
 
-            <View style={globals.styles.labelContainer}>
+            <View style={[globals.styles.labelContainer, { justifyContent: 'flex-start' }]}>
+
                 <Text style={[globals.styles.h5, globals.styles.label]}>PASSWORD</Text>
+                <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1em' }} onClick={changePasswordVisibility}></Button>
             </View>
             <input tabIndex={3} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' type='password' name="Password" onInput={onPasswordChange} />
 

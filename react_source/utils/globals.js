@@ -87,6 +87,12 @@ export const styles = StyleSheet.create({
         borderRadius: 4,
         boxShadow: '3px 3px 3px #aaa',
     },
+    showPassword: {
+        fontSize: '1.2em',
+        height: '100%',
+        width: 'auto',
+        paddingLeft: '.5em'
+    },
     list: {
         flex: 1,
         width: '92%',

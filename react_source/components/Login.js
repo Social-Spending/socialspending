@@ -11,7 +11,10 @@ import * as globals from '../utils/globals.js'
 
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { Link, router } from "expo-router";
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+
+import ShowSvg from '../assets/images/bx-show.svg';
+import HideSvg from '../assets/images/bx-hide.svg';
 
 import Button from './Button.js'
 
@@ -21,10 +24,20 @@ export default function Login() {
 
     const onSubmit = () => { submitForm(userRef, passwordRef, rememberRef, errorMessageRef); }
 
+    const [showPassword, setShowPassword] = useState(false);
+
+    const changePasswordVisibility = () => {
+        if (passwordRef.current) {
+            setShowPassword(!showPassword);
+            passwordRef.current.type = !showPassword ? "text" : "password";
+        }
+    }
+
     const errorMessageRef   = useRef(null);
     const userRef           = useRef(null);
     const passwordRef       = useRef(null);
     const rememberRef       = useRef(null);
+
 
     return (
 
@@ -46,7 +59,11 @@ export default function Login() {
             <input tabIndex={1} ref={userRef} placeholder=" Enter your email or username" style={globals.styles.input} id='loginForm_user' name="Username" />
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>PASSWORD</Text>
+                <View style={{flexDirection: 'row'} }>
+                    <Text style={[globals.styles.h5, globals.styles.label]}>PASSWORD</Text>
+                    <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1em' }} onClick={changePasswordVisibility}></Button>
+                </View>
+                
                 <Link href="/forgot" style={[globals.styles.h5, styles.forgot]}>Forgot Password?</Link> 
             </View>
             <input tabIndex={2} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='loginForm_password' type='password' name="Password" />
