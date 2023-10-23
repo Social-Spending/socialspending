@@ -1,28 +1,11 @@
 /*
- *  Functions:
- *      checkEmail: Checks value of email field and prevents user from submitting if not a valid email
- *          @param: emailRef - reference to email field
- *          @param: errorRef - reference to error text field to output error text
- *          @return: boolean - validity of email
- *          
- *      checkPassword: Checks value of password field and prevents user from submitting if not equal to verify password field
- *          @param: passwordRef - reference to password field
- *          @param: verifyRef   - reference to verify password field
- *          @param: errorRef    - reference to error text field to output error text
- *          @return: boolean    - validity of password
- *          
- *      checkUsername: Checks value of username field and prevents user from submitting if too short
- *          @param: userRef     - reference to username field
- *          @param: errorRef    - reference to error text field to print error text to
- *          @return: boolean    - validity of username
- *          
- *      submitForm: Creates a post request to /signup.php containing values of email, username, and password fields.
- *          @param: userRef     - reference to username field
- *          @param: emailRef    - reference to email field
- *          @param: passwordRef - reference to password field
- *          @param: errorRef    - reference to error text field to print error text to
- *          
-*/
+ *  Signup:
+ *  
+ *      Displays a form allowing email, username, and a password as input
+ *      Submit button makes a request to /signup.php contianing email, password, and username
+ *      On signup, the user recieves a session cookie and is redirected to /summary
+ *  
+ */
 
 import * as globals from '../utils/globals.js'
 
@@ -104,6 +87,12 @@ export default function Signup() {
     );
 }
 
+/**
+ * Checks value of email field and prevents user from submitting if not a valid email
+ * @param {React.MutableRefObject} emailRef reference to email field
+ * @param {React.MutableRefObject} errorRef reference to error text field to output error text
+ * @returns {boolean}                       validity of email
+ */
 function checkEmail(emailRef, errorRef) {
 
 
@@ -121,6 +110,12 @@ function checkEmail(emailRef, errorRef) {
     }
 }
 
+/**
+ * Checks value of username field and prevents user from submitting if too short
+ * @param {React.MutableRefObject} userRef  reference to username field
+ * @param {React.MutableRefObject} errorRef reference to error text field to print error text to
+ * @returns {boolean}                       validity of username
+ */
 function checkUsername(userRef, errorRef) {
 
     if (userRef.current.value.length >= 4) {
@@ -133,6 +128,13 @@ function checkUsername(userRef, errorRef) {
     }
 }
 
+/**
+ * Checks value of password field and prevents user from submitting if not equal to verify password field
+ * @param {React.MutableRefObject} passwordRef  reference to password field
+ * @param {React.MutableRefObject} verifyRef    reference to verify password field
+ * @param {React.MutableRefObject} errorRef     reference to error text field to output error text
+ * @returns {boolean}                           validity of password
+ */
 function checkPassword(passwordRef, verifyRef, errorRef) {
 
     if (passwordRef.current.value != verifyRef.current.value) {
@@ -145,8 +147,12 @@ function checkPassword(passwordRef, verifyRef, errorRef) {
     }
 }
 
-
-
+/**
+ * @param {React.MutableRefObject} userRef          reference to username field
+ * @param {React.MutableRefObject} emailRef         reference to email field
+ * @param {React.MutableRefObject} passwordRef      reference to password field
+ * @param {React.MutableRefObject} errorRef         reference to error text field to print error text to
+ */
 async function submitForm(userRef, emailRef, passwordRef, errorRef) {
 
     // pul username and password in form data for a POST request

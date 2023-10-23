@@ -79,7 +79,7 @@ function GroupItem(props) {
     return (
 
         <Link href={'/groups/' + props.id} asChild>
-            <View style={globals.styles.listItem} >
+            <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
                 <Text style={globals.styles.listText}>{props.name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
@@ -99,10 +99,7 @@ async function generateGroupList() {
 
     for (let i = 0; i < 100; i++) {
 
-
-        groupList.push(<View key={i * 2} style={{ alignSelf: 'center', height: '1px', width: '100%', backgroundColor: '#eee' }} />);
-
-        groupList.push(<GroupItem key={i * 2 + 1} name={'Group ' + Math.abs(Math.floor(Math.sin(i) * 1000000))} id={Math.abs(Math.floor(Math.sin(i) * 1000000))} owed={(Math.tan(i) * 1000).toFixed(2)} />);
+        groupList.push(<GroupItem key={i} border={i >0} name={'Group ' + Math.abs(Math.floor(Math.sin(i) * 1000000))} id={Math.abs(Math.floor(Math.sin(i) * 1000000))} owed={(Math.tan(i) * 1000).toFixed(2)} />);
     }
 
     return groupList;
