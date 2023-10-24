@@ -12,13 +12,11 @@ GET Request
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     //Check if user_id and a notification type were passed
     if (isset($_GET["type"]) && isset($_GET["user_id"])) {
-		getNotification($_GET["type"] && $_GET["user_id"]);
-        return;
+		getNotification($_GET["type"], $_GET["user_id"]);
     }
 	//No other valid GET requests, fail out
     else {
         http_response_code(HTTP_BAD_REQUEST);
-        return;
     }
 } 
 
@@ -28,12 +26,13 @@ POST Request
 */
 elseif ($_SERVER["REQUEST_METHOD"] == "POST") 
 {
-    if (!empty($_POST)) 
-    {
-        if (is_string($_POST) && json_decode($_POST, true)) {
-            addNewTransaction($_POST);
-        }
-    }
+    // if (!empty($_POST)) 
+    // {
+    //     if (is_string($_POST) && json_decode($_POST, true)) {
+    //         addNewTransaction($_POST);
+    //     }
+    // }
+    http_response_code(HTTP_BAD_REQUEST);
 }
 
 function getNotification($type, $user_id) {
@@ -54,7 +53,18 @@ function getNotification($type, $user_id) {
 }
 
 function getFriendRequests($user_id) {
+    global $mysqli;
 
+    $sql = "SELECT users.username AS username
+            FROM notifications
+            LEFT JOIN users ON users.user_id = notifications.friend_request_user_id
+            WHERE notifications.user_id=? AND notifications.type=\"friend_request\"";
+
+    $friend_requests = $mysqli->execute_query($sql, [$user_id]);
+
+    $json_data = json_encode($friend_requests->fetch_all());
+    header('Content-Type: application/json');
+    echo $json_data;
 }
 
 function getApprovalRequests($user_id) {
@@ -62,6 +72,14 @@ function getApprovalRequests($user_id) {
 }
 
 function getApprovedTransactions($user_id) {
+
+}
+
+function acceptFriendRequest($notification_id) {
+
+}
+
+function rejectFriendRequest($notification_id) {
 
 }
 
