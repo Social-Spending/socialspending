@@ -4,3 +4,8 @@ RedirectMatch 404 \/templates
 RedirectMatch 404 README.md
 RedirectMatch 404 LICENSE
 RedirectMatch 404 database.sql
+
+Options -MultiViews
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^.*$ /index.html [QSA,L]
