@@ -43,22 +43,26 @@ verify_signature($payload);
 // pull changes and override local changes
 
 echo 'Pulling '.$branch;
+$output = null;
 $rv = 0;
-if (!exec('git fetch origin '.$branch.' && git reset --hard origin/'.$branch, null, $rv) || $rv)
+//if (!exec('git fetch origin '.$branch.' && git reset --hard origin/'.$branch, $output, $rv) || $rv)
+if (false)
 {
     // fail if exec returned false or the commmands returned non-zero status code
     echo 'Failed to pull from Github';
-    http_status_code(500);
+    http_response_code(500);
     exit(0);
 }
 echo 'Compiling react';
+// for some reason env vars are not being passed to exec()?
 $rv = 0;
-if(!exec('cd react_source && ./compile.sh', null, $rv) || $rv)
+if (!exec('cd react_source && ./compile.sh', $output, $rv) || $rv)
 {
     // fail if exec returned false or the command returned non-zero satus code
-    echo 'Failed to Build React';
-    https_status_code(500);
+    echo 'Failed to Compile React';
+    http_response_code(500);
     exit(0);
 }
+
 echo "Pull successful";
 ?>
