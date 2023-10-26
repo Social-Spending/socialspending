@@ -30,7 +30,7 @@ function verify_signature($payload)
 // jenky code to choose if this file is in the dev or prod endpoint
 $branch = 'main';
 // split the servername into an array of tokens separated by .
-$servernameArray = explode('.', $_SERVER['SERVER_NAME');
+$servernameArray = explode('.', $_SERVER['SERVER_NAME']);
 if ($servernameArray[0] == 'dev')
 {
     $branch = 'develop';
@@ -44,7 +44,7 @@ verify_signature($payload);
 
 echo 'Pulling '.$branch;
 $rv = 0;
-if (!exec('git fetch '.$branch.' && git reset --hard origin/'.$branch, null, $rv) || $rv)
+if (!exec('git fetch origin '.$branch.' && git reset --hard origin/'.$branch, null, $rv) || $rv)
 {
     // fail if exec returned false or the commmands returned non-zero status code
     echo 'Failed to pull from Github';
