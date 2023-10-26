@@ -1,6 +1,6 @@
 #! /bin/bash
 
-npx expo export -p web
+npx expo export -p web --yes
 
 if [ "$?" -eq "0" ]
 then
