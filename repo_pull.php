@@ -1,7 +1,7 @@
 <?php
 
 // this should only be accessed by POST from github
-const HEADER_SIGNATURE_NAME='HTTP_X_HUB_SIGNATURE_256';
+const HEADER_SIGNATURE_NAME='X-Hub-Signature-256';
 if ($_SERVER['REQUEST_METHOD'] != 'POST' || !isset($_POST[HEADER_SIGNATURE_NAME]))
 {
     echo "Request must be POST with ".HEADER_SIGNATURE_NAME." in the header";
