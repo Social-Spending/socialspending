@@ -33,7 +33,7 @@ verify_signature($payload);
 // pull changes and override local changes
 
 echo "Pulling main";
-`git fetch && git reset --hard origin/master`;
+`git fetch main && git reset --hard origin/main`;
 echo "Compiling react";
 `cd react_source && ./compile.sh`;
 echo "Pull successful";
