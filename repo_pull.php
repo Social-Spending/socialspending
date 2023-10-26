@@ -45,8 +45,7 @@ verify_signature($payload);
 echo 'Pulling '.$branch;
 $output = null;
 $rv = 0;
-//if (!exec('git fetch origin '.$branch.' && git reset --hard origin/'.$branch, $output, $rv) || $rv)
-if (false)
+if (!exec('git fetch origin '.$branch.' && git reset --hard origin/'.$branch, $output, $rv) || $rv)
 {
     // fail if exec returned false or the commmands returned non-zero status code
     echo 'Failed to pull from Github';
