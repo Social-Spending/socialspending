@@ -26,15 +26,39 @@ function verify_signature($payload)
 
 }
 
+
+// jenky code to choose if this file is in the dev or prod endpoint
+$branch = 'main';
+// split the servername into an array of tokens separated by .
+$servernameArray = explode('.', $_SERVER['SERVER_NAME');
+if ($servernameArray[0] == 'dev')
+{
+    $branch = 'develop';
+}
+
 // get string representation of body and verify
 $payload = file_get_contents('php://input');
 verify_signature($payload);
 
 // pull changes and override local changes
 
-echo "Pulling main";
-`git fetch main && git reset --hard origin/main`;
-echo "Compiling react";
-`cd react_source && ./compile.sh`;
+echo 'Pulling '.$branch;
+$rv = 0;
+if (!exec('git fetch '.$branch.' && git reset --hard origin/'.$branch, null, $rv) || $rv)
+{
+    // fail if exec returned false or the commmands returned non-zero status code
+    echo 'Failed to pull from Github';
+    http_status_code(500);
+    exit(0);
+}
+echo 'Compiling react';
+$rv = 0;
+if(!exec('cd react_source && ./compile.sh', null, $rv) || $rv)
+{
+    // fail if exec returned false or the command returned non-zero satus code
+    echo 'Failed to Build React';
+    https_status_code(500);
+    exit(0);
+}
 echo "Pull successful";
 ?>
