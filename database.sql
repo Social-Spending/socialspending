@@ -36,7 +36,7 @@ create table transaction_participants (
 	user_id int not null,
 	has_approved tinyint(1) not null,
 	amount int not null,
-	primary key (transaction_id),
+	primary key (transaction_id, user_id),
 	foreign key (user_id) references users(user_id) on delete no action on update cascade
 );
 
