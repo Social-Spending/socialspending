@@ -17,19 +17,19 @@
                 - Content-Type:application/json
                 - body: serialized JSON in the following format
                     {
-                        'message':<RESULT>,
-                        'groups':
+                        "message":<RESULT>,
+                        "groups":
                         [
                             {
-                                'group_name':<GROUP NAME>,
-                                'group_id:<GROUP ID>,
-                                'debt':<DEBT>,
-                                'members':
+                                "group_name":<GROUP NAME>,
+                                "group_id:<GROUP ID>,
+                                "debt":<DEBT>,
+                                "members":
                                 [
                                     {
-                                        'username':<USERNAME>,
-                                        'user_id:<USER ID>,
-                                        'debt':<DEBT>
+                                        "username":<USERNAME>,
+                                        "user_id":<USER ID>,
+                                        "debt":<DEBT>
                                     },
                                     ...,
                                     {}
@@ -39,9 +39,9 @@
                             {}
                         ]
                     }
-                    The 'members' list does not include the currently logged in user.
-                    'debt' is an integer value that is the (positive) amount the user owes or the (negative) amount the user is owed.
-                    If `brief=true` in the URL parameters, the 'members' node is omitted from all groups.
+                    The "members" list does not include the currently logged in user.
+                    "debt" is an integer value that is the (positive) amount the user owes or the (negative) amount the user is owed.
+                    If `brief=true` in the URL parameters, the "members" node is omitted from all groups.
                     <RESULT> is a message explaining the status code to a user.
         GROUP INFO operation: get information about a certain group
             - Request:
@@ -60,24 +60,24 @@
                 - Content-Type:application/json
                 - body: serialized JSON in the following format
                     {
-                        'message':<RESULT>,
-                        'group_name':<GROUP NAME>,
-                        'group_id:<GROUP ID>,
-                        'debt':<DEBT>,
-                        'members':
+                        "message":<RESULT>,
+                        "group_name":<GROUP NAME>,
+                        "group_id:<GROUP ID>,
+                        "debt":<DEBT>,
+                        "members":
                         [
                             {
-                                'username':<USERNAME>,
-                                'user_id:<USER ID>,
-                                'debt':<DEBT>
+                                "username":<USERNAME>,
+                                "user_id":<USER ID>,
+                                "debt":<DEBT>
                             },
                             ...,
                             {}
                         ]
                     }
-                    The 'members' list does not include the currently logged in user.
-                    'debt' is an integer value that is the (positive) amount the user owes or the (negative) amount the user is owed.
-                    If `brief=true` in the URL parameters, the 'members' node is omitted.
+                    The "members" list does not include the currently logged in user.
+                    "debt" is an integer value that is the (positive) amount the user owes or the (negative) amount the user is owed.
+                    If `brief=true` in the URL parameters, the "members" node is omitted.
                     <RESULT> is a message explaining the status code to a user.
     - POST: Used to perform multiple operations, where the operation is specified by a key provided in JSON
         CREATE operation: create a group and add the given users to the group
@@ -87,21 +87,21 @@
                     - cookies: session_id=***
                 - body: serialized JSON in one of the following formats
                     {
-                        'operation':'create',
-                        'group_name':<GROUP NAME>,
-                        'members':
+                        "operation":"create",
+                        "group_name":<GROUP NAME>,
+                        "members":
                         [
                             {
-                                'user':<USERNAME/EMAIL>,
-                                'user_id:<USER ID>
+                                "user":<USERNAME/EMAIL>,
+                                "user_id":<USER ID>
                             },
                             ...,
                             {}
                         ]
                     }
-                    Where either 'user':<USERNAME/EMAIL> OR 'user_id:<USER ID> are specified for each user.
+                    Where either "user":<USERNAME/EMAIL> OR "user_id":<USER ID> are specified for each user.
                     If both username/email and user ID are specified, the user ID will be used.
-                    'members' may be omitted or empty, in which case a group will be created with only the currently logged in user.
+                    "members" may be omitted or empty, in which case a group will be created with only the currently logged in user.
             - Response:
                 - Status Codes:
                     - 200 if user successfully created the group and added all users
@@ -113,7 +113,7 @@
                     - Content-Type: application/json
                 - body: serialized JSON in the following format
                     {
-                        'message':<RESULT>
+                        "message":<RESULT>
                     }
                     Where <RESULT> is a message explaining the status code to a user
         ADD_USER operation: add a specified user to the specified group
@@ -123,12 +123,12 @@
                     - cookies: session_id=***
                 - body: serialized JSON in one of the following formats
                     {
-                        'operation':'add_user',
-                        'group_id:<GROUP ID>,
-                        'user':<USERNAME/EMAIL>,
-                        'user_id:<USER ID>
+                        "operation":"add_user",
+                        "group_id":<GROUP ID>,
+                        "user":<USERNAME/EMAIL>,
+                        "user_id":<USER ID>
                     }
-                    And where either 'user':<USERNAME/EMAIL> OR 'user_id:<USER ID> are specified.
+                    And where either "user":<USERNAME/EMAIL> OR "user_id":<USER ID> are specified.
                     If both username/email and user ID are specified, the user ID will be used.
             - Response:
                 - Status Codes:
@@ -141,7 +141,7 @@
                     - Content-Type: application/json
                 - body: serialized JSON in the following format
                     {
-                        'message':<RESULT>
+                        "message":<RESULT>
                     }
                     Where <RESULT> is a message explaining the status code to a user
         DELETE operation:   delete the specified group
@@ -152,8 +152,8 @@
                     - cookies: session_id=***
                 - body: serialized JSON in one of the following formats
                     {
-                        'operation':'delete',
-                        'group_id:<GROUP ID>,
+                        "operation":"delete",
+                        "group_id":<GROUP ID>,
                     }
             - Response:
                 - Status Codes:
@@ -166,7 +166,7 @@
                     - Content-Type: application/json
                 - body: serialized JSON in the following format
                     {
-                        'message':<RESULT>
+                        "message":<RESULT>
                     }
                     Where <RESULT> is a message explaining the status code to a user
         RENAME operation:   change the name of the specified group
@@ -177,9 +177,9 @@
                     - cookies: session_id=***
                 - body: serialized JSON in one of the following formats
                     {
-                        'operation':'rename',
-                        'group_id:<GROUP ID>,
-                        'group_new_name':<NEW GROUP NAME>
+                        "operation":"rename",
+                        "group_id":<GROUP ID>,
+                        "group_new_name":<NEW GROUP NAME>
                     }
             - Response:
                 - Status Codes:
@@ -192,7 +192,7 @@
                     - Content-Type: application/json
                 - body: serialized JSON in the following format
                     {
-                        'message':<RESULT>
+                        "message":<RESULT>
                     }
                     Where <RESULT> is a message explaining the status code to a user
         LEAVE operation:    remove the current user from the specified group, if they are present
@@ -202,8 +202,8 @@
                     - cookies: session_id=***
                 - body: serialized JSON in one of the following formats
                     {
-                        'operation':'leave',
-                        'group_id:<GROUP ID>,
+                        "operation":"leave",
+                        "group_id":<GROUP ID>,
                     }
             - Response:
                 - Status Codes:
@@ -216,7 +216,37 @@
                     - Content-Type: application/json
                 - body: serialized JSON in the following format
                     {
-                        'message':<RESULT>
+                        "message":<RESULT>
+                    }
+                    Where <RESULT> is a message explaining the status code to a user
+        KICK_USER operation:    remove the specified user from the specified group, of which
+                                the currently logged in user is member
+            - Request:
+                - Headers:
+                    - Content-Type: application/json
+                    - cookies: session_id=***
+                - body: serialized JSON in one of the following formats
+                    {
+                        "operation":"kick_user",
+                        "group_id":<GROUP ID>,
+                        "user":<USERNAME/EMAIL>,
+                        "user_id":<USER ID>
+                    }
+                    And where either "user":<USERNAME/EMAIL> OR "user_id":<USER ID> are specified.
+                    If both username/email and user ID are specified, the user ID will be used.
+            - Response:
+                - Status Codes:
+                    - 200 if user was successfully removed from the group
+                    - 400 if request body is invalid
+                    - 401 if session_id cookie is not present or invalid
+                    - 404 if currently logged in user is not a member of this group,
+                            group does not exist, or specified user does not exist
+                    - 500 if the database could not be reached
+                - Headers:
+                    - Content-Type: application/json
+                - body: serialized JSON in the following format
+                    {
+                        "message":<RESULT>
                     }
                     Where <RESULT> is a message explaining the status code to a user
 */
@@ -441,6 +471,10 @@ function handlePOST($userID)
     {
         handleAddUser($userID, $bodyJSON);
     }
+    elseif ($operation == 'kick_user')
+    {
+        handleKickUser($userID, $bodyJSON);
+    }
     elseif ($operation == 'delete')
     {
         handleDelete($userID, $bodyJSON);
@@ -557,14 +591,7 @@ function handleCreate($userID, $bodyJSON)
     // now add the members
     foreach ($newMembers as $userIDToAdd)
     {
-        $sql = 'INSERT INTO group_members (group_id, user_id) VALUES (?, ?);';
-        $result = $mysqli->execute_query($sql, [$groupID, $userIDToAdd]);
-        // check that query was successful
-        if (!$result)
-        {
-            // query failed, internal server error
-            handleDBError();
-        }
+        insertGroupMembership($groupID, $userIDToAdd);
     }
 
     // print users that with malformed JSON
@@ -607,8 +634,21 @@ function handleCreate($userID, $bodyJSON)
     returnMessage('Success', 200);
 }
 
+function insertGroupMembership($groupID, $userID)
+{
+    global $mysqli;
+    $sql = 'INSERT INTO group_members (group_id, user_id) VALUES (?, ?);';
+    $result = $mysqli->execute_query($sql, [$groupID, $userID]);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+}
+
 // verify that a group exists and that the given user is a member
-// respond with an error if group not found or user is not a member
+// send an error response if group not found or user is not a member
 function verifyGroupAndUserIDs($userID, $groupID)
 {
     global $mysqli;
@@ -629,8 +669,8 @@ function verifyGroupAndUserIDs($userID, $groupID)
     }
 }
 
-// given the request body as a json object, return
-// return an error if group_id was not given
+// given the request body as a json object, return the specified group ID
+// send an error response if group_id was not given
 function getGroupIDFromJSON($bodyJSON)
 {
     // get new group_id
@@ -641,20 +681,19 @@ function getGroupIDFromJSON($bodyJSON)
     return $bodyJSON['group_id'];
 }
 
-function handleAddUser($userID, $bodyJSON)
+// given the request body as a json object, return the specified user
+// send an error response if the user is not specified or the user or user does not exist
+function getSpecifiedUserFromJSON($bodyJSON)
 {
     global $mysqli;
 
-    $groupID = getGroupIDFromJSON($bodyJSON);
-    verifyGroupAndUserIDs($userID, $groupID);
-
-    // add user by user_id
+    // get user by user_id
     if ($bodyJSON['user_id'] !== null)
     {
         // check that this user exists
-        $userIDToAdd = $bodyJSON['user_id'];
+        $userID = $bodyJSON['user_id'];
         $sql = 'SELECT user_id from users WHERE user_id = ?;';
-        $result = $mysqli->execute_query($sql, [$userIDToAdd]);
+        $result = $mysqli->execute_query($sql, [$userID]);
         // check that query was successful
         if (!$result)
         {
@@ -664,10 +703,11 @@ function handleAddUser($userID, $bodyJSON)
         // check that user was found
         if ($result->num_rows == 0)
         {
-            returnMessage('User with user_id '.$userIDToAdd.' not found', 404);
+            returnMessage('User with user_id '.$userID.' not found', 404);
         }
+        return $userID;
     }
-    // add user by username/email
+    // get user by username/email
     elseif ($bodyJSON['user'] !== null)
     {
         // user username/email to get userID
@@ -687,34 +727,63 @@ function handleAddUser($userID, $bodyJSON)
         }
         // add user_id to list of member to add
         $row = $result->fetch_assoc();
-        $userIDToAdd = $row['user_id'];
-    }
-    else
-    {
-        // neither 'user' nor 'user_id' was specified
-        returnMessage('Missing \'user_id\' or \'user\'', 400);
+        return $row['user_id'];
     }
 
+    // neither 'user' nor 'user_id' was specified
+    returnMessage('Missing \'user_id\' or \'user\'', 400);
+}
+
+function handleAddUser($userID, $bodyJSON)
+{
+    global $mysqli;
+
+    $groupID = getGroupIDFromJSON($bodyJSON);
+    verifyGroupAndUserIDs($userID, $groupID);
+    $userIDToAdd = getSpecifiedUserFromJSON($bodyJSON);
+
     // add user
-    $sql = 'INSERT INTO group_members (group_id, user_id) VALUES (?, ?);';
-    $result = $mysqli->execute_query($sql, [$groupID, $userIDToAdd]);
+    insertGroupMembership($groupID, $userIDToAdd);
+
+    // otherwise, success
+    returnMessage('Success', 200);
+}
+
+function handleKickUser($userID, $bodyJSON)
+{
+    global $mysqli;
+
+    $groupID = getGroupIDFromJSON($bodyJSON);
+    verifyGroupAndUserIDs($userID, $groupID);
+
+    $userIDToRemove = getSpecifiedUserFromJSON($bodyJSON);
+
+    // remove user from group
+    deleteGroupMembership($groupID, $userIDToRemove);
+
+    checkIfGroupIsEmpty($groupID);
+
+    // otherwise, success
+    returnMessage('Success', 200);
+}
+
+function deleteGroupMembership($groupID, $userID)
+{
+    global $mysqli;
+    // delete group membership
+    $sql = 'DELETE FROM group_members WHERE (group_id, user_id) = (?, ?);';
+    $result = $mysqli->execute_query($sql, [$groupID, $userID]);
     // check that query was successful
     if (!$result)
     {
         // query failed, internal server error
         handleDBError();
     }
-
-    // otherwise, success
-    returnMessage('Success', 200);
 }
 
-function handleDelete($userID, $bodyJSON)
+function deleteGroup($groupID)
 {
     global $mysqli;
-
-    $groupID = getGroupIDFromJSON($bodyJSON);
-    verifyGroupAndUserIDs($userID, $groupID);
 
     // delete group
     $sql = 'DELETE FROM groups WHERE group_id = ?;';
@@ -725,6 +794,39 @@ function handleDelete($userID, $bodyJSON)
         // query failed, internal server error
         handleDBError();
     }
+}
+
+// check if, after removing a user from a group, it has no members.
+// if the group has no members, delete it
+function checkIfGroupIsEmpty($groupID)
+{
+    global $mysqli;
+    // get count of users
+    $sql = 'SELECT COUNT(user_id) FROM group_members WHERE group_id = ?;';
+    $result = $mysqli->execute_query($sql, [$groupID]);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+    $numMembers = $result->fetch_row()[0];
+
+    if ($numMembers == 0)
+    {
+        // no members in this group, delete it
+        deleteGroup($groupID);
+    }
+}
+
+function handleDelete($userID, $bodyJSON)
+{
+    global $mysqli;
+
+    $groupID = getGroupIDFromJSON($bodyJSON);
+    verifyGroupAndUserIDs($userID, $groupID);
+
+    deleteGroup($groupID);
 
     // otherwise, success
     returnMessage('Success', 200);
@@ -767,14 +869,9 @@ function handleLeave($userID, $bodyJSON)
     verifyGroupAndUserIDs($userID, $groupID);
 
     // delete group membership for this user
-    $sql = 'DELETE FROM group_members WHERE (group_id, user_id) = (?, ?);';
-    $result = $mysqli->execute_query($sql, [$groupID, $userID]);
-    // check that query was successful
-    if (!$result)
-    {
-        // query failed, internal server error
-        handleDBError();
-    }
+    deleteGroupMembership($groupID, $userID);
+
+    checkIfGroupIsEmpty($groupID);
 
     // otherwise, success
     returnMessage('Success', 200);

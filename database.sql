@@ -17,6 +17,7 @@ create table cookies (
 create table friendships (
 	user_id_1 int not null,
 	user_id_2 int not null,
+	primary key (user_id_1, user_id_2),
 	foreign key (user_id_1) references users(user_id) on delete cascade on update cascade,
 	foreign key (user_id_2) references users(user_id) on delete cascade on update cascade
 );
@@ -43,6 +44,7 @@ create table debts (
 	creditor int not null,
 	debtor int not null,
 	amount int not null,
+	primary key (creditor, debtor),
 	foreign key (creditor) references users(user_id) on delete cascade on update cascade,
 	foreign key (debtor) references users(user_id) on delete cascade on update cascade
 );
@@ -56,6 +58,7 @@ create table groups (
 create table group_members (
 	group_id int not null,
 	user_id int not null,
+	primary key (group_id, user_id),
 	foreign key (group_id) references groups(group_id) on delete cascade on update cascade,
 	foreign key (user_id) references users(user_id) on delete cascade on update cascade
 );
@@ -63,6 +66,7 @@ create table group_members (
 create table group_transactions (
 	group_id int not null,
 	transaction_id int not null,
+	primary key (group_id, transaction_id),
 	foreign key (group_id) references groups(group_id) on delete cascade on update cascade,
 	foreign key (transaction_id) references transactions(transaction_id) on delete cascade on update cascade
 );

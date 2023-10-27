@@ -1,6 +1,6 @@
 #! /bin/bash
 SERVER="http://localhost"
-GROUP_ENDPOINT="groupManage.php"
+GROUP_ENDPOINT="groups.php"
 USERNAME="Soap_Ninja"
 PASSWORD="password"
 
@@ -91,12 +91,29 @@ curl -v -b cookiefile -d "groupID="${GID1} -d "brief" -G ${SERVER}"/"${GROUP_END
 print_delimiter
 wait
 
+
+# kick users
+echo "Kicking user by username from Group "${GID2}
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"kick_user\", \"group_id\":"${GID2}", \"user\":\"Roasted715Jr\"}"
+print_delimiter
+display_groups
+wait
+
+echo "Kicking user by UID from Group "${GID2}
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"kick_user\", \"group_id\":"${GID2}", \"user_id\":3}"
+print_delimiter
+display_groups
+wait
+
 # leave group
 echo "Leaving Group "${GID2}
 curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
     -d "{\"operation\":\"leave\", \"group_id\":"${GID2}"}"
 print_delimiter
 display_groups
+echo "Also check phpmyadmin that the group was deleted after no members"
 wait
 
 # leave group of which the user is not a member
