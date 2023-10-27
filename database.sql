@@ -1,5 +1,5 @@
 create table users (
-	user_id int not null default FLOOR(RAND() * POWER(2, 32)),
+	user_id int not null AUTO_INCREMENT,
 	email text not null,
 	username text not null,
 	pass_hash char(255) not null,
@@ -22,7 +22,7 @@ create table friendships (
 );
 
 create table transactions (
-	transaction_id int not null default FLOOR(RAND() * POWER(2, 32)),
+	transaction_id int not null AUTO_INCREMENT,
 	name varchar(100) not null,
 	date date not null,
 	amount int not null,
@@ -48,7 +48,7 @@ create table debts (
 );
 
 create table groups (
-	group_id int not null,
+	group_id int not null AUTO_INCREMENT,
 	group_name text not null,
 	primary key (group_id)
 );
@@ -68,7 +68,7 @@ create table group_transactions (
 );
 
 create table notifications (
-	notification_id int not null,
+	notification_id int not null AUTO_INCREMENT,
 	user_id int not null,
 	type text not null,
 	is_approved_transaction tinyint(1) not null,

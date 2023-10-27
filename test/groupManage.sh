@@ -61,13 +61,13 @@ wait
 
 # create groups
 echo "Creating Group 1"
-curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT}\
-    -d "{'operation':'create', 'group_name':'Test Group 1', 'members':[ {'user':'Roasted715Jr'}, {'user_id':3}]}"
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"create\", \"group_name\":\"Test Group 1\", \"members\":[{\"user\":\"Roasted715Jr\"}, {\"user_id\":3}]}"
 print_delimiter
 
 echo "Creating Group 2"
-curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT}\
-    -d "{'operation':'create', 'group_name':'Test Group 2', 'members':[ {'user':'Roasted715Jr'}, {'user_id':3}]}"
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"create\", \"group_name\":\"Test Group 2\", \"members\":[{\"user\":\"Roasted715Jr\"}, {\"user_id\":3}]}"
 print_delimiter
 
 display_groups
@@ -93,16 +93,16 @@ wait
 
 # leave group
 echo "Leaving Group "${GID2}
-curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT}\
-    -d "{'operation':'leave', 'group_id':"${GID2}"}"
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"leave\", \"group_id\":"${GID2}"}"
 print_delimiter
 display_groups
 wait
 
 # leave group of which the user is not a member
 echo "Leaving Group "${GID2}" when current user is not a member"
-curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT}\
-    -d "{'operation':'leave', 'group_id':"${GID2}"}"
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"leave\", \"group_id\":"${GID2}"}"
 print_delimiter
 display_groups
 wait
@@ -110,14 +110,14 @@ wait
 
 # add user to group
 echo "Adding member by email to Group "${GID1}
-curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT}\
-    -d "{'operation':'add_user', 'group_id':"${GID1}", 'user':'stu_dent'}"
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"add_user\", \"group_id\":"${GID1}", \"user\":\"stu_dent\"}"
 print_delimiter
 
 
 echo "Adding member by user ID to Group "${GID1}
-curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT}\
-    -d "{'operation':'add_user', 'group_id':"${GID1}", 'user_id':5}"
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"add_user\", \"group_id\":"${GID1}", \"user_id\":5}"
 print_delimiter
 display_groups
 wait
@@ -125,8 +125,8 @@ wait
 
 # add user to group of which the current user is not a member
 echo "Adding member to Group "${GID2}" when current user is not a member"
-curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT}\
-    -d "{'operation':'add_user', 'group_id':"${GID2}", 'user':'stu_dent'}"
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"add_user\", \"group_id\":"${GID2}", \"user\":\"stu_dent\"}"
 print_delimiter
 display_groups
 wait
@@ -134,8 +134,8 @@ wait
 
 # add user that doesn't exist
 echo "Adding member to Group "${GID1}" when desired user does not exist"
-curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT}\
-    -d "{'operation':'add_user', 'group_id':"${GID1}", 'user_id':100}"
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"add_user\", \"group_id\":"${GID1}", \"user_id\":100}"
 print_delimiter
 display_groups
 wait
@@ -143,8 +143,8 @@ wait
 
 # rename group
 echo "Renaming Group "${GID1}
-curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT}\
-    -d "{'operation':'rename', 'group_id':"${GID1}", 'group_new_name':'Test Group 1 renamed'}"
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"rename\", \"group_id\":"${GID1}", \"group_new_name\":\"Test Group 1 renamed\"}"
 print_delimiter
 display_groups
 wait
@@ -152,8 +152,8 @@ wait
 
 # rename group of which the user is not a member
 echo "Renaming Group "${GID2}" when current user is not a member"
-curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT}\
-    -d "{'operation':'rename', 'group_id':"${GID2}", 'group_new_name':'Test Group 2 renamed'}"
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"rename\", \"group_id\":"${GID2}", \"group_new_name\":\"Test Group 2 renamed\"}"
 print_delimiter
 display_groups
 wait
@@ -161,8 +161,8 @@ wait
 
 # delete group
 echo "Deleting Group "${GID1}
-curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT}\
-    -d "{'operation':'delete', 'group_id':"${GID1}"}"
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"delete\", \"group_id\":"${GID1}"}"
 print_delimiter
 display_groups
 wait
@@ -170,8 +170,8 @@ wait
 
 # delete group of which the user is not a member
 echo "Deleting Group "${GID2}" when current user is not a member"
-curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT}\
-    -d "{'operation':'delete', 'group_id':"${GID2}"}"
+curl -v -b cookiefile ${SERVER}"/"${GROUP_ENDPOINT} -H "Content-Type: application/json" \
+    -d "{\"operation\":\"delete\", \"group_id\":"${GID2}"}"
 print_delimiter
 display_groups
 wait

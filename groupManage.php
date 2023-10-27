@@ -101,6 +101,7 @@
                     }
                     Where either 'user':<USERNAME/EMAIL> OR 'user_id:<USER ID> are specified for each user.
                     If both username/email and user ID are specified, the user ID will be used.
+                    'members' may be omitted or empty, in which case a group will be created with only the currently logged in user.
             - Response:
                 - Status Codes:
                     - 200 if user successfully created the group and added all users
@@ -411,34 +412,220 @@ function handleGetGroupInfo($userID, $brief)
 
 function handlePOST($userID)
 {
+    // verify that json was set in header
+    if ($_SERVER['CONTENT_TYPE'] != 'application/json')
+    {
+        returnMessage('Request header must have Content-Type: application/json', 400);
+    }
+
+    // parse JSON in body
+    $body = file_get_contents('php://input');
+    $bodyJSON = json_decode($body, true);
+    if ($bodyJSON === null)
+    {
+        returnMessage('Request body has malformed json', 400);
+    }
+
+    // execute different functions based on operation
+    if ($bodyJSON['operation'] === null)
+    {
+        returnMessage('Operation not specified in request', 400);
+    }
+
+    $operation = $bodyJSON['operation'];
+    if ($operation == 'create')
+    {
+        handleCreate($userID, $bodyJSON);
+    }
+    elseif ($operation == 'add user')
+    {
+        handleAddUser($userID, $bodyJSON);
+    }
+    elseif ($operation == 'delete')
+    {
+        handleDelete($userID, $bodyJSON);
+    }
+    elseif ($operation == 'rename')
+    {
+        handleRename($userID, $bodyJSON);
+    }
+    elseif ($operation == 'leave')
+    {
+        handleLeave($userID, $bodyJSON);
+    }
+    returnMessage('Operation '.$operation.' not recognized', 400);
 
 }
 
-function handleCreate($userID)
+function handleCreate($userID, $bodyJSON)
+{
+    global $mysqli;
+
+    // get new group name
+    if ($bodyJSON['group_name'] === null || $bodyJSON['members'] === null)
+    {
+        returnMessage('group_name not set', 400);
+    }
+    $newGroupName = $bodyJSON['group_name'];
+
+    // query to create group
+    $sql = 'INSERT INTO groups (group_name) VALUES ( ? );';
+    $result = $mysqli->execute_query($sql, [$newGroupName]);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+
+    // get group ID
+    $sql = 'SELECT LAST_INSERT_ID();';
+    $result = $mysqli->execute_query($sql);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+    // get groupID from result
+    $groupID = $result->fetch_row()[0];
+
+
+    // get a list of members to add to this group
+    $newMembers = array();
+    $newMembers[] = $userID;
+    // array users that could not be found
+    $usersInvalidJSON = array();
+    $usersNotFound = array();
+    if ($bodyJSON['members'] !== null)
+    {
+        foreach ($bodyJSON['members'] as $newMember)
+        {
+            // add user by user_id
+            if ($newMember['user_id'] !== null)
+            {
+                // check that this user exists
+                $userID = $newMember['user_id'];
+                $sql = 'SELECT user_id from users WHERE user_id = ?;';
+                $result = $mysqli->execute_query($sql, [$userID]);
+                // check that query was successful
+                if (!$result)
+                {
+                    // query failed, internal server error
+                    handleDBError();
+                }
+                // check that user was found
+                if ($result->num_rows == 0)
+                {
+                    $usersNotFound[] = $newMember;
+                }
+                // add user_id to list of member to add
+                $row = $result->fetch_assoc();
+                $newMembers[] = $row['user_id'];
+            }
+            // add user by username/email
+            elseif ($newMember['user'] !== null)
+            {
+                // user username/email to get userID
+                $user = $newMember['user'];
+                $sql = 'SELECT user_id from users WHERE username = ? OR email = ?;';
+                $result = $mysqli->execute_query($sql, [$user, $user]);
+                // check that query was successful
+                if (!$result)
+                {
+                    // query failed, internal server error
+                    handleDBError();
+                }
+                // check that user was found
+                if ($result->num_rows == 0)
+                {
+                    $usersNotFound[] = $newMember;
+                }
+                // add user_id to list of member to add
+                $row = $result->fetch_assoc();
+                $newMembers[] = $row['user_id'];
+            }
+            else
+            {
+                // neither 'user' nor 'user_id' was specified
+                $usersInvalidJSON[] = $newMember;
+            }
+        }
+    }
+
+
+    // now add the members
+    foreach ($newMembers as $userIDToAdd)
+    {
+        $sql = 'INSERT INTO group_members (group_id, user_id) VALUES (?, ?);';
+        $result = $mysqli->execute_query($sql, [$groupID, $userIDToAdd]);
+        // check that query was successful
+        if (!$result)
+        {
+            // query failed, internal server error
+            handleDBError();
+        }
+    }
+
+    // print users that with malformed JSON
+    $numUsersInvalid = count($usersInvalidJSON);
+    if ($numUsersInvalid > 0)
+    {
+        $usersInvalidString = 'Missing \'user\' or \'user_id\' key for users: ';
+        for ($index = 0; $index < $numUsersInvalid; $index++)
+        {
+            // append this use JSON that could not be found
+            $usersInvalidString = $usersInvalidString.json_encode($usersInvalidJSON[$index]);
+            // if not the last entry, also append a comma
+            if ($index != $numUsersInvalid - 1)
+            {
+                $usersInvalidString = $usersInvalidString.', ';
+            }
+        }
+        returnMessage($usersInvalidString, 400);
+    }
+
+    // print users that could not be found
+    $numUsersNotFound = count($usersNotFound);
+    if ($numUsersNotFound > 0)
+    {
+        $usersNotFoundString = 'Could Not find the following users: ';
+        for ($index = 0; $index < $numUsersNotFound; $index++)
+        {
+            // append this use JSON that could not be found
+            $usersNotFoundString = $usersNotFoundString.json_encode($usersNotFound[$index]);
+            // if not the last entry, also append a comma
+            if ($index != $numUsersNotFound - 1)
+            {
+                $usersNotFoundString = $usersNotFoundString.', ';
+            }
+        }
+        returnMessage($usersNotFoundString, 404);
+    }
+
+    // otherwise, success
+    returnMessage('Success', 200);
+}
+
+function handleAddUser($userID, $bodyJSON)
 {
     global $mysqli;
 
 }
 
-function handleAddUser($userID)
+function handleDelete($userID, $bodyJSON)
 {
     global $mysqli;
 
 }
 
-function handleDelete($userID)
+function handleRename($userID, $bodyJSON)
 {
     global $mysqli;
 
 }
 
-function handleRename($userID)
-{
-    global $mysqli;
-
-}
-
-function handleLeave($userID)
+function handleLeave($userID, $bodyJSON)
 {
     global $mysqli;
 
