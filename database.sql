@@ -85,23 +85,43 @@ create table notifications (
 insert into users (user_id, email, username, pass_hash) values
 (1, 'Matthew Duphily', 'Roasted715Jr', '$2y$10$FUpW8V.MqjWJj.AK6hJvKePdO/fwHYoxPoBhoTRBDFiUAbK5DEdY.'),
 (2, 'Matthew Frances', 'Soap_Ninja', '$2y$10$Ox1lpVPL2uQHy5V0QANdEOHsVW.eIPPrh2TYUr5LxjBc.yb2oiw.u'),
-(3, 'Nick Jones', 'Vanquisher', '$2y$10$OWU6zV8dDl8euugC7nK0SObp.cCZfdjyqPMMnPDEhFJtEX1cC2H9u');
+(3, 'Nick Jones', 'Vanquisher', '$2y$10$OWU6zV8dDl8euugC7nK0SObp.cCZfdjyqPMMnPDEhFJtEX1cC2H9u'),
+(4, 'Tester 1', 'tester1', '$2y$10$OWU6zV8dDl8euugC7nK0SObp.cCZfdjyqPMMnPDEhFJtEX1cC2H9u'),
+(5, 'Tester 2', 'tester2', '$2y$10$OWU6zV8dDl8euugC7nK0SObp.cCZfdjyqPMMnPDEhFJtEX1cC2H9u');
 
 insert into friendships (user_id_1, user_id_2) values
 (1, 2),
 (1, 3),
 (2, 3);
 
-insert into transactions (transaction_id, name, date, description) values
-(1, 'Halal Shack', '2023-09-29', 'Bought you fools some food');
+insert into transactions (transaction_id, name, date, amount, description) values
+(1, 'Halal Shack', '2023-09-29', 899, 'Bought you fools some food');
 
 insert into groups (group_id, group_name) values
-(1, 'CMSC447 Bros');
+(1, 'CMSC447 Bros'),
+(2, 'Matts'),
+(3, 'Frances and Testers');
 
 insert into group_members (group_id, user_id) values
 (1, 1),
 (1, 2),
-(1, 3);
+(1, 3),
+(1, 4),
+(1, 5),
+(2, 1),
+(2, 2),
+(3, 2),
+(3, 4),
+(3, 5);
 
 insert into group_transactions (group_id, transaction_id) values
 (1, 1);
+
+insert into debts (creditor, debtor, amount) values
+(4, 3, 2300),
+(3, 1, 300),
+(3, 2, 500),
+(4, 5, 700),
+(1, 2, 1100),
+(2, 4, 1300),
+(5, 2, 1700);

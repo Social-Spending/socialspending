@@ -17,7 +17,7 @@ wait()
 {
     echo "Press ENTER to continue, or type 'quit' to quit"
     read TEMP
-    if [ $TEMP == "quit" ]
+    if [ "${TEMP}" == "quit" ]
     then
         exit 0
     fi
@@ -41,21 +41,21 @@ display_groups
 
 # get groups brief
 echo "Getting Groups Brief"
-curl -v -b cookiefile -d "brief=true" -X GET ${SERVER}"/"${GROUP_ENDPOINT}
+curl -v -b cookiefile -G -d "brief" ${SERVER}"/"${GROUP_ENDPOINT}
 print_delimiter
 wait
 
 
 # get specific group info for a group ths user is not a member of
-echo "Getting Groups"
-curl -v -b cookiefile -d "groupID=100" -X GET ${SERVER}"/"${GROUP_ENDPOINT}
+echo "Getting info of Group that does not exist"
+curl -v -b cookiefile -d "groupID=100" -G ${SERVER}"/"${GROUP_ENDPOINT}
 print_delimiter
 wait
 
 
 # attempt to get without sending cookie; should return 401
 echo "Getting Groups without Session ID"
-curl -v -X GET ${SERVER}"/"${GROUP_ENDPOINT}
+curl -v ${SERVER}"/"${GROUP_ENDPOINT}
 print_delimiter
 wait
 
@@ -81,15 +81,14 @@ read GID2
 
 
 # get specific group info
-echo "Getting specific info for Group "${GID1}" Brief"
-curl -v -b cookiefile -d "groupID="${GID1} -X GET ${SERVER}"/"${GROUP_ENDPOINT}
+echo "Getting specific info for Group "${GID1}
+curl -v -b cookiefile -d "groupID="${GID1} -G ${SERVER}"/"${GROUP_ENDPOINT}
 print_delimiter
 
 # get specific group info brief
 echo "Getting specific info for Group "${GID1}" Brief"
-curl -v -b cookiefile -d "groupID="${GID1} -d "brief=true" -X GET ${SERVER}"/"${GROUP_ENDPOINT}
+curl -v -b cookiefile -d "groupID="${GID1} -d "brief" -G ${SERVER}"/"${GROUP_ENDPOINT}
 print_delimiter
-display_groups
 wait
 
 # leave group
