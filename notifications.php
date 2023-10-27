@@ -131,61 +131,6 @@ function getApprovedTransactions($user_id) {
     echo $json_data;
 }
 
-function acceptFriendRequest($notification_id) {
-    global $mysqli;
-
-    //Verify current user ID corresponds to the notification
-    $sql = "SELECT user_id
-            FROM notifications
-            WHERE notification_id=?";
-
-    $user_id = $mysqli->execute_query($sql, [$notification_id])->fetch_assoc()["user_id"];
-
-    if (!verifyUser($user_id)) {
-        http_response_code(HTTP_UNAUTHORIZED);
-        return;
-    }
-
-    $sql = "INSERT INTO friendships (user_id_1, user_id_2)
-            SELECT notifications.user_id, notifications.friend_request_user_id
-            FROM notifications
-            WHERE notifications.notification_id=?";
-
-    $response = $mysqli->execute_query($sql, [$notification_id]);
-
-    removeNotification($notification_id);
-}
-
-function rejectFriendRequest($notification_id) {
-    global $mysqli;
-
-    //Verify current user ID corresponds to the notification
-    $sql = "SELECT user_id
-            FROM notifications
-            WHERE notification_id=?";
-
-    $user_id = $mysqli->execute_query($sql, [$notification_id])->fetch_assoc()["user_id"];
-
-    if (!verifyUser($user_id)) {
-        http_response_code(HTTP_UNAUTHORIZED);
-        return;
-    }
-
-    removeNotification($notification_id);
-}
-
-function acceptTransaction($notification_id) {
-
-}
-
-function rejectTransaction($notification_id) {
-
-}
-
-function viewTransaction($notification_id) {
-
-}
-
 function removeNotification($notification_id) {
     global $mysqli;
 
@@ -200,15 +145,6 @@ function removeNotification($notification_id) {
         http_response_code(HTTP_UNAUTHORIZED);
         return;
     }
-}
-
-/*
-Determines whether the passed user ID is the same as the one corresponding to the cookie
-Returns true if the user is who they say they are, false otherwise
-*/
-function verifyUser($user_id) {
-    $passed_user_id = intval(validateSessionID());
-    return !($passed_user_id === 0 || $passed_user_id != $user_id);
 }
 
 ?>
