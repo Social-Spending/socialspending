@@ -437,7 +437,7 @@ function handlePOST($userID)
     {
         handleCreate($userID, $bodyJSON);
     }
-    elseif ($operation == 'add user')
+    elseif ($operation == 'add_user')
     {
         handleAddUser($userID, $bodyJSON);
     }
@@ -462,7 +462,7 @@ function handleCreate($userID, $bodyJSON)
     global $mysqli;
 
     // get new group name
-    if ($bodyJSON['group_name'] === null || $bodyJSON['members'] === null)
+    if ($bodyJSON['group_name'] === null)
     {
         returnMessage('group_name not set', 400);
     }
@@ -607,15 +607,127 @@ function handleCreate($userID, $bodyJSON)
     returnMessage('Success', 200);
 }
 
+// verify that a group exists and that the given user is a member
+// respond with an error if group not found or user is not a member
+function verifyGroupAndUserIDs($userID, $groupID)
+{
+    global $mysqli;
+    // check that this group exists and user is a member
+    $sql =  'SELECT gm.group_id FROM group_members as gm '.
+            'WHERE gm.user_id = ? AND gm.group_id = ?;';
+    $result = $mysqli->execute_query($sql, [$userID, $groupID]);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+    // check that group was found
+    if ($result->num_rows == 0)
+    {
+        returnMessage('Group with group_id '.$groupID.' doesn\'t exist or user is not a member.', 404);
+    }
+}
+
+// given the request body as a json object, return
+// return an error if group_id was not given
+function getGroupIDFromJSON($bodyJSON)
+{
+    // get new group_id
+    if ($bodyJSON['group_id'] === null)
+    {
+        returnMessage('group_id not set', 400);
+    }
+    return $bodyJSON['group_id'];
+}
+
 function handleAddUser($userID, $bodyJSON)
 {
     global $mysqli;
 
+    $groupID = getGroupIDFromJSON($bodyJSON);
+    verifyGroupAndUserIDs($userID, $groupID);
+
+    // add user by user_id
+    if ($bodyJSON['user_id'] !== null)
+    {
+        // check that this user exists
+        $userIDToAdd = $bodyJSON['user_id'];
+        $sql = 'SELECT user_id from users WHERE user_id = ?;';
+        $result = $mysqli->execute_query($sql, [$userIDToAdd]);
+        // check that query was successful
+        if (!$result)
+        {
+            // query failed, internal server error
+            handleDBError();
+        }
+        // check that user was found
+        if ($result->num_rows == 0)
+        {
+            returnMessage('User with user_id '.$userIDToAdd.' not found', 404);
+        }
+    }
+    // add user by username/email
+    elseif ($bodyJSON['user'] !== null)
+    {
+        // user username/email to get userID
+        $user = $bodyJSON['user'];
+        $sql = 'SELECT user_id from users WHERE username = ? OR email = ?;';
+        $result = $mysqli->execute_query($sql, [$user, $user]);
+        // check that query was successful
+        if (!$result)
+        {
+            // query failed, internal server error
+            handleDBError();
+        }
+        // check that user was found
+        if ($result->num_rows == 0)
+        {
+            returnMessage('User with username/email '.$user.' not found', 404);
+        }
+        // add user_id to list of member to add
+        $row = $result->fetch_assoc();
+        $userIDToAdd = $row['user_id'];
+    }
+    else
+    {
+        // neither 'user' nor 'user_id' was specified
+        returnMessage('Missing \'user_id\' or \'user\'', 400);
+    }
+
+    // add user
+    $sql = 'INSERT INTO group_members (group_id, user_id) VALUES (?, ?);';
+    $result = $mysqli->execute_query($sql, [$groupID, $userIDToAdd]);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+
+    // otherwise, success
+    returnMessage('Success', 200);
 }
 
 function handleDelete($userID, $bodyJSON)
 {
     global $mysqli;
+
+    $groupID = getGroupIDFromJSON($bodyJSON);
+    verifyGroupAndUserIDs($userID, $groupID);
+
+    // delete group
+    $sql = 'DELETE FROM groups WHERE group_id = ?;';
+    $result = $mysqli->execute_query($sql, [$groupID]);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+
+    // otherwise, success
+    returnMessage('Success', 200);
 
 }
 
@@ -623,12 +735,49 @@ function handleRename($userID, $bodyJSON)
 {
     global $mysqli;
 
+    $groupID = getGroupIDFromJSON($bodyJSON);
+    verifyGroupAndUserIDs($userID, $groupID);
+    // get new group name
+    if ($bodyJSON['group_new_name'] === null)
+    {
+        returnMessage('group_new_name not set', 400);
+    }
+    $newGroupName = $bodyJSON['group_new_name'];
+
+    // update group name
+    $sql = 'UPDATE groups SET group_name = ? WHERE group_id = ?;';
+    $result = $mysqli->execute_query($sql, [$newGroupName, $groupID]);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+
+    // otherwise, success
+    returnMessage('Success', 200);
+
 }
 
 function handleLeave($userID, $bodyJSON)
 {
     global $mysqli;
 
+    $groupID = getGroupIDFromJSON($bodyJSON);
+    verifyGroupAndUserIDs($userID, $groupID);
+
+    // delete group membership for this user
+    $sql = 'DELETE FROM group_members WHERE (group_id, user_id) = (?, ?);';
+    $result = $mysqli->execute_query($sql, [$groupID, $userID]);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+
+    // otherwise, success
+    returnMessage('Success', 200);
 }
 
 // user must have valid sessionID
