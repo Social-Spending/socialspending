@@ -75,9 +75,6 @@ create table notifications (
 	notification_id int not null AUTO_INCREMENT,
 	user_id int not null,
 	type text not null,
-	is_approved_transaction tinyint(1) not null,
-	is_transaction_approval tinyint(1) not null,
-	is_friend_request tinyint(1) not null,
 	transaction_id int,
 	friend_request_user_id int,
 	primary key (notification_id),
@@ -94,8 +91,8 @@ insert into users (user_id, email, username, pass_hash) values
 (5, 'Tester 2', 'tester2', '$2y$10$OWU6zV8dDl8euugC7nK0SObp.cCZfdjyqPMMnPDEhFJtEX1cC2H9u');
 
 insert into friendships (user_id_1, user_id_2) values
-(1, 2),
-(1, 3),
+-- (1, 2),
+-- (1, 3),
 (2, 3);
 
 insert into transactions (transaction_id, name, date, amount, description) values
@@ -129,3 +126,8 @@ insert into debts (creditor, debtor, amount) values
 (1, 2, 1100),
 (2, 4, 1300),
 (5, 2, 1700);
+
+INSERT INTO `notifications` (`notification_id`, `user_id`, `type`, `is_approved_transaction`, `is_transaction_approval`, `is_friend_request`, `transaction_id`, `friend_request_user_id`) VALUES
+('1', '1', 'friend_request', '0', '0', '1', NULL, '2'), 
+('2', '1', 'friend_request', '0', '0', '1', NULL, '3');
+
