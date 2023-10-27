@@ -4,6 +4,8 @@ RedirectMatch 404 \/templates
 RedirectMatch 404 README.md
 RedirectMatch 404 LICENSE
 RedirectMatch 404 database.sql
+RedirectMatch 404 \/test
+RedirectMatch 404 \/react_source
 
 Options -MultiViews
 RewriteEngine On
