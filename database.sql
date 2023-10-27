@@ -48,7 +48,7 @@ create table debts (
 );
 
 create table groups (
-	group_id int not null,
+	group_id int not null default FLOOR(RAND() * POWER(2, 32)),
 	group_name text not null,
 	primary key (group_id)
 );
@@ -68,12 +68,9 @@ create table group_transactions (
 );
 
 create table notifications (
-	notification_id int not null,
+	notification_id int not null default FLOOR(RAND() * POWER(2, 32)),
 	user_id int not null,
 	type text not null,
-	is_approved_transaction tinyint(1) not null,
-	is_transaction_approval tinyint(1) not null,
-	is_friend_request tinyint(1) not null,
 	transaction_id int,
 	friend_request_user_id int,
 	primary key (notification_id),
@@ -88,8 +85,8 @@ insert into users (user_id, email, username, pass_hash) values
 (3, 'Nick Jones', 'Vanquisher', '$2y$10$OWU6zV8dDl8euugC7nK0SObp.cCZfdjyqPMMnPDEhFJtEX1cC2H9u');
 
 insert into friendships (user_id_1, user_id_2) values
-(1, 2),
-(1, 3),
+-- (1, 2),
+-- (1, 3),
 (2, 3);
 
 insert into transactions (transaction_id, name, date, description) values
@@ -98,10 +95,14 @@ insert into transactions (transaction_id, name, date, description) values
 insert into groups (group_id, group_name) values
 (1, 'CMSC447 Bros');
 
-insert into group_members (group_id, user_id) values
-(1, 1),
-(1, 2),
-(1, 3);
+-- insert into group_members (group_id, user_id) values
+-- (1, 1),
+-- (1, 2),
+-- (1, 3);
 
 insert into group_transactions (group_id, transaction_id) values
 (1, 1);
+
+INSERT INTO `notifications` (`notification_id`, `user_id`, `type`, `is_approved_transaction`, `is_transaction_approval`, `is_friend_request`, `transaction_id`, `friend_request_user_id`) VALUES
+('1', '1', 'friend_request', '0', '0', '1', NULL, '2'), 
+('2', '1', 'friend_request', '0', '0', '1', NULL, '3');

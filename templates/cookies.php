@@ -3,6 +3,15 @@
 include_once('templates/connection.php');
 include_once('templates/constants.php');
 
+/*
+Determines whether the passed user ID is the same as the one corresponding to the cookie
+Returns true if the two are the same, false otherwise
+*/
+function verifyUser($user_id) {
+    $passed_user_id = intval(validateSessionID());
+    return !($passed_user_id === 0 || $passed_user_id != $user_id);
+}
+
 // Generates a random string of hex in a cryptographically secure way
 // random_bytes is secure but rand is not
 // Dont go less than 16
