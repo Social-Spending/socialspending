@@ -134,17 +134,23 @@ function getApprovedTransactions($user_id) {
 function removeNotification($notification_id) {
     global $mysqli;
 
-    //Verify current user ID corresponds to the notification
-    $sql = "SELECT user_id
-            FROM notifications
+    /********************We already verify this from all function entry points****************/
+    // //Verify current user ID corresponds to the notification
+    // $sql = "SELECT user_id
+    //         FROM notifications
+    //         WHERE notification_id=?";
+
+    // $user_id = $mysqli->execute_query($sql, [$notification_id])->fetch_assoc()["user_id"];
+
+    // if (!verifyUser($user_id)) {
+    //     http_response_code(HTTP_UNAUTHORIZED);
+    //     return;
+    // }
+
+    $sql = "DELETE FROM notifications
             WHERE notification_id=?";
 
-    $user_id = $mysqli->execute_query($sql, [$notification_id])->fetch_assoc()["user_id"];
-
-    if (!verifyUser($user_id)) {
-        http_response_code(HTTP_UNAUTHORIZED);
-        return;
-    }
+    $mysqli->execute_query($sql, [$notification_id]);
 }
 
 ?>
