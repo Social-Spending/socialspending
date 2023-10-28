@@ -27,22 +27,19 @@ POST Request
     - Requires JSON object in body
 */
 elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // if (!empty($_POST) && is_string($_POST) && json_decode($_POST, true)) {
-    if (true) {
-        // $json = json_decode($_POST, true);
-        // $json = $_POST;
-        echo print_r($_POST);
+    $_POST = file_get_contents("php://input");
+
+    if (!empty($_POST) && is_string($_POST) && json_decode($_POST, true)) {
+        $json = json_decode($_POST, true);
 
         if ($json["operation"] == "accept")
             acceptFriendRequest($json["notification_id"]);
         elseif ($json["operation"] == "reject")
             rejectFriendRequest($json["notification_id"]);
         else
-            echo "uhhh";
-            // http_response_code(HTTP_BAD_REQUEST);
+            http_response_code(HTTP_BAD_REQUEST);
     } else {
-        echo "yeah";
-        // http_response_code(HTTP_BAD_REQUEST);
+        http_response_code(HTTP_BAD_REQUEST);
     }
 }
 
