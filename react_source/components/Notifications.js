@@ -12,15 +12,14 @@ export default function Notifications(props) {
     return (
         <View style={[styles.notifShelf, props.show ? { width: '20vw', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
             <View style={[props.show ? { width: '18vw', display: "block" } : { width: '0', display: "none"}]}>
-                <h1 style={styles.header}>Friend Requests</h1>
+                <Text style={[globals.styles.h2, { paddingLeft: 0, color: globals.COLOR_GRAY }]}>Friend Requests</Text>
                 <p>Friend request from x</p>
                 <Text style={[globals.styles.h2, { paddingLeft: 0, color: globals.COLOR_GRAY }]}>Pending Transactions</Text>
                 <ApproveTransaction name="Transaction One" date={"1/2/23"}></ApproveTransaction>
                 <ApproveTransaction name="Transaction Two Hopefully this is long enough to overflow" date={"3/2/23"}></ApproveTransaction>
                 <ApproveTransaction name="Transaction Three Hopefully this is long enough to overflow im going to make it even longer to show more text" date={"6/2/23"}></ApproveTransaction>
-                <h1 style={styles.header}>Completed Transactions</h1>
+                <Text style={[globals.styles.h2, { paddingLeft: 0, color: globals.COLOR_GRAY }]}>Completed Transactions</Text>
                 <p>Transaction name</p>
-                <button>View</button>
             </View>
             
         </View>
@@ -28,7 +27,26 @@ export default function Notifications(props) {
 }
 
 function FriendRequest() {
+    return (
+        <View style={styles.notification}>
+            
+            <View style={{flex: 1}}>
+                <Text style={styles.text}>New Pending Friend Request {props.date}</Text>
+                <View style={{ flexDirection: 'columnn', justifyContent: 'center' }}>
+                    <Text style={styles.notificationText}>{props.name}</Text>
+                </View>
+                
+            </View>
+            <View style={styles.buttonContainer}>
 
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_BLACK }} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+            </View>
+                      
+        </View>
+        
+    );
 }
 
 function ApproveTransaction(props) {
@@ -48,6 +66,28 @@ function ApproveTransaction(props) {
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_BLACK }} />
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} />
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+            </View>
+                      
+        </View>
+        
+    );
+}
+
+function CompletedTransaction(props) {
+
+    return (
+        <View style={styles.notification}>
+            
+            <View style={{flex: 1}}>
+                <Text style={styles.text}>New Completed Transaction {props.date}</Text>
+                <View style={{ flexDirection: 'columnn', justifyContent: 'center' }}>
+                    <Text style={styles.notificationText}>{props.name}</Text>
+                </View>
+                
+            </View>
+            <View style={styles.buttonContainer}>
+
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_BLACK }} />
             </View>
                       
         </View>
