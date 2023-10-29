@@ -5,8 +5,8 @@ import { useState } from 'react';
 
 import Header from './Header.js';
 import Footer from './Footer.js';
-import { getCookieValue } from "./Utils.js";
-import Notifications from "./Notifications.js";
+import { getCookieValue } from './Utils.js';
+import Notifications from './Notifications.js';
 
 import { ModalContext } from '../modals/ModalContext.js';
 
