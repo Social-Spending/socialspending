@@ -8,12 +8,11 @@ include_once("templates/constants.php");
 GET Request
     - Param 1 = "notification_type"
     - Param 2 = "user_id"
-        * Returns all notifications of a given type directed towards a certain user
 */
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     //Check if user_id and a notification type were passed
     if (isset($_GET["type"]) && isset($_GET["user_id"])) {
-		getNotification($_GET["type"], $_GET["user_id"]);
+		getNotifications($_GET["type"], $_GET["user_id"]);
     }
 	//No other valid GET requests, fail out
     else {
@@ -22,17 +21,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 } 
 
 /*
-POST Request
-    - Requires JSON object in body
+Selects the proper notifications to be returned
+    - type = "friend_request", "approval_request", or "approved_transaction"
 */
-elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (!empty($_POST) && is_string($_POST) && json_decode($_POST, true)) {
-    } else {
-        http_response_code(HTTP_BAD_REQUEST);
-    }
-}
-
-function getNotification($type, $user_id) {
+function getNotifications($type, $user_id) {
 	switch ($type) {
 		case "friend_request":
 			getFriendRequests($user_id);
@@ -49,6 +41,10 @@ function getNotification($type, $user_id) {
 	}
 }
 
+/*
+Returns friend request notifications
+    - user_id = User ID to return friend request notifications for
+*/
 function getFriendRequests($user_id) {
     global $mysqli;
 
@@ -66,16 +62,22 @@ function getFriendRequests($user_id) {
 
     $friend_requests = $mysqli->execute_query($sql, [$user_id]);
 
+    //Append each row to a new array to allow for a proper JSON structure
     $friend_requests_array = [];
     for ($i = 0; $i < $friend_requests->num_rows; $i++) {
         array_push($friend_requests_array, $friend_requests->fetch_assoc());
     }
 
+    //Send response
     $json_data = json_encode($friend_requests_array);
     header('Content-Type: application/json');
     echo $json_data;
 }
 
+/*
+Returns transaction approval requests notifications
+    - user_id = User ID to return transaction approval request notifications for
+*/
 function getApprovalRequests($user_id) {
     global $mysqli;
 
@@ -103,6 +105,10 @@ function getApprovalRequests($user_id) {
     echo $json_data;
 }
 
+/*
+Returns approved transaction notifications
+    - user_id = User ID to return approved transaction notifications for
+*/
 function getApprovedTransactions($user_id) {
     global $mysqli;
 
@@ -130,16 +136,14 @@ function getApprovedTransactions($user_id) {
     echo $json_data;
 }
 
+/*
+Removes a notification from the database
+    - notification_id = ID of notification to remove from the DB
+*/
 function removeNotification($notification_id) {
     global $mysqli;
 
-<<<<<<< Updated upstream
-    //Verify current user ID corresponds to the notification
-    $sql = "SELECT user_id
-            FROM notifications
-=======
     $sql = "DELETE FROM notifications
->>>>>>> Stashed changes
             WHERE notification_id=?";
 
     $user_id = $mysqli->execute_query($sql, [$notification_id])->fetch_assoc()["user_id"];
