@@ -95,6 +95,30 @@ function CompletedTransaction(props) {
     );
 }
 
+function getNotification(user_id, type){
+
+
+    let payload = new URLSearchParams();
+    payload.append('user_id', user_id);
+    payload.append('notification_type', type);
+
+    // do the POST request
+    try {
+        let response = await fetch("/notifications.php", { method: 'GET', body: payload, credentials: 'same-origin' });
+
+        if (response.ok) {
+           
+        }
+        else {
+
+        }
+    }
+    catch (error) {
+        console.log("error in in GET request to notifications (/notifications.php)");
+        console.log(error);
+    }
+}
+
 
 
 const styles = StyleSheet.create({
