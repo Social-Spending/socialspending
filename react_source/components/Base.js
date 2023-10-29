@@ -49,8 +49,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        top: '-2vh',
-        height: 'auto',
+        height: '100%',
         minHeight: '45em',
         width: '100%',
         flexWrap: 'nowrap',
