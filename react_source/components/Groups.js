@@ -5,12 +5,15 @@ import { useState, useEffect } from 'react';
 
 import { Link } from "expo-router";
 
-import Sidebar from './CollapsabileSidebar.js'
+import Sidebar from './CollapsibleSidebar.js'
 import TransactionInfo from "./TransactionInfo.js";
 
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
 export default function Groups(props) {
+
+    const [transactionID, setTransactionID] = useState(0);
+
     return (
         <View style={{ flexDirection: 'row', width: '100%', height: '100%'}}>
             <Sidebar title={'Groups'}>
@@ -24,12 +27,12 @@ export default function Groups(props) {
                 </View>
                 <Text style={[globals.styles.h3, { color: globals.COLOR_GRAY }]}>Transactions:</Text>
                 <View style={[globals.styles.list, { width: '100%', borderWidth: 1, borderColor: globals.COLOR_GRAY }]}>
-                    {getTransactions()}
+                    {getTransactions(setTransactionID)}
                 </View>
                 
             </View>
             <View style={{flex:1, maxHeight: '100vh', justifyContent: 'center', alignItems: 'center', position: 'sticky', top: 0}}>
-                <TransactionInfo />
+                <TransactionInfo id={transactionID} />
             </View>
             
         </View>
@@ -50,13 +53,13 @@ function getParticipants() {
 
 }
 
-function getTransactions() {
+function getTransactions(setID) {
 
     let outputList = [];
 
     for (let i = 0; i < 10; i++) {
 
-        outputList.push(<TransactionListItem key={i} border={i > 0} name={'test'} id={1} owed={1} />);
+        outputList.push(<TransactionListItem key={i} border={i > 0} name={'test'} id={i} owed={1} onClick={() => setID(i) } />);
     }
 
     return outputList;
@@ -99,7 +102,7 @@ function MemberListItem({ id, name, owed, border }) {
  *      @param {number} owed         how much the participant paid/owes
  *      @return {React.JSX.Element}  DOM element  
  */
-function TransactionListItem({ id, name, owed, border }) {
+function TransactionListItem({ id, name, owed, border, onClick }) {
 
     let text = owed >= 0 ? "You Paid" : "You're Owed";
     let color = owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
@@ -107,7 +110,7 @@ function TransactionListItem({ id, name, owed, border }) {
     return (
 
         
-        <View style={border ? styles.listItemSeperator : styles.listItem} >
+        <View style={border ? styles.listItemSeperator : styles.listItem} onClick={onClick} >
 
             <Text style={globals.styles.listText}>{name}</Text>
             <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>

@@ -40,7 +40,7 @@ export default function TransactionInfo({ id, json }) {
         }
         
 
-    }, []);
+    });
     
     if (transactionInfo === null) {
         //Transaction info hasnt loaded - show loading
@@ -158,7 +158,7 @@ async function getTransaction(transactionId) {
         return await response.json();
     }
     catch (error) {
-        console.log("error in in GET request to login (/transactions.php)");
+        console.log("error in in GET request to transactions (/transactions.php)");
         console.log(error);
     }
 }
