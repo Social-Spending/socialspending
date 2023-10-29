@@ -6,17 +6,118 @@ import { useState, useEffect } from 'react';
 import { Link } from "expo-router";
 
 import Sidebar from './CollapsabileSidebar.js'
+import TransactionInfo from "./TransactionInfo.js";
 
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
 export default function Groups(props) {
     return (
-        <>
+        <View style={{ flexDirection: 'row', width: '100%', height: '100%'}}>
             <Sidebar title={'Groups'}>
                <GroupList />
             </Sidebar>
-        </>
+            <View style={{ flex: 2, paddingLeft: '3em', paddingRight: '3em' }} >
+                <Text style={[globals.styles.h1, styles.groupName]}>GROUP NAME</Text>
+                <Text style={[globals.styles.h3, {color: globals.COLOR_GRAY}]}>Members:</Text>
+                <View style={[globals.styles.list, { width: '100%' }]}>
+                    {getParticipants()}
+                </View>
+                <Text style={[globals.styles.h3, { color: globals.COLOR_GRAY }]}>Transactions:</Text>
+                <View style={[globals.styles.list, { width: '100%', borderWidth: 1, borderColor: globals.COLOR_GRAY }]}>
+                    {getTransactions()}
+                </View>
+                
+            </View>
+            <View style={{flex:1, maxHeight: '100vh', justifyContent: 'center', alignItems: 'center', position: 'sticky', top: 0}}>
+                <TransactionInfo />
+            </View>
+            
+        </View>
         
+    );
+}
+
+function getParticipants() {
+
+    let outputList = [];
+
+    for (let i = 0; i < 10; i++) {
+
+        outputList.push(<MemberListItem key={i} border={i > 0} name={'test'} id={1} owed={1} />);
+    }
+
+    return outputList;
+
+}
+
+function getTransactions() {
+
+    let outputList = [];
+
+    for (let i = 0; i < 10; i++) {
+
+        outputList.push(<TransactionListItem key={i} border={i > 0} name={'test'} id={1} owed={1} />);
+    }
+
+    return outputList;
+
+}
+
+/**
+ *  Assembles DOM elements for a single list entry
+ *      @param {number} id           user_id of participant
+ *      @param {string} name         username of participant
+ *      @param {number} owed         how much the participant paid/owes
+ *      @return {React.JSX.Element}  DOM element  
+ */
+function MemberListItem({ id, name, owed, border }) {
+
+    let text = owed >= 0 ? "Is Owed" : "Owes";
+    let color = owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+
+    return (
+
+        <Link href={'/profile/' + id} asChild>
+            <View style={border ? styles.listItemSeperator : styles.listItem} >
+
+                <Text style={globals.styles.listText}>{name}</Text>
+                <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
+                    <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
+                    <Text style={[globals.styles.listText, color]}>${Math.abs(owed)}</Text>
+                </View>
+
+            </View>
+        </Link>
+
+    );
+}
+
+/**
+ *  Assembles DOM elements for a single list entry
+ *      @param {number} id           user_id of participant
+ *      @param {string} name         username of participant
+ *      @param {number} owed         how much the participant paid/owes
+ *      @return {React.JSX.Element}  DOM element  
+ */
+function TransactionListItem({ id, name, owed, border }) {
+
+    let text = owed >= 0 ? "You Paid" : "You're Owed";
+    let color = owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+
+    return (
+
+        
+        <View style={border ? styles.listItemSeperator : styles.listItem} >
+
+            <Text style={globals.styles.listText}>{name}</Text>
+            <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
+                <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
+                <Text style={[globals.styles.listText, color]}>${Math.abs(owed)}</Text>
+            </View>
+
+        </View>
+        
+
     );
 }
 
@@ -107,32 +208,15 @@ async function getGroups() {
 
 
 const styles = StyleSheet.create({
-    groups: {
-        width: '35vw',
-        minHeight: '20em',
-        height: '25vw',
-        backgroundColor: globals.COLOR_WHITE,
-        minWidth: '20em',
-        boxShadow: '0px 0px 5px 5px #eee',
-
-        justifyContent: 'flex-start',
-        alignItems: 'left',
-        overflow: 'hidden'
-    },
-    label: {
-        marginLeft: '3%',
-        paddingLeft: ' .5em',
-        paddingTop: '2em',
-        paddingBottom: '0em',
+    groupName: {
         color: globals.COLOR_GRAY,
-    },
-    newGroup: {
-        marginRight: '3%',
-        paddingRight: ' .5em',
-        paddingTop: '2em',
-        paddingBottom: '0em',
-        color: globals.COLOR_ORANGE,
-        alignSelf: 'flex-end',
+        borderStyle: 'none',
+        borderBottomStyle: 'solid',
+        borderWidth: 2,
+        borderColor: globals.COLOR_GRAY,
+        borderRadius: 2,
+        paddingLeft: 0,
+        paddingBottom: '.25em'
     },
     listItem: {
         backgroundColor: globals.COLOR_WHITE,

@@ -35,7 +35,6 @@ export default function Sidebar(props) {
 
 const styles = StyleSheet.create({
     sidebar: {
-        maxHeight: '95vh',
         height: '100%',
         zIndex: 1,
         top: 0,
@@ -45,7 +44,11 @@ const styles = StyleSheet.create({
         overflowX: 'hidden',
         alignSelf: 'flex-start',
         transition: '500ms',
-        scrollbarWidth: 'thin'
+        scrollbarWidth: 'thin',
+        borderStyle: 'none',
+        borderRightStyle: 'solid',
+        borderWidth: 1,
+        borderColor: globals.COLOR_GRAY
     },
     button: {
         width: '2em',
