@@ -51,6 +51,9 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
+        height: '100%',
+        minHeight: '45em',
+        minHeight: '45em',
         width: '100%',
         flexWrap: 'nowrap',
         justifyContent: 'center',
