@@ -106,7 +106,7 @@ export const styles = StyleSheet.create({
 
         backgroundColor: COLOR_WHITE,
 
-        overflowY: 'scroll',
+        overflowY: 'auto',
         scrollbarWidth: 'thin',
 
 
