@@ -27,7 +27,6 @@ POST Request
 */
 elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!empty($_POST) && is_string($_POST) && json_decode($_POST, true)) {
-        // addNewTransaction($_POST);
     } else {
         http_response_code(HTTP_BAD_REQUEST);
     }
@@ -134,9 +133,13 @@ function getApprovedTransactions($user_id) {
 function removeNotification($notification_id) {
     global $mysqli;
 
+<<<<<<< Updated upstream
     //Verify current user ID corresponds to the notification
     $sql = "SELECT user_id
             FROM notifications
+=======
+    $sql = "DELETE FROM notifications
+>>>>>>> Stashed changes
             WHERE notification_id=?";
 
     $user_id = $mysqli->execute_query($sql, [$notification_id])->fetch_assoc()["user_id"];
