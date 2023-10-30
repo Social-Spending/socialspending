@@ -135,12 +135,7 @@ function removeNotification($notification_id) {
     $sql = "DELETE FROM notifications
             WHERE notification_id=?";
 
-    $user_id = $mysqli->execute_query($sql, [$notification_id])->fetch_assoc()["user_id"];
-
-    if (!verifyUser($user_id)) {
-        http_response_code(HTTP_UNAUTHORIZED);
-        return;
-    }
+    $mysqli->execute_query($sql, [$notification_id]);
 }
 
 ?>
