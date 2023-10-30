@@ -11,8 +11,8 @@ GET Request
 */
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     //Check if user_id and a notification type were passed
-    if (isset($_GET["type"]) && isset($_GET["user_id"])) {
-		getNotifications($_GET["type"], $_GET["user_id"]);
+    if (isset($_GET["type"])) {
+		getNotifications($_GET["type"]);
     }
 	//No other valid GET requests, fail out
     else {
@@ -24,15 +24,23 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 Selects the proper notifications to be returned
     - type = "friend_request", "approval_request", or "approved_transaction"
 */
-function getNotifications($type, $user_id) {
+// function getNotifications($type, $user_id) {
+function getNotifications($type) {
+    //Get the user ID from the cookie
+    $user_id = intval(validateSessionID());
+    if ($user_id === 0) {
+        http_response_code(HTTP_UNAUTHORIZED);
+        return;
+    }
+
 	switch ($type) {
 		case "friend_request":
 			getFriendRequests($user_id);
 			break;
-		case "approval_request":
+		case "transaction_approval":
 			getApprovalRequests($user_id);
 			break;
-		case "approved_transaction":
+		case "complete_transaction":
 			getApprovedTransactions($user_id);
 			break;
 		default:
@@ -47,12 +55,6 @@ Returns friend request notifications
 */
 function getFriendRequests($user_id) {
     global $mysqli;
-
-    //Verify current user ID corresponds to the notifications requested
-    if (!verifyUser($user_id)) {
-        http_response_code(HTTP_UNAUTHORIZED);
-        return;
-    }
 
     $sql = "SELECT  notifications.notification_id AS notification_id,
                     users.username AS username
@@ -81,14 +83,8 @@ Returns transaction approval requests notifications
 function getApprovalRequests($user_id) {
     global $mysqli;
 
-    //Verify current user ID corresponds to the notifications requested
-    if (!verifyUser($user_id)) {
-        http_response_code(HTTP_UNAUTHORIZED);
-        return;
-    }
-
     $sql = "SELECT  notifications.notification_id AS notification_id,
-    				transaction.name AS name
+    				transactions.name AS name
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
             WHERE notifications.user_id=? AND notifications.type=\"approval_request\"";
@@ -112,14 +108,8 @@ Returns approved transaction notifications
 function getApprovedTransactions($user_id) {
     global $mysqli;
 
-    //Verify current user ID corresponds to the notifications requested
-    if (!verifyUser($user_id)) {
-        http_response_code(HTTP_UNAUTHORIZED);
-        return;
-    }
-
     $sql = "SELECT  notifications.notification_id AS notification_id,
-    				transaction.name AS name
+    				transactions.name AS name
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
             WHERE notifications.user_id=? AND notifications.type=\"approved_transaction\"";
