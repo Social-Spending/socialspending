@@ -19,9 +19,9 @@ export default function Base(props) {
         <View style={styles.base}>
             <Header loggedIn={loggedIn} showNotif={() => setShowShelf(!showShelf)} />
 
-            <View style={[props.style, { flexWrap: 'nowrap', justifyContent: 'flex-end', flexDirection: 'row' }]}>
+            <View style={[props.style, { flexWrap: 'nowrap' }]}>
 
-                <View style={styles.container}>
+                <View style={[styles.container]}>
                     {props.children}
                 </View>
 
@@ -53,9 +53,9 @@ const styles = StyleSheet.create({
         minHeight: '45em',
         width: '100%',
         flexWrap: 'nowrap',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'row'
+        flexDirection: 'inherit',
+        alignItems: 'inherit',
+        justifyContent: 'inherit'
 
     },
     notifShelf: {

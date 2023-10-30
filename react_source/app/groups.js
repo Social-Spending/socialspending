@@ -15,27 +15,35 @@ import Button from '../components/Button.js';
 
 export default function Page() {
 
-    // make a quick GET request to login.php to check if the user's cookies are already authenticated
-    // assemble endpoint for authentication
-    fetch("/login.php", { credentials: 'same-origin' }).then((response) => {
-        if (response.status == 200) {
-            // redirect
-            //router.replace("/summary");
-        }
-    });
+    
+    
 
+    useEffect(() => {
+        // make a quick GET request to login.php to check if the user's cookies are already authenticated
+        // assemble endpoint for authentication
+        // React advises to declare the async function directly inside useEffect
+        fetch("/login.php", { credentials: 'same-origin' }).then((response) => {
+            if (response.status != 200) {
+                // redirect
+                //router.replace("/login");
+            }
+        });
+
+    }, []);
+
+    let [groupID, setGroupID] = useState(null);
 
     return (
-        <Base style={[globals.styles.container, { flexDirection: 'row' }]}>
+        <Base style={[globals.styles.container, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
             <Sidebar title={'Groups'}>
-                <GroupList />
+                <GroupList setGroupID={setGroupID} />
             </Sidebar>
-            <GroupInfo name="TEST GROUP" />
+            <GroupInfo id={groupID} />
         </Base>
     );
 }
 
-function GroupList() {
+function GroupList(props) {
 
     let [groupItems, setGroupItems] = useState(null);
 
@@ -44,7 +52,7 @@ function GroupList() {
         // On load asynchronously request groups and construct the list
         async function getItems() {
 
-            setGroupItems(await getGroups());
+            setGroupItems(await getGroups(props.setGroupID));
         }
         getItems();
 
@@ -61,7 +69,7 @@ function GroupList() {
         return (
             <>
                 {groupItems}
-                <Button style={{ height: '2em' }} textStyle={{ color: globals.COLOR_GRAY }} label=" + Create New Group" />                
+                <Button style={{ height: '2em' }} textStyle={{ color: globals.COLOR_GRAY }} label="+ Create New Group" />                
             </>
 
         );
@@ -71,9 +79,10 @@ function GroupList() {
 
 function GroupListItem(props) {
 
+    console.log(props.id);
     return (
 
-        <View style={props.border ? styles.listItemSeperator : styles.listItem} >
+        <View style={props.border ? styles.listItemSeperator : styles.listItem} onClick={() => props.setGroupID(props.id)} >
 
             <Text style={globals.styles.listText}>{props.name}</Text>
 
@@ -81,7 +90,7 @@ function GroupListItem(props) {
     );
 }
 
-async function getGroups() {
+async function getGroups(setGroupID) {
 
     let groupList = [];
 
@@ -99,8 +108,8 @@ async function getGroups() {
                 let groups = json['groups'];
 
                 for (let i = 0; i < groups.length; i++) {
-
-                    groupList.push(<GroupListItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} />);
+                    if (i == 0) setGroupID(groups[i].group_id);
+                    groupList.push(<GroupListItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} setGroupID={setGroupID} />);
                 }
             }
 
@@ -124,7 +133,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginTop: '.5em',
         paddingBottom: '.5em',
-        paddingLeft: '1em'
+        paddingLeft: '1em',
+        cursor: 'pointer'
 
     },
     listItemSeperator: {
@@ -137,7 +147,8 @@ const styles = StyleSheet.create({
         borderColor: '#eee',
         paddingTop: '.5em',
         paddingBottom: '.5em',
-        paddingLeft: '1em'
+        paddingLeft: '1em',
+        cursor: 'pointer'
 
     }
 

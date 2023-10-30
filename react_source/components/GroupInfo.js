@@ -16,7 +16,9 @@ export default function GroupInfo(props) {
 
     let [groupMembers, setGroupMembers] = useState(null);
     let [transactions, setTransactions] = useState(null);
-    const [groupName, setGroupName]     = useState(null);
+    let [groupName, setGroupName] = useState(null);
+
+    
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -29,14 +31,14 @@ export default function GroupInfo(props) {
 
                 setGroupMembers(await getGroupMembers(json));
                 setTransactions(await getTransactions(props.id, setTransactionID));
-            }
-
-            
+            }            
         }
         getItems();
 
-    }, []);
-
+    }, [props.id]);
+    if (props.id == null) {
+        return (<></>);
+    }
 
     return (
         <View style={{ flexDirection: 'row', flex: 1, height: '100%'}}>
@@ -74,13 +76,8 @@ export default function GroupInfo(props) {
                     </View>
 
                 </View>
-               
-                
-            </View>
-           
-            
+            </View> 
         </View>
-        
     );
 }
 async function getGroupInfo(id) {
