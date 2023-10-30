@@ -18,14 +18,20 @@ export default function GroupInfo(props) {
     let [transactions, setTransactions] = useState(null);
     let [groupName, setGroupName] = useState(null);
 
-    
-
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
         // On load asynchronously request groups and construct the list
         async function getItems() {
+            let json = null;
 
-            let json = await getGroupInfo(props.id);
+            if (props.json === undefined || props.json === null) {
+
+                json = await getGroupInfo(props.id);
+            } else {
+
+                json = props.json;
+            }
+
             if (json !== null) {
                 setGroupName(json.group_name);                
 
@@ -34,6 +40,7 @@ export default function GroupInfo(props) {
             }            
         }
         getItems();
+            
 
     }, [props.id]);
     if (props.id == null || groupName == null) {
