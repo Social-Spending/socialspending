@@ -7,7 +7,7 @@ import { Link } from "expo-router";
 
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
-export default function Groups(props) {
+export default function GroupsList(props) {
 
     return (
 
@@ -37,7 +37,7 @@ function GroupList() {
         // On load asynchronously request groups and construct the list
         async function getItems() {
 
-            setGroupItems(await generateGroupList());
+            setGroupItems(await getGroups());
         }
         getItems();
 
@@ -81,7 +81,7 @@ function GroupItem(props) {
         <Link href={'/groups/' + props.id} asChild>
             <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
-                <Text style={globals.styles.text}>{props.name}</Text>
+                <Text style={[globals.styles.listText]}>{props.name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
                     <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed)}</Text>
@@ -93,13 +93,33 @@ function GroupItem(props) {
     );
 }
 
-async function generateGroupList() {
+async function getGroups() {
 
     let groupList = [];
 
-    for (let i = 0; i < 100; i++) {
+    // pul username and password in form data for a POST request
+    let payload = new URLSearchParams();
+    payload.append('brief', true);
 
-        groupList.push(<GroupItem key={i} border={i >0} name={'Group ' + Math.abs(Math.floor(Math.sin(i) * 1000000))} id={Math.abs(Math.floor(Math.sin(i) * 1000000))} owed={(Math.tan(i) * 1000).toFixed(2)} />);
+    // do the POST request
+    try {
+        let response = await fetch("/groups.php?" + payload, { method: 'GET', credentials: 'same-origin' });
+
+        if (response.ok) {
+            let json = await response.json();
+            if (json !== null) {
+                let groups = json['groups'];
+
+                for (let i = 0; i < groups.length; i++) {
+                    
+                    groupList.push(<GroupItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} owed={groups[i].debt} />);
+                }
+            }
+        }
+    }
+    catch (error) {
+        console.log("error in in GET request to groups (/groups.php)");
+        console.log(error);
     }
 
     return groupList;
