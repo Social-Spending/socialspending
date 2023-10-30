@@ -145,7 +145,7 @@ async function getNotifications(type){
 
     // do the POST request
     try {
-        let response = await fetch("/notifications.php", { method: 'GET', body: payload, credentials: 'same-origin' });
+        let response = await fetch("/notifications.php" + payload, { method: 'GET', credentials: 'same-origin' });
 
         if (response.ok) {
             if (await response.json() != null) {
