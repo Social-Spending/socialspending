@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
         flexWrap: 'nowrap',
         justifyContent: 'center',
         alignItems: 'center',
+        flexDirection: 'row'
 
     },
     notifShelf: {
