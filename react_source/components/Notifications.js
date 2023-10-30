@@ -141,43 +141,49 @@ async function getNotifications(type){
     let notifications = [];
 
     let payload = new URLSearchParams();
-    payload.append('notification_type', type);
+    payload.append('type', type);
 
     // do the POST request
     try {
-        let response = await fetch("/notifications.php" + payload, { method: 'GET', credentials: 'same-origin' });
+        let response = await fetch("/notifications.php?" + payload, { method: 'GET', credentials: 'same-origin' });
 
         if (response.ok) {
-            if (await response.json() != null) {
-                console.log(response.json());
-                switch (type) {
-                    case "friend_request":
-                        for (let i = 0; i < response.json().length; i++) {
-                            notifications.push(<FriendRequest name={response.json()[i].username} />)
-                        }
-                        break;
-                    case "transaction_approval":
-                        for (let i = 0; i < response.json().length; i++) {
-                            notifications.push(<ApproveTransaction name={response.json()[i].name} />)
-                        }
-                        break;
-                    case "complete_transaction":
+            try {
+                let json = await response.json();
+                if (json !== null) {
+                    switch (type) {
+                        case "friend_request":
+                            for (let i = 0; i < json.length; i++) {
+                                notifications.push(<FriendRequest name={json[i].username} />)
+                            }
+                            break;
+                        case "transaction_approval":
+                            for (let i = 0; i < json.length; i++) {
+                                notifications.push(<ApproveTransaction name={json[i].name} />)
+                            }
+                            break;
+                        case "complete_transaction":
 
-                        for (let i = 0; i < response.json().length; i++) {
-                            notifications.push(<CompletedTransaction name={response.json()[i].name} />)
-                        }
+                            for (let i = 0; i < json.length; i++) {
+                                notifications.push(<CompletedTransaction name={json[i].name} />)
+                            }
 
-                        break;
-                    default:
-                        console.error("error in in GET request to notifications (/notifications.php)");
-                        console.error("Unrecognized notification type");
-                        break;
+                            break;
+                        default:
+                            console.error("error in GET request to notifications (/notifications.php)");
+                            console.error("Unrecognized notification type");
+                            break;
+                    }
                 }
-            }
+                
+            } catch (error) {
+				console.error("error in GET request to notifications (/notifications.php)");
+				console.error("No JSON returned");
+			}
         }
     }
     catch (error) {
-        console.error("error in in GET request to notifications (/notifications.php)");
+        console.error("error in GET request to notifications (/notifications.php)");
         console.error(error);
     }
     return notifications;
