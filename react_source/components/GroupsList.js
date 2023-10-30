@@ -78,7 +78,7 @@ function GroupItem(props) {
 
     return (
 
-        <Link href={'/groups/' + props.id} asChild>
+        <Link href={'/group/' + props.id} asChild>
             <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
                 <Text style={[globals.styles.listText]}>{props.name}</Text>
