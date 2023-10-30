@@ -24,7 +24,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 Selects the proper notifications to be returned
     - type = "friend_request", "approval_request", or "approved_transaction"
 */
-// function getNotifications($type, $user_id) {
 function getNotifications($type) {
     //Get the user ID from the cookie
     $user_id = intval(validateSessionID());
