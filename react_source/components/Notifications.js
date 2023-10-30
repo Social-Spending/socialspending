@@ -1,7 +1,7 @@
 import * as globals from '../utils/globals.js'
 
 import { StyleSheet, View, Text } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from './Button.js';
 
 import ApproveSvg   from '../assets/images/bx-check.svg';
@@ -11,22 +11,37 @@ import UpChevron    from '../assets/images/bx-chevron-up.svg';
 import DownChevron  from '../assets/images/bx-chevron-down.svg';
 
 export default function Notifications(props) {
+    const [friendRequests, setFriendRequests] = useState(null);
+    const [transactionApprovals, setTransactionApprovals] = useState(null);
+    const [completedTransactions, setCompletedTransactions] = useState(null);
+
+    useEffect(() => {
+        // React advises to declare the async function directly inside useEffect
+        // On load asynchronously request groups and construct the list
+        async function getItems() {
+
+            setFriendRequests(await getNotifications("friend_request"));
+            setTransactionApprovals(await getNotifications("transaction_approval"));
+            setCompletedTransactions(await getNotifications("complete_transaction"));
+        }
+        getItems();
+
+    }, []);
+
 
     return (
         <View style={[styles.notifShelf, props.show ? { width: '20vw', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
             <View style={[props.show ? { width: '18vw', display: "block" } : { width: '0', display: "none"}]}>
                 <Section name='Friend Requests'>
-                    <FriendRequest name="Friend Request One" date={"1/2/23"}></FriendRequest>
+                    {friendRequests}
                 </Section>
                 
                 <Section name='Pending Transactions'>
-                    <ApproveTransaction name="Transaction One" date={"1/2/23"}></ApproveTransaction>
-                    <ApproveTransaction name="Transaction Two Hopefully this is long enough to overflow" date={"3/2/23"}></ApproveTransaction>
-                    <ApproveTransaction name="Transaction Three Hopefully this is long enough to overflow im going to make it even longer to show more text" date={"6/2/23"}></ApproveTransaction>
+                    {transactionApprovals}
                 </Section>
 
                 <Section name="Compeleted Transactions">
-                    <CompletedTransaction name="Transaction Four" date={"1/2/23"}></CompletedTransaction>
+                    {completedTransactions}
                 </Section>
                 
             </View>
@@ -121,11 +136,11 @@ function CompletedTransaction(props) {
     );
 }
 
-async function getNotification(user_id, type){
+async function getNotifications(type){
 
+    let notifications = [];
 
     let payload = new URLSearchParams();
-    payload.append('user_id', user_id);
     payload.append('notification_type', type);
 
     // do the POST request
@@ -133,16 +148,39 @@ async function getNotification(user_id, type){
         let response = await fetch("/notifications.php", { method: 'GET', body: payload, credentials: 'same-origin' });
 
         if (response.ok) {
-           
-        }
-        else {
+            if (await response.json() != null) {
+                console.log(response.json());
+                switch (type) {
+                    case "friend_request":
+                        for (let i = 0; i < response.json().length; i++) {
+                            notifications.push(<FriendRequest name={response.json()[i].username} />)
+                        }
+                        break;
+                    case "transaction_approval":
+                        for (let i = 0; i < response.json().length; i++) {
+                            notifications.push(<ApproveTransaction name={response.json()[i].name} />)
+                        }
+                        break;
+                    case "complete_transaction":
 
+                        for (let i = 0; i < response.json().length; i++) {
+                            notifications.push(<CompletedTransaction name={response.json()[i].name} />)
+                        }
+
+                        break;
+                    default:
+                        console.error("error in in GET request to notifications (/notifications.php)");
+                        console.error("Unrecognized notification type");
+                        break;
+                }
+            }
         }
     }
     catch (error) {
-        console.log("error in in GET request to notifications (/notifications.php)");
-        console.log(error);
+        console.error("error in in GET request to notifications (/notifications.php)");
+        console.error(error);
     }
+    return notifications;
 }
 
 
