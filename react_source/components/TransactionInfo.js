@@ -1,4 +1,4 @@
-/*
+/**
  *  TransactionInfo:
  *  
  *      Displays the name, id, date, description, and a participants list for a given transaction
@@ -22,7 +22,6 @@ const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif')
 
 
 export default function TransactionInfo({ id, json }) {
-
 
     let [transactionInfo, setTransactionInfo] = useState(null);
 
@@ -58,7 +57,7 @@ export default function TransactionInfo({ id, json }) {
 
         return (
             <View style={styles.info}>
-                <Text style={global.styles.error}> {text} </Text>
+                <Text style={globals.styles.error}> {text} </Text>
             </View>
         );
     } else {
@@ -97,46 +96,45 @@ export default function TransactionInfo({ id, json }) {
     }
 }
 
-/*
- *  getParticipants: Creates an array contianing the DOM elements for each participant
- *      @param participantList  - JSON Array containing a list of JSON Objects for participants
- *      @return array           - Array of DOM elements to be rendered
+/**
+ *  Creates an array contianing the DOM elements for each participant
+ *  @param {JSON} participantList JSON Array containing a list of JSON Objects for participants
+ *  @return {React.JSX.Element[]} Array of DOM elements to be rendered
  */
 function getParticipants(participantList) {
 
     let outputList = [];
 
     for (let i = 0; i < participantList.length; i++) {
-        if (i > 0) outputList.push(<View key={i * 2} style={{ alignSelf: 'center', height: '1px', width: '100%', backgroundColor: '#eee' }} />);
 
-        outputList.push(<ListItem key={i * 2 + 1} name={participantList[i]['username']} id={participantList[i]['user_id']} owed={participantList[i]['amount']} />);
+        outputList.push(<ListItem key={i} border={i > 0} name={participantList[i]['username']} id={participantList[i]['user_id']} owed={participantList[i]['amount']} />);
     }
 
     return outputList;
 
 }
 
-/*
- *  ListItem: Assembles DOM elements for a single list entry
- *      @param id           - user_id of participant
- *      @param name         - username of participant
- *      @param owed         - how much the participant paid/owes
- *      @return DOM element - 
+/**
+ *  Assembles DOM elements for a single list entry
+ *      @param {number} id           user_id of participant
+ *      @param {string} name         username of participant
+ *      @param {number} owed         how much the participant paid/owes
+ *      @return {React.JSX.Element}  DOM element  
  */
-function ListItem(props) {
+function ListItem({ id, name, owed, border }) {
 
-    let text = props.owed >= 0 ? "Paid" : "Owes";
-    let color = props.owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+    let text = owed >= 0 ? "Paid" : "Owes";
+    let color = owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
 
     return (
 
-        <Link href={'/profile/' + props.id} asChild>
-            <View style={globals.styles.listItem} >
+        <Link href={'/profile/' + id} asChild>
+            <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
-                <Text style={globals.styles.listText}>{props.name}</Text>
+                <Text style={globals.styles.listText}>{name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                    <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed)}</Text>
+                    <Text style={[globals.styles.listText, color]}>${Math.abs(owed)}</Text>
                 </View>
 
             </View>
@@ -145,10 +143,10 @@ function ListItem(props) {
     );
 }
 
-/*
- *  getTransaction: Gets transaction data from the server using transaction.php endpoint
- *      @param transactionId - id of transaction to fetch
- *      @return JSON Object  - JSON object containing data for transaction or an error message
+/**
+ * Gets transaction data from the server using transaction.php endpoint
+ *      @param {number} transactionId   id of transaction to fetch
+ *      @return {JSON}                  JSON object containing data for transaction or an error message
  */
 async function getTransaction(transactionId) {
 
