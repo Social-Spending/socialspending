@@ -36,7 +36,7 @@ export default function GroupInfo(props) {
         getItems();
 
     }, [props.id]);
-    if (props.id == null) {
+    if (props.id == null || groupName == null) {
         return (<></>);
     }
 

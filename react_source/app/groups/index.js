@@ -1,15 +1,15 @@
-import * as globals from '../utils/globals.js'
+import * as globals from '../../utils/globals.js'
 
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { router } from 'expo-router';
 import { useState, useEffect } from 'react';
 
-const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
+const LoadingGif = require('../../assets/images/loading/loading-blue-block-64.gif');
 
-import Base from '../components/Base.js';
-import GroupInfo from '../components/GroupInfo.js';
-import Sidebar from '../components/CollapsibleSidebar.js'
-import Button from '../components/Button.js';
+import Base from '../../components/Base.js';
+import GroupInfo from '../../components/GroupInfo.js';
+import Sidebar from '../../components/CollapsibleSidebar.js'
+import Button from '../../components/Button.js';
 
 
 
