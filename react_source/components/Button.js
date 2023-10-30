@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 
 
-export default function Button({ label, style, hoverStyle, iconStyle, icon, svg, onClick, disabled }) {
+export default function Button({ label, style, hoverStyle, iconStyle, textStyle, icon, svg, onClick, disabled }) {
     const [hover, setHover] = useState(false);
 
     return (
@@ -15,7 +15,7 @@ export default function Button({ label, style, hoverStyle, iconStyle, icon, svg,
             <View style={[styles.button, hoverStyle, disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {})]} >
             
                 <Icon svg={svg} style={iconStyle} icon={icon} />
-                <ButtonText disabled={disabled} label={label} />
+                <ButtonText disabled={disabled} label={label} style={textStyle} />
             </View>
            
         </Pressable>
@@ -41,7 +41,7 @@ function Icon(props) {
 function ButtonText(props) {
     if (props.label) {
         return (
-            <Text style={[globals.styles.h5, props.disabled ? styles.buttonLabelDisabled : styles.buttonLabel ]} >{props.label}</Text>
+            <Text style={[globals.styles.h5, props.disabled ? styles.buttonLabelDisabled : styles.buttonLabel, props.style ]} >{props.label}</Text>
         );
     } else {
         return;

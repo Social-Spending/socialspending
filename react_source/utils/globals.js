@@ -113,7 +113,6 @@ export const styles = StyleSheet.create({
     },
     listItem: {
         marginTop: '1em',
-        backgroundColor: COLOR_WHITE,
         paddingBottom: '1em',
         justifyContent: 'space-between',
         alignItems: 'left',
