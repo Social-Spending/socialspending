@@ -93,12 +93,12 @@ async function getGroupInfo(id) {
 
     // do the POST request
     try {
-        let response = await fetch("/groups.php" + payload, { method: 'GET', credentials: 'same-origin' });
+        let response = await fetch("/groups.php?" + payload, { method: 'GET', credentials: 'same-origin' });
 
         if (response.ok) {
-
-            if (await response.json() != null)
-            return await response.json();
+            let json = await response.json();
+            if (json != null)
+            return json
             
         }
         else {
@@ -199,11 +199,6 @@ function TransactionListItem({ id, name, owed, border, onClick }) {
 
     );
 }
-
-
-
-
-
 
 
 

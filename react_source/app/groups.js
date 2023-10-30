@@ -61,7 +61,7 @@ function GroupList() {
         return (
             <>
                 {groupItems}
-                <Button textStyle={{ color: globals.COLOR_GRAY }} label=" + Create New Group" />                
+                <Button style={{ height: '2em' }} textStyle={{ color: globals.COLOR_GRAY }} label=" + Create New Group" />                
             </>
 
         );
@@ -91,11 +91,12 @@ async function getGroups() {
 
     // do the POST request
     try {
-        let response = await fetch("/groups.php" + payload, { method: 'GET', credentials: 'same-origin' });
+        let response = await fetch("/groups.php?" + payload, { method: 'GET', credentials: 'same-origin' });
 
         if (response.ok) {
-            if (await response.json() !== null) {
-                let groups = await response.json()['groups'];
+            let json = await response.json();
+            if (json !== null) {
+                let groups = json['groups'];
 
                 for (let i = 0; i < groups.length; i++) {
 
@@ -114,3 +115,30 @@ async function getGroups() {
     return groupList;
 
 }
+
+const styles = StyleSheet.create({
+    
+    listItem: {
+        justifyContent: 'space-between',
+        alignItems: 'left',
+        flexDirection: 'row',
+        marginTop: '.5em',
+        paddingBottom: '.5em',
+        paddingLeft: '1em'
+
+    },
+    listItemSeperator: {
+        justifyContent: 'space-between',
+        alignItems: 'left',
+        flexDirection: 'row',
+        borderStyle: 'none',
+        borderTopStyle: 'solid',
+        borderWidth: '1px',
+        borderColor: '#eee',
+        paddingTop: '.5em',
+        paddingBottom: '.5em',
+        paddingLeft: '1em'
+
+    }
+
+});
