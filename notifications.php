@@ -56,7 +56,8 @@ function getFriendRequests($user_id) {
     global $mysqli;
 
     $sql = "SELECT  notifications.notification_id AS notification_id,
-                    users.username AS username
+                    users.username AS username,
+                    users.user_id AS friend_id
             FROM notifications
             LEFT JOIN users ON users.user_id = notifications.friend_request_user_id
             WHERE notifications.user_id=? AND notifications.type=\"friend_request\"";
@@ -83,7 +84,8 @@ function getApprovalRequests($user_id) {
     global $mysqli;
 
     $sql = "SELECT  notifications.notification_id AS notification_id,
-    				transactions.name AS name
+    				transactions.name AS name,
+                    transactions.transaction_id AS transcation_id
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
             WHERE notifications.user_id=? AND notifications.type=\"approval_request\"";
@@ -108,7 +110,8 @@ function getApprovedTransactions($user_id) {
     global $mysqli;
 
     $sql = "SELECT  notifications.notification_id AS notification_id,
-    				transactions.name AS name
+    				transactions.name AS name,
+                    transactions.transaction_id AS transcation_id
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
             WHERE notifications.user_id=? AND notifications.type=\"approved_transaction\"";
