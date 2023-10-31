@@ -81,8 +81,8 @@ function FriendRequest(props) {
             <View style={styles.buttonContainer}>
 
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} />
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} />
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approveFriendRequest(props.id, true)} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approveFriendRequest(props.id, false)} />
             </View>
                       
         </View>
@@ -136,6 +136,28 @@ function CompletedTransaction(props) {
     );
 }
 
+async function approveFriendRequest(id, approved) {
+    let payload = `{
+        "operation": ` + (approved ? "\"accept\"" : "\"reject\"") + `,
+        "notification_id": ` + id + `
+    }`;
+
+    // do the POST request
+    try {
+        let response = await fetch("/friendships.php", { method: 'POST', body: payload, credentials: 'same-origin' });
+
+        if (response.ok) {
+
+        } else {
+
+        }
+    }
+    catch (error) {
+        console.error("error in POST request to friendships (/friendships.php)");
+        console.error(error);
+    }
+}
+
 async function getNotifications(type){
 
     let notifications = [];
@@ -154,18 +176,18 @@ async function getNotifications(type){
                     switch (type) {
                         case "friend_request":
                             for (let i = 0; i < json.length; i++) {
-                                notifications.push(<FriendRequest name={json[i].username} />)
+                                notifications.push(<FriendRequest name={json[i].username} id={json[i].notification_id} />)
                             }
                             break;
                         case "transaction_approval":
                             for (let i = 0; i < json.length; i++) {
-                                notifications.push(<ApproveTransaction name={json[i].name} />)
+                                notifications.push(<ApproveTransaction name={json[i].name} id={json[i].notification_id} />)
                             }
                             break;
                         case "complete_transaction":
 
                             for (let i = 0; i < json.length; i++) {
-                                notifications.push(<CompletedTransaction name={json[i].name} />)
+                                notifications.push(<CompletedTransaction name={json[i].name} id={json[i].notification_id} />)
                             }
 
                             break;
