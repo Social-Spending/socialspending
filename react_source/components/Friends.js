@@ -69,13 +69,14 @@ function FriendsList() {
 
 function FriendItem(props) {
   let name = props.name
+  let id = props.id
   
   return (
     /* TODO
-     * Currently, clicking on any of your friends would redirect you to `socialspendingapp.com/{name}` which would be their profile
+     * Currently, clicking on any of your friends would redirect you to `socialspendingapp.com/profile/{id}` which would be their profile
      * Is this how we wanna do that? 
      * */
-    <Link href={"/" + name} asChild>
+    <Link href={"profile/" + id} asChild>
       <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem}>
         <Text style={globals.styles.listText}>{name}</Text>
       </View>
@@ -106,7 +107,7 @@ async function generateFriendsList() {
 
   for (let i = 0; i < friends_list.length; i++) {
     array_to_be_returned.push(
-      <FriendItem key={i} name={friends_list[i]} border={i > 0}/>
+      <FriendItem key={i} name={friends_list[i]} id={i} border={i > 0}/>
     );
   }
   
