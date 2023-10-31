@@ -170,6 +170,15 @@ export const styles = StyleSheet.create({
         fontSize: '.67em',
         fontWeight: 'bolder'
     },
+    modalBackground: {
+        height: '100vh',
+        width: '100%',
+        backgroundColor: '#33333399',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'fixed',
+        top: 0
+    },
 
 
 });
