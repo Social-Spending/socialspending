@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 
 import Base from '../../components/Base.js';
 import GroupInfo from '../../components/GroupInfo.js';
+import VerifyAction from '../../components/VerifyAction.js';
 
 
 
@@ -44,12 +45,55 @@ export default function Page() {
 
     }, []);
 
+    const [modal, setModal] = useState(null);
+
+    const verifyLeave = () => {
+        setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => leaveGroup(slug.id)} reject={() => setModal(null)} exit={() => setModal(null)} />)
+    }
+
     return (
-        <Base style={[globals.styles.container, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
+        <>
+            <Base style={[globals.styles.container, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
             
-            <GroupInfo id={slug.id} json={json} />
-        </Base>
+                <GroupInfo id={slug.id} json={json} leave={verifyLeave} />
+            </Base>
+            {modal}
+        </>
     );
+}
+
+async function leaveGroup(id) {
+    let payload = `{
+                        "operation": "leave",
+                        "group_id": ` + id + `
+                    }`;
+
+    // do the POST request
+    try {
+        let response = await fetch("/groups.php", {
+            method: 'POST',
+            body: payload,
+            credentials: 'same-origin',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (await response.ok) {
+            // redirect
+            router.replace("/groups");
+        }
+        else {
+            // failed, display error message returned by server
+            let responseJSON = await response.json();
+            errorRef.current.innerText = responseJSON['message'];
+            errorRef.current.classList.remove('hidden');
+        }
+    }
+    catch (error) {
+        console.log("error in POST request to groups (/groups.php)");
+        console.log(error);
+    }
 }
 
 
