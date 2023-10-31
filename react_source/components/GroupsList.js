@@ -7,7 +7,9 @@ import { Link } from "expo-router";
 
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
-export default function Groups(props) {
+import { getGroups } from '../utils/groups.js'
+
+export default function GroupsList(props) {
 
     return (
 
@@ -37,7 +39,7 @@ function GroupList() {
         // On load asynchronously request groups and construct the list
         async function getItems() {
 
-            setGroupItems(await generateGroupList());
+            setGroupItems(await buildGroups());
         }
         getItems();
 
@@ -65,9 +67,7 @@ function GroupList() {
                 {groupItems}
 
             </View>
-
         );
-
     }
 }
 
@@ -79,9 +79,9 @@ function GroupItem(props) {
     return (
 
         <Link href={'/groups/' + props.id} asChild>
-            <View style={globals.styles.listItem} >
+            <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
-                <Text style={globals.styles.listText}>{props.name}</Text>
+                <Text style={[globals.styles.listText]}>{props.name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
                     <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed)}</Text>
@@ -93,18 +93,19 @@ function GroupItem(props) {
     );
 }
 
-async function generateGroupList() {
+async function buildGroups() {
 
     let groupList = [];
+    
+    let groups = await getGroups();
 
-    for (let i = 0; i < 100; i++) {
+    if (groups === null) return groupList;
 
-
-        groupList.push(<View key={i * 2} style={{ alignSelf: 'center', height: '1px', width: '100%', backgroundColor: '#eee' }} />);
-
-        groupList.push(<GroupItem key={i * 2 + 1} name={'Group ' + Math.abs(Math.floor(Math.sin(i) * 1000000))} id={Math.abs(Math.floor(Math.sin(i) * 1000000))} owed={(Math.tan(i) * 1000).toFixed(2)} />);
+    for (let i = 0; i < groups.length; i++) {
+                    
+        groupList.push(<GroupItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} owed={groups[i].debt} />);
     }
-
+           
     return groupList;
 
 }

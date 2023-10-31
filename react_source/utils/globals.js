@@ -1,14 +1,15 @@
 import { StyleSheet } from 'react-native';
 
-export const COLOR_BLUE             = "#0FA3B1";
+export const COLOR_BLUE             = "#00B2C2";
 export const COLOR_LIGHT_BLUE       = "#B5E2FA";
-export const COLOR_ORANGE           = "#F7A072";
+export const COLOR_ORANGE           = "#FF9F6B";
 export const COLOR_LIGHT_ORANGE     = "#EDDEA4";
 export const COLOR_BEIGE            = "#F9F7F3";
 export const COLOR_DARK_BLUE        = "#2B2D42";
 export const COLOR_WHITE            = "#FFF";
 export const COLOR_BLACK            = "#000";
 export const COLOR_GRAY             = "#777";
+export const COLOR_LIGHT_GRAY       = "#CCC";
 export const COLOR_RED              = "#F00";
 
 
@@ -18,6 +19,7 @@ export const styles = StyleSheet.create({
         width: '100%',
         flex: 1,
         backgroundColor: COLOR_BEIGE,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -26,6 +28,7 @@ export const styles = StyleSheet.create({
         width: '100%',
         flex: 1,
         backgroundColor: COLOR_DARK_BLUE,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -86,6 +89,12 @@ export const styles = StyleSheet.create({
         borderRadius: 4,
         boxShadow: '3px 3px 3px #aaa',
     },
+    showPassword: {
+        fontSize: '1.2em',
+        height: '100%',
+        width: 'auto',
+        paddingLeft: '.5em'
+    },
     list: {
         flex: 1,
         width: '92%',
@@ -99,18 +108,17 @@ export const styles = StyleSheet.create({
 
         backgroundColor: COLOR_WHITE,
 
-        overflowY: 'scroll',
+        overflowY: 'auto',
         scrollbarWidth: 'thin',
 
 
     },
     listItem: {
         marginTop: '1em',
-        backgroundColor: COLOR_WHITE,
         paddingBottom: '1em',
         justifyContent: 'space-between',
         alignItems: 'left',
-        flexDirection: 'row',
+        flexDirection: 'row'
 
     },
     listText: {
@@ -120,6 +128,19 @@ export const styles = StyleSheet.create({
         paddingRight: '2%',
         paddingBottom: 0,
         color: COLOR_GRAY
+    },
+    listItemSeperator: {
+        paddingTop: '1em',
+        backgroundColor: COLOR_WHITE,
+        paddingBottom: '1em',
+        justifyContent: 'space-between',
+        alignItems: 'left',
+        flexDirection: 'row',
+        borderStyle: 'none',
+        borderTopStyle: 'solid',
+        borderWidth: '1px',
+        borderColor: '#eee'
+
     },
     h1: {
         padding: '1em',
@@ -150,6 +171,15 @@ export const styles = StyleSheet.create({
         padding: '.33em',
         fontSize: '.67em',
         fontWeight: 'bolder'
+    },
+    modalBackground: {
+        height: '100vh',
+        width: '100%',
+        backgroundColor: '#33333399',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'fixed',
+        top: 0
     },
 
 
