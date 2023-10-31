@@ -1,19 +1,23 @@
 import * as globals from '../utils/globals.js'
 
 import { StyleSheet, View, Text } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import Button from './Button.js';
 
 import ApproveSvg   from '../assets/images/bx-check.svg';
 import DenySvg      from '../assets/images/bx-x.svg';
 import DetailsSvg   from '../assets/images/bx-detail.svg';
 import UpChevron    from '../assets/images/bx-chevron-up.svg';
-import DownChevron  from '../assets/images/bx-chevron-down.svg';
+import DownChevron from '../assets/images/bx-chevron-down.svg';
+
+const RemoveContext = createContext(null);
 
 export default function Notifications(props) {
-    const [friendRequests, setFriendRequests] = useState(null);
-    const [transactionApprovals, setTransactionApprovals] = useState(null);
-    const [completedTransactions, setCompletedTransactions] = useState(null);
+    const [friendRequests, setFriendRequests] = useState([]);
+    const [transactionApprovals, setTransactionApprovals] = useState([]);
+    const [completedTransactions, setCompletedTransactions] = useState([]);
+    
+   
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -23,30 +27,54 @@ export default function Notifications(props) {
             setFriendRequests(await getNotifications("friend_request"));
             setTransactionApprovals(await getNotifications("transaction_approval"));
             setCompletedTransactions(await getNotifications("complete_transaction"));
+            
         }
         getItems();
 
     }, []);
 
+    const removeNotif = (type, id) => {
+        switch (type) {
+            case "friend_request":
+
+                setFriendRequests(friendRequests.filter((notif) => notif.props.id != id));             
+                break;
+            case "transaction_approval":
+
+                setTransactionApprovals(transactionApprovals.filter((notif) => notif.props.id != id));
+                break;
+            case "complete_transaction":
+
+                setCompletedTransactions(completedTransactions.filter((notif) => notif.props.id != id));
+                break;
+            default:
+                break;
+        }
+    }
+
+    
+
 
     return (
-        <View style={[styles.notifShelf, props.show ? { width: '20vw', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
-            <View style={[props.show ? { width: '18vw', display: "block" } : { width: '0', display: "none"}]}>
-                <Section name='Friend Requests'>
-                    {friendRequests}
-                </Section>
+        <RemoveContext.Provider value={removeNotif }>
+            <View style={[styles.notifShelf, props.show ? { width: '20vw', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
+                <View style={[props.show ? { width: '18vw', display: "block" } : { width: '0', display: "none"}]}>
+                    <Section name='Friend Requests'>
+                        {friendRequests}
+                    </Section>
                 
-                <Section name='Pending Transactions'>
-                    {transactionApprovals}
-                </Section>
+                    <Section name='Pending Transactions'>
+                        {transactionApprovals}
+                    </Section>
 
-                <Section name="Compeleted Transactions">
-                    {completedTransactions}
-                </Section>
+                    <Section name="Compeleted Transactions">
+                        {completedTransactions}
+                    </Section>
                 
-            </View>
+                </View>
             
-        </View>
+            </View>
+        </RemoveContext.Provider>
     );
 }
 function Section(props) {
@@ -68,6 +96,9 @@ function Section(props) {
 
 
 function FriendRequest(props) {
+
+    const removeNotif = useContext(RemoveContext);
+
     return (
         <View style={styles.notification}>
             
@@ -81,8 +112,8 @@ function FriendRequest(props) {
             <View style={styles.buttonContainer}>
 
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} />
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approveFriendRequest(props.id, true)} />
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approveFriendRequest(props.id, false)} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approveFriendRequest(props.id, true, removeNotif)} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approveFriendRequest(props.id, false, removeNotif)} />
             </View>
                       
         </View>
@@ -91,6 +122,7 @@ function FriendRequest(props) {
 }
 
 function ApproveTransaction(props) {
+    const removeNotif = useContext(RemoveContext);
 
     return (
         <View style={styles.notification}>
@@ -105,8 +137,8 @@ function ApproveTransaction(props) {
             <View style={styles.buttonContainer}>
 
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} />
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} />
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approveTransaction(props.id, true, removeNotif)} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approveTransaction(props.id, false, removeNotif)} />
             </View>
                       
         </View>
@@ -115,6 +147,7 @@ function ApproveTransaction(props) {
 }
 
 function CompletedTransaction(props) {
+    const removeNotif = useContext(RemoveContext);
 
     return (
         <View style={styles.notification}>
@@ -129,6 +162,7 @@ function CompletedTransaction(props) {
             <View style={styles.buttonContainer}>
 
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => dismissCompletedTransaction(props.id, removeNotif)} />
             </View>
                       
         </View>
@@ -136,7 +170,7 @@ function CompletedTransaction(props) {
     );
 }
 
-async function approveFriendRequest(id, approved) {
+async function approveFriendRequest(id, approved, removeNotif) {
     let payload = `{
         "operation": ` + (approved ? "\"accept\"" : "\"reject\"") + `,
         "notification_id": ` + id + `
@@ -147,7 +181,7 @@ async function approveFriendRequest(id, approved) {
         let response = await fetch("/friendships.php", { method: 'POST', body: payload, credentials: 'same-origin' });
 
         if (response.ok) {
-
+            removeNotif('friend_request', id);
         } else {
 
         }
@@ -156,6 +190,14 @@ async function approveFriendRequest(id, approved) {
         console.error("error in POST request to friendships (/friendships.php)");
         console.error(error);
     }
+}
+
+async function approveTransaction(id, approved, removeNotif) {
+    removeNotif("transaction_approval", id)
+}
+
+async function dismissCompletedTransaction(id, removeNotif) {
+    removeNotif("transaction_approval", id)
 }
 
 async function getNotifications(type){
