@@ -96,7 +96,8 @@ insert into friendships (user_id_1, user_id_2) values
 (2, 3);
 
 insert into transactions (transaction_id, name, date, amount, description) values
-(1, 'Halal Shack', '2023-09-29', 899, 'Bought you fools some food');
+(1, 'Halal Shack', '2023-09-29', 899, 'Bought you fools some food'),
+(2, 'Example transaction', '2023-10-30', 500, 'Just a test');
 
 insert into groups (group_id, group_name) values
 (1, 'CMSC447 Bros'),
@@ -127,7 +128,8 @@ insert into debts (creditor, debtor, amount) values
 (2, 4, 1300),
 (5, 2, 1700);
 
-INSERT INTO `notifications` (`notification_id`, `user_id`, `type`, `is_approved_transaction`, `is_transaction_approval`, `is_friend_request`, `transaction_id`, `friend_request_user_id`) VALUES
-('1', '1', 'friend_request', '0', '0', '1', NULL, '2'), 
-('2', '1', 'friend_request', '0', '0', '1', NULL, '3');
-
+INSERT INTO `notifications` (`notification_id`, `user_id`, `type`, `transaction_id`, `friend_request_user_id`) VALUES
+('1', '1', 'friend_request', NULL, '2'), 
+('2', '1', 'friend_request', NULL, '3'),
+('3', '1', 'approved_transaction', '1', NULL),
+('4', '1', 'approval_request', '2', NULL);
