@@ -21,32 +21,36 @@ import { useState, useEffect } from 'react';
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
 
-export default function TransactionInfo({ id, json }) {
+export default function TransactionInfo(props) {
 
     let [transactionInfo, setTransactionInfo] = useState(null);
 
     useEffect(() => {
 
-        if (!json) {
+        if (!props.json) {
             // React advises to declare the async function directly inside useEffect
             // On load asynchronously request groups and construct the list
             async function getInfo() {
 
-                setTransactionInfo(await getTransaction(id));
+                setTransactionInfo(await getTransaction(props.id));
             }
             getInfo();
         } else {
-            setTransactionInfo(json);
+            setTransactionInfo(props.json);
         }
-        
+    }, []);
 
-    });
+    function handleChildClick(e) {
+        e.stopPropagation();
+    }
     
     if (transactionInfo === null) {
         //Transaction info hasnt loaded - show loading
         return (
-            <View style={styles.info}>
-                <Image source={LoadingGif} style={styles.loading} />
+            <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
+                <View style={styles.info} onClick={handleChildClick}>
+                    <Image source={LoadingGif} style={styles.loading} />
+                </View>
             </View>
 
         );
@@ -56,39 +60,43 @@ export default function TransactionInfo({ id, json }) {
         let text = transactionInfo === undefined ? "Error While Contacting Server" : transactionInfo['message'];
 
         return (
-            <View style={styles.info}>
+            <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
+                <View style={styles.info} onClick={handleChildClick}>
                 <Text style={globals.styles.error}> {text} </Text>
+                </View>
             </View>
         );
     } else {
         //Transaction info has been returned, render it
         return (
-            <View style={styles.info}>
+            <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
+                <View style={styles.info} onClick={handleChildClick}>
 
-                <View style={styles.detailsContainer}>
-                    <Text style={[globals.styles.h2, styles.name]}>{transactionInfo['transaction_name']}</Text>
-                </View>
+                    <View style={styles.detailsContainer}>
+                        <Text style={[globals.styles.h2, styles.name]}>{transactionInfo['transaction_name']}</Text>
+                    </View>
 
-                <View style={[styles.detailsContainer, { paddingBottom: '2.5em' }]}>
-                    <Text style={styles.details}>Transaction #{transactionInfo['transaction_id']}</Text>
-                    <Text style={styles.details}>{transactionInfo['transaction_date']}</Text>
-                </View>
+                    <View style={[styles.detailsContainer, { paddingBottom: '2.5em' }]}>
+                        <Text style={styles.details}>Transaction #{transactionInfo['transaction_id']}</Text>
+                        <Text style={styles.details}>{transactionInfo['transaction_date']}</Text>
+                    </View>
 
-                <View style={styles.detailsContainer}>
-                    <Text style={[globals.styles.h4, styles.details]}>Description:</Text>
-                </View>
-                <View style={styles.detailsContainer}>
-                    <Text style={styles.description}>{transactionInfo['transaction_description']}</Text>
-                </View>
+                    <View style={styles.detailsContainer}>
+                        <Text style={[globals.styles.h4, styles.details]}>Description:</Text>
+                    </View>
+                    <View style={styles.detailsContainer}>
+                        <Text style={styles.description}>{transactionInfo['transaction_description']}</Text>
+                    </View>
 
-                <View style={{ alignSelf: 'center', height: '1px', width: '80%', backgroundColor: globals.COLOR_GRAY }} />
+                    <View style={{ alignSelf: 'center', height: '1px', width: '80%', backgroundColor: globals.COLOR_GRAY }} />
 
-                <View style={styles.detailsContainer}>
-                    <Text style={[globals.styles.h4, styles.participants]}>Participants:</Text>
-                </View>
+                    <View style={styles.detailsContainer}>
+                        <Text style={[globals.styles.h4, styles.participants]}>Participants:</Text>
+                    </View>
 
-                <View style={[globals.styles.list, { width: '80%' }, transactionInfo['transaction_participants'].length < 5 ? { scrollbarWidth: 'none' } : {}]}>
-                    {getParticipants(transactionInfo['transaction_participants'])}
+                    <View style={[globals.styles.list, { width: '80%' }, transactionInfo['transaction_participants'].length < 5 ? { scrollbarWidth: 'none' } : {}]}>
+                        {getParticipants(transactionInfo['transaction_participants'])}
+                    </View>
                 </View>
             </View>
 
@@ -171,7 +179,6 @@ const styles = StyleSheet.create({
         maxHeight: '80vh',
         backgroundColor: globals.COLOR_WHITE,
         minWidth: '25em',
-        boxShadow: '0px 0px 5px 5px #eee',
         borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',

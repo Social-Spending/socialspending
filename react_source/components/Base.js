@@ -8,32 +8,41 @@ import Footer from './Footer.js';
 import { getCookieValue } from "./Utils.js";
 import Notifications from "./Notifications.js";
 
+import { ModalContext } from '../modals/ModalContext.js';
+
 export default function Base(props) {
 
     const [showShelf, setShowShelf] = useState(false);
 
+    const [modal, setModal] = useState(null);
+
     //Check if user is logged in a display correct header
     let loggedIn = (getCookieValue("session_id") !== "");
 
+    
+
     return (
-        <View style={styles.base}>
-            <Header loggedIn={loggedIn} showNotif={() => setShowShelf(!showShelf)} />
+        <ModalContext.Provider value={setModal}>
+            <View style={styles.base}>
+                <Header loggedIn={loggedIn} showNotif={() => setShowShelf(!showShelf)} />
 
-            <View style={[props.style, { flexWrap: 'nowrap' }]}>
+                <View style={[props.style, { flexWrap: 'nowrap' }]}>
 
-                <View style={[styles.container]}>
-                    {props.children}
+                    <View style={[styles.container]}>
+                        {props.children}
+                    </View>
+
+                    <View style={[styles.notifShelf, showShelf ? {width: '20vw', /*visibility: "visible",*/ display: "block"} : {width: '0vh', /*visibility: "hidden",*/ display: "none"}]}>
+                        <Notifications />
+                    </View>
+
+                    <Footer />
+
                 </View>
-
-                <View style={[styles.notifShelf, showShelf ? {width: '20vw', /*visibility: "visible",*/ display: "block"} : {width: '0vh', /*visibility: "hidden",*/ display: "none"}]}>
-                    <Notifications />
-                </View>
-
-                <Footer />
-
+                
             </View>
-
-        </View>
+            {modal}
+        </ModalContext.Provider>
     );
 }
 
