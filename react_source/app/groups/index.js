@@ -2,12 +2,13 @@ import * as globals from '../../utils/globals.js'
 
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { router } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const LoadingGif = require('../../assets/images/loading/loading-blue-block-64.gif');
 
 import Base from '../../components/Base.js';
 import GroupInfo from '../../components/GroupInfo.js';
+import NewGroup from '../../components/NewGroup.js'
 import Sidebar from '../../components/CollapsibleSidebar.js'
 import Button from '../../components/Button.js';
 
@@ -15,8 +16,6 @@ import Button from '../../components/Button.js';
 
 export default function Page() {
 
-    
-    
 
     useEffect(() => {
         // make a quick GET request to login.php to check if the user's cookies are already authenticated
@@ -32,14 +31,19 @@ export default function Page() {
     }, []);
 
     let [groupID, setGroupID] = useState(null);
+    const [modal, setModal] = useState(null);
 
     return (
-        <Base style={[globals.styles.container, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
-            <Sidebar title={'Groups'}>
-                <GroupList setGroupID={setGroupID} />
-            </Sidebar>
-            <GroupInfo id={groupID} />
-        </Base>
+        <>
+            <Base style={[globals.styles.container, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
+                <Sidebar title={'Groups'}>
+                    <GroupList setGroupID={setGroupID} newGroup={setModal} />
+                </Sidebar>
+                <GroupInfo id={groupID} />
+            </Base>
+            {modal}
+
+        </>
     );
 }
 
@@ -58,6 +62,10 @@ function GroupList(props) {
 
     }, []);
 
+    const addGroupModal = () => {
+        props.newGroup(<NewGroup onClick={() => props.newGroup(null)} />);
+    }
+
     if (groupItems === null) {
         //List hasnt loaded yet show nothing
         return (
@@ -69,7 +77,7 @@ function GroupList(props) {
         return (
             <>
                 {groupItems}
-                <Button style={{ height: '2em' }} textStyle={{ color: globals.COLOR_GRAY }} label="+ Create New Group" />                
+                <Button style={{ height: '2em' }} textStyle={{ color: globals.COLOR_GRAY }} label="+ Create New Group" onClick={addGroupModal} />                
             </>
 
         );
