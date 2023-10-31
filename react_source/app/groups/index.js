@@ -13,6 +13,8 @@ import VerifyAction from '../../components/VerifyAction.js'
 import Sidebar from '../../components/CollapsibleSidebar.js'
 import Button from '../../components/Button.js';
 
+import {leaveGroup, getGroups} from '../../utils/groups.js'
+
 
 
 export default function Page() {
@@ -62,7 +64,7 @@ function GroupList(props) {
         // On load asynchronously request groups and construct the list
         async function getItems() {
 
-            setGroupItems(await getGroups(props.setGroupID));
+            setGroupItems(await buildGroups(props.setGroupID));
         }
         getItems();
 
@@ -104,73 +106,21 @@ function GroupListItem(props) {
     );
 }
 
-async function getGroups(setGroupID) {
+async function buildGroups(setGroupID) {
 
     let groupList = [];
 
-    // pul username and password in form data for a POST request
-    let payload = new URLSearchParams();
-    payload.append('brief', true);
+    let groups = await getGroups();
 
-    // do the POST request
-    try {
-        let response = await fetch("/groups.php?" + payload, { method: 'GET', credentials: 'same-origin' });
+    if (groups === null) return groupList;
 
-        if (response.ok) {
-            let json = await response.json();
-            if (json !== null) {
-                let groups = json['groups'];
-
-                for (let i = 0; i < groups.length; i++) {
-                    if (i == 0) setGroupID(groups[i].group_id);
-                    groupList.push(<GroupListItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} setGroupID={setGroupID} />);
-                }
-            }
-
-            
-        }
-    }
-    catch (error) {
-        console.log("error in in GET request to groups (/groups.php)");
-        console.log(error);
+    for (let i = 0; i < groups.length; i++) {
+        if (i == 0) setGroupID(groups[i].group_id);
+        groupList.push(<GroupListItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} setGroupID={setGroupID} />);
     }
 
     return groupList;
 
-}
-
-async function leaveGroup(id) {
-    let payload = `{
-                        "operation": "leave",
-                        "group_id": ` + id + `
-                    }`;
-
-    // do the POST request
-    try {
-        let response = await fetch("/groups.php", {
-            method: 'POST',
-            body: payload,
-            credentials: 'same-origin',
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-
-        if (await response.ok) {
-            // redirect
-            router.replace("/groups");
-        }
-        else {
-            // failed, display error message returned by server
-            let responseJSON = await response.json();
-            errorRef.current.innerText = responseJSON['message'];
-            errorRef.current.classList.remove('hidden');
-        }
-    }
-    catch (error) {
-        console.log("error in POST request to groups (/groups.php)");
-        console.log(error);
-    }
 }
 
 const styles = StyleSheet.create({

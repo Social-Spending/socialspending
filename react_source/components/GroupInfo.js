@@ -13,6 +13,8 @@ const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif')
 
 import Leave from '../assets/images/bx-log-out.svg';
 
+import { getGroupInfo } from '../utils/groups.js'
+
 
 export default function GroupInfo(props) {
 
@@ -30,7 +32,8 @@ export default function GroupInfo(props) {
 
             if (props.json === undefined || props.json === null) {
 
-                json = await getGroupInfo(props.id);
+                if (props.id != null) json = await getGroupInfo(props.id);
+               
             } else {
 
                 json = props.json;
@@ -94,37 +97,7 @@ export default function GroupInfo(props) {
         </View>
     );
 }
-async function getGroupInfo(id) {
 
-   
-    // pul username and password in form data for a POST request
-    let payload = new URLSearchParams();
-    payload.append('brief', false);
-    payload.append('groupID', id);
-
-    // do the POST request
-    try {
-        let response = await fetch("/groups.php?" + payload, { method: 'GET', credentials: 'same-origin' });
-
-        if (response.ok) {
-            let json = await response.json();
-            if (json != null)
-            return json
-            
-        }
-        else {
-            console.log(response.json()['message']);
-            return null;
-        }
-    }
-    catch (error) {
-        console.log("error in in GET request to groups (/groups.php)");
-        console.log(error);
-    }
-
-    return null;
-
-}
 
 function getGroupMembers(json) {
 
