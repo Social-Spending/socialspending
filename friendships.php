@@ -19,6 +19,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             acceptFriendRequest($json["notification_id"]);
         elseif ($json["operation"] == "reject" && isset($json["notification_id"]))
             rejectFriendRequest($json["notification_id"]);
+        elseif ($json["operation"] == "add" && isset($json["username"]))
+            sendFriendRequest($json["username"]);
         elseif ($json["operation"] == "remove" && isset($json["username"]))
             removeFriend($json["username"]);
         else
@@ -26,6 +28,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         http_response_code(HTTP_BAD_REQUEST);
     }
+}
+
+function sendFriendRequest($username) {
+    global $mysqli;
+
+    //Validate the user
+    $user_id = intval(validateSessionID());
+    if ($user_id == 0) {
+        http_response_code(HTTP_UNAUTHORIZED);
+        return;
+    }
+
+    //Get the other user's ID
+    $sql = "SELECT user_id
+            FROM users
+            WHERE username=?";
+    
+    $result = $mysqli->execute_query($sql, [$username]);
+    if ($result->num_rows == 0) {
+        http_response_code(HTTP_BAD_REQUEST);
+        return;
+    }
+
+    $other_user_id = $result->fetch_assoc()["user_id"];
+
+    //Create notification
+    $sql = "INSERT INTO notifications (user_id, type, friend_request_user_id)
+            VALUES (?, \"friend_request\", ?)";
+
+    $mysqli->execute_query($sql, [$other_user_id, $user_id]);
+
+    http_response_code(HTTP_OK);
 }
 
 function acceptFriendRequest($notification_id) {
@@ -91,6 +125,11 @@ function removeFriend($username) {
     global $mysqli;
 
     $cur_user_id = intval(validateSessionID());
+
+    if ($cur_user_id == 0) {
+        http_response_code(HTTP_UNAUTHORIZED);
+        return;
+    }
 
     //Find user ID for friend
     $sql = "SELECT user_id
