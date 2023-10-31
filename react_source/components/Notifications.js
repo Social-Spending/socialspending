@@ -9,6 +9,8 @@ import DenySvg      from '../assets/images/bx-x.svg';
 import DetailsSvg   from '../assets/images/bx-detail.svg';
 import UpChevron    from '../assets/images/bx-chevron-up.svg';
 import DownChevron from '../assets/images/bx-chevron-down.svg';
+import { ModalContext } from '../modals/ModalContext.js';
+import TransactionInfo from '../modals/TransactionInfo.js';
 
 const RemoveContext = createContext(null);
 
@@ -123,6 +125,11 @@ function FriendRequest(props) {
 
 function ApproveTransaction(props) {
     const removeNotif = useContext(RemoveContext);
+    const setModal = useContext(ModalContext);
+
+    const viewTransaction = () => {
+        setModal(<TransactionInfo id={props.trans_id} exit={() => setModal(null)} />);
+    }
 
     return (
         <View style={styles.notification}>
@@ -136,7 +143,7 @@ function ApproveTransaction(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} onClick={viewTransaction} />
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approveTransaction(props.id, true, removeNotif)} />
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approveTransaction(props.id, false, removeNotif)} />
             </View>
@@ -148,6 +155,11 @@ function ApproveTransaction(props) {
 
 function CompletedTransaction(props) {
     const removeNotif = useContext(RemoveContext);
+    const setModal = useContext(ModalContext);
+
+    const viewTransaction = () => {
+        setModal(<TransactionInfo id={props.trans_id} exit={() => setModal(null)} />);
+    }
 
     return (
         <View style={styles.notification}>
@@ -161,7 +173,7 @@ function CompletedTransaction(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} onClick={viewTransaction} />
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => dismissCompletedTransaction(props.id, removeNotif)} />
             </View>
                       
@@ -218,18 +230,18 @@ async function getNotifications(type){
                     switch (type) {
                         case "friend_request":
                             for (let i = 0; i < json.length; i++) {
-                                notifications.push(<FriendRequest name={json[i].username} id={json[i].notification_id} />)
+                                notifications.push(<FriendRequest name={json[i].username} id={json[i].notification_id} user_id={json[i].user_id} />)
                             }
                             break;
                         case "transaction_approval":
                             for (let i = 0; i < json.length; i++) {
-                                notifications.push(<ApproveTransaction name={json[i].name} id={json[i].notification_id} />)
+                                notifications.push(<ApproveTransaction name={json[i].name} id={json[i].notification_id} trans_id={json[i].transaction_id} />)
                             }
                             break;
                         case "complete_transaction":
 
                             for (let i = 0; i < json.length; i++) {
-                                notifications.push(<CompletedTransaction name={json[i].name} id={json[i].notification_id} />)
+                                notifications.push(<CompletedTransaction name={json[i].name} id={json[i].notification_id} trans_id={json[i].transaction_id} />)
                             }
 
                             break;
