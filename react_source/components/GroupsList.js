@@ -7,6 +7,8 @@ import { Link } from "expo-router";
 
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
+import { getGroups } from '../utils/groups.js'
+
 export default function GroupsList(props) {
 
     return (
@@ -37,7 +39,7 @@ function GroupList() {
         // On load asynchronously request groups and construct the list
         async function getItems() {
 
-            setGroupItems(await getGroups());
+            setGroupItems(await buildGroups());
         }
         getItems();
 
@@ -65,9 +67,7 @@ function GroupList() {
                 {groupItems}
 
             </View>
-
         );
-
     }
 }
 
@@ -93,35 +93,19 @@ function GroupItem(props) {
     );
 }
 
-async function getGroups() {
+async function buildGroups() {
 
     let groupList = [];
+    
+    let groups = await getGroups();
 
-    // pul username and password in form data for a POST request
-    let payload = new URLSearchParams();
-    payload.append('brief', true);
+    if (groups === null) return groupList;
 
-    // do the POST request
-    try {
-        let response = await fetch("/groups.php?" + payload, { method: 'GET', credentials: 'same-origin' });
-
-        if (response.ok) {
-            let json = await response.json();
-            if (json !== null) {
-                let groups = json['groups'];
-
-                for (let i = 0; i < groups.length; i++) {
+    for (let i = 0; i < groups.length; i++) {
                     
-                    groupList.push(<GroupItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} owed={groups[i].debt} />);
-                }
-            }
-        }
+        groupList.push(<GroupItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} owed={groups[i].debt} />);
     }
-    catch (error) {
-        console.log("error in in GET request to groups (/groups.php)");
-        console.log(error);
-    }
-
+           
     return groupList;
 
 }
