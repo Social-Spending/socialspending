@@ -19,14 +19,15 @@ export default function Base(props) {
         <View style={styles.base}>
             <Header loggedIn={loggedIn} showNotif={() => setShowShelf(!showShelf)} />
 
-            <View style={[props.style, { flexWrap: 'nowrap', justifyContent: 'flex-end', flexDirection: 'row' }]}>
+            <View style={[props.style, { flexWrap: 'nowrap', flexDirection: 'column' }]}>
+                <View style={{flexDirection: 'row', width: '100%', flex: 1}}>
+                    <View style={styles.container}>
+                        {props.children}
+                    </View>
 
-                <View style={styles.container}>
-                    {props.children}
-                </View>
-
-                <View style={[styles.notifShelf, showShelf ? {width: '20vw', /*visibility: "visible",*/ display: "block"} : {width: '0vh', /*visibility: "hidden",*/ display: "none"}]}>
-                    <Notifications />
+                    <View style={[styles.notifShelf, showShelf ? {width: '20vw', /*visibility: "visible",*/ display: "block"} : {width: '0vh', /*visibility: "hidden",*/ display: "none"}]}>
+                        <Notifications />
+                    </View>
                 </View>
 
                 <Footer />
@@ -44,14 +45,12 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         height: '100%',
+        minHeight : '100vh',
         flexWrap: 'nowrap',
 
     },
     container: {
         flex: 1,
-        top: '-2vh',
-        height: 'auto',
-        minHeight: '45em',
         width: '100%',
         flexWrap: 'nowrap',
         justifyContent: 'center',
@@ -59,6 +58,7 @@ const styles = StyleSheet.create({
 
     },
     notifShelf: {
+        
         zIndex: 2,
         backgroundColor: '#555',
         height: '100%',

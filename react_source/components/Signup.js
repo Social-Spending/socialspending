@@ -1,28 +1,11 @@
 /*
- *  Functions:
- *      checkEmail: Checks value of email field and prevents user from submitting if not a valid email
- *          @param: emailRef - reference to email field
- *          @param: errorRef - reference to error text field to output error text
- *          @return: boolean - validity of email
- *          
- *      checkPassword: Checks value of password field and prevents user from submitting if not equal to verify password field
- *          @param: passwordRef - reference to password field
- *          @param: verifyRef   - reference to verify password field
- *          @param: errorRef    - reference to error text field to output error text
- *          @return: boolean    - validity of password
- *          
- *      checkUsername: Checks value of username field and prevents user from submitting if too short
- *          @param: userRef     - reference to username field
- *          @param: errorRef    - reference to error text field to print error text to
- *          @return: boolean    - validity of username
- *          
- *      submitForm: Creates a post request to /signup.php containing values of email, username, and password fields.
- *          @param: userRef     - reference to username field
- *          @param: emailRef    - reference to email field
- *          @param: passwordRef - reference to password field
- *          @param: errorRef    - reference to error text field to print error text to
- *          
-*/
+ *  Signup:
+ *  
+ *      Displays a form allowing email, username, and a password as input
+ *      Submit button makes a request to /signup.php contianing email, password, and username
+ *      On signup, the user recieves a session cookie and is redirected to /summary
+ *  
+ */
 
 import * as globals from '../utils/globals.js'
 
@@ -34,13 +17,15 @@ import Button from './Button.js'
 
 const Logo = require('../assets/images/logo/logo-name-64.png');
 
-
+import ShowSvg from '../assets/images/bx-show.svg';
+import HideSvg from '../assets/images/bx-hide.svg';
 
 export default function Signup() {
 
     const [emailDisabled    , setEmailDisabled]      = useState(true);
     const [passwordDisabled , setPasswordDisabled]   = useState(true);
     const [usernameDisabled , setUsernameDisabled]   = useState(true);
+    const [showPassword     , setShowPassword]       = useState(false);
 
     // Refs must be used in the same component they were declared in call any of these functions from a component executes them in said 
     // components where the refs are null. This fixes that by rerouting the function to run in this component
@@ -49,6 +34,13 @@ export default function Signup() {
     const onPasswordChange  = () => { setPasswordDisabled   (checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
     const onUsernameChange  = () => { setUsernameDisabled   (checkUsername(userRef, userErrorMessageRef)); }
     const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, errorMessageRef); }
+
+    const changePasswordVisibility = () => {
+        if (passwordRef.current) {
+            setShowPassword(!showPassword);
+            passwordRef.current.type = !showPassword ? "text" : "password";
+        }
+    }
 
     const errorMessageRef           = useRef(null);
     const emailErrorMessageRef      = useRef(null);
@@ -61,7 +53,7 @@ export default function Signup() {
 
     return (
 
-        <View style={styles.singup}>
+        <View style={styles.signup}>
 
             <Image source={Logo} style={styles.logo} />
 
@@ -82,8 +74,10 @@ export default function Signup() {
             </View>
             <input tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
 
-            <View style={globals.styles.labelContainer}>
+            <View style={[globals.styles.labelContainer, { justifyContent: 'flex-start' }]}>
+
                 <Text style={[globals.styles.h5, globals.styles.label]}>PASSWORD</Text>
+                <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1em' }} onClick={changePasswordVisibility}></Button>
             </View>
             <input tabIndex={3} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' type='password' name="Password" onInput={onPasswordChange} />
 
@@ -104,6 +98,12 @@ export default function Signup() {
     );
 }
 
+/**
+ * Checks value of email field and prevents user from submitting if not a valid email
+ * @param {React.MutableRefObject} emailRef reference to email field
+ * @param {React.MutableRefObject} errorRef reference to error text field to output error text
+ * @returns {boolean}                       validity of email
+ */
 function checkEmail(emailRef, errorRef) {
 
 
@@ -121,6 +121,12 @@ function checkEmail(emailRef, errorRef) {
     }
 }
 
+/**
+ * Checks value of username field and prevents user from submitting if too short
+ * @param {React.MutableRefObject} userRef  reference to username field
+ * @param {React.MutableRefObject} errorRef reference to error text field to print error text to
+ * @returns {boolean}                       validity of username
+ */
 function checkUsername(userRef, errorRef) {
 
     if (userRef.current.value.length >= 4) {
@@ -133,6 +139,13 @@ function checkUsername(userRef, errorRef) {
     }
 }
 
+/**
+ * Checks value of password field and prevents user from submitting if not equal to verify password field
+ * @param {React.MutableRefObject} passwordRef  reference to password field
+ * @param {React.MutableRefObject} verifyRef    reference to verify password field
+ * @param {React.MutableRefObject} errorRef     reference to error text field to output error text
+ * @returns {boolean}                           validity of password
+ */
 function checkPassword(passwordRef, verifyRef, errorRef) {
 
     if (passwordRef.current.value != verifyRef.current.value) {
@@ -145,8 +158,12 @@ function checkPassword(passwordRef, verifyRef, errorRef) {
     }
 }
 
-
-
+/**
+ * @param {React.MutableRefObject} userRef          reference to username field
+ * @param {React.MutableRefObject} emailRef         reference to email field
+ * @param {React.MutableRefObject} passwordRef      reference to password field
+ * @param {React.MutableRefObject} errorRef         reference to error text field to print error text to
+ */
 async function submitForm(userRef, emailRef, passwordRef, errorRef) {
 
     // pul username and password in form data for a POST request
@@ -179,7 +196,7 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef) {
 }
 
 const styles = StyleSheet.create({
-    singup: {
+    signup: {
         width: '50vh',
         minWidth: '27em',
         height: '70vh',
