@@ -14,7 +14,7 @@ import { router } from "expo-router";
 import { useRef, useState } from 'react';
 
 
-import Button from './Button.js'
+import Button from '../components/Button.js'
 
 const Logo = require('../assets/images/logo/logo-name-64.png');
 
@@ -35,7 +35,7 @@ export default function NewGroup(props) {
 
     return (
 
-        <View style={[globals.styles.modalBackground, props.style]} onClick={props.onClick}>
+        <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
             <View style={styles.create} onClick={handleChildClick}>
 
                 <Image source={Logo} style={styles.logo} />

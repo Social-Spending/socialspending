@@ -2,18 +2,20 @@ import * as globals from '../../utils/globals.js'
 
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { router } from 'expo-router';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 
 const LoadingGif = require('../../assets/images/loading/loading-blue-block-64.gif');
 
 import Base from '../../components/Base.js';
 import GroupInfo from '../../components/GroupInfo.js';
-import NewGroup from '../../components/NewGroup.js'
-import VerifyAction from '../../components/VerifyAction.js'
+import NewGroup from '../../modals/NewGroup.js'
+import VerifyAction from '../../modals/VerifyAction.js'
 import Sidebar from '../../components/CollapsibleSidebar.js'
 import Button from '../../components/Button.js';
 
-import {leaveGroup, getGroups} from '../../utils/groups.js'
+import { leaveGroup, getGroups } from '../../utils/groups.js'
+
+import { ModalContext } from '../../modals/ModalContext.js';
 
 
 
@@ -34,30 +36,21 @@ export default function Page() {
     }, []);
 
     let [groupID, setGroupID] = useState(null);
-    const [modal, setModal] = useState(null);
-
-    const verifyLeave = () => {
-        setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => leaveGroup(groupID)} reject={() => setModal(null)} exit={() => setModal(null)} />)
-    }
-
-
+    
     return (
-        <>
-            <Base style={[globals.styles.container, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
-                <Sidebar title={'Groups'}>
-                    <GroupList setGroupID={setGroupID} newGroup={setModal} />
-                </Sidebar>
-                <GroupInfo id={groupID} leave={verifyLeave} />
-            </Base>
-            {modal}
-
-        </>
+        <Base style={[globals.styles.container, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
+            <Sidebar title={'Groups'}>
+                <GroupList setGroupID={setGroupID}  />
+            </Sidebar>
+            <GroupInfo id={groupID} />
+        </Base>
     );
 }
 
 function GroupList(props) {
 
     let [groupItems, setGroupItems] = useState(null);
+    let setModal = useContext(ModalContext);
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -71,7 +64,7 @@ function GroupList(props) {
     }, []);
 
     const addGroupModal = () => {
-        props.newGroup(<NewGroup onClick={() => props.newGroup(null)} />);
+        setModal(<NewGroup exit={() => setModal(null)} />);
     }
 
     if (groupItems === null) {

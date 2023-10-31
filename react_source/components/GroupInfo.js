@@ -1,28 +1,31 @@
 import * as globals from "../utils/globals.js";
 
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 
 import { Link } from "expo-router";
 
 import Button from "./Button.js";
 
-import TransactionInfo from "./TransactionInfo.js";
+import TransactionInfo from "../modals/TransactionInfo.js";
+import VerifyAction from "../modals/VerifyAction.js";
 
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
 import Leave from '../assets/images/bx-log-out.svg';
 
-import { getGroupInfo } from '../utils/groups.js'
+import { getGroupInfo, leaveGroup } from '../utils/groups.js'
+
+import { ModalContext } from '../modals/ModalContext.js';
 
 
 export default function GroupInfo(props) {
 
-    const [transactionID, setTransactionID] = useState(0);
-
     let [groupMembers, setGroupMembers] = useState(null);
     let [transactions, setTransactions] = useState(null);
     let [groupName, setGroupName] = useState(null);
+
+    const setModal = useContext(ModalContext);
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -30,20 +33,13 @@ export default function GroupInfo(props) {
         async function getItems() {
             let json = null;
 
-            if (props.json === undefined || props.json === null) {
-
-                if (props.id != null) json = await getGroupInfo(props.id);
-               
-            } else {
-
-                json = props.json;
-            }
+            if (props.id != null) json = await getGroupInfo(props.id);
 
             if (json !== null) {
                 setGroupName(json.group_name);                
 
                 setGroupMembers(await getGroupMembers(json));
-                setTransactions(await getTransactions(props.id, setTransactionID));
+                setTransactions(await getTransactions(props.id));
             }            
         }
         getItems();
@@ -52,6 +48,11 @@ export default function GroupInfo(props) {
     }, [props.id]);
     if (props.id == null || groupName == null) {
         //return (<></>);
+    }
+
+
+    const leave = () => {
+        setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => leaveGroup(props.id)} reject={() => setModal(null)} exit={() => setModal(null)} />);
     }
 
     return (
@@ -64,7 +65,7 @@ export default function GroupInfo(props) {
                         <Text style={[globals.styles.h1, styles.groupName]}>{groupName}</Text>
                     </View>
                     
-                    <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} svg={Leave} iconStyle={styles.icon} label='LEAVE GROUP' onClick={props.leave} />
+                    <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} svg={Leave} iconStyle={styles.icon} label='LEAVE GROUP' onClick={leave} />
                 </View>
                 <View style={styles.listContainer}>
                     <Text style={[globals.styles.h3, { color: globals.COLOR_GRAY, fontWeight: 600, paddingLeft: '1em', paddingBottom: '1.5em' }]}>Members</Text>
@@ -113,13 +114,13 @@ function getGroupMembers(json) {
 
 }
 
-function getTransactions(groupID, setID) {
+function getTransactions(groupID) {
 
     let outputList = [];
 
     for (let i = 0; i < 10; i++) {
 
-        outputList.push(<TransactionListItem key={i} border={i > 0} name={'test'} id={i} owed={1} onClick={() => setID(i) } />);
+        outputList.push(<TransactionListItem key={i} border={i > 0} name={'test'} id={i} owed={1} />);
     }
 
     return outputList;
@@ -162,15 +163,20 @@ function MemberListItem({ id, name, owed, border }) {
  *      @param {number} owed         how much the participant paid/owes
  *      @return {React.JSX.Element}  DOM element  
  */
-function TransactionListItem({ id, name, owed, border, onClick }) {
+function TransactionListItem({ id, name, owed, border }) {
+
+    const setModal = useContext(ModalContext);
 
     let text = owed >= 0 ? "You Paid" : "You're Owed";
     let color = owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
 
+    const viewTransaction = () => {
+        setModal(<TransactionInfo id={id} exit={() => setModal(null)} />);
+    }
+
     return (
 
-        
-        <View style={border ? styles.listItemSeperator : styles.listItem} onClick={onClick} >
+        <View style={border ? styles.listItemSeperator : styles.listItem} onClick={viewTransaction} >
 
             <Text style={globals.styles.listText}>{name}</Text>
             <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
