@@ -85,7 +85,7 @@ function getApprovalRequests($user_id) {
 
     $sql = "SELECT  notifications.notification_id AS notification_id,
     				transactions.name AS name,
-                    transactions.transaction_id AS transcation_id
+                    transactions.transaction_id AS transaction_id
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
             WHERE notifications.user_id=? AND notifications.type=\"approval_request\"";
@@ -111,7 +111,7 @@ function getApprovedTransactions($user_id) {
 
     $sql = "SELECT  notifications.notification_id AS notification_id,
     				transactions.name AS name,
-                    transactions.transaction_id AS transcation_id
+                    transactions.transaction_id AS transaction_id
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
             WHERE notifications.user_id=? AND notifications.type=\"approved_transaction\"";
