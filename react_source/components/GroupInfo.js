@@ -5,10 +5,14 @@ import { useState, useEffect } from 'react';
 
 import { Link } from "expo-router";
 
+import Button from "./Button.js";
 
 import TransactionInfo from "./TransactionInfo.js";
 
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
+
+import Leave from '../assets/images/bx-log-out.svg';
+
 
 export default function GroupInfo(props) {
 
@@ -44,17 +48,20 @@ export default function GroupInfo(props) {
 
     }, [props.id]);
     if (props.id == null || groupName == null) {
-        return (<></>);
+        //return (<></>);
     }
 
     return (
         <View style={{ flexDirection: 'row', flex: 1, height: '100%'}}>
             
             <View style={{ flex: 1, margin: '5em', padding: '2.5em', marginTop: '1em' }} >
-                <View style={{ flexDirection: 'row' }}>
-                    <Text style={[globals.styles.h1, styles.groupName, {fontWeight: '100'}]}>Groups / </Text>
-                    <Text style={[globals.styles.h1, styles.groupName]}>{groupName}</Text>
-
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <View style={{flexDirection: 'row'} }>
+                        <Text style={[globals.styles.h1, styles.groupName, { fontWeight: '100' }]}>Groups / </Text>
+                        <Text style={[globals.styles.h1, styles.groupName]}>{groupName}</Text>
+                    </View>
+                    
+                    <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} svg={Leave} iconStyle={styles.icon} label='LEAVE GROUP' onClick={props.leave} />
                 </View>
                 <View style={styles.listContainer}>
                     <Text style={[globals.styles.h3, { color: globals.COLOR_GRAY, fontWeight: 600, paddingLeft: '1em', paddingBottom: '1.5em' }]}>Members</Text>
@@ -250,6 +257,10 @@ const styles = StyleSheet.create({
         borderWidth: '1px',
         borderColor: '#eee',
         paddingBottom: '.5em'
+    },
+    icon: {
+        fill: globals.COLOR_WHITE,
+        width: '1.25em'
     }
 
 });

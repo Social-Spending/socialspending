@@ -24,18 +24,12 @@ import Reject from '../assets/images/bx-x.svg';
 
 export default function VerifyAction(props) {
 
-    const onSubmit = () => { submitForm(groupRef, errorMessageRef); }
-    const onNameChange = () => { setNameDisabled(checkName(groupRef, errorMessageRef)); }
 
     const [nameDisabled, setNameDisabled] = useState(true);
-
-    const errorMessageRef = useRef(null);
-    const groupRef = useRef(null);
 
     function handleChildClick(e) {
         e.stopPropagation();
     }
-
 
     return (
 
@@ -46,8 +40,6 @@ export default function VerifyAction(props) {
 
                 
                 <Text style={[globals.styles.text, globals.styles.h2, { paddingTop: 0 }]}>{props.label}</Text>
-
-                <Text ref={errorMessageRef} id='loginForm_errorMessage' style={globals.styles.error}></Text>
                 
                 <View style={{flexDirection: 'row', justifyContent: 'center'} }>
                     <Button style={[styles.button, { backgroundColor: globals.COLOR_BLUE }]} svg={Accept} iconStyle={styles.icon} label='CONTINUE' onClick={props.accept} />
@@ -59,60 +51,6 @@ export default function VerifyAction(props) {
         </View>
         
     );
-}
-
-/**
-* Checks value of group name field and prevents user from submitting if too short
-* @param { React.MutableRefObject } groupRef reference to group name field
-* @param { React.MutableRefObject } errorRef reference to error text field to print error text to
-* @returns { boolean }                       validity of group name
-*/
-function checkName(groupRef, errorRef) {
-
-    if (groupRef.current.value.length >= 4) {
-        errorRef.current.innerText = "";
-        return false;
-
-    } else {
-        errorRef.current.innerText = "Group name must be at least 4 characters";
-        return true;
-    }
-}
-
-async function submitForm(groupRef, errorRef) {
-
-    // poperation and group name in POST request
-    let payload = `{
-                        "operation": "create",
-                        "group_name": "` + groupRef.current.value + `"
-                    }`;
-    
-    // do the POST request
-    try {
-        let response = await fetch("/groups.php", {
-            method: 'POST',
-            body: payload,
-            credentials: 'same-origin',
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-
-        if (await response.ok) {
-            // redirect
-            router.replace("/groups");
-        }
-        else {
-            // failed, display error message returned by server
-            let responseJSON = await response.json();
-            errorRef.current.innerText = responseJSON['message'];
-            errorRef.current.classList.remove('hidden');
-        }
-    }
-    catch (error) {
-        console.log("error in POST request to groups (/groups.php)");
-        console.log(error);
-    }
 }
 
 const styles = StyleSheet.create({
