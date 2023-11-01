@@ -48,10 +48,18 @@ export const styles = StyleSheet.create({
         height: '2.5em',
         fontSize: '.86em',
 
-        borderRadius: 2,
-        borderTopStyle: 'none',
-        borderRightStyle: 'none',
-        borderLeftStyle: 'none'
+        borderStyle: 'none',
+        borderBottomStyle: 'solid'
+    },
+    textarea: {
+        minWidth: '75%',
+        maxWidth: '75%',
+        height: '6em',
+        fontSize: '.86em',
+
+        borderStyle: 'none',
+        borderBottomStyle: 'solid',
+        fontFamily: 'Segoe UI'
     },
     error: {
         padding: '0em',

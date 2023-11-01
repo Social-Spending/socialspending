@@ -11,13 +11,14 @@ const Logo = require('../assets/images/logo/logo-name-64.png');
 
 export default function NewGroup(props) {
 
-    const onSubmit = () => { submitForm(groupRef, errorMessageRef); }
-    const onNameChange = () => { setNameDisabled(checkName(groupRef, errorMessageRef)); }
+    const onSubmit = () => { submitForm(nameRef, errorMessageRef); }
+    const onNameChange = () => { setNameDisabled(checkName(nameRef, errorMessageRef)); }
 
     const [nameDisabled, setNameDisabled] = useState(true);
 
     const errorMessageRef = useRef(null);
-    const groupRef = useRef(null);
+    const nameRef = useRef(null);
+    const descriptionRef = useRef(null);
 
     function handleChildClick(e) {
         e.stopPropagation();
@@ -31,22 +32,31 @@ export default function NewGroup(props) {
 
                 <Image source={Logo} style={styles.logo} />
 
-                <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>CREATE GROUP</Text>
-                <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Enter a new group name to get started</Text>
+                <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>NEW EXPENSE</Text>
+                <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Enter transaction name and description to get started</Text>
 
-                <Text ref={errorMessageRef} id='createGroup_errorMessage' style={globals.styles.error}></Text>
+                <Text ref={errorMessageRef} id='createExpense_errorMessage' style={globals.styles.error}></Text>
 
                 <View style={globals.styles.labelContainer}>
-                    <Text style={[globals.styles.h5, globals.styles.label]}>GROUP NAME</Text>
+                    <Text style={[globals.styles.h5, globals.styles.label]}>EXPENSE NAME *</Text>
                 </View>
 
-                <input tabIndex={1} ref={groupRef} placeholder=" Enter name of new group" style={globals.styles.input} id='createGroup_name' name="Group Name" onInput={onNameChange} />
+                <input tabIndex={1} ref={nameRef} placeholder=" Enter name of new expense" style={globals.styles.input} id='createExpense_name' name="Expense Name" onInput={onNameChange} />
 
-                <Button disabled={nameDisabled}  style={globals.styles.formButton} label='Create New Group' onClick={onSubmit} />
+                <View style={globals.styles.labelContainer}>
+                    <Text style={[globals.styles.h5, globals.styles.label]}>DESCRIPTION</Text>
+                </View>
+
+                <textarea tabIndex={2} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" onInput={onNameChange} />
+
+                <View style={{justifyContent: 'space-between', alignItems: 'flex-end', width: '75%'} }>
+                    <Button disabled={nameDisabled} style={[globals.styles.formButton, {margin: 0, marginTop: '1em', marginBottom: '1em', width: '33%' }]} label='Next' onClick={onSubmit} />
+                </View>
+                
 
             </View>
         </View>
-        
+
     );
 }
 
@@ -75,7 +85,7 @@ async function submitForm(groupRef, errorRef) {
                         "operation": "create",
                         "group_name": "` + groupRef.current.value + `"
                     }`;
-    
+
     // do the POST request
     try {
         let response = await fetch("/groups.php", {
@@ -106,12 +116,12 @@ async function submitForm(groupRef, errorRef) {
 
 const styles = StyleSheet.create({
     create: {
-        zIndex: 1,
-        width: '30vh',
-        minHeight: '20em',
-        height: '40vh',
+        width: '45vh',
+        minHeight: '30em',
+        height: 'auto',
+        maxHeight: '60vh',
         backgroundColor: globals.COLOR_WHITE,
-        minWidth: '26em',
+        minWidth: '25em',
         borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
@@ -122,6 +132,7 @@ const styles = StyleSheet.create({
         width: '9em',
         minWidth: '2em',
         borderRadius: 1,
+        marginTop: '1em'
     }
 
 });
