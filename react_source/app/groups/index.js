@@ -64,7 +64,7 @@ function GroupList(props) {
     }, []);
 
     const addGroupModal = () => {
-        setModal(<NewGroup exit={() => setModal(null)} />);
+        setModal(<NewGroup />);
     }
 
     if (groupItems === null) {

@@ -9,7 +9,6 @@ import GroupInfo from '../../components/GroupInfo.js';
 import { getGroupInfo, leaveGroup } from "../../utils/groups.js"
 
 
-
 export default function Page() {
 
     const slug = useLocalSearchParams();

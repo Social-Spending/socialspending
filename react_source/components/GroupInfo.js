@@ -52,7 +52,7 @@ export default function GroupInfo(props) {
 
 
     const leave = () => {
-        setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => leaveGroup(props.id)} reject={() => setModal(null)} exit={() => setModal(null)} />);
+        setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => leaveGroup(props.id)} />);
     }
 
     return (
@@ -171,7 +171,7 @@ function TransactionListItem({ id, name, owed, border }) {
     let color = owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
 
     const viewTransaction = () => {
-        setModal(<TransactionInfo id={id} exit={() => setModal(null)} />);
+        setModal(<TransactionInfo id={id} />);
     }
 
     return (
