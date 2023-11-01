@@ -16,7 +16,8 @@ import * as globals from "../utils/globals.js";
 
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { Link } from "expo-router";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { ModalContext } from "./ModalContext.js";
 
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
@@ -24,6 +25,7 @@ const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif')
 export default function TransactionInfo(props) {
 
     let [transactionInfo, setTransactionInfo] = useState(null);
+    const setModal = useContext(ModalContext);
 
     useEffect(() => {
 
@@ -47,7 +49,7 @@ export default function TransactionInfo(props) {
     if (transactionInfo === null) {
         //Transaction info hasnt loaded - show loading
         return (
-            <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
+            <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                 <View style={styles.info} onClick={handleChildClick}>
                     <Image source={LoadingGif} style={styles.loading} />
                 </View>

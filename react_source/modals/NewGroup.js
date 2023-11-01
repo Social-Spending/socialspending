@@ -11,10 +11,11 @@ import * as globals from '../utils/globals.js'
 
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { router } from "expo-router";
-import { useRef, useState } from 'react';
+import { useRef, useState, useContext } from 'react';
 
 
 import Button from '../components/Button.js'
+import { ModalContext } from './ModalContext.js';
 
 const Logo = require('../assets/images/logo/logo-name-64.png');
 
@@ -24,7 +25,8 @@ export default function NewGroup(props) {
     const onNameChange = () => { setNameDisabled(checkName(groupRef, errorMessageRef)); }
 
     const [nameDisabled, setNameDisabled] = useState(true);
-
+    
+    const setModal = useContext(ModalContext);
     const errorMessageRef = useRef(null);
     const groupRef = useRef(null);
 
@@ -35,7 +37,7 @@ export default function NewGroup(props) {
 
     return (
 
-        <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
+        <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
             <View style={styles.create} onClick={handleChildClick}>
 
                 <Image source={Logo} style={styles.logo} />
