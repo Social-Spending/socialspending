@@ -3,7 +3,6 @@
 include_once("templates/connection.php");
 include_once("templates/cookies.php");
 include_once("templates/constants.php");
-// include_once("notifications.php");
 include_once("templates/jsonMessage.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
