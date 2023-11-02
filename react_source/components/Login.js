@@ -90,7 +90,7 @@ async function submitForm(userRef, passwordRef, rememberRef, errorRef) {
     let payload = new URLSearchParams();
     payload.append('user', userRef.current.value);
     payload.append('password', passwordRef.current.value);
-    payload.append('remember', rememberRef.current.value);
+    payload.append('remember', rememberRef.current.checked);
 
     // do the POST request
     try {
