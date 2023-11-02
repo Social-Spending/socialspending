@@ -19,6 +19,7 @@ export const styles = StyleSheet.create({
         width: '100%',
         flex: 1,
         backgroundColor: COLOR_BEIGE,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -27,6 +28,7 @@ export const styles = StyleSheet.create({
         width: '100%',
         flex: 1,
         backgroundColor: COLOR_DARK_BLUE,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -45,11 +47,13 @@ export const styles = StyleSheet.create({
         width: '75%',
         height: '2.5em',
         fontSize: '.86em',
+        fontColor: COLOR_LIGHT_GRAY,
 
+        borderColor: COLOR_LIGHT_GRAY,
+        borderWidth: 2,
         borderRadius: 2,
-        borderTopStyle: 'none',
-        borderRightStyle: 'none',
-        borderLeftStyle: 'none'
+        borderStyle: 'none',
+        borderBottomStyle: 'solid'
     },
     error: {
         padding: '0em',
@@ -106,14 +110,13 @@ export const styles = StyleSheet.create({
 
         backgroundColor: COLOR_WHITE,
 
-        overflowY: 'scroll',
+        overflowY: 'auto',
         scrollbarWidth: 'thin',
 
 
     },
     listItem: {
         marginTop: '1em',
-        backgroundColor: COLOR_WHITE,
         paddingBottom: '1em',
         justifyContent: 'space-between',
         alignItems: 'left',
@@ -170,6 +173,15 @@ export const styles = StyleSheet.create({
         padding: '.33em',
         fontSize: '.67em',
         fontWeight: 'bolder'
+    },
+    modalBackground: {
+        height: '100vh',
+        width: '100%',
+        backgroundColor: '#33333399',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'fixed',
+        top: 0
     },
 
 

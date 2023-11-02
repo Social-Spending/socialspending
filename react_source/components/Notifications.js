@@ -1,38 +1,319 @@
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, View } from 'react-native';
-import { useState } from 'react';
+import { StyleSheet, View, Text } from 'react-native';
+import { useState, useEffect, createContext, useContext } from 'react';
+import Button from './Button.js';
 
-export default function Notifications() {
-	return (
-		<View>
-			<h1 style={styles.header}>Friend Requests</h1>
-			<p>Friend request from x</p>
-			<h1 style={styles.header}>Awaiting Approval</h1>
-			<p>Transaction name</p>
-			<button>View</button>
-			<button>Accept</button>
-			<button>Reject</button>
-			<h1 style={styles.header}>Completed Transactions</h1>
-			<p>Transaction name</p>
-			<button>View</button>
-		</View>
-	);
+import ApproveSvg   from '../assets/images/bx-check.svg';
+import DenySvg      from '../assets/images/bx-x.svg';
+import DetailsSvg   from '../assets/images/bx-detail.svg';
+import UpChevron    from '../assets/images/bx-chevron-up.svg';
+import DownChevron from '../assets/images/bx-chevron-down.svg';
+
+const RemoveContext = createContext(null);
+
+export default function Notifications(props) {
+    const [friendRequests, setFriendRequests] = useState([]);
+    const [transactionApprovals, setTransactionApprovals] = useState([]);
+    const [completedTransactions, setCompletedTransactions] = useState([]);
+    
+   
+
+    useEffect(() => {
+        // React advises to declare the async function directly inside useEffect
+        // On load asynchronously request groups and construct the list
+        async function getItems() {
+
+            setFriendRequests(await getNotifications("friend_request"));
+            setTransactionApprovals(await getNotifications("transaction_approval"));
+            setCompletedTransactions(await getNotifications("complete_transaction"));
+            
+        }
+        getItems();
+
+    }, []);
+
+    const removeNotif = (type, id) => {
+        switch (type) {
+            case "friend_request":
+
+                setFriendRequests(friendRequests.filter((notif) => notif.props.id != id));             
+                break;
+            case "transaction_approval":
+
+                setTransactionApprovals(transactionApprovals.filter((notif) => notif.props.id != id));
+                break;
+            case "complete_transaction":
+
+                setCompletedTransactions(completedTransactions.filter((notif) => notif.props.id != id));
+                break;
+            default:
+                break;
+        }
+    }
+
+    
+
+
+    return (
+        <RemoveContext.Provider value={removeNotif }>
+            <View style={[styles.notifShelf, props.show ? { width: '20vw', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
+                <View style={[props.show ? { width: '18vw', display: "block" } : { width: '0', display: "none"}]}>
+                    <Section name='Friend Requests'>
+                        {friendRequests}
+                    </Section>
+                
+                    <Section name='Pending Transactions'>
+                        {transactionApprovals}
+                    </Section>
+
+                    <Section name="Compeleted Transactions">
+                        {completedTransactions}
+                    </Section>
+                
+                </View>
+            
+            </View>
+        </RemoveContext.Provider>
+    );
+}
+function Section(props) {
+    const [open, setOpen] = useState(true);
+
+    return (
+        <>
+            <View style={{ flexDirection: 'row' } }>
+                <Text style={[globals.styles.h2, { paddingLeft: 0, color: globals.COLOR_GRAY }]} onClick={() => setOpen(!open)}>{props.name}</Text>
+                <Button style={[styles.sectionButton, {transition: '500ms', transform: (open ? 'rotate(180deg)' : ''), backgroundColor: globals.COLOR_WHITE }]} svg={DownChevron} iconStyle={{ width : '100%', fill: globals.COLOR_GRAY }} hoverStyle={{ borderRadius: '50%' }} onClick={() => setOpen(!open)} />
+            </View>
+            <View style={[styles.notifSection, open ? { maxHeight: '75vh' } : { maxHeight: 0, overflowY: 'hidden' }]}>
+                {props.children}
+            </View>
+        </>
+    
+    );
 }
 
-let button_style = globals.styles.formButton;
+
+function FriendRequest(props) {
+
+    const removeNotif = useContext(RemoveContext);
+
+    return (
+        <View style={styles.notification}>
+            
+            <View style={{flex: 1}}>
+                <Text style={styles.text}>New Pending Friend Request {props.date}</Text>
+                <View style={{ flexDirection: 'columnn', justifyContent: 'center' }}>
+                    <Text style={styles.notificationText}>{props.name} sent you a friend request</Text>
+                </View>
+                
+            </View>
+            <View style={styles.buttonContainer}>
+
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approveFriendRequest(props.id, true, removeNotif)} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approveFriendRequest(props.id, false, removeNotif)} />
+            </View>
+                      
+        </View>
+        
+    );
+}
+
+function ApproveTransaction(props) {
+    const removeNotif = useContext(RemoveContext);
+
+    return (
+        <View style={styles.notification}>
+            
+            <View style={{flex: 1}}>
+                <Text style={styles.text}>New Pending Transaction {props.date}</Text>
+                <View style={{ flexDirection: 'columnn', justifyContent: 'center' }}>
+                    <Text style={styles.notificationText}>{props.name}</Text>
+                </View>
+                
+            </View>
+            <View style={styles.buttonContainer}>
+
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approveTransaction(props.id, true, removeNotif)} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approveTransaction(props.id, false, removeNotif)} />
+            </View>
+                      
+        </View>
+        
+    );
+}
+
+function CompletedTransaction(props) {
+    const removeNotif = useContext(RemoveContext);
+
+    return (
+        <View style={styles.notification}>
+            
+            <View style={{flex: 1}}>
+                <Text style={styles.text}>New Completed Transaction {props.date}</Text>
+                <View style={{ flexDirection: 'columnn', justifyContent: 'center' }}>
+                    <Text style={styles.notificationText}>{props.name}</Text>
+                </View>
+                
+            </View>
+            <View style={styles.buttonContainer}>
+
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => dismissCompletedTransaction(props.id, removeNotif)} />
+            </View>
+                      
+        </View>
+        
+    );
+}
+
+async function approveFriendRequest(id, approved, removeNotif) {
+    let payload = `{
+        "operation": ` + (approved ? "\"accept\"" : "\"reject\"") + `,
+        "notification_id": ` + id + `
+    }`;
+
+    // do the POST request
+    try {
+        let response = await fetch("/friendships.php", { method: 'POST', body: payload, credentials: 'same-origin' });
+
+        if (response.ok) {
+            removeNotif('friend_request', id);
+        } else {
+
+        }
+    }
+    catch (error) {
+        console.error("error in POST request to friendships (/friendships.php)");
+        console.error(error);
+    }
+}
+
+async function approveTransaction(id, approved, removeNotif) {
+    removeNotif("transaction_approval", id)
+}
+
+async function dismissCompletedTransaction(id, removeNotif) {
+    removeNotif("transaction_approval", id)
+}
+
+async function getNotifications(type){
+
+    let notifications = [];
+
+    let payload = new URLSearchParams();
+    payload.append('type', type);
+
+    // do the POST request
+    try {
+        let response = await fetch("/notifications.php?" + payload, { method: 'GET', credentials: 'same-origin' });
+
+        if (response.ok) {
+            try {
+                let json = await response.json();
+                if (json !== null) {
+                    switch (type) {
+                        case "friend_request":
+                            for (let i = 0; i < json.length; i++) {
+                                notifications.push(<FriendRequest name={json[i].username} id={json[i].notification_id} />)
+                            }
+                            break;
+                        case "transaction_approval":
+                            for (let i = 0; i < json.length; i++) {
+                                notifications.push(<ApproveTransaction name={json[i].name} id={json[i].notification_id} />)
+                            }
+                            break;
+                        case "complete_transaction":
+
+                            for (let i = 0; i < json.length; i++) {
+                                notifications.push(<CompletedTransaction name={json[i].name} id={json[i].notification_id} />)
+                            }
+
+                            break;
+                        default:
+                            console.error("error in GET request to notifications (/notifications.php)");
+                            console.error("Unrecognized notification type");
+                            break;
+                    }
+                }
+                
+            } catch (error) {
+				console.error("error in GET request to notifications (/notifications.php)");
+				console.error("No JSON returned");
+			}
+        }
+    }
+    catch (error) {
+        console.error("error in GET request to notifications (/notifications.php)");
+        console.error(error);
+    }
+    return notifications;
+}
+
+
 
 const styles = StyleSheet.create({
-	header: {
-        padding: '0.2em',
-        fontSize: '2em',
-        fontWeight: 'bolder',
-		color: globals.COLOR_WHITE
-	},
-	body: {
-		color: globals.COLOR_WHITE
-	},
-	button: {
+    notifShelf: {
+        overflowX: 'hidden',
+        alignItems: 'center',
+        zIndex: 2,
+        backgroundColor: globals.COLOR_WHITE,
+        height: '100%',
+        transition: '500ms',
+        borderWidth: 1,
+        borderStyle: 'none',
+    },
+    notifSection: {
+        transition: '500ms',
+        overflowY: 'auto',
+        scrollbarWidth: 'thin'
+    },
+    notification: {
+        backgroundColor: globals.COLOR_WHITE,
+        alignItems: 'left',
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        marginTop: '.5em',
+        marginBottom: '.5em',
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    button: {
+        width: '2em',
+        height: '2em',
+        fontSize: '1em',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: globals.COLOR_BLUE,
+    },
+    sectionButton: {
+        width: '2em',
+        height: '2em',
+        fontSize: '1em',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: '1.25em'
+    },
+    notificationText: {
+        fontSize: '1em',
+        paddingTop: 0,
+        paddingLeft: '.2em',
+        paddingRight: '.2em',
+        paddingBottom: '.5em',
+        color: globals.COLOR_GRAY
+    },
+    text: {
+        fontSize: '.75em',
+        paddingTop: '.5em',
+        paddingLeft: '.2em',
+        paddingRight: '.2em',
+        fontWeight: 'bold',
+        color: globals.COLOR_GRAY
+    },
 
-	}
 });

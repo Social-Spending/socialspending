@@ -5,36 +5,41 @@ import { useState } from 'react';
 
 import Header from './Header.js';
 import Footer from './Footer.js';
-import { getCookieValue } from "./Utils.js";
-import Notifications from "./Notifications.js";
+import { getCookieValue } from './Utils.js';
+import Notifications from './Notifications.js';
+
+import { ModalContext } from '../modals/ModalContext.js';
 
 export default function Base(props) {
 
     const [showShelf, setShowShelf] = useState(false);
 
+    const [modal, setModal] = useState(null);
+
     //Check if user is logged in a display correct header
     let loggedIn = (getCookieValue("session_id") !== "");
 
-    return (
-        <View style={styles.base}>
-            <Header loggedIn={loggedIn} showNotif={() => setShowShelf(!showShelf)} />
 
-            <View style={[props.style, { flexWrap: 'nowrap', flexDirection: 'column' }]}>
-                <View style={{flexDirection: 'row', width: '100%', flex: 1}}>
-                    <View style={styles.container}>
+    return (
+        <ModalContext.Provider value={setModal}>
+            <View style={styles.base}>
+                <Header loggedIn={loggedIn} showNotif={() => setShowShelf(!showShelf)} />
+
+                <View style={[props.style, { flexWrap: 'nowrap' }]}>
+
+                    <View style={[styles.container]}>
                         {props.children}
                     </View>
+                
+                    <Notifications show={showShelf} />
 
-                    <View style={[styles.notifShelf, showShelf ? {width: '20vw', /*visibility: "visible",*/ display: "block"} : {width: '0vh', /*visibility: "hidden",*/ display: "none"}]}>
-                        <Notifications />
-                    </View>
+                    <Footer />
+
                 </View>
-
-                <Footer />
-
+                
             </View>
-
-        </View>
+            {modal}
+        </ModalContext.Provider>
     );
 }
 
@@ -51,10 +56,13 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
+        height: '100%',
+        minHeight: '45em',
         width: '100%',
         flexWrap: 'nowrap',
-        justifyContent: 'center',
-        alignItems: 'center',
+        flexDirection: 'inherit',
+        alignItems: 'inherit',
+        justifyContent: 'inherit'
 
     },
     notifShelf: {

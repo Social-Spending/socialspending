@@ -1,13 +1,25 @@
 import * as globals from "../utils/globals.js";
 
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 
 import { Link } from "expo-router";
 
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
-export default function Groups(props) {
+import { getGroups } from '../utils/groups.js'
+import Button from "./Button.js";
+import { ModalContext } from "../modals/ModalContext.js";
+import NewGroup from "../modals/NewGroup.js";
+
+export default function GroupsList(props) {
+
+    let setModal = useContext(ModalContext);
+
+
+    const addGroupModal = () => {
+        setModal(<NewGroup />);
+    }
 
     return (
 
@@ -15,10 +27,10 @@ export default function Groups(props) {
 
             <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
                 <Text style={[globals.styles.h2, styles.label]}>GROUPS</Text>
-                <Text href="/newGroup" style={[globals.styles.h3, styles.newGroup]}>Create New Group</Text>
+                <Button style={[globals.styles.formButton, styles.newGroup]} label='+ CREATE GROUP' onClick={addGroupModal} />
             </View>
 
-            <View style={{ alignSelf: 'center', height: '1px', width: '92%', backgroundColor: globals.COLOR_GRAY }} />
+            <View style={{ alignSelf: 'center', height: '1px', width: '92%', backgroundColor: globals.COLOR_GRAY, marginTop: '.5em' }} />
 
 
             <GroupList />
@@ -37,7 +49,7 @@ function GroupList() {
         // On load asynchronously request groups and construct the list
         async function getItems() {
 
-            setGroupItems(await generateGroupList());
+            setGroupItems(await buildGroups());
         }
         getItems();
 
@@ -65,23 +77,21 @@ function GroupList() {
                 {groupItems}
 
             </View>
-
         );
-
     }
 }
 
 function GroupItem(props) {
 
-    let text = props.owed >= 0 ? "You're Owed" : "You Owe";
-    let color = props.owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+    let text = props.owed < 0 ? "You're Owed" : "You Owe";
+    let color = props.owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
 
     return (
 
         <Link href={'/groups/' + props.id} asChild>
             <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
-                <Text style={globals.styles.listText}>{props.name}</Text>
+                <Text style={[globals.styles.listText]}>{props.name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
                     <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed)}</Text>
@@ -93,15 +103,19 @@ function GroupItem(props) {
     );
 }
 
-async function generateGroupList() {
+async function buildGroups() {
 
     let groupList = [];
+    
+    let groups = await getGroups();
 
-    for (let i = 0; i < 100; i++) {
+    if (groups === null) return groupList;
 
-        groupList.push(<GroupItem key={i} border={i >0} name={'Group ' + Math.abs(Math.floor(Math.sin(i) * 1000000))} id={Math.abs(Math.floor(Math.sin(i) * 1000000))} owed={(Math.tan(i) * 1000).toFixed(2)} />);
+    for (let i = 0; i < groups.length; i++) {
+                    
+        groupList.push(<GroupItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} owed={groups[i].debt} />);
     }
-
+           
     return groupList;
 
 }
@@ -129,11 +143,11 @@ const styles = StyleSheet.create({
     },
     newGroup: {
         marginRight: '3%',
-        paddingRight: ' .5em',
-        paddingTop: '2em',
+        marginTop: '2em',
         paddingBottom: '0em',
         color: globals.COLOR_ORANGE,
         alignSelf: 'flex-end',
+        width: '10em'
     }
 
 });
