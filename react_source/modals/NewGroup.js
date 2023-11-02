@@ -1,15 +1,14 @@
 /*
  *  Functions:
- *      submitForm: Creates a post request to /login.php containing values of username, and password fields.
- *          @param: userRef     - reference to username field
- *          @param: passwordRef - reference to password field
+ *      submitForm: Creates a post request to /groups.php containing values of group name field.
+ *          @param: groupRef    - reference to group name field
  *          @param: errorRef    - reference to error text field to print error text to
  *          
 */
 
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Modal } from 'react-native';
 import { router } from "expo-router";
 import { useRef, useState, useContext } from 'react';
 
@@ -36,27 +35,32 @@ export default function NewGroup(props) {
 
 
     return (
+        <Modal
+            transparent={true}
+            visible={true}
+            onRequestClose={() => setModal(null)}>
 
-        <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
-            <View style={styles.create} onClick={handleChildClick}>
+            <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={styles.create} onClick={handleChildClick}>
 
-                <Image source={Logo} style={styles.logo} />
+                    <Image source={Logo} style={styles.logo} />
 
-                <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>CREATE GROUP</Text>
-                <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Enter a new group name to get started</Text>
+                    <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>CREATE GROUP</Text>
+                    <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Enter a new group name to get started</Text>
 
-                <Text ref={errorMessageRef} id='loginForm_errorMessage' style={globals.styles.error}></Text>
+                    <Text ref={errorMessageRef} id='loginForm_errorMessage' style={globals.styles.error}></Text>
 
-                <View style={globals.styles.labelContainer}>
-                    <Text style={[globals.styles.h5, globals.styles.label]}>GROUP NAME</Text>
+                    <View style={globals.styles.labelContainer}>
+                        <Text style={[globals.styles.h5, globals.styles.label]}>GROUP NAME</Text>
+                    </View>
+
+                    <input tabIndex={1} ref={groupRef} placeholder=" Enter name of new group" style={globals.styles.input} id='createGroup_name' name="Group Name" onInput={onNameChange} />
+
+                    <Button disabled={nameDisabled}  style={globals.styles.formButton} label='Create New Group' onClick={onSubmit} />
+
                 </View>
-
-                <input tabIndex={1} ref={groupRef} placeholder=" Enter name of new group" style={globals.styles.input} id='createGroup_name' name="Group Name" onInput={onNameChange} />
-
-                <Button disabled={nameDisabled}  style={globals.styles.formButton} label='Create New Group' onClick={onSubmit} />
-
             </View>
-        </View>
+        </Modal>
         
     );
 }

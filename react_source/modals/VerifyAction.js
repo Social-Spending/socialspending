@@ -1,15 +1,6 @@
-/*
- *  Functions:
- *      submitForm: Creates a post request to /login.php containing values of username, and password fields.
- *          @param: userRef     - reference to username field
- *          @param: passwordRef - reference to password field
- *          @param: errorRef    - reference to error text field to print error text to
- *          
-*/
-
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Modal } from 'react-native';
 import { router } from "expo-router";
 import { useRef, useState, useContext } from 'react';
 
@@ -31,23 +22,28 @@ export default function VerifyAction(props) {
     }
 
     return (
+        <Modal
+            transparent={true}
+            visible={true}
+            onRequestClose={() => setModal(null)}>
 
-        <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
-            <View style={styles.verify} onClick={handleChildClick}>
+            <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={styles.verify} onClick={handleChildClick}>
 
-                <Image source={Logo} style={styles.logo} />
+                    <Image source={Logo} style={styles.logo} />
 
                 
-                <Text style={[globals.styles.text, globals.styles.h2, { paddingTop: 0 }]}>{props.label}</Text>
+                    <Text style={[globals.styles.text, globals.styles.h2, { paddingTop: 0 }]}>{props.label}</Text>
                 
-                <View style={{flexDirection: 'row', justifyContent: 'center'} }>
-                    <Button style={[styles.button, { backgroundColor: globals.COLOR_BLUE }]} svg={Accept} iconStyle={styles.icon} label='CONTINUE' onClick={props.accept} />
-                    <Button style={[styles.button, { backgroundColor: globals.COLOR_ORANGE }]} svg={Reject} iconStyle={styles.icon} label='CANCEL' onClick={(props.reject != undefined ? props.reject : () => setModal(null))} />
+                    <View style={{flexDirection: 'row', justifyContent: 'center'} }>
+                        <Button style={[styles.button, { backgroundColor: globals.COLOR_BLUE }]} svg={Accept} iconStyle={styles.icon} label='CONTINUE' onClick={props.accept} />
+                        <Button style={[styles.button, { backgroundColor: globals.COLOR_ORANGE }]} svg={Reject} iconStyle={styles.icon} label='CANCEL' onClick={(props.reject != undefined ? props.reject : () => setModal(null))} />
+                    </View>
+                
+
                 </View>
-                
-
             </View>
-        </View>
+        </Modal>
         
     );
 }
