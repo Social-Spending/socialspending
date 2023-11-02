@@ -1,62 +1,82 @@
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Modal } from 'react-native';
 import { router } from "expo-router";
-import { useRef, useState } from 'react';
+import { useRef, useState, useContext } from 'react';
 
 
 import Button from '../components/Button.js'
+import { ModalContext } from './ModalContext.js';
 
 const Logo = require('../assets/images/logo/logo-name-64.png');
 
 export default function NewGroup(props) {
 
     const onSubmit = () => { submitForm(nameRef, errorMessageRef); }
-    const onNameChange = () => { setNameDisabled(checkName(nameRef, errorMessageRef)); }
 
-    const [nameDisabled, setNameDisabled] = useState(true);
 
     const errorMessageRef = useRef(null);
-    const nameRef = useRef(null);
-    const descriptionRef = useRef(null);
+
+    const setModal = useContext(ModalContext);
 
     function handleChildClick(e) {
         e.stopPropagation();
     }
 
+    return (
+        <Modal
+            transparent={true}
+            visible={true}
+            onRequestClose={() => setModal(null)}>
+
+            <View style={[globals.styles.modalBackground, props.style]} >
+                <View style={styles.create} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+
+                    <Image source={Logo} style={styles.logo} onClick={handleChildClick} />
+
+                    <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>NEW EXPENSE</Text>
+
+                    <Text ref={errorMessageRef} id='createExpense_errorMessage' style={globals.styles.error}></Text>
+
+                    <PageOne />
+                
+                </View>
+            </View>
+        </Modal>
+
+    );
+}
+
+function PageOne() {
+
+    const onNameChange = () => { setNameDisabled(checkName(nameRef, errorMessageRef)); }
+
+    const [nameDisabled, setNameDisabled] = useState(true);
+
+    const nameRef = useRef(null);
+    const descriptionRef = useRef(null);
 
     return (
+        <>
+            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Enter transaction name and description to get started</Text>
 
-        <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
-            <View style={styles.create} onClick={handleChildClick}>
 
-                <Image source={Logo} style={styles.logo} />
-
-                <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>NEW EXPENSE</Text>
-                <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Enter transaction name and description to get started</Text>
-
-                <Text ref={errorMessageRef} id='createExpense_errorMessage' style={globals.styles.error}></Text>
-
-                <View style={globals.styles.labelContainer}>
-                    <Text style={[globals.styles.h5, globals.styles.label]}>EXPENSE NAME *</Text>
-                </View>
-
-                <input tabIndex={1} ref={nameRef} placeholder=" Enter name of new expense" style={globals.styles.input} id='createExpense_name' name="Expense Name" onInput={onNameChange} />
-
-                <View style={globals.styles.labelContainer}>
-                    <Text style={[globals.styles.h5, globals.styles.label]}>DESCRIPTION</Text>
-                </View>
-
-                <textarea tabIndex={2} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" onInput={onNameChange} />
-
-                <View style={{justifyContent: 'space-between', alignItems: 'flex-end', width: '75%'} }>
-                    <Button disabled={nameDisabled} style={[globals.styles.formButton, {margin: 0, marginTop: '1em', marginBottom: '1em', width: '33%' }]} label='Next' onClick={onSubmit} />
-                </View>
-                
-
+            <View style={globals.styles.labelContainer}>
+                <Text style={[globals.styles.h5, globals.styles.label]}>EXPENSE NAME *</Text>
             </View>
-        </View>
 
+            <input tabIndex={1} ref={nameRef} placeholder=" Enter name of new expense" style={globals.styles.input} id='createExpense_name' name="Expense Name" onInput={onNameChange} />
+
+            <View style={globals.styles.labelContainer}>
+                <Text style={[globals.styles.h5, globals.styles.label]}>DESCRIPTION</Text>
+            </View>
+
+            <textarea tabIndex={2} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" onInput={onNameChange} />
+
+            <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
+                <Button disabled={nameDisabled} style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Next' />
+            </View>
+        </>
     );
 }
 
