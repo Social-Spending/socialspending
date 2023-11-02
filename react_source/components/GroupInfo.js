@@ -116,7 +116,7 @@ function getTransactions(json) {
 
     let outputList = [];
 
-    for (let i = 0; i < json['members'].length; i++) {
+    for (let i = 0; i < json['transactions'].length; i++) {
 
         outputList.push(<TransactionListItem key={i} border={i > 0} name={json['transactions'][i].name} id={json['transactions'][i].transaction_id} owed={json['transactions'][i].user_debt} />);
     }

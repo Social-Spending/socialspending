@@ -87,7 +87,6 @@ function GroupList(props) {
 
 function GroupListItem(props) {
 
-    console.log(props.id);
     return (
 
         <View style={props.border ? styles.listItemSeperator : styles.listItem} onClick={() => props.setGroupID(props.id)} >
