@@ -33,6 +33,17 @@
                                     },
                                     ...,
                                     {}
+                                ],
+                                "transactions":
+                                [
+                                    {
+                                        "transaction_id":<TRANSACTION ID>,
+                                        "name":<TRANSACTION NAME>,
+                                        "date":<TRANSACTION DATE>,
+                                        "user_debt":<USER_DEBT>
+                                    },
+                                    ...,
+                                    {}
                                 ]
                             },
                             ...,
@@ -41,8 +52,10 @@
                     }
                     The "members" list does not include the currently logged in user.
                     "debt" is an integer value that is the (positive) amount the user owes or the (negative) amount the user is owed.
-                    If `brief=true` in the URL parameters, the "members" node is omitted from all groups.
+                    If `brief=true` in the URL parameters, the "members" and "transactions" nodes are omitted from all groups.
                     <RESULT> is a message explaining the status code to a user.
+                    <USER_DEBT> will be a (positive) amount the user owes for a given transaction or ...
+                        the (negative) amount the user is owed from that transaction.
         GROUP INFO operation: get information about a certain group
             - Request:
                 - Headers:
@@ -73,12 +86,24 @@
                             },
                             ...,
                             {}
+                        ],
+                        "transactions":
+                        [
+                            {
+                                "transaction_id":<TRANSACTION ID>,
+                                "name":<TRANSACTION NAME>,
+                                "user_debt":<USER_DEBT>
+                            },
+                            ...,
+                            {}
                         ]
                     }
                     The "members" list does not include the currently logged in user.
                     "debt" is an integer value that is the (positive) amount the user owes or the (negative) amount the user is owed.
-                    If `brief=true` in the URL parameters, the "members" node is omitted.
+                    If `brief=true` in the URL parameters, the "members" and "transactions" nodes are omitted.
                     <RESULT> is a message explaining the status code to a user.
+                    <USER_DEBT> will be a (positive) amount the user owes for a given transaction or ...
+                        the (negative) amount the user is owed from that transaction.
     - POST: Used to perform multiple operations, where the operation is specified by a key provided in JSON
         CREATE operation: create a group and add the given users to the group
             - Request:
@@ -420,7 +445,46 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief)
 
         // convert array to simple indexed array and store with group
         $group['members'] = array_values($membersArray);
+
+        // brief==false, also add list of transactions
+        fillGroupTransactions($group, $userID);
     }
+}
+
+// function will add the list of transactions linked to this group
+// does not check if brief==false, do that before calling this
+// $group is the associative array for this group, and will be populated with data
+// $userID is the user_id of the current user
+function fillGroupTransactions(&$group, $userID)
+{
+    global $mysqli;
+
+    $groupID = $group['group_id'];
+
+    // query to get all transactions linked to this group
+    $sql =  'SELECT t.transaction_id, t.name, t.date, tp.amount as user_debt '.
+            'FROM transactions t '.
+            'JOIN group_transactions gt ON t.transaction_id = gt.transaction_id '.
+            'JOIN transaction_participants tp ON tp.transaction_id = gt.transaction_id '.
+            'WHERE gt.group_id = ? AND tp.user_id = ?;';
+    $result = $mysqli->execute_query($sql, [$groupID, $userID]);
+
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+
+    // put all transactions into an array;
+    $transactions = array();
+    while ($row = $result->fetch_assoc())
+    {
+        $transactions[] = $row;
+    }
+
+    // convert array to simple indexed array and store with group
+    $group['transactions'] = array_values($transactions);
 }
 
 function handleGetGroupInfo($userID, $brief)

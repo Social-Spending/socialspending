@@ -37,7 +37,8 @@ create table transaction_participants (
 	has_approved tinyint(1) not null,
 	amount int not null,
 	primary key (transaction_id, user_id),
-	foreign key (user_id) references users(user_id) on delete no action on update cascade
+	foreign key (user_id) references users(user_id) on delete no action on update cascade,
+	foreign key (transaction_id) references transactions(transaction_id) on delete cascade on update cascade
 );
 
 create table debts (
@@ -98,6 +99,11 @@ insert into friendships (user_id_1, user_id_2) values
 insert into transactions (transaction_id, name, date, amount, description) values
 (1, 'Halal Shack', '2023-09-29', 899, 'Bought you fools some food'),
 (2, 'Example transaction', '2023-10-30', 500, 'Just a test');
+
+insert into transaction_participants (transaction_id, user_id, has_approved, amount) values
+(1, 1, 1, -899),
+(1, 2, 1, 500),
+(1, 3, 1, 399);
 
 insert into groups (group_id, group_name) values
 (1, 'CMSC447 Bros'),
