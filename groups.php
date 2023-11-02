@@ -320,6 +320,19 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief)
     {
         // just get the current user's balance
         // query to get all debts to/from this user with other people in the group
+        $sql =  'SELECT SUM(debt_amount) AS net_debt '.
+                'FROM ( '.
+                    'SELECT SUM(amount) AS debt_amount '.
+                    'FROM debts AS d '.
+                    'JOIN group_members as gm ON d.creditor = gm.user_id '.
+                    'WHERE d.debtor = ? AND gm.group_id = ? '.
+                    'UNION ALL '.
+                    'SELECT -SUM(amount) AS debt_amount '.
+                    'FROM debts AS d '.
+                    'JOIN group_members as gm ON d.debtor = gm.user_id '.
+                    'WHERE d.creditor = ? AND gm.group_id = ? '.
+                ') AS debt_combined;';
+        /*
         $sql =  'SELECT SUM(d.amount) as credits, 0 as debts FROM group_members as gm '.
                 'INNER JOIN debts as d ON (d.debtor=gm.user_id AND d.creditor = ?) '.
                 'WHERE gm.group_id = ? '.
@@ -327,6 +340,7 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief)
                 'SELECT 0 as credits, SUM(d.amount) as debts FROM group_members as gm '.
                 'INNER JOIN debts as d ON (d.creditor=gm.user_id AND d.debtor = ?) '.
                 'WHERE gm.group_id = ?;';
+        */
         $result = $mysqli->execute_query($sql, [$userID, $groupID, $userID, $groupID]);
 
         // check that query was successful
@@ -336,14 +350,15 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief)
             handleDBError();
         }
 
-        // calculate balance
-        $debts = 0;
-        while ($row = $result->fetch_assoc())
-        {
-            $debts = $debts + $row['debts'] - $row['credits'];
-        }
         // store debt in group array
-        $group['debt'] = $debts;
+        if ($row = $result->fetch_assoc())
+        {
+            $group['debt'] = $row['net_debt'];
+        }
+        else
+        {
+            $group['debt'] = 0;
+        }
     }
     else
     {
@@ -370,6 +385,12 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief)
         }
 
         // query to get all debts between members of the group
+        $sql =  'SELECT d.creditor, d.debtor, d.amount '.
+                'FROM debts d '.
+                'JOIN group_members gm1 ON d.creditor = gm1.user_id '.
+                'JOIN group_members gm2 ON d.debtor = gm2.user_id '.
+                'WHERE gm1.group_id = ? AND gm2.group_id = ?;';
+        /*
         $sql =  'SELECT d.creditor, d.debtor, d.amount FROM group_members as gm '.
                 'INNER JOIN debts as d ON d.debtor=gm.user_id '.
                 'WHERE gm.group_id = ? '.
@@ -377,6 +398,7 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief)
                 'SELECT d.creditor, d.debtor, d.amount FROM group_members as gm '.
                 'INNER JOIN debts as d ON d.creditor=gm.user_id '.
                 'WHERE gm.group_id = ?;';
+        */
         $result = $mysqli->execute_query($sql, [$groupID, $groupID]);
 
         // check that query was successful
