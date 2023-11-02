@@ -10,7 +10,7 @@ const Logo = require('../assets/images/logo/logo-64.png');
 import Bell from '../assets/images/bxs-bell.svg';
 
 
-export default function Header({ loggedIn, showNotif }) {
+export default function Header({ loggedIn, currUsername, showNotif, doSignout }) {
     return (
         <View style={styles.header}>
 
@@ -22,7 +22,7 @@ export default function Header({ loggedIn, showNotif }) {
                 <Links loggedIn={loggedIn} />
 
             </View>
-            <Account loggedIn={loggedIn} showNotif={showNotif} />
+            <Account loggedIn={loggedIn} currUsername={currUsername} showNotif={showNotif} doSignout={doSignout} />
         </View>
     );
 }
@@ -52,12 +52,13 @@ function Links({ loggedIn }) {
     }
 }
 
-function Account({ loggedIn, showNotif }) {
+function Account({ loggedIn, currUsername, showNotif, doSignout }) {
     if (loggedIn) {
+        // TODO add a sign-out button that calls doSignout
         return (
             <View style={styles.container}>
                 <Button style={styles.notif} hoverStyle={styles.notif} svg={Bell} iconStyle={styles.bell} onClick={showNotif} />
-                <HeaderText style={[globals.styles.h3, styles.text, { paddingLeft: '1em' }]}>$AccountName</HeaderText>
+                <HeaderText style={[globals.styles.h3, styles.text, { paddingLeft: '1em' }]}>{currUsername}</HeaderText>
             </View>
         );
     } else {
@@ -89,28 +90,6 @@ function HeaderLink(props) {
     );
 }
 
-async function doSignoutOut() {
-    // simple GET request to signout endpoint
-    let endpoint = '/signout.php';
-    try {
-        let response = await fetch(endpoint, { method: 'GET', credentials: 'same-origin' });
-
-        if (response.ok) {
-            // redirect
-            router.push("/login");
-        }
-        else {
-            // failed, display error message returned by server
-            let responseJSON = await response.json();
-            let message = 'Failed to signout: ' + responseJSON['message'];
-            alert(message);
-        }
-    }
-    catch (error) {
-        console.log('error in in GET request to ' + endpoint);
-        console.log(error);
-    }
-}
 
 const styles = StyleSheet.create({
     header: {

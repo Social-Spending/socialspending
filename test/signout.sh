@@ -1,6 +1,5 @@
 #! /bin/bash
 SERVER="http://localhost"
-GROUP_ENDPOINT="groups.php"
 USERNAME="Soap_Ninja"
 PASSWORD="password"
 

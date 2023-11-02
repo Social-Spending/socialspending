@@ -123,7 +123,7 @@ function validateSessionID()
             // check that cookie is not expired
             $row = $result->fetch_assoc();
 
-            if ($row['expiration_date'] < (time()+COOKIE_EXPIRY_TIME))
+            if ($row['expiration_date'] < time())
             {
                 // cookie has expired
                 // delete cookie from database

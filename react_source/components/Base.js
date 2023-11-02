@@ -15,16 +15,26 @@ export default function Base(props) {
     const [showShelf, setShowShelf] = useState(false);
 
     const [modal, setModal] = useState(null);
+    // state variables for information about the current user
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [currUserID, setCurrUserID] = useState(0);
+    const [currUsername, setCurrUsername] = useState('username');
 
-    //Check if user is logged in a display correct header
-    let loggedIn = (getCookieValue("session_id") !== "");
+    // Check if user is logged in and if they are get their username
+    // may need to await this promise if the values are needed to render the current modal
+    //  ie. if the 'summary' page will redirect when isLoggedIn==false, we must wait for this...
+    //      fetch to complete before we can determine if the user is indeed logged in
+    let getUserInfoPromise = getUserInfo(setIsLoggedIn, setCurrUserID, setCurrUsername);
 
 
     return (
         <ModalContext.Provider value={setModal}>
             <View style={styles.base}>
-                <Header loggedIn={loggedIn} showNotif={() => setShowShelf(!showShelf)} />
-        
+                <Header loggedIn={isLoggedIn}
+                        currUsername={currUsername}
+                        showNotif={() => setShowShelf(!showShelf)}
+                        doSignout={() => doSignout(setIsLoggedIn, setCurrUserID, setCurrUsername)} />
+
                 <View style={[{ flex: 1, flexWrap: 'nowrap', flexDirection: 'column' }]}>
         
                     <View style={[props.style, { flexDirection: 'row', width: '100%', flex: 1 }]}>
@@ -45,7 +55,58 @@ export default function Base(props) {
     );
 }
 
+async function getUserInfo(setIsLoggedIn, setCurrUserID, setCurrUsername) {
+    // simple GET request to user info endpoint
+    let endpoint = '/user_info.php';
+    try {
+        let response = await fetch(endpoint, { method: 'GET', credentials: 'same-origin' });
 
+        if (response.ok) {
+            // unpack information
+            let responseJSON = await response.json();
+            setIsLoggedIn(true);
+            setCurrUserID(responseJSON['user_id']);
+            setCurrUsername(responseJSON['username']);
+        }
+        // else if (response.status == 401)
+        // {
+        //     // user is not logged in, redirect them
+        //     // don't do this, because the current modal could be the login page
+        //     router.push("/login");
+        // }
+    }
+    catch (error) {
+        console.log('error in in GET request to ' + endpoint);
+        console.log(error);
+    }
+}
+
+async function doSignout(setIsLoggedIn, setCurrUserID, setCurrUsername) {
+    // simple GET request to signout endpoint
+    let endpoint = '/signout.php';
+    try {
+        let response = await fetch(endpoint, { method: 'GET', credentials: 'same-origin' });
+
+        if (response.ok) {
+            // clear state variables about the current user
+            setIsLoggedIn(false);
+            setCurrUserID(0);
+            setCurrUsername('');
+            // redirect to login page
+            router.push("/login");
+        }
+        else {
+            // failed, display error message returned by server
+            let responseJSON = await response.json();
+            let message = 'Failed to signout: ' + responseJSON['message'];
+            alert(message);
+        }
+    }
+    catch (error) {
+        console.log('error in in GET request to ' + endpoint);
+        console.log(error);
+    }
+}
 
 const styles = StyleSheet.create({
     base: {

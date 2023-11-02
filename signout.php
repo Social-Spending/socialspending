@@ -1,4 +1,20 @@
 <?php
+/*
+    Signs the user out
+    - Request:
+        - Headers:
+            - cookies: session_id=***
+    - Response:
+        - Status Codes:
+            - 200 if user was correctly signed out, or was never signed in
+            - 500 if the database could not be reached
+        - Content-Type:application/json
+        - body: serialized JSON in the following format
+            {
+                "message":<RESULT>
+            }
+            <RESULT> is a message explaining the status code to a user.
+*/
 include_once('templates/connection.php');
 include_once('templates/jsonMessage.php');
 
