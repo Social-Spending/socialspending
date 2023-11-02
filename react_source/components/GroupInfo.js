@@ -39,17 +39,15 @@ export default function GroupInfo(props) {
                 setGroupName(json.group_name);                
 
                 setGroupMembers(await getGroupMembers(json));
-                setTransactions(await getTransactions(props.id));
+                setTransactions(await getTransactions(json));
             }            
         }
         getItems();
             
-
     }, [props.id]);
     if (props.id == null || groupName == null) {
-        //return (<></>);
+        return (<></>);
     }
-
 
     const leave = () => {
         setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => leaveGroup(props.id)} />);
@@ -114,13 +112,13 @@ function getGroupMembers(json) {
 
 }
 
-function getTransactions(groupID) {
+function getTransactions(json) {
 
     let outputList = [];
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < json['members'].length; i++) {
 
-        outputList.push(<TransactionListItem key={i} border={i > 0} name={'test'} id={i} owed={1} />);
+        outputList.push(<TransactionListItem key={i} border={i > 0} name={json['transactions'][i].name} id={json['transactions'][i].transaction_id} owed={json['transactions'][i].user_debt} />);
     }
 
     return outputList;
@@ -136,8 +134,8 @@ function getTransactions(groupID) {
  */
 function MemberListItem({ id, name, owed, border }) {
 
-    let text = owed >= 0 ? "Is Owed" : "Owes";
-    let color = owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+    let text = owed < 0 ? "Is Owed" : "Owes";
+    let color = owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
 
     return (
 
@@ -167,8 +165,8 @@ function TransactionListItem({ id, name, owed, border }) {
 
     const setModal = useContext(ModalContext);
 
-    let text = owed >= 0 ? "You Paid" : "You're Owed";
-    let color = owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+    let text = owed >= 0 ? "You Owe" : "You Paid";
+    let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
 
     const viewTransaction = () => {
         setModal(<TransactionInfo id={id} />);

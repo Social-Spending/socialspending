@@ -47,11 +47,13 @@ export const styles = StyleSheet.create({
         width: '75%',
         height: '2.5em',
         fontSize: '.86em',
+        fontColor: COLOR_LIGHT_GRAY,
 
+        borderColor: COLOR_LIGHT_GRAY,
+        borderWidth: 2,
         borderRadius: 2,
-        borderTopStyle: 'none',
-        borderRightStyle: 'none',
-        borderLeftStyle: 'none'
+        borderStyle: 'none',
+        borderBottomStyle: 'solid'
     },
     error: {
         padding: '0em',
