@@ -2,6 +2,8 @@
 
 // 30 days, in seconds
 const COOKIE_EXPIRY_TIME = 60*60*24*30;
+// 1 day, in seconds
+const TRANSIENT_COOKIE_EXPIRY_TIME = 60*60*24;
 
 const HTTP_OK = 200;
 

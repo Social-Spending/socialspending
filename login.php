@@ -69,6 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     }
     $user = $_POST['user'];
     $password = $_POST['password'];
+    // indicate if user wanted to store cookie for future logins, or just this session
+    $remember = (array_key_exists('remember', $_POST) && $_POST['remember'] == 'true');
+
+
     // lookup user by username or by email
     $sql = "SELECT user_id, pass_hash FROM users     WHERE username = ?
                                     OR  email = ?";
@@ -92,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         {
             // authentication success
             // associate this cookie with user_id
-            if (createAndSetSessionID($user_id))
+            if (createAndSetSessionID($user_id, $remember))
             {
                 // an error occurred
                 handleDBError();

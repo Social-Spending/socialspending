@@ -23,7 +23,9 @@ function generateToken($length = 20)
 // Must do cookie setting before any content is sent
 // Return 0 if no error
 // Return 1 if error
-function createAndSetSessionID($user_id)
+// $user_id is the user_id to which the cookie will be associated
+// $remember indicates if the cookie should be given an expiration date
+function createAndSetSessionID($user_id, $remember)
 {
     global $mysqli;
 
@@ -31,7 +33,18 @@ function createAndSetSessionID($user_id)
     $sessionID = generateToken();
     $sessionIDhash = hash('sha256', $sessionID);
 
-    $expiryDate = time() + COOKIE_EXPIRY_TIME;
+    // if $remember is set, give cookie standard expiration date
+    // if $remember is not set, cookie will expire when user closes browser
+    // to enforce that this cookie does not last forever, store a shorter expiration date...
+    // in the database, but don't store it in the client's cookie
+    if ($remember)
+    {
+        $expiryDate = time() + COOKIE_EXPIRY_TIME;
+    }
+    else
+    {
+        $expiryDate = time() + TRANSIENT_COOKIE_EXPIRY_TIME;
+    }
     $formattedExpiryDate = date("Y-m-d H:i:s", $expiryDate);
 
     // store cookie in database
@@ -46,13 +59,21 @@ function createAndSetSessionID($user_id)
         // set cookie on client
         $domain = ($_SERVER['HTTP_HOST'] != 'localhost') ? $_SERVER['HTTP_HOST'] : false;
 		$cookie_options = array(
-			'expires' 	=> $expiryDate,
 			'path' 		=> '/',
 			'domain' 	=> $domain,
 			'secure' 	=> false,
 			'httponly' 	=> false,
 			'samesite' 	=> 'Strict' // None || Lax || Strict
 			);
+        // only store expiration date if user selects "Remember Me"
+        if ($remember)
+        {
+            $cookie_options['expires'] = $expiryDate;
+        }
+        else
+        {
+            $cookie_options['expires'] = 0;
+        }
 
 		setcookie('session_id', $sessionID, $cookie_options);
         // update global var for rest of program
