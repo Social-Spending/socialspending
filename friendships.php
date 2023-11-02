@@ -4,6 +4,7 @@ include_once("templates/connection.php");
 include_once("templates/cookies.php");
 include_once("templates/constants.php");
 include_once("notifications.php");
+include_once("templates/jsonMessage.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     viewFriends();
@@ -20,24 +21,21 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
         $json = json_decode($_POST, true);
 
         if (!isset($json["operation"])) {
-            http_response_code(HTTP_BAD_REQUEST);
-            return;
+            returnMessage("Missing parameter 'operation'", HTTP_BAD_REQUEST);
         }
 
         if ($json["operation"] == "accept" && isset($json["notification_id"]))
             acceptFriendRequest($json["notification_id"]);
         elseif ($json["operation"] == "reject" && isset($json["notification_id"]))
             rejectFriendRequest($json["notification_id"]);
-        // elseif ($json["operation"] == "view")
-        //     viewFriends();
         elseif ($json["operation"] == "add" && isset($json["username"]))
             sendFriendRequest($json["username"]);
         elseif ($json["operation"] == "remove" && isset($json["username"]))
             removeFriend($json["username"]);
         else
-            http_response_code(HTTP_BAD_REQUEST);
+            returnMessage("Incorrect operation or missing second parameter", HTTP_BAD_REQUEST);
     } else {
-        http_response_code(HTTP_BAD_REQUEST);
+        returnMessage("Invalid POST request", HTTP_BAD_REQUEST);
     }
 }
 
@@ -47,8 +45,7 @@ function sendFriendRequest($username) {
     //Validate the user
     $user_id = intval(validateSessionID());
     if ($user_id == 0) {
-        http_response_code(HTTP_UNAUTHORIZED);
-        return;
+        returnMessage("Valid session not found for user", HTTP_UNAUTHORIZED);
     }
 
     //Get the other user's ID
@@ -58,8 +55,9 @@ function sendFriendRequest($username) {
     
     $result = $mysqli->execute_query($sql, [$username]);
     if ($result->num_rows == 0) {
-        http_response_code(HTTP_BAD_REQUEST);
-        return;
+        // http_response_code(HTTP_BAD_REQUEST);
+        // return;
+        returnMessage("Username " . $username . " not found", HTTP_BAD_REQUEST);
     }
 
     $other_user_id = $result->fetch_assoc()["user_id"];
@@ -70,7 +68,7 @@ function sendFriendRequest($username) {
 
     $mysqli->execute_query($sql, [$other_user_id, $user_id]);
 
-    http_response_code(HTTP_OK);
+    returnMessage("Success", HTTP_OK);
 }
 
 function removeFriend($username) {
@@ -79,8 +77,7 @@ function removeFriend($username) {
     $cur_user_id = intval(validateSessionID());
 
     if ($cur_user_id == 0) {
-        http_response_code(HTTP_UNAUTHORIZED);
-        return;
+        returnMessage("Valid session not found for user", HTTP_UNAUTHORIZED);
     }
 
     //Find user ID for friend
@@ -90,8 +87,7 @@ function removeFriend($username) {
 
     $result = $mysqli->execute_query($sql, [$username]);
     if ($result->num_rows == 0) {
-        http_response_code(HTTP_BAD_REQUEST);
-        return;
+        returnMessage("Username " . $username . " not found", HTTP_BAD_REQUEST);
     }
 
     $friend_user_id = $result->fetch_assoc()["user_id"];
@@ -102,7 +98,7 @@ function removeFriend($username) {
 
     $mysqli->execute_query($sql, [$cur_user_id, $friend_user_id, $cur_user_id, $friend_user_id]);
 
-    http_response_code(HTTP_OK);
+    returnMessage("Success", HTTP_OK);
 }
 
 function viewFriends() {
@@ -110,8 +106,7 @@ function viewFriends() {
 
     $user_id = intval(validateSessionID());
     if ($user_id == 0) {
-        http_status_code(HTTP_UNAUTHORIZED);
-        return;
+        returnMessage("Valid session not found for user", HTTP_UNAUTHORIZED);
     }
 
     $friends_array = [];
@@ -157,14 +152,12 @@ function acceptFriendRequest($notification_id) {
 
     $response = $mysqli->execute_query($sql, [$notification_id]);
     if ($response->num_rows == 0) {
-        http_response_code(HTTP_BAD_REQUEST);
-        return;
+        returnMessage("Notification with ID " . $notification_id . " not found", HTTP_BAD_REQUEST);
     }
 
     $user_id = $response->fetch_assoc()["user_id"];
     if (!verifyUser($user_id)) {
-        http_response_code(HTTP_UNAUTHORIZED);
-        return;
+        returnMessage("Notification does not correspond with logged in user", HTTP_UNAUTHORIZED);
     }
 
     //Perform the operation
@@ -177,7 +170,7 @@ function acceptFriendRequest($notification_id) {
 
     removeNotification($notification_id);
 
-    http_response_code(HTTP_OK);
+    returnMessage("Success", HTTP_OK);
 }
 
 function rejectFriendRequest($notification_id) {
@@ -190,20 +183,18 @@ function rejectFriendRequest($notification_id) {
 
     $response = $mysqli->execute_query($sql, [$notification_id]);
     if ($response->num_rows == 0) {
-        http_response_code(HTTP_BAD_REQUEST);
-        return;
+        returnMessage("Notification with ID " . $notification_id . " not found", HTTP_BAD_REQUEST);
     }
 
     $user_id = $response->fetch_assoc()["user_id"];
     if (!verifyUser($user_id)) {
-        http_response_code(HTTP_UNAUTHORIZED);
-        return;
+        returnMessage("Notification does not correspond with logged in user", HTTP_UNAUTHORIZED);
     }
 
     //Perform the operation
     removeNotification($notification_id);
 
-    http_response_code(HTTP_OK);
+    returnMessage("Success", HTTP_OK);
 }
 
 ?>

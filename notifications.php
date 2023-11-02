@@ -3,6 +3,7 @@
 include_once("templates/connection.php");
 include_once("templates/cookies.php");
 include_once("templates/constants.php");
+include_once("templates/jsonMessage.php");
 
 /*
 GET Request
@@ -16,7 +17,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     }
 	//No other valid GET requests, fail out
     else {
-        http_response_code(HTTP_BAD_REQUEST);
+        // http_response_code(HTTP_BAD_REQUEST);
+        returnMessage("Notification type not given", HTTP_BAD_REQUEST);
     }
 } 
 
@@ -28,8 +30,9 @@ function getNotifications($type) {
     //Get the user ID from the cookie
     $user_id = intval(validateSessionID());
     if ($user_id === 0) {
-        http_response_code(HTTP_UNAUTHORIZED);
-        return;
+        // http_response_code(HTTP_UNAUTHORIZED);
+        // return;
+        returnMessage("Valid session not found for user", HTTP_UNAUTHORIZED);
     }
 
 	switch ($type) {
@@ -43,7 +46,8 @@ function getNotifications($type) {
 			getApprovedTransactions($user_id);
 			break;
 		default:
-			http_response_code(HTTP_BAD_REQUEST);
+			// http_response_code(HTTP_BAD_REQUEST);
+            returnMessage($type . " is not a valid notification type", HTTP_BAD_REQUEST);
 			break;
 	}
 }
