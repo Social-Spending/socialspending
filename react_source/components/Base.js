@@ -24,19 +24,19 @@ export default function Base(props) {
         <ModalContext.Provider value={setModal}>
             <View style={styles.base}>
                 <Header loggedIn={loggedIn} showNotif={() => setShowShelf(!showShelf)} />
-
-                <View style={[props.style, { flexWrap: 'nowrap' }]}>
-
-                    <View style={[styles.container]}>
-                        {props.children}
+        
+                <View style={[{ flex: 1, flexWrap: 'nowrap', flexDirection: 'column' }]}>
+        
+                    <View style={[props.style, { flexDirection: 'row', width: '100%', flex: 1 }]}>
+                        <View style={[styles.container]}>
+                            {props.children}
+                        </View>
+                
+                        <Notifications show={showShelf} />
                     </View>
-
-                
-                <Notifications show={showShelf} />
-                
-
+        
                     <Footer />
-
+        
                 </View>
                 
             </View>
