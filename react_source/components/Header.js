@@ -89,7 +89,28 @@ function HeaderLink(props) {
     );
 }
 
+async function doSignoutOut() {
+    // simple GET request to signout endpoint
+    let endpoint = '/signout.php';
+    try {
+        let response = await fetch(endpoint, { method: 'GET', credentials: 'same-origin' });
 
+        if (response.ok) {
+            // redirect
+            router.push("/login");
+        }
+        else {
+            // failed, display error message returned by server
+            let responseJSON = await response.json();
+            let message = 'Failed to signout: ' + responseJSON['message'];
+            alert(message);
+        }
+    }
+    catch (error) {
+        console.log('error in in GET request to ' + endpoint);
+        console.log(error);
+    }
+}
 
 const styles = StyleSheet.create({
     header: {
