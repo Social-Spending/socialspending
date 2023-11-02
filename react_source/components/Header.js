@@ -114,9 +114,10 @@ const styles = StyleSheet.create({
     container: {
         width: 'auto',
         height: '100%',
-        paddingLeft: '1em',
+        paddingHorizontal: '1em',
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
 
     },
     logo: {
@@ -131,12 +132,10 @@ const styles = StyleSheet.create({
         fontSize: '1.1em',
         fontWeight: '600',
         color: globals.COLOR_BEIGE,
-        
-        paddingRight: '.5em',
-        paddingLeft: '.5em',
 
-        paddingTop: '.275em',
-        height: '2em',
+        paddingHorizontal: '.5em',
+        paddingVertical: '.25em',
+        
         borderRadius: '2em',
     },
     notif: {
