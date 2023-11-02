@@ -9,7 +9,6 @@ const LoadingGif = require('../../assets/images/loading/loading-blue-block-64.gi
 import Base from '../../components/Base.js';
 import GroupInfo from '../../components/GroupInfo.js';
 import NewGroup from '../../modals/NewGroup.js'
-import VerifyAction from '../../modals/VerifyAction.js'
 import Sidebar from '../../components/CollapsibleSidebar.js'
 import Button from '../../components/Button.js';
 
@@ -29,7 +28,7 @@ export default function Page() {
         fetch("/login.php", { credentials: 'same-origin' }).then((response) => {
             if (response.status != 200) {
                 // redirect
-                //router.replace("/login");
+                router.replace("/login");
             }
         });
 

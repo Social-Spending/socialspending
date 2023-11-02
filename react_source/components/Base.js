@@ -19,7 +19,6 @@ export default function Base(props) {
     //Check if user is logged in a display correct header
     let loggedIn = (getCookieValue("session_id") !== "");
 
-    
 
     return (
         <ModalContext.Provider value={setModal}>

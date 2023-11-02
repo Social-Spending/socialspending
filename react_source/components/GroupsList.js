@@ -83,8 +83,8 @@ function GroupList() {
 
 function GroupItem(props) {
 
-    let text = props.owed >= 0 ? "You're Owed" : "You Owe";
-    let color = props.owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+    let text = props.owed < 0 ? "You're Owed" : "You Owe";
+    let color = props.owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
 
     return (
 

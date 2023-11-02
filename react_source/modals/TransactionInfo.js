@@ -151,8 +151,8 @@ function getParticipants(participantList) {
  */
 function ListItem({ id, name, owed, border }) {
 
-    let text = owed >= 0 ? "Paid" : "Owes";
-    let color = owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+    let text = owed >= 0 ? "You Owe" : "You Paid";
+    let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
 
     return (
 

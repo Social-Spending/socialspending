@@ -8,7 +8,7 @@
 
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image, Modal } from 'react-native';
+import { StyleSheet, Text, View, Image, Modal, TextInput } from 'react-native';
 import { router } from "expo-router";
 import { useRef, useState, useContext } from 'react';
 
@@ -54,7 +54,7 @@ export default function NewGroup(props) {
                         <Text style={[globals.styles.h5, globals.styles.label]}>GROUP NAME</Text>
                     </View>
 
-                    <input tabIndex={1} ref={groupRef} placeholder=" Enter name of new group" style={globals.styles.input} id='createGroup_name' name="Group Name" onInput={onNameChange} />
+                    <TextInput tabIndex={1} ref={groupRef} placeholder=" Enter name of new group" style={globals.styles.input} id='createGroup_name' name="Group Name" onChangeText={onNameChange} />
 
                     <Button disabled={nameDisabled}  style={globals.styles.formButton} label='Create New Group' onClick={onSubmit} />
 
