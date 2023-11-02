@@ -9,8 +9,8 @@
 
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image } from 'react-native';
-import { useState, useRef } from 'react';
+import { StyleSheet, Text, View, Image, TextInput } from 'react-native';
+import { useState, useRef, useEffect } from 'react';
 import { Link, router } from "expo-router";
 
 import Button from './Button.js'
@@ -34,13 +34,6 @@ export default function Signup() {
     const onPasswordChange  = () => { setPasswordDisabled   (checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
     const onUsernameChange  = () => { setUsernameDisabled   (checkUsername(userRef, userErrorMessageRef)); }
     const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, errorMessageRef); }
-
-    const changePasswordVisibility = () => {
-        if (passwordRef.current) {
-            setShowPassword(!showPassword);
-            passwordRef.current.type = !showPassword ? "text" : "password";
-        }
-    }
 
     const errorMessageRef           = useRef(null);
     const emailErrorMessageRef      = useRef(null);
@@ -66,26 +59,26 @@ export default function Signup() {
                 <Text style={[globals.styles.h5, globals.styles.label]}>EMAIL</Text>
                 <Text ref={emailErrorMessageRef} id='email_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <input tabIndex={1} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
+            <TextInput tabIndex={1} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onChangeText={onEmailChange} />
 
             <View style={globals.styles.labelContainer}>
                 <Text style={[globals.styles.h5, globals.styles.label]}>USERNAME</Text>
                 <Text ref={userErrorMessageRef} id='username_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <input tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
+            <TextInput tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onChangeText={onUsernameChange} />
 
             <View style={[globals.styles.labelContainer, { justifyContent: 'flex-start' }]}>
 
                 <Text style={[globals.styles.h5, globals.styles.label]}>PASSWORD</Text>
-                <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1em' }} onClick={changePasswordVisibility}></Button>
+                <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1em' }} onClick={() => setShowPassword(!showPassword)}></Button>
             </View>
-            <input tabIndex={3} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' type='password' name="Password" onInput={onPasswordChange} />
+            <TextInput tabIndex={3} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' secureTextEntry={!showPassword} autoComplete="current-password" name="Password" onChangeText={onPasswordChange} />
 
             <View style={globals.styles.labelContainer}>
                 <Text style={[globals.styles.h5, globals.styles.label]}>VERIFY PASSWORD</Text>
                 <Text ref={passwordErrorMessageRef} id='password_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <input tabIndex={4} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' type='password' name="Password" onInput={onPasswordChange} />
+            <TextInput tabIndex={4} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' secureTextEntry={!showPassword} autoComplete='current-password' name="Password" onChangeText={onPasswordChange} />
 
             <Button disabled={emailDisabled || passwordDisabled || usernameDisabled} style={globals.styles.formButton} label='Create Account' onClick={onSubmit} />
 
