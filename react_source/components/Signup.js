@@ -53,7 +53,7 @@ export default function Signup() {
 
     return (
 
-        <View style={styles.singup}>
+        <View style={styles.signup}>
 
             <Image source={Logo} style={styles.logo} />
 
@@ -196,7 +196,7 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef) {
 }
 
 const styles = StyleSheet.create({
-    singup: {
+    signup: {
         width: '50vh',
         minWidth: '27em',
         height: '70vh',
