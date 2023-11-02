@@ -48,7 +48,7 @@ export default function NewGroup(props) {
                     <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>CREATE GROUP</Text>
                     <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Enter a new group name to get started</Text>
 
-                    <Text ref={errorMessageRef} id='loginForm_errorMessage' style={globals.styles.error}></Text>
+                    <Text ref={errorMessageRef} id='createGroup_errorMessage' style={globals.styles.error}></Text>
 
                     <View style={globals.styles.labelContainer}>
                         <Text style={[globals.styles.h5, globals.styles.label]}>GROUP NAME</Text>

@@ -1,44 +1,24 @@
 import * as globals from "../utils/globals.js";
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Modal } from "react-native";
-import { useState, useEffect } from "react";
+import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import { useState, useEffect , useContext} from "react";
 import { Link } from "expo-router";
+import { ModalContext } from "../modals/ModalContext.js";
+import AddFriend from "../modals/AddFriend.js";
 
 const LoadingGif = require("../assets/images/loading/loading-blue-block-64.gif");
 
 export default function Friends(props) {
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [friendName, setFriendName] = useState("");
+    const setModal = useContext(ModalContext);
 
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
-
-  const sendFriendRequest = () => {
-    /*TODO Add logic to send friend requests
-     * For now, just console.log that any non-empty name friend request was successfully sent
-     * Maybe update modal with a feedback message that says "Friend request successfully sent to {name}"? Idk, to be figured out later
-     * */
-    if (friendNameExists(friendName)) {
-      console.log("Friend request sent");
-    } else {
-      console.log("User not found");
+    const setFriendModal = () => {
+        setModal(<AddFriend />)
     }
-    setModalVisible(false);
-  };
-
-  const friendNameExists = (name) => {
-    /* TODO
-     * Add logic to check if the friend exists
-     * For now, assume any non-empty name is valid
-     * */
-    return name.trim() !== "";
-  };
 
   return (
     <View style={[styles.pane, props.style]}>
       <View style={{ justifyContent: "space-between", flexDirection: "row", width: "100%" }}>
         <Text style={[globals.styles.h2, styles.label]}>FRIENDS</Text>
-        <TouchableOpacity onPress={toggleModal}>
+        <TouchableOpacity onPress={setFriendModal}>
           <Text style={[globals.styles.h3, styles.addFriend]}>Add Friend</Text>
         </TouchableOpacity>
       </View>
@@ -47,33 +27,6 @@ export default function Friends(props) {
 
       <FriendsList />
 
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={isModalVisible}
-        onRequestClose={() => {
-          setModalVisible(!isModalVisible);
-        }}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Friend</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter friend's name"
-              onChangeText={(text) => setFriendName(text)}
-            />
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.addButton} onPress={sendFriendRequest}>
-                <Text style={styles.buttonText}>Add</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.cancelButton} onPress={toggleModal}>
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -174,54 +127,7 @@ async function generateFriendsList() {
 
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    backgroundColor: globals.COLOR_WHITE,
-    padding: 20,
-    borderRadius: 10,
-    width: "30%",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingLeft: 10,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  addButton: {
-    backgroundColor: globals.COLOR_ORANGE,
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    flex: 1,
-    marginRight: 5,
-  },
-  cancelButton: {
-    backgroundColor: globals.COLOR_GRAY,
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    flex: 1,
-    marginLeft: 5,
-  },
-  buttonText: {
-    color: globals.COLOR_WHITE,
-    fontWeight: "bold",
-  },
+  
   pane: {
     width: '35vw',
     minHeight: '20em',

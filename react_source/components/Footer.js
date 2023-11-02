@@ -21,13 +21,13 @@ export default function Footer() {
 
 const styles = StyleSheet.create({
     footer: {
+
         bottom: 0,
         zIndex: 1,
         width: '100%',
         height: '4vh',
         minHeight: '1.75em',
         backgroundColor: '#00000099',
-        alignSelf: 'top',
         justifyContent: 'space-between',
         alignItems: 'center',
         opacity: .8,

@@ -24,9 +24,9 @@ export default function Base(props) {
         <ModalContext.Provider value={setModal}>
             <View style={styles.base}>
                 <Header loggedIn={loggedIn} showNotif={() => setShowShelf(!showShelf)} />
-        
+
                 <View style={[{ flex: 1, flexWrap: 'nowrap', flexDirection: 'column' }]}>
-        
+
                     <View style={[props.style, { flexDirection: 'row', width: '100%', flex: 1 }]}>
                         <View style={[styles.container]}>
                             {props.children}
@@ -34,9 +34,9 @@ export default function Base(props) {
                 
                         <Notifications show={showShelf} />
                     </View>
-        
+
                     <Footer />
-        
+
                 </View>
                 
             </View>
