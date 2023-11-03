@@ -14,4 +14,7 @@ const HTTP_NOT_FOUND = 404;
 
 const HTTP_INTERNAL_SERVER_ERROR = 500;
 
+// directory where log files will be placed, should be in gitignore and .htaccess
+const LOG_FILE_DIR = 'log'
+
 ?>
