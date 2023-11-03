@@ -2,15 +2,16 @@ import * as globals from '../utils/globals.js'
 
 import { StyleSheet, View, Image, Text } from 'react-native';
 import { Link } from "expo-router";
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 
 import Button from './Button.js'
 
 const Logo = require('../assets/images/logo/logo-64.png');
 import Bell from '../assets/images/bxs-bell.svg';
 
+import {GlobalContext} from './GlobalContext.js';
 
-export default function Header({ loggedIn, showNotif }) {
+export default function Header({showNotif }) {
     return (
         <View style={styles.header}>
 
@@ -19,16 +20,17 @@ export default function Header({ loggedIn, showNotif }) {
                     <Image source={Logo} style={styles.logo} />
                 </Link>
 
-                <Links loggedIn={loggedIn} />
+                <Links />
 
             </View>
-            <Account loggedIn={loggedIn} showNotif={showNotif} />
+            <Account showNotif={showNotif} />
         </View>
     );
 }
 
-function Links({ loggedIn }) {
-    if (loggedIn) {
+function Links(props) {
+    const {isLoggedIn} = useContext(GlobalContext);
+    if (isLoggedIn) {
         return (
             <View style={styles.container}>
 
@@ -52,12 +54,16 @@ function Links({ loggedIn }) {
     }
 }
 
-function Account({ loggedIn, showNotif }) {
-    if (loggedIn) {
+function Account({ showNotif }) {
+    const {isLoggedIn, currUsername, doSignout} = useContext(GlobalContext);
+
+    if (isLoggedIn) {
         return (
             <View style={styles.container}>
                 <Button style={styles.notif} hoverStyle={styles.notif} svg={Bell} iconStyle={styles.bell} onClick={showNotif} />
-                <HeaderText style={[globals.styles.h3, styles.text, { paddingLeft: '1em' }]}>$AccountName</HeaderText>
+                <HeaderText style={[globals.styles.h3, styles.text, { paddingLeft: '1em' }]}>{currUsername}</HeaderText>
+                <Text style={[styles.text, { color: globals.COLOR_BEIGE }]}>|</Text>
+                <HeaderText style={[globals.styles.h3, styles.text]} onClick={doSignout}>Signout</HeaderText>
             </View>
         );
     } else {
@@ -75,7 +81,7 @@ function HeaderText(props) {
     const [hover, setHover] = useState(false);
 
     return (
-        <Text style={[props.style, hover ? globals.styles.hover : {}]} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>{props.children}</Text>
+        <Text style={[props.style, hover ? globals.styles.hover : {}]} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onClick={props.onClick}>{props.children}</Text>
     );
 }
 
@@ -88,7 +94,6 @@ function HeaderLink(props) {
         </Link>
     );
 }
-
 
 
 const styles = StyleSheet.create({

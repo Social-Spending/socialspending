@@ -8,7 +8,7 @@ export default function Footer() {
 
         <View style={styles.footer}>
 
-            <Text style={{ color: globals.COLOR_BEIGE }}>Copyright SocialSpending© 2023</Text>
+            <Text style={{ color: globals.COLOR_BEIGE }}>Copyright ©2023 SocialSpending. All Rights Reserved.</Text>
             <View style={{flexDirection: 'row'}}>
                 <Link href="/faq" style={{color: globals.COLOR_BEIGE}}> FAQ </Link>
                 <Link href="/about" style={{color: globals.COLOR_BEIGE}}> About </Link>

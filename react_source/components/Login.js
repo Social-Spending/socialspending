@@ -11,18 +11,24 @@ import * as globals from '../utils/globals.js'
 
 import { StyleSheet, Text, View, Image, TextInput } from 'react-native';
 import { Link, router } from "expo-router";
-import { useRef, useState } from 'react';
+import { useRef, useState, useContext } from 'react';
 
 import ShowSvg from '../assets/images/bx-show.svg';
 import HideSvg from '../assets/images/bx-hide.svg';
 
 import Button from './Button.js'
 
+import { GlobalContext } from '../components/GlobalContext.js';
+
 const Logo = require('../assets/images/logo/logo-name-64.png');
 
 export default function Login() {
-
-    const onSubmit = () => { submitForm(userRef, passwordRef, rememberRef, errorMessageRef); }
+    // when a login is completed, increment loginAttempts to trigger a re-render of GlobalContext
+    const {loginAttempts} = useContext(GlobalContext);
+    const [loginAttemptsState, setLoginAttemptsState] = loginAttempts;
+    const onSubmit = () => {
+        submitForm(userRef, passwordRef, rememberRef, errorMessageRef, loginAttemptsState, setLoginAttemptsState);
+    }
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -78,7 +84,7 @@ export default function Login() {
     );
 }
 
-async function submitForm(userRef, passwordRef, rememberRef, errorRef) {
+async function submitForm(userRef, passwordRef, rememberRef, errorRef, loginAttempts, setLoginAttempts) {
 
     // pul username and password in form data for a POST request
     let payload = new URLSearchParams();
@@ -91,6 +97,8 @@ async function submitForm(userRef, passwordRef, rememberRef, errorRef) {
         let response = await fetch("/login.php", { method: 'POST', body: payload, credentials: 'same-origin' });
 
         if (response.ok) {
+            // force GlobalContext to re-try getting user info
+            setLoginAttempts(loginAttempts + 1);
             // redirect
             router.push("/summary");
         }

@@ -2,18 +2,20 @@
  *  Signup:
  *  
  *      Displays a form allowing email, username, and a password as input
- *      Submit button makes a request to /signup.php contianing email, password, and username
- *      On signup, the user recieves a session cookie and is redirected to /summary
+ *      Submit button makes a request to /signup.php containing email, password, and username
+ *      On signup, the user receives a session cookie and is redirected to /summary
  *  
  */
 
 import * as globals from '../utils/globals.js'
 
 import { StyleSheet, Text, View, Image, TextInput } from 'react-native';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useContext } from 'react';
 import { Link, router } from "expo-router";
 
 import Button from './Button.js'
+
+import { GlobalContext } from '../components/GlobalContext.js';
 
 const Logo = require('../assets/images/logo/logo-name-64.png');
 
@@ -21,6 +23,9 @@ import ShowSvg from '../assets/images/bx-show.svg';
 import HideSvg from '../assets/images/bx-hide.svg';
 
 export default function Signup() {
+    // when a signup is completed, increment loginAttempts to trigger a re-render of GlobalContext
+    const {loginAttempts} = useContext(GlobalContext);
+    const [loginAttemptsState, setLoginAttemptsState] = loginAttempts;
 
     const [emailDisabled    , setEmailDisabled]      = useState(true);
     const [passwordDisabled , setPasswordDisabled]   = useState(true);
@@ -33,7 +38,7 @@ export default function Signup() {
     const onEmailChange     = () => { setEmailDisabled      (checkEmail(emailRef, emailErrorMessageRef)); }
     const onPasswordChange  = () => { setPasswordDisabled   (checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
     const onUsernameChange  = () => { setUsernameDisabled   (checkUsername(userRef, userErrorMessageRef)); }
-    const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, errorMessageRef); }
+    const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, errorMessageRef, loginAttemptsState, setLoginAttemptsState); }
 
     const errorMessageRef           = useRef(null);
     const emailErrorMessageRef      = useRef(null);
@@ -157,7 +162,7 @@ function checkPassword(passwordRef, verifyRef, errorRef) {
  * @param {React.MutableRefObject} passwordRef      reference to password field
  * @param {React.MutableRefObject} errorRef         reference to error text field to print error text to
  */
-async function submitForm(userRef, emailRef, passwordRef, errorRef) {
+async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempts, setLoginAttempts) {
 
     // pul username and password in form data for a POST request
     let payload = new URLSearchParams();
@@ -170,6 +175,8 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef) {
         let response = await fetch("/signup.php", { method: 'POST', body: payload, credentials: 'same-origin' });
 
         if (response.ok) {
+            // force GlobalContext to re-try getting user info
+            setLoginAttempts(loginAttempts + 1);
             // success, redirect user
             // check if this url specifies a url to which to redirect
             router.push("/summary");
