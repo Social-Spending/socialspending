@@ -47,7 +47,7 @@ export default function GroupInfo(props) {
 
     }, [props.id]);
     if (props.id == null || groupName == null) {
-        //return (<></>);
+        return (<></>);
     }
 
 
