@@ -6,6 +6,21 @@ create table users (
 	primary key (user_id)
 );
 
+create table groups (
+	group_id int not null AUTO_INCREMENT,
+	group_name text not null,
+	primary key (group_id)
+);
+
+create table transactions (
+	transaction_id int not null AUTO_INCREMENT,
+	name varchar(100) not null,
+	date date not null,
+	amount int not null,
+	description text not null,
+	primary key (transaction_id)
+);
+
 create table cookies (
 	session_id char(64) not null,
 	user_id int default null,
@@ -20,15 +35,6 @@ create table friendships (
 	primary key (user_id_1, user_id_2),
 	foreign key (user_id_1) references users(user_id) on delete cascade on update cascade,
 	foreign key (user_id_2) references users(user_id) on delete cascade on update cascade
-);
-
-create table transactions (
-	transaction_id int not null AUTO_INCREMENT,
-	name varchar(100) not null,
-	date date not null,
-	amount int not null,
-	description text not null,
-	primary key (transaction_id)
 );
 
 create table transaction_participants (
@@ -48,12 +54,6 @@ create table debts (
 	primary key (creditor, debtor),
 	foreign key (creditor) references users(user_id) on delete cascade on update cascade,
 	foreign key (debtor) references users(user_id) on delete cascade on update cascade
-);
-
-create table groups (
-	group_id int not null AUTO_INCREMENT,
-	group_name text not null,
-	primary key (group_id)
 );
 
 create table group_members (
