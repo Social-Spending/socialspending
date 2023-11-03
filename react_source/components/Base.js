@@ -8,6 +8,7 @@ import Footer from './Footer.js';
 import Notifications from './Notifications.js';
 
 import { ModalContext } from '../modals/ModalContext.js';
+import WaitForAuth from './WaitForAuth.js';
 
 export default function Base(props) {
 
@@ -28,14 +29,16 @@ export default function Base(props) {
                             {props.children}
                         </View>
 
-                        <Notifications show={showShelf} />
+                        <WaitForAuth requireLogin={true} >
+                            <Notifications show={showShelf} />
+                        </WaitForAuth>
                     </View>
 
                     <Footer />
 
                 </View>
 
-            </View>\
+            </View>
             {modal}
         </ModalContext.Provider>
     );
