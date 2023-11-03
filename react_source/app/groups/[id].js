@@ -5,9 +5,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import Base from '../../components/Base.js';
 import GroupInfo from '../../components/GroupInfo.js';
 
-import { getGroupInfo, leaveGroup } from "../../utils/groups.js"
-
-import LoggedInRedirect from '../../components/LoggedInRedirect.js';
+import WaitForAuth from '../../components/WaitForAuth.js';
 
 
 export default function Page() {
@@ -15,8 +13,9 @@ export default function Page() {
 
     return (
         <Base style={[globals.styles.container, { justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
-            <LoggedInRedirect onLoggedIn={false} target={'/login'} />
-            <GroupInfo id={slug.id} />
+           <WaitForAuth redirectOnNotLoggedIn={'/login'}>
+                <GroupInfo id={slug.id} />
+           </WaitForAuth>
         </Base>
     );
 }

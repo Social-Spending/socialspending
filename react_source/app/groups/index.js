@@ -22,12 +22,14 @@ export default function Page() {
 
     return (
         <Base style={[globals.styles.container, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
-            <WaitForAuth redirectOnNotLoggedIn={'/login'}>
-                <Sidebar title={'Groups'}>
-                    <GroupList setGroupID={setGroupID}  />
-                </Sidebar>
-                <GroupInfo id={groupID} />
-            </WaitForAuth>
+            
+            <Sidebar title={'Groups'}>
+                <WaitForAuth redirectOnNotLoggedIn={'/login'}>
+                    <GroupList setGroupID={setGroupID} />
+                </WaitForAuth>
+            </Sidebar>
+            <GroupInfo id={groupID} />
+           
         </Base>
     );
 }

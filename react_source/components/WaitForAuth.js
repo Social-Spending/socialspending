@@ -20,12 +20,14 @@ export default function WaitForAuth(props) {
     // we have user info, should we redirect?
     if (isLoggedIn) {
         if ('redirectOnLoggedIn' in props) {
-            router.push(props.redirectOnLoggedIn);
+            router.replace(props.redirectOnLoggedIn);
+            return;
         }
     }
     else {
         if ('redirectOnNotLoggedIn' in props) {
-            router.push(props.redirectOnNotLoggedIn);
+            router.replace(props.redirectOnNotLoggedIn);
+            return;
         }
     }
 

@@ -8,7 +8,7 @@ import LoggedInRedirect from '../components/LoggedInRedirect.js';
 export default function Page() {
     return (
         <Base style={globals.styles.container}>
-            <LoggedInRedirect onLoggedIn={true} target={'/summary'}/>
+            <LoggedInRedirect ifLoggedIn={true} target={'/summary'}/>
             <Signup />
         </Base>
     );

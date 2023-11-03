@@ -11,6 +11,7 @@ import { getGroups } from '../utils/groups.js'
 import Button from "./Button.js";
 import { ModalContext } from "../modals/ModalContext.js";
 import NewGroup from "../modals/NewGroup.js";
+import WaitForAuth from "./WaitForAuth.js";
 
 export default function GroupsList(props) {
 
@@ -31,10 +32,10 @@ export default function GroupsList(props) {
             </View>
 
             <View style={{ alignSelf: 'center', height: '1px', width: '92%', backgroundColor: globals.COLOR_GRAY, marginTop: '.5em' }} />
-
-
-            <GroupList />
-
+            
+            <WaitForAuth redirectOnNotLoggedIn={'/login'}>
+                <GroupList />
+            </WaitForAuth>
 
         </View>
     );

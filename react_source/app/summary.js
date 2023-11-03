@@ -6,9 +6,7 @@ import WaitForAuth from '../components/WaitForAuth.js';
 export default function Page() {
     return (
         <Base style={globals.styles.container}>
-            <WaitForAuth redirectOnNotLoggedIn={'/login'}>
-                <GroupsList />
-            </WaitForAuth>
+            <GroupsList />
         </Base>
     );
 }
