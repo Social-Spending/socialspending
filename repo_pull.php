@@ -115,12 +115,25 @@ if ($branch == 'develop')
     {
         write_log('Failed to drop all tables');
         write_log($mysqli->error);
+        exit(0);
     }
     $dbSQL = file_get_contents('database.sql');
-    if (!$mysqli->query($dbSQL))
+    // returns false only if first one fails
+    if (!$mysqli->multi_query($dbSQL))
     {
         write_log('Failed to re-create database');
         write_log($mysqli->error);
+        exit(0);
+    }
+    // call next_result to check subsequent queries
+    while($mysqli->more_results())
+    {
+        if (!$mysqli->next_result())
+        {
+            write_log('Failed to re-create database');
+            write_log($mysqli->error);
+            exit(0);
+        }
     }
 
 }
