@@ -106,6 +106,25 @@ execute_command('git fetch origin '.$branch);
 execute_command('git reset --hard origin/'.$branch);
 execute_command('cd react_source && ./compile.sh');
 
+// re-create database
+// only do this on dev
+if ($branch == 'develop')
+{
+    include_once('./templates/connection.php');
+    if (!$mysqli->query('DROP TABLES IF EXISTS cookies, friendships, debts, transaction_participants, group_members, group_transactions, notifications, groups, users, transactions;'))
+    {
+        write_log('Failed to drop all tables');
+        write_log($mysqli->error);
+    }
+    $dbSQL = file_get_contents('database.sql');
+    if (!$mysqli->query($dbSQL))
+    {
+        write_log('Failed to re-create database');
+        write_log($mysqli->error);
+    }
+
+}
+
 
 write_log('Pull successful');
 ?>
