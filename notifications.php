@@ -17,7 +17,6 @@ if (str_contains($_SERVER["REQUEST_URI"], "notifications.php") && $_SERVER["REQU
     }
 	//No other valid GET requests, fail out
     else {
-        // http_response_code(HTTP_BAD_REQUEST);
         returnMessage("Notification type not given", HTTP_BAD_REQUEST);
     }
 } 
@@ -30,8 +29,6 @@ function getNotifications($type) {
     //Get the user ID from the cookie
     $user_id = intval(validateSessionID());
     if ($user_id === 0) {
-        // http_response_code(HTTP_UNAUTHORIZED);
-        // return;
         returnMessage("Valid session not found for user", HTTP_UNAUTHORIZED);
     }
 
@@ -46,7 +43,6 @@ function getNotifications($type) {
 			getApprovedTransactions($user_id);
 			break;
 		default:
-			// http_response_code(HTTP_BAD_REQUEST);
             returnMessage($type . " is not a valid notification type", HTTP_BAD_REQUEST);
 			break;
 	}
@@ -78,6 +74,7 @@ function getFriendRequests($user_id) {
     $json_data = json_encode($friend_requests_array);
     header('Content-Type: application/json');
     echo $json_data;
+    http_response_code(HTTP_OK);
 }
 
 /*
@@ -104,6 +101,7 @@ function getApprovalRequests($user_id) {
     $json_data = json_encode($approval_requests_array);
     header('Content-Type: application/json');
     echo $json_data;
+    http_response_code(HTTP_OK);
 }
 
 /*
@@ -130,6 +128,7 @@ function getApprovedTransactions($user_id) {
     $json_data = json_encode($approved_transactions_array);
     header('Content-Type: application/json');
     echo $json_data;
+    http_response_code(HTTP_OK);
 }
 
 /*
