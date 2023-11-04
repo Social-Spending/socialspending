@@ -38,8 +38,6 @@ export default function NewExpense(props) {
         e.stopPropagation();
     }
 
-    console.log(formData);
-
     return (
         <ExpenseContext.Provider
             value={{
@@ -76,14 +74,17 @@ export default function NewExpense(props) {
     );
 }
 
-function ChooseName(props) {
+function ChooseName() {
+
+    const setModal = useContext(ModalContext);
 
     const {
         pageNum:    [pageNum    , setPageNum],
-        formData:   [formData   , setFormData]
+        formData: [formData, setFormData],
+        error: errorRef
     } = useContext(ExpenseContext);
 
-    const onNameChange = () => { setNameDisabled(checkName(nameRef, props.error)); }
+    const onNameChange = () => { setNameDisabled(checkName(nameRef, errorRef)); }
 
     const [nameDisabled, setNameDisabled] = useState(false);
 
@@ -100,12 +101,13 @@ function ChooseName(props) {
             dateRef.current.valueAsDate = new Date();
         }
         temp.transaction_date = dateRef.current.value;
+
         setFormData(temp);
-        submitForm(temp);
 
+        if (submitForm(temp)) {
+            setModal(null);
+        }
     }
-
-    console.log("Choose Name Render");
 
     return (
         <View style={[
@@ -118,7 +120,7 @@ function ChooseName(props) {
                 <Text style={[globals.styles.h5, globals.styles.label]}>EXPENSE NAME *</Text>
             </View>
 
-            <input tabIndex={1} ref={nameRef} placeholder=" Enter name of new expense" style={globals.styles.input} id='createExpense_name' name="Expense Name" />
+            <input tabIndex={1} ref={nameRef} placeholder=" Enter name of new expense" style={globals.styles.input} id='createExpense_name' name="Expense Name" onInput={onNameChange} />
 
             <View style={globals.styles.labelContainer}>
                 <Text style={[globals.styles.h5, globals.styles.label]}>EXPENSE DATE *</Text>
@@ -134,19 +136,18 @@ function ChooseName(props) {
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
                 <Button disabled={nameDisabled} style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Next' onClick={onSubmit} />
+                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 1)} />
             </View>
         </View>
     );
 }
 
-function SelectSplit(props) {
+function SelectSplit() {
 
     const {
         pageNum:    [pageNum    , setPageNum],
         groupID:    [groupID    , setGroupID],
     } = useContext(ExpenseContext);
-
-    console.log("Select Split Render");
 
     return (
         <View style={[styles.pageContianer, {
@@ -170,7 +171,7 @@ function SelectSplit(props) {
     );
 }
 
-function SelectGroup(props) {
+function SelectGroup() {
 
     const {
         pageNum:    [pageNum    , setPageNum],
@@ -181,8 +182,6 @@ function SelectGroup(props) {
     const [groups, setGroups] = useState([]);
 
     useEffect(() => {
-        // React advises to declare the async function directly inside useEffect
-        // On load asynchronously request groups and construct the list
         async function getItems() {
 
             setGroups(await buildGroups(setGroupID, setPageNum));
@@ -190,9 +189,6 @@ function SelectGroup(props) {
         if (pageNum == PAGES.SELECT_GROUP) getItems();
 
     }, [pageNum]);
-
-
-    console.log("Select Group Render");
 
     return (
         <View style={[styles.pageContianer, {
@@ -209,7 +205,7 @@ function SelectGroup(props) {
     );
 }
 
-function SplitExpense(props) {
+function SplitExpense() {
 
     const {
         pageNum: [pageNum, setPageNum],
@@ -236,7 +232,7 @@ function SplitExpense(props) {
                 json = await getFriendsInfo();
                 if (json !== null) {
 
-                    setSplitList(await getFriends(json, refList));
+                    setSplitList(await getFriends(json, setRefList));
                 }
             }
         }
@@ -262,8 +258,6 @@ function SplitExpense(props) {
 
     }
 
-    console.log("Split Expense Render");
-
     return (
         <View style={[styles.pageContianer, {
             display: pageNum != PAGES.SPLIT_EXPENSE ? 'none' : 'inherit'
@@ -284,8 +278,6 @@ function SplitListItem(props) {
 
     const inputRef = useRef(null);
     props.refList.push(inputRef);
-
-    console.log("Split Render");
 
     return (
         
@@ -334,16 +326,43 @@ function getGroupMembers(json, setRefList) {
 
 }
 
-function getFriends(json) {
+async function getFriendsInfo() {
 
+    // do the POST request
+    try {
+        let response = await fetch("/friendships.php", { method: 'GET', credentials: 'same-origin' });
+
+        if (response.ok) {
+            let json = await response.json();
+            if (json != null)
+                return json
+
+        }
+        else {
+            console.log(response.json()['message']);
+            return null;
+        }
+    }
+    catch (error) {
+        console.log("error in GET request to friendships (/friendships.php)");
+        console.log(error);
+    }
+
+    return null;
+}
+
+function getFriends(json, setRefList) {
+
+    let refList = [];
 
     let outputList = [];
 
     for (let i = 0; i < json.length; i++) {
 
-        outputList.push(<SplitListItem key={i} border={i > 0} name={json[i].username} id={json[i].user_id} />);
+        outputList.push(<SplitListItem refList={refList} key={i} border={i > 0} name={json[i].username} id={json[i].user_id} />);
     }
 
+    setRefList(refList);
     return outputList;
 
 }
