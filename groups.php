@@ -23,7 +23,8 @@
                         [
                             {
                                 "group_name":<GROUP NAME>,
-                                "group_id:<GROUP ID>,
+                                "group_id":<GROUP ID>,
+                                "icon_path":<PATH TO ICON FILE>,
                                 "debt":<DEBT>,
                                 "members":
                                 [
@@ -58,6 +59,8 @@
                     <RESULT> is a message explaining the status code to a user.
                     <USER_DEBT> will be a (positive) amount the user owes for a given transaction or ...
                         the (negative) amount the user is owed from that transaction.
+                    <PATH TO ICON FILE> will be a relative path that is url-encoded in utf-8...
+                        Before using the value to assemble a URI, pass the value through the decodeURI function (in javascript)
         GROUP INFO operation: get information about a certain group
             - Request:
                 - Headers:
@@ -78,7 +81,8 @@
                     {
                         "message":<RESULT>,
                         "group_name":<GROUP NAME>,
-                        "group_id:<GROUP ID>,
+                        "group_id":<GROUP ID>,
+                        "icon_path":<PATH TO ICON FILE>,
                         "debt":<DEBT>,
                         "members":
                         [
@@ -108,6 +112,8 @@
                     <RESULT> is a message explaining the status code to a user.
                     <USER_DEBT> will be a (positive) amount the user owes for a given transaction or ...
                         the (negative) amount the user is owed from that transaction.
+                    <PATH TO ICON FILE> will be a relative path that is url-encoded in utf-8...
+                        Before using the value to assemble a URI, pass the value through the decodeURI function (in javascript)
     - POST: Used to perform multiple operations, where the operation is specified by a key provided in JSON
         CREATE operation: create a group and add the given users to the group
             - Request:
@@ -310,7 +316,7 @@ function handleGET($userID)
     // DEFAULT operation, get info about all groups of which the user is a member
     $groupArray = array();
     // make the request
-    $sql =  'SELECT g.group_id, g.group_name FROM groups as g '.
+    $sql =  'SELECT g.group_id, g.group_name, g.icon_path FROM groups as g '.
             'INNER JOIN group_members as gm ON gm.group_id = g.group_id '.
             'WHERE gm.user_id = ?;';
 
@@ -512,7 +518,7 @@ function handleGetGroupInfo($userID, $brief, $nodebts)
 
     // GROUP INFO operation, get info about a specific group, of which the user is a member
     // make the request
-    $sql =  'SELECT g.group_id, g.group_name FROM group_members as gm '.
+    $sql =  'SELECT g.group_id, g.group_name, g.icon_path FROM group_members as gm '.
             'INNER JOIN groups as g ON g.group_id = gm.group_id '.
             'WHERE gm.user_id = ? AND gm.group_id = ?;';
 

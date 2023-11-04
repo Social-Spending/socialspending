@@ -10,6 +10,7 @@ create table users (
 create table groups (
 	group_id int not null AUTO_INCREMENT,
 	group_name text not null,
+	icon_path text null,
 	primary key (group_id)
 );
 
@@ -106,10 +107,10 @@ insert into transaction_participants (transaction_id, user_id, has_approved, amo
 (1, 2, 1, 500),
 (1, 3, 1, 399);
 
-insert into groups (group_id, group_name) values
-(1, 'CMSC447 Bros'),
-(2, 'Matts'),
-(3, 'Frances and Testers');
+insert into groups (group_id, group_name, icon_path) values
+(1, 'CMSC447 Bros', '/group_icons/4171f2bc82fa8a491c5734259ff9799e1e08b4ee.gif'),
+(2, 'Matts', NULL),
+(3, 'Frances and Testers', NULL);
 
 insert into group_members (group_id, user_id) values
 (1, 1),

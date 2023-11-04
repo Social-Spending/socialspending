@@ -12,6 +12,22 @@ export const COLOR_GRAY             = "#777";
 export const COLOR_LIGHT_GRAY       = "#CCC";
 export const COLOR_RED              = "#F00";
 
+export function getDefaultGroupIcon(groupName) {
+    // get array of first letter of each word in the group name
+    let matches = groupName.match(/\b(\D)/g);
+    // get the first 2 letters
+    let acronym = '';
+    for (let i = 0; i < matches.length && acronym.length < 2; i++)
+    {
+        if (matches[i] != ' ')
+        {
+            acronym = acronym + matches[i];
+        }
+    }
+
+    // return url to this site which will create an image with the black initials on a white background
+    return "https://dummyimage.com/50x50/ffffff/000000.gif&text=" + acronym;
+}
 
 export const styles = StyleSheet.create({
     container: {
@@ -129,9 +145,14 @@ export const styles = StyleSheet.create({
         marginTop: '1em',
         paddingBottom: '1em',
         justifyContent: 'space-between',
-        alignItems: 'left',
+        alignItems: 'center',
         flexDirection: 'row'
 
+    },
+    listIconAndTextContainer: {
+        flexDirection: 'row',
+        justifyContent: 'start',
+        alignItems: 'center'
     },
     listText: {
         fontSize: '1.17em',
@@ -139,7 +160,14 @@ export const styles = StyleSheet.create({
         paddingLeft: '2%',
         paddingRight: '2%',
         paddingBottom: 0,
-        color: COLOR_GRAY
+        color: COLOR_GRAY,
+        flexShrink: 0
+    },
+    listIcon: {
+        paddingTop: 0,
+        paddingLeft: '2%',
+        paddingRight: '2%',
+        paddingBottom: 0
     },
     listItemSeperator: {
         paddingTop: '1em',

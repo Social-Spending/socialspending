@@ -25,6 +25,7 @@ export default function GroupInfo(props) {
     let [groupMembers, setGroupMembers] = useState(null);
     let [transactions, setTransactions] = useState(null);
     let [groupName, setGroupName] = useState(null);
+    let [iconPath, setIconPath] = useState(null);
 
     const setModal = useContext(ModalContext);
     const { currUserID } = useContext(GlobalContext);
@@ -38,10 +39,10 @@ export default function GroupInfo(props) {
             if (props.id != null) json = await getGroupInfo(props.id);
 
             if (json !== null) {
-                setGroupName(json.group_name);                
-
-                setGroupMembers(await getGroupMembers(currUserID, json));
-                setTransactions(await getTransactions(json));
+                setGroupName(json.group_name);
+                setIconPath(json.icon_path);
+                setGroupMembers(getGroupMembers(currUserID, json));
+                setTransactions(getTransactions(json));
             }            
         }
         getItems();
@@ -60,8 +61,11 @@ export default function GroupInfo(props) {
             
             <View style={{ flex: 1, margin: '5em', padding: '2.5em', marginTop: '1em' }} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <View style={{flexDirection: 'row'} }>
-                        <Text style={[globals.styles.h1, styles.groupName, { fontWeight: '100' }]}>Groups / </Text>
+                    <View style={globals.styles.listIconAndTextContainer }>
+                        <Image
+                            style={[globals.styles.listIcon, { width: '50px', height: '50px'}]}
+                            source={iconPath !== null ? decodeURI(iconPath) : globals.getDefaultGroupIcon(groupName)}
+                        />
                         <Text style={[globals.styles.h1, styles.groupName]}>{groupName}</Text>
                     </View>
                     
@@ -200,7 +204,9 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         padding: 0,
         paddingBottom: '.25em',
-        fontWeight: 500
+        paddingLeft: '5%',
+        fontWeight: 500,
+        flexShrink: 0
     },
     listItem: {
         justifyContent: 'space-between',
