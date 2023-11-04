@@ -16,7 +16,6 @@ export default function Base(props) {
 
     const [modal, setModal] = useState(null);
 
-
     return (
         <ModalContext.Provider value={setModal}>
             <View style={styles.base}>
@@ -29,9 +28,8 @@ export default function Base(props) {
                             {props.children}
                         </View>
 
-                        <WaitForAuth requireLogin={true} >
-                            <Notifications show={showShelf} />
-                        </WaitForAuth>
+                        <Notifications show={showShelf} />
+
                     </View>
 
                     <Footer />

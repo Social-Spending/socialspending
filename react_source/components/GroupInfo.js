@@ -17,6 +17,7 @@ import Leave from '../assets/images/bx-log-out.svg';
 import { getGroupInfo, leaveGroup } from '../utils/groups.js'
 
 import { ModalContext } from '../modals/ModalContext.js';
+import { GlobalContext } from "./GlobalContext.js";
 
 
 export default function GroupInfo(props) {
@@ -27,6 +28,7 @@ export default function GroupInfo(props) {
     let [iconPath, setIconPath] = useState(null);
 
     const setModal = useContext(ModalContext);
+    const { currUserID } = useContext(GlobalContext);
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -37,9 +39,9 @@ export default function GroupInfo(props) {
             if (props.id != null) json = await getGroupInfo(props.id);
 
             if (json !== null) {
-                setGroupName(json.group_name);                
+                setGroupName(json.group_name);
                 setIconPath(json.icon_path);
-                setGroupMembers(getGroupMembers(json));
+                setGroupMembers(getGroupMembers(currUserID, json));
                 setTransactions(getTransactions(json));
             }            
         }
@@ -102,14 +104,16 @@ export default function GroupInfo(props) {
 }
 
 
-function getGroupMembers(json) {
+function getGroupMembers(currUserID, json) {
 
    
     let outputList = [];
 
+    outputList.push(<MemberListItem key={-1} border={false} name="You" id={currUserID} owed={json.debt} />);
+
     for (let i = 0; i < json['members'].length; i++) {
 
-        outputList.push(<MemberListItem key={i} border={i > 0} name={json['members'][i].username} id={json['members'][i].user_id} owed={json['members'][i].debt} />);
+        outputList.push(<MemberListItem key={i} border={true} name={json['members'][i].username} id={json['members'][i].user_id} owed={json['members'][i].debt} />);
     }
 
     return outputList;
@@ -149,7 +153,7 @@ function MemberListItem({ id, name, owed, border }) {
                 <Text style={globals.styles.listText}>{name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                    <Text style={[globals.styles.listText, color]}>${Math.abs(owed)}</Text>
+                    <Text style={[globals.styles.listText, color]}>${Math.abs(owed / 100).toFixed(2)}</Text>
                 </View>
 
             </View>
@@ -169,7 +173,7 @@ function TransactionListItem({ id, name, owed, border }) {
 
     const setModal = useContext(ModalContext);
 
-    let text = owed >= 0 ? "You Owe" : "You Paid";
+    let text = owed >= 0 ? "Borrowed" : "Paid";
     let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
 
     const viewTransaction = () => {
@@ -183,7 +187,7 @@ function TransactionListItem({ id, name, owed, border }) {
             <Text style={globals.styles.listText}>{name}</Text>
             <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                 <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                <Text style={[globals.styles.listText, color]}>${Math.abs(owed)}</Text>
+                <Text style={[globals.styles.listText, color]}>${Math.abs(owed / 100).toFixed(2)}</Text>
             </View>
 
         </View>

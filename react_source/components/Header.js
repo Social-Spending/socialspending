@@ -10,6 +10,9 @@ const Logo = require('../assets/images/logo/logo-64.png');
 import Bell from '../assets/images/bxs-bell.svg';
 
 import {GlobalContext} from './GlobalContext.js';
+import { ModalContext } from '../modals/ModalContext.js';
+
+import NewExpense from '../modals/NewExpense.js';
 
 export default function Header({showNotif }) {
     return (
@@ -55,22 +58,24 @@ function Links(props) {
 }
 
 function Account({ showNotif }) {
-    const {isLoggedIn, currUsername, doSignout} = useContext(GlobalContext);
+    const { isLoggedIn, currUsername, doSignout } = useContext(GlobalContext);
+    const setModal = useContext(ModalContext);
 
     if (isLoggedIn) {
         return (
             <View style={styles.container}>
+                <Button style={styles.newExpense} hoverStyle={styles.newExpense} textStyle={globals.styles.h4} label="+ NEW EXPENSE" onClick={() => setModal(<NewExpense/>)} />
                 <Button style={styles.notif} hoverStyle={styles.notif} svg={Bell} iconStyle={styles.bell} onClick={showNotif} />
-                <HeaderText style={[globals.styles.h3, styles.text, { paddingLeft: '1em' }]}>{currUsername}</HeaderText>
-                <Text style={[styles.text, { color: globals.COLOR_BEIGE }]}>|</Text>
-                <HeaderText style={[globals.styles.h3, styles.text]} onClick={doSignout}>Signout</HeaderText>
+                <HeaderText style={[globals.styles.h3, styles.text, { marginLeft: '1em' }]}>{currUsername}</HeaderText>
+                <Text style={[styles.text, { paddingHorizontal: '0', color: globals.COLOR_BEIGE }]}>|</Text>
+                <HeaderText style={[globals.styles.h3, styles.text, {cursor: 'pointer'}]} onClick={doSignout}>Signout</HeaderText>
             </View>
         );
     } else {
         return (
             <View style={styles.container}>
                 <HeaderLink href="/login" style={[globals.styles.h3, styles.text]}>Login</HeaderLink>
-                <Text style={[ styles.text, { color: globals.COLOR_BEIGE }]}>|</Text>
+                <Text style={[styles.text, { paddingHorizontal: '0', color: globals.COLOR_BEIGE }]}>|</Text>
                 <HeaderLink href="/signup" style={[globals.styles.h3, styles.text]}>Signup</HeaderLink>
             </View>
         );
@@ -151,6 +156,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: '50%',
+    },
+    newExpense: {
+        height: '2em',
+        width: '10em',
+        margin: 0,
+        marginRight: '2em',
+        borderRadius: '2em'
     },
     bell: {
         width: '1.5em',

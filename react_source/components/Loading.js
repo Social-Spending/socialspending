@@ -7,7 +7,7 @@ const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif')
 
 export default function Loading(props) {
     return (
-        <View style={props.style}>
+        <View style={[{ flex: 1, justifyContent: 'center', alignItems: 'center' }, props.style]}>
             <Image source={LoadingGif} style={globals.styles.loading} />
         </View>
     )

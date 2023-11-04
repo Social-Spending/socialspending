@@ -18,8 +18,7 @@ import { StyleSheet, Text, View, Image, Modal } from 'react-native';
 import { Link } from "expo-router";
 import { useState, useEffect, useContext } from 'react';
 import { ModalContext } from "./ModalContext.js";
-
-const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
+import Loading from "../components/Loading.js";
 
 
 export default function TransactionInfo(props) {
@@ -56,7 +55,7 @@ export default function TransactionInfo(props) {
 
                 <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                     <View style={styles.info} onClick={handleChildClick}>
-                        <Image source={LoadingGif} style={styles.loading} />
+                        <Loading />
                     </View>
                 </View>
             </Modal>
@@ -73,7 +72,7 @@ export default function TransactionInfo(props) {
                 visible={true}
                 onRequestClose={() => setModal(null)}>
 
-                <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
+                <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                     <View style={styles.info} onClick={handleChildClick}>
                     <Text style={globals.styles.error}> {text} </Text>
                     </View>
@@ -88,7 +87,7 @@ export default function TransactionInfo(props) {
                 visible={true}
                 onRequestClose={() => setModal(null)}>
 
-                <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
+                <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                     <View style={styles.info} onClick={handleChildClick}>
 
                         <View style={styles.detailsContainer}>
@@ -151,7 +150,7 @@ function getParticipants(participantList) {
  */
 function ListItem({ id, name, owed, border }) {
 
-    let text = owed >= 0 ? "You Owe" : "You Paid";
+    let text = owed >= 0 ? "Borrowed" : "Paid";
     let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
 
     return (
@@ -162,7 +161,7 @@ function ListItem({ id, name, owed, border }) {
                 <Text style={globals.styles.listText}>{name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                    <Text style={[globals.styles.listText, color]}>${Math.abs(owed)}</Text>
+                    <Text style={[globals.styles.listText, color]}>${Math.abs(owed / 100).toFixed(2)}</Text>
                 </View>
 
             </View>
