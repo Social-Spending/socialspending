@@ -54,7 +54,7 @@ The user account is now set up to access and manipulate databases.
 Alternatively, use the following SQL to create the user, replacing `<username>` and `<password>` with values of your choosing:
 ```sql
 CREATE USER '<username>'@'localhost' IDENTIFIED BY '<password>';
-GRANT INSERT, UPDATE, DELETE, SELECT ON school.* TO '<username>'@'localhost';
+GRANT INSERT, UPDATE, DELETE, SELECT ON social_spending.* TO '<username>'@'localhost';
 ```
 
 To access databases from PHP scripts, first edit the file `/opt/lampp/etc/httpd.conf`.
