@@ -125,7 +125,7 @@ if ($branch == 'develop')
     $dbName = getenv('DB') . '_dev';
     $script_path = 'database.sql';
     $cmd = 'mysql'
-        . ' --host=localhost' .
+        . ' --host=localhost'
         . ' --user=' . $dbUsername
         . ' --password=' . $dbPassword
         . ' --database=' . $dbName
