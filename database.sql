@@ -106,6 +106,7 @@ insert into transaction_participants (transaction_id, user_id, has_approved, amo
 (1, 1, 1, -899),
 (1, 2, 1, 500),
 (1, 3, 1, 399);
+(2, 1, 0, 500);
 
 insert into groups (group_id, group_name, icon_path) values
 (1, 'CMSC447 Bros', '/group_icons/4171f2bc82fa8a491c5734259ff9799e1e08b4ee.gif'),

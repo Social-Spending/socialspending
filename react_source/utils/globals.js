@@ -142,7 +142,7 @@ export const styles = StyleSheet.create({
 
     },
     listItem: {
-        marginTop: '1em',
+        paddingTop: '1em',
         paddingBottom: '1em',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -167,7 +167,8 @@ export const styles = StyleSheet.create({
         paddingTop: 0,
         paddingLeft: '2%',
         paddingRight: '2%',
-        paddingBottom: 0
+        paddingBottom: 0,
+        borderRadius: '50%'
     },
     listItemSeperator: {
         paddingTop: '1em',
