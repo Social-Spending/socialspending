@@ -6,7 +6,6 @@ import { useRef, useState, createContext, useContext, useEffect } from 'react';
 
 import { getGroups, getGroupInfo } from "../utils/groups.js";
 
-
 import Button from '../components/Button.js'
 import { ModalContext } from './ModalContext.js';
 
@@ -22,10 +21,36 @@ const PAGES = {
 
 }
 
+/**
+ * Example formData layout
+ *  {
+        "transaction_name":"Halal Shack",
+        "transaction_date":"2023-09-29",
+        "transaction_description":"Bought you fools some food",
+        "transaction_participants":[ 
+            {
+                "uid":1,
+                "amount":20
+            },
+            {
+                "uid": 2,
+                "amount":10
+            } 
+        ]
+    }
+ */
+
+/**
+ * Base modal that handles all the subpages for creating a new expense
+ * Can be passed a groupID prop to skip the first two pages (not yet though)
+ * @param {any} props
+ * @returns
+ */
 export default function NewExpense(props) {
 
     const onSubmit = () => { submitForm(errorMessageRef); }
 
+    //Variables to pass down to all children as a context so that they know and can edit the data of others
     const [pageNum, setPageNum] = useState(1);
     const [groupID, setGroupID] = useState(null);
     const [formData, setFormData] = useState({});
@@ -38,6 +63,7 @@ export default function NewExpense(props) {
         e.stopPropagation();
     }
 
+    //Provide the context including pageNum, groupId, errorRef, and formData
     return (
         <ExpenseContext.Provider
             value={{
@@ -69,19 +95,22 @@ export default function NewExpense(props) {
                 </View>
             </Modal>
         </ExpenseContext.Provider>
-        
 
     );
 }
 
+/**
+ * Allows user to choose name, date, and description for a the transaction, name is validated to be more than 4 chars, date is set to today if not selected
+ * @returns page for choosing name, date and description
+ */
 function ChooseName() {
 
     const setModal = useContext(ModalContext);
 
-    const {
+    let {
         pageNum:    [pageNum    , setPageNum],
-        formData: [formData, setFormData],
-        error: errorRef
+        formData:   [formData   , setFormData],
+        error:      errorRef
     } = useContext(ExpenseContext);
 
     const onNameChange = () => { setNameDisabled(checkName(nameRef, errorRef)); }
@@ -92,19 +121,21 @@ function ChooseName() {
     const dateRef = useRef(null);
     const descriptionRef = useRef(null);
 
+    //Sets appropriate values of form data before updating the global version 
+    //and then pushing the value to the web request
     const onSubmit = () => {
-        let temp = formData;
-        temp.transaction_name = nameRef.current.value;
-        temp.transaction_description = descriptionRef.current.value;
+        formData.transaction_name = nameRef.current.value;
+        formData.transaction_description = descriptionRef.current.value;
         
         if (dateRef.current.value === "") {
+            //If date is empty set to todays date
             dateRef.current.valueAsDate = new Date();
         }
-        temp.transaction_date = dateRef.current.value;
+        formData.transaction_date = dateRef.current.value;
 
-        setFormData(temp);
+        setFormData(formData);
 
-        if (submitForm(temp)) {
+        if (submitForm(formData)) {
             setModal(null);
         }
     }
@@ -123,7 +154,7 @@ function ChooseName() {
             <input tabIndex={1} ref={nameRef} placeholder=" Enter name of new expense" style={globals.styles.input} id='createExpense_name' name="Expense Name" onInput={onNameChange} />
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>EXPENSE DATE *</Text>
+                <Text style={[globals.styles.h5, globals.styles.label]}>EXPENSE DATE</Text>
             </View>
 
             <input tabIndex={2} ref={dateRef} type="date" style={globals.styles.input} id='createExpense_date' name="Expense date" />
@@ -142,6 +173,10 @@ function ChooseName() {
     );
 }
 
+/**
+ * 
+ * @returns a page for selecting the method in which a user would like to split either groups or friends
+ */
 function SelectSplit() {
 
     const {
@@ -171,6 +206,10 @@ function SelectSplit() {
     );
 }
 
+/**
+ * 
+ * @returns a page in which the user selects the group for which they would like to split between
+ */
 function SelectGroup() {
 
     const {
@@ -205,9 +244,13 @@ function SelectGroup() {
     );
 }
 
+/**
+ * 
+ * @returns a page in which the user can select the amount each person owes/paid
+ */
 function SplitExpense() {
 
-    const {
+    let {
         pageNum: [pageNum, setPageNum],
         groupID: [groupID, setGroupID],
         formData: [formData, setFormData]
@@ -216,22 +259,26 @@ function SplitExpense() {
     const [splitList, setSplitList] = useState([]);
     const [refList, setRefList] = useState([]);
 
+    // If users selected a group, groupID will be set and so we get the member list for that group
+    // Otherwise get the users friends
+    // Pass a setRefList variable so that the unknown number of inputs can be accessed 
     useEffect(() => {
         async function getSplitList() {
-
             let json = null;
 
             if (groupID != null) {
-
+                // Get group member list
                 json = await getGroupInfo(groupID);
+
                 if (json !== null) {
                     setSplitList(await getGroupMembers(json, setRefList));
                 }
             }
             else {
+                //Get friends list
                 json = await getFriendsInfo();
-                if (json !== null) {
 
+                if (json !== null) {
                     setSplitList(await getFriends(json, setRefList));
                 }
             }
@@ -240,21 +287,22 @@ function SplitExpense() {
 
     }, [pageNum]);
 
+    // Update form data to include participants list move on to name setting
     const onSubmit = () => {
         setPageNum(pageNum + 1);
 
-        let temp = formData;
-
-        temp.transaction_participants = [];
+        formData.transaction_participants = [];
 
         for (let i = 0; i < splitList.length; i++) {
+            //Dont add users with 0 values
             if (refList[i].current.value == "" || refList[i].current.value == "0") continue;
-            temp.transaction_participants.push({
+
+            formData.transaction_participants.push({
                 uid: splitList[i].props.id,
                 amount: parseInt(parseFloat(refList[i].current.value).toFixed(2) * 100)
             })
         }
-        setFormData(temp);
+        setFormData(formData);
 
     }
 
@@ -267,13 +315,15 @@ function SplitExpense() {
             {splitList}
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 1)} />
+                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 2)} />
                 <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Next' onClick={onSubmit} />
             </View>
         </View>
     );
 }
 
+// The item that holds the input and user name for each person to be split with
+// Generates a ref for each version and appends it to the refList
 function SplitListItem(props) {
 
     const inputRef = useRef(null);
@@ -294,6 +344,12 @@ function SplitListItem(props) {
     );
 }
 
+/**
+ * Builds a list of groups that the user is part of and converts them to button
+ * @param {Function} setID function to set groupID variable
+ * @param {Function} setPage function to set pageNum variable
+ * @returns a list of Button elements
+ */
 async function buildGroups(setID, setPage) {
     let outputList = [];
 
@@ -310,6 +366,12 @@ async function buildGroups(setID, setPage) {
     return outputList;
 }
 
+/**
+ * Builds a list of SplitListItems and a refList from a group json
+ * @param {JSON} json JSON object contianing gorup information, particularly a members array
+ * @param {Function} setRefList function to set the refList variable of SplitExpense
+ * @returns a list of SplitListItems
+ */
 function getGroupMembers(json, setRefList) {
 
     let refList = [];
@@ -326,6 +388,10 @@ function getGroupMembers(json, setRefList) {
 
 }
 
+/**
+ * Gets a users friends from the friendships.php endpoint
+ * @returns {JSON} a json object of an array of friends
+ */
 async function getFriendsInfo() {
 
     // do the POST request
@@ -351,6 +417,12 @@ async function getFriendsInfo() {
     return null;
 }
 
+/**
+ * Builds a list of SplitListItems and a refList from a friends json
+ * @param {JSON} json JSON object contianing friends array
+ * @param {Function} setRefList function to set the refList variable of SplitExpense
+ * @returns a list of SplitListItems
+ */
 function getFriends(json, setRefList) {
 
     let refList = [];
@@ -386,6 +458,11 @@ function checkName(groupRef, errorRef) {
     }
 }
 
+/**
+ * Sends a post request to transactions.php in order to create a new transaction
+ * @param {Object} formData object contianing all the details for the new transaction
+ * @returns {Boolean} whether or not a new transaction was created
+ */
 async function submitForm(formData) {
 
     console.log(JSON.stringify(formData));
@@ -400,19 +477,19 @@ async function submitForm(formData) {
         });
 
         if (response.ok) {
-            return;
+            return true;
 
         }
         else {
             console.log(response.json()['message']);
-            return null;
+            return false;
         }
     }
     catch (error) {
         console.log("error in POST request to transactions (/transactions.php)");
         console.log(error);
     }
-   
+   return false;
 }
 
 const styles = StyleSheet.create({
