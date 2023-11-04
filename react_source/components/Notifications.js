@@ -219,7 +219,7 @@ async function approveTransaction(id, approved, removeNotif) {
 }
 
 async function dismissCompletedTransaction(id, removeNotif) {
-    removeNotif("transaction_approval", id)
+    removeNotif("complete_transaction", id)
 }
 
 async function getNotifications(type){
