@@ -140,6 +140,8 @@ function viewFriends() {
     $json_data = json_encode($friends_array);
     header('Content-Type: application/json');
     echo $json_data;
+    http_response_code(200);
+    exit(0);
 }
 
 function acceptFriendRequest($notification_id) {

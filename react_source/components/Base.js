@@ -16,7 +16,6 @@ export default function Base(props) {
 
     const [modal, setModal] = useState(null);
 
-
     return (
         <ModalContext.Provider value={setModal}>
             <View style={styles.base}>
