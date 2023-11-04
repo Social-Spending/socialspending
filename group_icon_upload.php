@@ -94,11 +94,12 @@ function handlePOST()
     // check image size
     $width = imagesx($iconImage);
     $height = imagesy($iconImage);
-    if ($width != GROUP_ICON_WIDTH || $height != GROUP_ICON_HEIGHT)
-    {
-        returnMessage('Invalid icon size, must be '.GROUP_ICON_WIDTH.'x'.GROUP_ICON_HEIGHT, 400);
-    }
-
+	
+	$size = min($width, $height);
+	$iconImage = imagecrop($iconImage, ['x' => $width / 2 - $size / 2, 'y' => $height / 2 - $size / 2, 'width' => $size, 'height' => $size]);
+    
+	imagecopyresized($iconImage, $iconImage, 0, 0, 0, 0, GROUP_ICON_WIDTH, GROUP_ICON_HEIGHT, $width, $height);
+	
     // generate random name for the file and save
     do
     {

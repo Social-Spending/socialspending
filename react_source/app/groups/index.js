@@ -79,7 +79,7 @@ function GroupListItem(props) {
         <View style={props.border ? styles.listItemSeperator : styles.listItem} onClick={() => props.setGroupID(props.id)} >
             <View style={globals.styles.listIconAndTextContainer}>
                 <Image
-                    style={[globals.styles.listIcon, { width: '25px', height: '25px'}]}
+                    style={[globals.styles.listIcon, { width: '1.25em', height: '1.25em'}]}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
                 />
                 <Text style={globals.styles.listText}>{props.name}</Text>
