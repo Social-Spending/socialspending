@@ -3,7 +3,8 @@ create table users (
 	email text not null,
 	username text not null unique,
 	pass_hash char(255) not null,
-	primary key (user_id)
+	primary key (user_id),
+	FULLTEXT(username, email)
 );
 
 create table groups (
