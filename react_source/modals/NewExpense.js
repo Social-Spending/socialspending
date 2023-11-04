@@ -197,11 +197,9 @@ function SelectSplit() {
                     setPageNum(PAGES.SPLIT_EXPENSE);
                     setGroupID(null);
                     }   
-                } />
+                }
+            />
 
-            <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 1)} />
-            </View>
         </View>
     );
 }
