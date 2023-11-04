@@ -92,7 +92,13 @@ function GroupItem(props) {
         <Link href={'/groups/' + props.id} asChild>
             <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
-                <Text style={[globals.styles.listText]}>{props.name}</Text>
+                <View style={globals.styles.listIconAndTestContainer}>
+                    <Image
+                        style={[globals.styles.listIcon, { width: '50px', height: '50px'}]}
+                        source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
+                    />
+                    <Text style={[globals.styles.listText]}>{props.name}</Text>
+                </View>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
                     <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed)}</Text>
@@ -114,7 +120,7 @@ async function buildGroups() {
 
     for (let i = 0; i < groups.length; i++) {
                     
-        groupList.push(<GroupItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} owed={groups[i].debt} />);
+        groupList.push(<GroupItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} owed={groups[i].debt} icon_path={groups[i].icon_path} />);
     }
            
     return groupList;
