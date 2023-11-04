@@ -118,24 +118,33 @@ if ($branch == 'develop')
         exit(0);
     }
     $dbSQL = file_get_contents('database.sql');
-    // returns false only if first one fails
-    if (!$mysqli->multi_query($dbSQL))
+
+    // re-build database
+    $dbUsername = getenv('DB_USER');
+    $dbPassword = getenv('DB_PASS');
+    $dbName = getenv('DB') . '_dev';
+    $script_path = 'database.sql';
+    $cmd = 'mysql'
+        . ' --host=localhost' .
+        . ' --user=' . $dbUsername
+        . ' --password=' . $dbPassword
+        . ' --database=' . $dbName
+        . ' --execute="SOURCE ' . $script_path . '"';
+
+    $output = array();
+    $rv = 0;
+    write_log('Executing mysql to re-create database');
+    exec($cmd, $output, $rv);
+    // write command output to log
+    foreach ($output as $line)
     {
-        write_log('Failed to re-create database');
-        write_log($mysqli->error);
+        write_log($line);
+    }
+    if ($rv)
+    {
+        write_log('Failed with status code '.$rv);
         exit(0);
     }
-    // call next_result to check subsequent queries
-    while($mysqli->more_results())
-    {
-        if (!$mysqli->next_result())
-        {
-            write_log('Failed to re-create database');
-            write_log($mysqli->error);
-            exit(0);
-        }
-    }
-
 }
 
 
