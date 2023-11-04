@@ -10,7 +10,7 @@ GET Request
     - Param 1 = "notification_type"
     - Param 2 = "user_id"
 */
-if ($_SERVER["REQUEST_METHOD"] == "GET") {
+if (str_contains($_SERVER["REQUEST_URI"], "notifications.php") && $_SERVER["REQUEST_METHOD"] == "GET") {
     //Check if user_id and a notification type were passed
     if (isset($_GET["type"])) {
 		getNotifications($_GET["type"]);
