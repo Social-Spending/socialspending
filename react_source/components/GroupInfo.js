@@ -9,10 +9,11 @@ import Button from "./Button.js";
 
 import TransactionInfo from "../modals/TransactionInfo.js";
 import VerifyAction from "../modals/VerifyAction.js";
+import UploadIcon from "../modals/UploadIcon.js";
 
-const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
 import Leave from '../assets/images/bx-log-out.svg';
+import Upload from '../assets/images/bx-upload.svg';
 
 import { getGroupInfo, leaveGroup } from '../utils/groups.js'
 
@@ -62,10 +63,7 @@ export default function GroupInfo(props) {
             <View style={{ flex: 1, margin: '5em', padding: '2.5em', marginTop: '1em' }} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
                     <View style={globals.styles.listIconAndTextContainer }>
-                        <Image
-                            style={[globals.styles.listIcon, { width: '50px', height: '50px'}]}
-                            source={iconPath !== null ? decodeURI(iconPath) : globals.getDefaultGroupIcon(groupName)}
-                        />
+                        <GroupIcon iconPath={iconPath} groupName={groupName} groupID={props.id} />
                         <Text style={[globals.styles.h1, styles.groupName]}>{groupName}</Text>
                     </View>
                     
@@ -103,6 +101,29 @@ export default function GroupInfo(props) {
     );
 }
 
+function GroupIcon({ iconPath, groupName, groupID }) {
+
+    const [hover, setHover] = useState(false);
+    const setModal = useContext(ModalContext);
+
+    const upload = () => {
+        setModal(<UploadIcon groupID={groupID} />);
+    }
+
+    return (
+        <View onClick={upload}  onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+            <Image
+                style={[globals.styles.listIcon, { width: '3em', height: '3em' }]}
+                source={iconPath !== null ? decodeURI(iconPath) : globals.getDefaultGroupIcon(groupName)}
+            />
+            <View style={[{ display: hover ? 'inherit' : 'none'}, styles.uploadContainer]}>
+                <Upload style={{ fill: globals.COLOR_WHITE, width: '2em', height: '2em' }} />
+            </View>
+            
+        </View>
+        
+    );
+}
 
 function getGroupMembers(currUserID, json) {
 
@@ -248,6 +269,16 @@ const styles = StyleSheet.create({
     icon: {
         fill: globals.COLOR_WHITE,
         width: '1.25em'
+    },
+    uploadContainer: {
+        cursor: 'pointer',
+        position: 'absolute',
+        width: '3em',
+        height: '3em',
+        borderRadius: '50%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: globals.COLOR_MODAL
     }
 
 });

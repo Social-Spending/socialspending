@@ -12,6 +12,10 @@ export const COLOR_GRAY             = "#777";
 export const COLOR_LIGHT_GRAY       = "#CCC";
 export const COLOR_RED              = "#F00";
 
+export const COLOR_DISABLED         = '#66666633';
+export const COLOR_HOVER            = '#cccccc55';
+export const COLOR_MODAL            = '#33333399';
+
 export function getDefaultGroupIcon(groupName) {
     // get array of first letter of each word in the group name
     let matches = groupName.match(/\b(\D)/g);
@@ -27,6 +31,21 @@ export function getDefaultGroupIcon(groupName) {
 
     // return url to this site which will create an image with the black initials on a white background
     return "https://dummyimage.com/50x50/ffffff/000000.gif&text=" + acronym;
+}
+
+
+/** 
+*   getCookieValue: Retrieves the value of a specific cookie
+*       @param {string} name     - name of cookie to retrieve
+*       @return {string}  - value of cookie or and empty string if not found
+*/
+export function getCookieValue(name) {
+    const regex = new RegExp(`(^| )${name}=([^;]+)`)
+    const match = document.cookie.match(regex)
+    if (match) {
+        return match[2]
+    }
+    return "";
 }
 
 export const styles = StyleSheet.create({
@@ -87,10 +106,10 @@ export const styles = StyleSheet.create({
         color: COLOR_RED
     },
     disabled: {
-        backgroundColor: "#66666633",
+        backgroundColor: COLOR_DISABLED,
     },
     hover: {
-        backgroundColor: "#cccccc55"
+        backgroundColor: COLOR_HOVER
     },
     labelContainer: {
         paddingTop: '1.5em',
@@ -216,7 +235,7 @@ export const styles = StyleSheet.create({
     modalBackground: {
         height: '100vh',
         width: '100%',
-        backgroundColor: '#33333399',
+        backgroundColor: COLOR_MODAL,
         justifyContent: 'center',
         alignItems: 'center',
         position: 'fixed',
