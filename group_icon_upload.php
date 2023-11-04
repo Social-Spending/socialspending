@@ -25,6 +25,8 @@
                     "icon_path":<PATH TO ICON FILE>
                 }
                 Where <RESULT> is a message explaining the status code to a user.
+                <PATH TO ICON FILE> will be a relative path that is url-encoded in utf-8...
+                    Before using the value to assemble a URI, pass the value through the decodeURI function (in javascript)
 */
 
 include_once('templates/constants.php');
