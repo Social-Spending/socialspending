@@ -78,8 +78,13 @@ function GroupListItem(props) {
     return (
 
         <View style={props.border ? styles.listItemSeperator : styles.listItem} onClick={() => props.setGroupID(props.id)} >
-
-            <Text style={globals.styles.listText}>{props.name}</Text>
+            <View style={globals.styles.listIconAndTextContainer}>
+                <Image
+                    style={[globals.styles.listIcon, { width: '25px', height: '25px'}]}
+                    source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
+                />
+                <Text style={globals.styles.listText}>{props.name}</Text>
+            </View>
 
         </View>
     );
@@ -95,7 +100,7 @@ async function buildGroups(setGroupID) {
 
     for (let i = 0; i < groups.length; i++) {
         if (i == 0) setGroupID(groups[i].group_id);
-        groupList.push(<GroupListItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} setGroupID={setGroupID} />);
+        groupList.push(<GroupListItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} icon_path={groups[i].icon_path} setGroupID={setGroupID} />);
     }
 
     return groupList;

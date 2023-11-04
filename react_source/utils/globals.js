@@ -139,7 +139,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row'
 
     },
-    listIconAndTestContainer: {
+    listIconAndTextContainer: {
         flexDirection: 'row',
         justifyContent: 'start',
         alignItems: 'center'
