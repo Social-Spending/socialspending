@@ -1,9 +1,25 @@
 create table users (
 	user_id int not null AUTO_INCREMENT,
 	email text not null,
-	username text not null,
+	username text not null unique,
 	pass_hash char(255) not null,
-	primary key (user_id)
+	primary key (user_id),
+	FULLTEXT(username, email)
+);
+
+create table groups (
+	group_id int not null AUTO_INCREMENT,
+	group_name text not null,
+	primary key (group_id)
+);
+
+create table transactions (
+	transaction_id int not null AUTO_INCREMENT,
+	name varchar(100) not null,
+	date date not null,
+	amount int not null,
+	description text not null,
+	primary key (transaction_id)
 );
 
 create table cookies (
@@ -22,22 +38,14 @@ create table friendships (
 	foreign key (user_id_2) references users(user_id) on delete cascade on update cascade
 );
 
-create table transactions (
-	transaction_id int not null AUTO_INCREMENT,
-	name varchar(100) not null,
-	date date not null,
-	amount int not null,
-	description text not null,
-	primary key (transaction_id)
-);
-
 create table transaction_participants (
 	transaction_id int not null,
 	user_id int not null,
 	has_approved tinyint(1) not null,
 	amount int not null,
 	primary key (transaction_id, user_id),
-	foreign key (user_id) references users(user_id) on delete no action on update cascade
+	foreign key (user_id) references users(user_id) on delete no action on update cascade,
+	foreign key (transaction_id) references transactions(transaction_id) on delete cascade on update cascade
 );
 
 create table debts (
@@ -47,12 +55,6 @@ create table debts (
 	primary key (creditor, debtor),
 	foreign key (creditor) references users(user_id) on delete cascade on update cascade,
 	foreign key (debtor) references users(user_id) on delete cascade on update cascade
-);
-
-create table groups (
-	group_id int not null AUTO_INCREMENT,
-	group_name text not null,
-	primary key (group_id)
 );
 
 create table group_members (
@@ -96,7 +98,13 @@ insert into friendships (user_id_1, user_id_2) values
 (2, 3);
 
 insert into transactions (transaction_id, name, date, amount, description) values
-(1, 'Halal Shack', '2023-09-29', 899, 'Bought you fools some food');
+(1, 'Halal Shack', '2023-09-29', 899, 'Bought you fools some food'),
+(2, 'Example transaction', '2023-10-30', 500, 'Just a test');
+
+insert into transaction_participants (transaction_id, user_id, has_approved, amount) values
+(1, 1, 1, -899),
+(1, 2, 1, 500),
+(1, 3, 1, 399);
 
 insert into groups (group_id, group_name) values
 (1, 'CMSC447 Bros'),
@@ -127,7 +135,8 @@ insert into debts (creditor, debtor, amount) values
 (2, 4, 1300),
 (5, 2, 1700);
 
-INSERT INTO `notifications` (`notification_id`, `user_id`, `type`, `is_approved_transaction`, `is_transaction_approval`, `is_friend_request`, `transaction_id`, `friend_request_user_id`) VALUES
-('1', '1', 'friend_request', '0', '0', '1', NULL, '2'), 
-('2', '1', 'friend_request', '0', '0', '1', NULL, '3');
-
+INSERT INTO `notifications` (`notification_id`, `user_id`, `type`, `transaction_id`, `friend_request_user_id`) VALUES
+('1', '1', 'friend_request', NULL, '2'), 
+('2', '1', 'friend_request', NULL, '3'),
+('3', '1', 'approved_transaction', '1', NULL),
+('4', '1', 'approval_request', '2', NULL);

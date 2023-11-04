@@ -1,15 +1,26 @@
 import * as globals from "../utils/globals.js";
 
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 
 import { Link } from "expo-router";
 
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
 import { getGroups } from '../utils/groups.js'
+import Button from "./Button.js";
+import { ModalContext } from "../modals/ModalContext.js";
+import NewGroup from "../modals/NewGroup.js";
+import WaitForAuth from "./WaitForAuth.js";
 
 export default function GroupsList(props) {
+
+    let setModal = useContext(ModalContext);
+
+
+    const addGroupModal = () => {
+        setModal(<NewGroup />);
+    }
 
     return (
 
@@ -17,14 +28,14 @@ export default function GroupsList(props) {
 
             <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
                 <Text style={[globals.styles.h2, styles.label]}>GROUPS</Text>
-                <Text href="/newGroup" style={[globals.styles.h3, styles.newGroup]}>Create New Group</Text>
+                <Button style={[globals.styles.formButton, styles.newGroup]} label='+ CREATE GROUP' onClick={addGroupModal} />
             </View>
 
-            <View style={{ alignSelf: 'center', height: '1px', width: '92%', backgroundColor: globals.COLOR_GRAY }} />
-
-
-            <GroupList />
-
+            <View style={{ alignSelf: 'center', height: '1px', width: '92%', backgroundColor: globals.COLOR_GRAY, marginTop: '.5em' }} />
+            
+            <WaitForAuth redirectOnNotLoggedIn={'/login'}>
+                <GroupList />
+            </WaitForAuth>
 
         </View>
     );
@@ -73,8 +84,8 @@ function GroupList() {
 
 function GroupItem(props) {
 
-    let text = props.owed >= 0 ? "You're Owed" : "You Owe";
-    let color = props.owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+    let text = props.owed < 0 ? "You're Owed" : "You Owe";
+    let color = props.owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
 
     return (
 
@@ -133,11 +144,11 @@ const styles = StyleSheet.create({
     },
     newGroup: {
         marginRight: '3%',
-        paddingRight: ' .5em',
-        paddingTop: '2em',
+        marginTop: '2em',
         paddingBottom: '0em',
         color: globals.COLOR_ORANGE,
         alignSelf: 'flex-end',
+        width: '10em'
     }
 
 });

@@ -2,6 +2,8 @@
 
 // 30 days, in seconds
 const COOKIE_EXPIRY_TIME = 60*60*24*30;
+// 1 day, in seconds
+const TRANSIENT_COOKIE_EXPIRY_TIME = 60*60*24;
 
 const HTTP_OK = 200;
 
@@ -11,5 +13,8 @@ const HTTP_FORBIDDEN = 403;
 const HTTP_NOT_FOUND = 404;
 
 const HTTP_INTERNAL_SERVER_ERROR = 500;
+
+// directory where log files will be placed, should be in gitignore and .htaccess
+const LOG_FILE_DIR = 'log'
 
 ?>

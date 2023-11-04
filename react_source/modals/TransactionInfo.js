@@ -14,9 +14,10 @@
 
 import * as globals from "../utils/globals.js";
 
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Modal } from 'react-native';
 import { Link } from "expo-router";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { ModalContext } from "./ModalContext.js";
 
 const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
 
@@ -24,6 +25,7 @@ const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif')
 export default function TransactionInfo(props) {
 
     let [transactionInfo, setTransactionInfo] = useState(null);
+    const setModal = useContext(ModalContext);
 
     useEffect(() => {
 
@@ -47,11 +49,17 @@ export default function TransactionInfo(props) {
     if (transactionInfo === null) {
         //Transaction info hasnt loaded - show loading
         return (
-            <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
-                <View style={styles.info} onClick={handleChildClick}>
-                    <Image source={LoadingGif} style={styles.loading} />
+            <Modal
+            transparent={true}
+            visible={true}
+            onRequestClose={() => setModal(null)}>
+
+                <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                    <View style={styles.info} onClick={handleChildClick}>
+                        <Image source={LoadingGif} style={styles.loading} />
+                    </View>
                 </View>
-            </View>
+            </Modal>
 
         );
 
@@ -60,45 +68,57 @@ export default function TransactionInfo(props) {
         let text = transactionInfo === undefined ? "Error While Contacting Server" : transactionInfo['message'];
 
         return (
-            <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
-                <View style={styles.info} onClick={handleChildClick}>
-                <Text style={globals.styles.error}> {text} </Text>
+           <Modal
+                transparent={true}
+                visible={true}
+                onRequestClose={() => setModal(null)}>
+
+                <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
+                    <View style={styles.info} onClick={handleChildClick}>
+                    <Text style={globals.styles.error}> {text} </Text>
+                    </View>
                 </View>
-            </View>
+            </Modal>
         );
     } else {
         //Transaction info has been returned, render it
         return (
-            <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
-                <View style={styles.info} onClick={handleChildClick}>
+           <Modal
+                transparent={true}
+                visible={true}
+                onRequestClose={() => setModal(null)}>
 
-                    <View style={styles.detailsContainer}>
-                        <Text style={[globals.styles.h2, styles.name]}>{transactionInfo['transaction_name']}</Text>
-                    </View>
+                <View style={[globals.styles.modalBackground, props.style]} onClick={props.exit}>
+                    <View style={styles.info} onClick={handleChildClick}>
 
-                    <View style={[styles.detailsContainer, { paddingBottom: '2.5em' }]}>
-                        <Text style={styles.details}>Transaction #{transactionInfo['transaction_id']}</Text>
-                        <Text style={styles.details}>{transactionInfo['transaction_date']}</Text>
-                    </View>
+                        <View style={styles.detailsContainer}>
+                            <Text style={[globals.styles.h2, styles.name]}>{transactionInfo['transaction_name']}</Text>
+                        </View>
 
-                    <View style={styles.detailsContainer}>
-                        <Text style={[globals.styles.h4, styles.details]}>Description:</Text>
-                    </View>
-                    <View style={styles.detailsContainer}>
-                        <Text style={styles.description}>{transactionInfo['transaction_description']}</Text>
-                    </View>
+                        <View style={[styles.detailsContainer, { paddingBottom: '2.5em' }]}>
+                            <Text style={styles.details}>Transaction #{transactionInfo['transaction_id']}</Text>
+                            <Text style={styles.details}>{transactionInfo['transaction_date']}</Text>
+                        </View>
 
-                    <View style={{ alignSelf: 'center', height: '1px', width: '80%', backgroundColor: globals.COLOR_GRAY }} />
+                        <View style={styles.detailsContainer}>
+                            <Text style={[globals.styles.h4, styles.details]}>Description:</Text>
+                        </View>
+                        <View style={styles.detailsContainer}>
+                            <Text style={styles.description}>{transactionInfo['transaction_description']}</Text>
+                        </View>
 
-                    <View style={styles.detailsContainer}>
-                        <Text style={[globals.styles.h4, styles.participants]}>Participants:</Text>
-                    </View>
+                        <View style={{ alignSelf: 'center', height: '1px', width: '80%', backgroundColor: globals.COLOR_GRAY }} />
 
-                    <View style={[globals.styles.list, { width: '80%' }, transactionInfo['transaction_participants'].length < 5 ? { scrollbarWidth: 'none' } : {}]}>
-                        {getParticipants(transactionInfo['transaction_participants'])}
+                        <View style={styles.detailsContainer}>
+                            <Text style={[globals.styles.h4, styles.participants]}>Participants:</Text>
+                        </View>
+
+                        <View style={[globals.styles.list, { width: '80%' }, transactionInfo['transaction_participants'].length < 5 ? { scrollbarWidth: 'none' } : {}]}>
+                            {getParticipants(transactionInfo['transaction_participants'])}
+                        </View>
                     </View>
                 </View>
-            </View>
+            </Modal>
 
         );
     }
@@ -131,8 +151,8 @@ function getParticipants(participantList) {
  */
 function ListItem({ id, name, owed, border }) {
 
-    let text = owed >= 0 ? "Paid" : "Owes";
-    let color = owed >= 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+    let text = owed >= 0 ? "You Owe" : "You Paid";
+    let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
 
     return (
 

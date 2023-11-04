@@ -47,7 +47,11 @@ export const styles = StyleSheet.create({
         width: '75%',
         height: '2.5em',
         fontSize: '.86em',
-
+        color: COLOR_GRAY,
+      
+        borderColor: COLOR_LIGHT_GRAY,
+        borderWidth: 2,
+        borderRadius: 2,
         borderStyle: 'none',
         borderBottomStyle: 'solid'
     },

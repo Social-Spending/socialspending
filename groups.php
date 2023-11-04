@@ -8,6 +8,7 @@
                     - cookies: session_id=***
                 - URL Parameters:
                     - brief=[true | false]
+                    - nodebts=[true | false]
             - Response:
                 - Status Codes:
                     - 200 if group information was fetched correctly
@@ -33,6 +34,17 @@
                                     },
                                     ...,
                                     {}
+                                ],
+                                "transactions":
+                                [
+                                    {
+                                        "transaction_id":<TRANSACTION ID>,
+                                        "name":<TRANSACTION NAME>,
+                                        "date":<TRANSACTION DATE>,
+                                        "user_debt":<USER_DEBT>
+                                    },
+                                    ...,
+                                    {}
                                 ]
                             },
                             ...,
@@ -41,14 +53,18 @@
                     }
                     The "members" list does not include the currently logged in user.
                     "debt" is an integer value that is the (positive) amount the user owes or the (negative) amount the user is owed.
-                    If `brief=true` in the URL parameters, the "members" node is omitted from all groups.
+                    If `brief=true` in the URL parameters, the "members" and "transactions" nodes are omitted from all groups.
+                    If `nodebts=true` in the URL parameters, the "debt" and "transactions" nodes are omitted everywhere.
                     <RESULT> is a message explaining the status code to a user.
+                    <USER_DEBT> will be a (positive) amount the user owes for a given transaction or ...
+                        the (negative) amount the user is owed from that transaction.
         GROUP INFO operation: get information about a certain group
             - Request:
                 - Headers:
                     - cookies: session_id=***
                 - URL Parameters:
                     - brief=<true | false>
+                    - nodebts=[true | false]
                     - groupID=<GROUP ID>
             - Response:
                 - Status Codes:
@@ -73,12 +89,25 @@
                             },
                             ...,
                             {}
+                        ],
+                        "transactions":
+                        [
+                            {
+                                "transaction_id":<TRANSACTION ID>,
+                                "name":<TRANSACTION NAME>,
+                                "user_debt":<USER_DEBT>
+                            },
+                            ...,
+                            {}
                         ]
                     }
                     The "members" list does not include the currently logged in user.
                     "debt" is an integer value that is the (positive) amount the user owes or the (negative) amount the user is owed.
-                    If `brief=true` in the URL parameters, the "members" node is omitted.
+                    If `brief=true` in the URL parameters, the "members" and "transactions" nodes are omitted.
+                    If `nodebts=true` in the URL parameters, the "debt" and "transactions" nodes are omitted everywhere.
                     <RESULT> is a message explaining the status code to a user.
+                    <USER_DEBT> will be a (positive) amount the user owes for a given transaction or ...
+                        the (negative) amount the user is owed from that transaction.
     - POST: Used to perform multiple operations, where the operation is specified by a key provided in JSON
         CREATE operation: create a group and add the given users to the group
             - Request:
@@ -266,10 +295,16 @@ function handleGET($userID)
     {
         $brief = true;
     }
+    // 'nodebts' URL param
+    $nodebts = false;
+    if (isset($_GET['nodebts']) && $_GET['nodebts'] != 'false')
+    {
+        $nodebts = true;
+    }
     // 'groupID' param
     if (isset($_GET['groupID']))
     {
-        handleGetGroupInfo($userID, $brief);
+        handleGetGroupInfo($userID, $brief, $nodebts);
     }
 
     // DEFAULT operation, get info about all groups of which the user is a member
@@ -295,7 +330,7 @@ function handleGET($userID)
 
     for ($index = 0; $index < count($groupArray); $index++)
     {
-        fillUserBalanceAndMembers($groupArray[$index], $userID, $brief);
+        fillUserBalanceAndMembers($groupArray[$index], $userID, $brief, $nodebts);
     }
 
     // convert array to JSON and return it
@@ -311,15 +346,28 @@ function handleGET($userID)
 // $group is the associative array for this group, and will be populated with data
 // $userID is the user_id of the current user
 // $brief indicates whether or not to include the 'members' list
-function fillUserBalanceAndMembers(&$group, $userID, $brief)
+function fillUserBalanceAndMembers(&$group, $userID, $brief, $nodebts)
 {
     global $mysqli;
 
     $groupID = $group['group_id'];
-    if ($brief)
+    if ($brief && !$nodebts)
     {
         // just get the current user's balance
         // query to get all debts to/from this user with other people in the group
+        $sql =  'SELECT SUM(debt_amount) AS net_debt '.
+                'FROM ( '.
+                    'SELECT SUM(amount) AS debt_amount '.
+                    'FROM debts AS d '.
+                    'JOIN group_members as gm ON d.creditor = gm.user_id '.
+                    'WHERE d.debtor = ? AND gm.group_id = ? '.
+                    'UNION ALL '.
+                    'SELECT -SUM(amount) AS debt_amount '.
+                    'FROM debts AS d '.
+                    'JOIN group_members as gm ON d.debtor = gm.user_id '.
+                    'WHERE d.creditor = ? AND gm.group_id = ? '.
+                ') AS debt_combined;';
+        /*
         $sql =  'SELECT SUM(d.amount) as credits, 0 as debts FROM group_members as gm '.
                 'INNER JOIN debts as d ON (d.debtor=gm.user_id AND d.creditor = ?) '.
                 'WHERE gm.group_id = ? '.
@@ -327,6 +375,7 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief)
                 'SELECT 0 as credits, SUM(d.amount) as debts FROM group_members as gm '.
                 'INNER JOIN debts as d ON (d.creditor=gm.user_id AND d.debtor = ?) '.
                 'WHERE gm.group_id = ?;';
+        */
         $result = $mysqli->execute_query($sql, [$userID, $groupID, $userID, $groupID]);
 
         // check that query was successful
@@ -336,14 +385,15 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief)
             handleDBError();
         }
 
-        // calculate balance
-        $debts = 0;
-        while ($row = $result->fetch_assoc())
-        {
-            $debts = $debts + $row['debts'] - $row['credits'];
-        }
         // store debt in group array
-        $group['debt'] = $debts;
+        if ($row = $result->fetch_assoc())
+        {
+            $group['debt'] = $row['net_debt'];
+        }
+        else
+        {
+            $group['debt'] = 0;
+        }
     }
     else
     {
@@ -365,35 +415,53 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief)
 
         while ($row = $result->fetch_assoc())
         {
-            $row['debt'] = 0;
+            if (!$nodebts)
+            {
+                $row['debt'] = 0;
+            }
             $membersArray[$row['user_id']] = $row;
         }
 
-        // query to get all debts between members of the group
-        $sql =  'SELECT d.creditor, d.debtor, d.amount FROM group_members as gm '.
-                'INNER JOIN debts as d ON d.debtor=gm.user_id '.
-                'WHERE gm.group_id = ? '.
-                'INTERSECT '.
-                'SELECT d.creditor, d.debtor, d.amount FROM group_members as gm '.
-                'INNER JOIN debts as d ON d.creditor=gm.user_id '.
-                'WHERE gm.group_id = ?;';
-        $result = $mysqli->execute_query($sql, [$groupID, $groupID]);
-
-        // check that query was successful
-        if (!$result)
+        if (!$nodebts)
         {
-            // query failed, internal server error
-            handleDBError();
+            // query to get all debts between members of the group
+            $sql =  'SELECT d.creditor, d.debtor, d.amount '.
+                    'FROM debts d '.
+                    'JOIN group_members gm1 ON d.creditor = gm1.user_id '.
+                    'JOIN group_members gm2 ON d.debtor = gm2.user_id '.
+                    'WHERE gm1.group_id = ? AND gm2.group_id = ?;';
+            /*
+            $sql =  'SELECT d.creditor, d.debtor, d.amount FROM group_members as gm '.
+                    'INNER JOIN debts as d ON d.debtor=gm.user_id '.
+                    'WHERE gm.group_id = ? '.
+                    'INTERSECT '.
+                    'SELECT d.creditor, d.debtor, d.amount FROM group_members as gm '.
+                    'INNER JOIN debts as d ON d.creditor=gm.user_id '.
+                    'WHERE gm.group_id = ?;';
+            */
+            $result = $mysqli->execute_query($sql, [$groupID, $groupID]);
+
+            // check that query was successful
+            if (!$result)
+            {
+                // query failed, internal server error
+                handleDBError();
+            }
+
+            while ($row = $result->fetch_assoc())
+            {
+                $membersArray[$row['debtor']]['debt'] += $row['amount'];
+                $membersArray[$row['creditor']]['debt'] -= $row['amount'];
+            }
+
+            // store balance for current user
+            $group['debt'] = $membersArray[$userID]['debt'];
+
+            // brief==false and nodebts=false, also add list of transactions
+            fillGroupTransactions($group, $userID);
         }
 
-        while ($row = $result->fetch_assoc())
-        {
-            $membersArray[$row['debtor']]['debt'] += $row['amount'];
-            $membersArray[$row['creditor']]['debt'] -= $row['amount'];
-        }
-
-        // store balance for current user and remove current user from members
-        $group['debt'] = $membersArray[$userID]['debt'];
+        // do not include current user as a member
         unset($membersArray[$userID]);
 
         // convert array to simple indexed array and store with group
@@ -401,7 +469,43 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief)
     }
 }
 
-function handleGetGroupInfo($userID, $brief)
+// function will add the list of transactions linked to this group
+// does not check if brief==false, do that before calling this
+// $group is the associative array for this group, and will be populated with data
+// $userID is the user_id of the current user
+function fillGroupTransactions(&$group, $userID)
+{
+    global $mysqli;
+
+    $groupID = $group['group_id'];
+
+    // query to get all transactions linked to this group
+    $sql =  'SELECT t.transaction_id, t.name, t.date, tp.amount as user_debt '.
+            'FROM transactions t '.
+            'JOIN group_transactions gt ON t.transaction_id = gt.transaction_id '.
+            'JOIN transaction_participants tp ON tp.transaction_id = gt.transaction_id '.
+            'WHERE gt.group_id = ? AND tp.user_id = ?;';
+    $result = $mysqli->execute_query($sql, [$groupID, $userID]);
+
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+
+    // put all transactions into an array;
+    $transactions = array();
+    while ($row = $result->fetch_assoc())
+    {
+        $transactions[] = $row;
+    }
+
+    // convert array to simple indexed array and store with group
+    $group['transactions'] = array_values($transactions);
+}
+
+function handleGetGroupInfo($userID, $brief, $nodebts)
 {
     global $mysqli;
     $groupID = $_GET['groupID'];
@@ -430,7 +534,7 @@ function handleGetGroupInfo($userID, $brief)
     $returnArray = $result->fetch_assoc();
 
     // populate user's balance and maybe members list
-    fillUserBalanceAndMembers($returnArray, $userID, $brief);
+    fillUserBalanceAndMembers($returnArray, $userID, $brief, $nodebts);
 
     // convert result to JSON and return
     $returnArray['message'] = 'Success';

@@ -70,7 +70,7 @@ export default function Notifications(props) {
                         {transactionApprovals}
                     </Section>
 
-                    <Section name="Compeleted Transactions">
+                    <Section name="Completed Transactions">
                         {completedTransactions}
                     </Section>
                 

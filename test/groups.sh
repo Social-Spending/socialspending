@@ -45,6 +45,18 @@ curl -v -b cookiefile -G -d "brief" ${SERVER}"/"${GROUP_ENDPOINT}
 print_delimiter
 wait
 
+# get groups info nodebts
+echo "Getting Groups info nodebts"
+curl -v -b cookiefile -d "nodebts" -G ${SERVER}"/"${GROUP_ENDPOINT}
+print_delimiter
+wait
+
+# get groups info brief and nodebts
+echo "Getting Groups info brief nodebts"
+curl -v -b cookiefile -d "brief" -d "nodebts" -G ${SERVER}"/"${GROUP_ENDPOINT}
+print_delimiter
+wait
+
 
 # get specific group info for a group ths user is not a member of
 echo "Getting info of Group that does not exist"
@@ -91,6 +103,17 @@ curl -v -b cookiefile -d "groupID="${GID1} -d "brief" -G ${SERVER}"/"${GROUP_END
 print_delimiter
 wait
 
+# get specific group info nodebts
+echo "Getting specific info for Group "${GID1}" nodebts"
+curl -v -b cookiefile -d "groupID="${GID1} -d "nodebts" -G ${SERVER}"/"${GROUP_ENDPOINT}
+print_delimiter
+wait
+
+# get specific group info brief and nodebts
+echo "Getting specific info for Group "${GID1}" brief nodebts"
+curl -v -b cookiefile -d "groupID="${GID1} -d "brief" -d "nodebts" -G ${SERVER}"/"${GROUP_ENDPOINT}
+print_delimiter
+wait
 
 # kick users
 echo "Kicking user by username from Group "${GID2}

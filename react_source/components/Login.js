@@ -9,29 +9,29 @@
 
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput } from 'react-native';
 import { Link, router } from "expo-router";
-import { useRef, useState } from 'react';
+import { useRef, useState, useContext } from 'react';
 
 import ShowSvg from '../assets/images/bx-show.svg';
 import HideSvg from '../assets/images/bx-hide.svg';
 
 import Button from './Button.js'
 
+import { GlobalContext } from '../components/GlobalContext.js';
+
 const Logo = require('../assets/images/logo/logo-name-64.png');
 
 export default function Login() {
-
-    const onSubmit = () => { submitForm(userRef, passwordRef, rememberRef, errorMessageRef); }
+    // when a login is completed, increment loginAttempts to trigger a re-render of GlobalContext
+    const {loginAttempts} = useContext(GlobalContext);
+    const [loginAttemptsState, setLoginAttemptsState] = loginAttempts;
+    const onSubmit = () => {
+        submitForm(userRef, passwordRef, rememberRef, errorMessageRef, loginAttemptsState, setLoginAttemptsState);
+    }
 
     const [showPassword, setShowPassword] = useState(false);
 
-    const changePasswordVisibility = () => {
-        if (passwordRef.current) {
-            setShowPassword(!showPassword);
-            passwordRef.current.type = !showPassword ? "text" : "password";
-        }
-    }
 
     const errorMessageRef   = useRef(null);
     const userRef           = useRef(null);
@@ -56,17 +56,17 @@ export default function Login() {
                 <Text style={[globals.styles.h5, globals.styles.label]}>EMAIL OR USERNAME</Text>
             </View>
 
-            <input tabIndex={1} ref={userRef} placeholder=" Enter your email or username" style={globals.styles.input} id='loginForm_user' name="Username" />
+            <TextInput tabIndex={1} ref={userRef} placeholder=" Enter your email or username" style={globals.styles.input} id='loginForm_user' name="Username" />
 
             <View style={globals.styles.labelContainer}>
                 <View style={{flexDirection: 'row'} }>
                     <Text style={[globals.styles.h5, globals.styles.label]}>PASSWORD</Text>
-                    <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1em' }} onClick={changePasswordVisibility}></Button>
+                    <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1em' }} onClick={() => setShowPassword(!showPassword)}></Button>
                 </View>
                 
                 <Link href="/forgot" style={[globals.styles.h5, styles.forgot]}>Forgot Password?</Link> 
             </View>
-            <input tabIndex={2} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='loginForm_password' type='password' name="Password" />
+            <TextInput tabIndex={2} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='loginForm_password' secureTextEntry={!showPassword} autoComplete='current-password' name="Password" name="Password" />
 
             <View style={[globals.styles.labelContainer, { justifyContent: 'flex-start', paddingTop: 0, width: '78%' }]}>
                 <input tabIndex={3} ref={rememberRef} type="checkbox" style={styles.checkbox} id="loginForm_remember" />
@@ -84,19 +84,21 @@ export default function Login() {
     );
 }
 
-async function submitForm(userRef, passwordRef, rememberRef, errorRef) {
+async function submitForm(userRef, passwordRef, rememberRef, errorRef, loginAttempts, setLoginAttempts) {
 
     // pul username and password in form data for a POST request
     let payload = new URLSearchParams();
     payload.append('user', userRef.current.value);
     payload.append('password', passwordRef.current.value);
-    payload.append('remember', rememberRef.current.value);
+    payload.append('remember', rememberRef.current.checked);
 
     // do the POST request
     try {
         let response = await fetch("/login.php", { method: 'POST', body: payload, credentials: 'same-origin' });
 
         if (response.ok) {
+            // force GlobalContext to re-try getting user info
+            setLoginAttempts(loginAttempts + 1);
             // redirect
             router.push("/summary");
         }

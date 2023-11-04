@@ -54,7 +54,7 @@ The user account is now set up to access and manipulate databases.
 Alternatively, use the following SQL to create the user, replacing `<username>` and `<password>` with values of your choosing:
 ```sql
 CREATE USER '<username>'@'localhost' IDENTIFIED BY '<password>';
-GRANT INSERT, UPDATE, DELETE, SELECT ON school.* TO '<username>'@'localhost';
+GRANT INSERT, UPDATE, DELETE, SELECT ON social_spending.* TO '<username>'@'localhost';
 ```
 
 To access databases from PHP scripts, first edit the file `/opt/lampp/etc/httpd.conf`.
@@ -135,9 +135,11 @@ Replace `<DB_USERNAME>`, `<DB_PASSWORD>`, and `example.com` with your database c
 To automatically pull changes from Github, setup webhooks by navigating to your repo on Github, hit 'Settings', then 'Webhooks'.
 
 Create 2 webhooks:
-* The 'Payload URL' of 1 should be http://example.com/repo_pull.php and the other should be http://dev.example.com/repo_pull.php
+* The 'Payload URL' of 1 should be http://example.com/repo_pull.php and the other should be http://dev.example.com/repo_pull.php (or https:// if you have configured ssl)
 * 'Content type' should be 'application/json' for both
 * Create a secret. This should be the same for both, and this secret should then be copied into `<GITHUB_WEBHOOK_SECRET>` in `/etc/apache2/envvars`.
+
+The webhook handler will automatically re-create the database on the dev instance each time a push is made (this must be done manually on the production instance).
 
 ### Setting up Repositories
 

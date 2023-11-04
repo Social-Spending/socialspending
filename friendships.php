@@ -142,7 +142,6 @@ function viewFriends() {
     echo $json_data;
     http_response_code(200);
     exit(0);
-
 }
 
 function acceptFriendRequest($notification_id) {
