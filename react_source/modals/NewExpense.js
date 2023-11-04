@@ -88,14 +88,20 @@ function ChooseName(props) {
     const [nameDisabled, setNameDisabled] = useState(false);
 
     const nameRef = useRef(null);
+    const dateRef = useRef(null);
     const descriptionRef = useRef(null);
 
     const onSubmit = () => {
-        setPageNum(pageNum + 1);
         let temp = formData;
         temp.transaction_name = nameRef.current.value;
         temp.transaction_description = descriptionRef.current.value;
+        
+        if (dateRef.current.value === "") {
+            dateRef.current.valueAsDate = new Date();
+        }
+        temp.transaction_date = dateRef.current.value;
         setFormData(temp);
+        submitForm(temp);
 
     }
 
@@ -115,10 +121,16 @@ function ChooseName(props) {
             <input tabIndex={1} ref={nameRef} placeholder=" Enter name of new expense" style={globals.styles.input} id='createExpense_name' name="Expense Name" />
 
             <View style={globals.styles.labelContainer}>
+                <Text style={[globals.styles.h5, globals.styles.label]}>EXPENSE DATE *</Text>
+            </View>
+
+            <input tabIndex={2} ref={dateRef} type="date" style={globals.styles.input} id='createExpense_date' name="Expense date" />
+
+            <View style={globals.styles.labelContainer}>
                 <Text style={[globals.styles.h5, globals.styles.label]}>DESCRIPTION</Text>
             </View>
 
-            <textarea tabIndex={2} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
+            <textarea tabIndex={3} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
                 <Button disabled={nameDisabled} style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Next' onClick={onSubmit} />
@@ -262,7 +274,7 @@ function SplitExpense(props) {
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
                 <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 1)} />
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Submit' onClick={onSubmit} />
+                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Next' onClick={onSubmit} />
             </View>
         </View>
     );
@@ -355,8 +367,32 @@ function checkName(groupRef, errorRef) {
     }
 }
 
-async function submitForm(errorRef) {
+async function submitForm(formData) {
 
+    console.log(JSON.stringify(formData));
+    try {
+        let response = await fetch("/transactions.php", {
+            method: 'POST',
+            body: JSON.stringify(formData),
+            credentials: 'same-origin',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (response.ok) {
+            return;
+
+        }
+        else {
+            console.log(response.json()['message']);
+            return null;
+        }
+    }
+    catch (error) {
+        console.log("error in POST request to transactions (/transactions.php)");
+        console.log(error);
+    }
    
 }
 
