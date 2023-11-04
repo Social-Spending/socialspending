@@ -37,7 +37,7 @@ print_delimiter
 # upload valid static icon to group 2
 echo "Uploading valid static icon to group 2"
 ICON1_URL=$(curl -s -b cookiefile -F 'group_id=2' -F 'icon=@valid_size_icon.gif' ${SERVER}"/"${GROUP_ICON_UPLOAD_ENDPOINT} | \
-    python3 -c "import sys, json; from urllib.parse import unquote; print(unquote(json.load(sys.stdin)['icon_url']))")
+    python3 -c "import sys, json; from urllib.parse import unquote; print(unquote(json.load(sys.stdin)['icon_path']))")
 echo "Icon is located at ${SERVER}${ICON1_URL}"
 print_delimiter
 
@@ -50,7 +50,7 @@ print_delimiter
 # upload valid animated icon to group 2
 echo "Uploading valid animated icon to group 2"
 ICON2_URL=$(curl -s -b cookiefile -F 'group_id=2' -F 'icon=@valid_size_animated_icon.gif' ${SERVER}"/"${GROUP_ICON_UPLOAD_ENDPOINT} | \
-    python3 -c "import sys, json; print(json.load(sys.stdin)['icon_url'])")
+    python3 -c "import sys, json; print(json.load(sys.stdin)['icon_path'])")
 echo "Icon is located at ${SERVER}${ICON2_URL}"
 print_delimiter
 

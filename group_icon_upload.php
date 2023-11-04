@@ -22,7 +22,7 @@
             - body: serialized JSON in the following format
                 {
                     "message":<RESULT>,
-                    "icon_url":<PATH TO ICON FILE>
+                    "icon_path":<PATH TO ICON FILE>
                 }
                 Where <RESULT> is a message explaining the status code to a user.
 */
@@ -115,7 +115,7 @@ function handlePOST()
             'SET g.icon_path = ? '.
             'WHERE g.group_id = ? AND gm.user_id = ?;';
 
-    $result = $mysqli->execute_query($sql, ["'".$serverFileName."'", $groupID, $userID]);
+    $result = $mysqli->execute_query($sql, ["/".$serverFileName, $groupID, $userID]);
     // check for errors
     if (!$result)
     {
@@ -133,7 +133,7 @@ function handlePOST()
     // success
     $returnArray = array();
     $returnArray['message'] = 'Success';
-    $returnArray['icon_url'] = '/'.$serverFileName;
+    $returnArray['icon_path'] = '/'.$serverFileName;
     header('Content-Type: application/json', true, 200);
     print(json_encode($returnArray));
     exit(0);
