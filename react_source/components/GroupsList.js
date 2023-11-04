@@ -92,7 +92,7 @@ function GroupItem(props) {
                 <Text style={[globals.styles.listText]}>{props.name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                    <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed)}</Text>
+                    <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
                 </View>
 
             </View>

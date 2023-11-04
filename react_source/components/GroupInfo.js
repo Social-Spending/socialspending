@@ -149,7 +149,7 @@ function MemberListItem({ id, name, owed, border }) {
                 <Text style={globals.styles.listText}>{name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                    <Text style={[globals.styles.listText, color]}>${Math.abs(owed)}</Text>
+                    <Text style={[globals.styles.listText, color]}>${Math.abs(owed / 100).toFixed(2)}</Text>
                 </View>
 
             </View>
@@ -169,7 +169,7 @@ function TransactionListItem({ id, name, owed, border }) {
 
     const setModal = useContext(ModalContext);
 
-    let text = owed >= 0 ? "You Owe" : "You Paid";
+    let text = owed >= 0 ? "Borrowed" : "Paid";
     let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
 
     const viewTransaction = () => {
@@ -183,7 +183,7 @@ function TransactionListItem({ id, name, owed, border }) {
             <Text style={globals.styles.listText}>{name}</Text>
             <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                 <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                <Text style={[globals.styles.listText, color]}>${Math.abs(owed)}</Text>
+                <Text style={[globals.styles.listText, color]}>${Math.abs(owed / 100).toFixed(2)}</Text>
             </View>
 
         </View>
