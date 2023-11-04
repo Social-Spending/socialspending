@@ -12,6 +12,7 @@ import DownChevron from '../assets/images/bx-chevron-down.svg';
 import { ModalContext } from '../modals/ModalContext.js';
 import TransactionInfo from '../modals/TransactionInfo.js';
 import VerifyAction from '../modals/VerifyAction.js';
+import WaitForAuth from './WaitForAuth.js';
 
 const RemoveContext = createContext(null);
 
@@ -61,20 +62,22 @@ export default function Notifications(props) {
     return (
         <RemoveContext.Provider value={removeNotif }>
             <View style={[styles.notifShelf, props.show ? { width: '20vw', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
-                <View style={[props.show ? { width: '18vw', display: "block" } : { width: '0', display: "none"}]}>
-                    <Section name='Friend Requests'>
-                        {friendRequests}
-                    </Section>
+                <WaitForAuth requireLogin={true} >
+                    <View style={[props.show ? { width: '18vw', display: "block" } : { width: '0', display: "none"}]}>
+                        <Section name='Friend Requests'>
+                            {friendRequests}
+                        </Section>
                 
-                    <Section name='Pending Transactions'>
-                        {transactionApprovals}
-                    </Section>
+                        <Section name='Pending Transactions'>
+                            {transactionApprovals}
+                        </Section>
 
-                    <Section name="Completed Transactions">
-                        {completedTransactions}
-                    </Section>
+                        <Section name="Completed Transactions">
+                            {completedTransactions}
+                        </Section>
                 
-                </View>
+                    </View>
+                </WaitForAuth>
             
             </View>
         </RemoveContext.Provider>

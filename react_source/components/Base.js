@@ -28,9 +28,8 @@ export default function Base(props) {
                             {props.children}
                         </View>
 
-                        <WaitForAuth requireLogin={true} >
-                            <Notifications show={showShelf} />
-                        </WaitForAuth>
+                        <Notifications show={showShelf} />
+
                     </View>
 
                     <Footer />

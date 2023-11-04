@@ -5,13 +5,12 @@ import { useState, useEffect, useContext } from 'react';
 
 import { Link } from "expo-router";
 
-const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
-
 import { getGroups } from '../utils/groups.js'
 import Button from "./Button.js";
 import { ModalContext } from "../modals/ModalContext.js";
 import NewGroup from "../modals/NewGroup.js";
 import WaitForAuth from "./WaitForAuth.js";
+import Loading from "./Loading.js";
 
 export default function GroupsList(props) {
 
@@ -59,9 +58,7 @@ function GroupList() {
     if (groupItems === null) {
         //List hasnt loaded yet show nothing
         return (
-            <View style={globals.styles.list}>
-                <Image source={LoadingGif} style={globals.styles.loading} />
-            </View>
+            <Loading />
 
         );
 

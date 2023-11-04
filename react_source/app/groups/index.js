@@ -3,8 +3,6 @@ import * as globals from '../../utils/globals.js'
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState, useEffect, useRef, useContext } from 'react';
 
-const LoadingGif = require('../../assets/images/loading/loading-blue-block-64.gif');
-
 import Base from '../../components/Base.js';
 import GroupInfo from '../../components/GroupInfo.js';
 import NewGroup from '../../modals/NewGroup.js'
@@ -15,6 +13,7 @@ import { leaveGroup, getGroups } from '../../utils/groups.js'
 
 import { ModalContext } from '../../modals/ModalContext.js';
 import WaitForAuth from '../../components/WaitForAuth.js';
+import Loading from "../../components/Loading.js";
 
 
 export default function Page() {
@@ -57,7 +56,7 @@ function GroupList(props) {
     if (groupItems === null) {
         //List hasnt loaded yet show nothing
         return (
-            <Image source={LoadingGif} style={globals.styles.loading} />
+            <Loading />
         );
 
     } else {

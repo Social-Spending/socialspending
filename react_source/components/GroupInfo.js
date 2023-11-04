@@ -17,6 +17,7 @@ import Leave from '../assets/images/bx-log-out.svg';
 import { getGroupInfo, leaveGroup } from '../utils/groups.js'
 
 import { ModalContext } from '../modals/ModalContext.js';
+import { GlobalContext } from "./GlobalContext.js";
 
 
 export default function GroupInfo(props) {
@@ -26,6 +27,7 @@ export default function GroupInfo(props) {
     let [groupName, setGroupName] = useState(null);
 
     const setModal = useContext(ModalContext);
+    const { currUserID } = useContext(GlobalContext);
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -38,7 +40,7 @@ export default function GroupInfo(props) {
             if (json !== null) {
                 setGroupName(json.group_name);                
 
-                setGroupMembers(await getGroupMembers(json));
+                setGroupMembers(await getGroupMembers(currUserID, json));
                 setTransactions(await getTransactions(json));
             }            
         }
@@ -98,14 +100,16 @@ export default function GroupInfo(props) {
 }
 
 
-function getGroupMembers(json) {
+function getGroupMembers(currUserID, json) {
 
    
     let outputList = [];
 
+    outputList.push(<MemberListItem key={-1} border={false} name="You" id={currUserID} owed={json.debt} />);
+
     for (let i = 0; i < json['members'].length; i++) {
 
-        outputList.push(<MemberListItem key={i} border={i > 0} name={json['members'][i].username} id={json['members'][i].user_id} owed={json['members'][i].debt} />);
+        outputList.push(<MemberListItem key={i} border={true} name={json['members'][i].username} id={json['members'][i].user_id} owed={json['members'][i].debt} />);
     }
 
     return outputList;
