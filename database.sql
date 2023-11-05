@@ -105,7 +105,7 @@ insert into transactions (transaction_id, name, date, amount, description) value
 insert into transaction_participants (transaction_id, user_id, has_approved, amount) values
 (1, 1, 1, -899),
 (1, 2, 1, 500),
-(1, 3, 1, 399);
+(1, 3, 1, 399),
 (2, 1, 0, 500);
 
 insert into groups (group_id, group_name, icon_path) values
