@@ -76,24 +76,21 @@ export default function Profile(props) {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
                     <View style={{flexDirection: 'row', justifyContent:'flex-start'}}>
                         <Text style={[globals.styles.h1, styles.groupName]}>{username} / {email}</Text>
-                        <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
-                            <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                            <Text style={[globals.styles.listText, color]}>${Math.abs(debt / 100).toFixed(2)}</Text>
-                        </View>
+                        
                     </View>
                     {isFriend ? <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} svg={UnfriendIcon} iconStyle={styles.icon} label={'UNFRIEND'} onClick={unfriend} /> : <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} iconStyle={styles.icon} label={isPendingFriend ? 'PENDING' : 'ADD FRIEND'} onClick={verifyAddFriend} disabled={isPendingFriend}/> }
                 </View>
                 <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, { color: globals.COLOR_GRAY, fontWeight: 600, paddingLeft: '1em', paddingBottom: '1.5em' }]}>Email</Text>
+                    <Text style={[globals.styles.h3, styles.listTitle]}>Email</Text>
                     <View style={styles.listHeader} >
 
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>{email}</Text>
+                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600', paddingBottom: '1.5em' }}>{email}</Text>
 
                     </View>
                 </View>
 
                 <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, { color: globals.COLOR_GRAY, fontWeight: 600, paddingLeft: '1em', paddingBottom: '1.5em' }]}>Groups</Text>
+                    <Text style={[globals.styles.h3, styles.listTitle]}>Groups</Text>
                     <View style={styles.listHeader} >
 
                         <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>GROUP NAME</Text>
@@ -105,7 +102,14 @@ export default function Profile(props) {
                 </View>
 
                 <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, { color: globals.COLOR_GRAY, fontWeight: 600, paddingLeft: '1em', paddingBottom: '1.5em' }]}>Transactions</Text>
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <Text style={[globals.styles.h3, styles.listTitle]}>Transactions</Text>
+                        <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
+                            <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
+                            <Text style={[globals.styles.listText, color]}>${Math.abs(debt / 100).toFixed(2)}</Text>
+                        </View>
+                    </View>
+                    
                     <View style={styles.listHeader} >
 
                         <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>TRANSACTION</Text>
@@ -239,11 +243,17 @@ const styles = StyleSheet.create({
 
     },
     listContainer: {
-        flex:1,
+        height: 'auto',
         marginTop: '2em',
         boxShadow: '0px 0px 5px 5px #eee',
         borderRadius: '1em',
         backgroundColor: globals.COLOR_WHITE
+    },
+    listTitle: {
+        color: globals.COLOR_GRAY,
+        fontWeight: 600,
+        paddingLeft: '1em',
+        paddingBottom: '1.5em'
     },
     listHeader: {
         flexDirection: 'row',

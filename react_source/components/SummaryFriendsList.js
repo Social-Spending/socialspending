@@ -92,7 +92,7 @@ function SummaryFriendItem(props) {
         <Link href={'/profile/' + props.id} asChild>
             <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
-                <Text style={[globals.styles.listText, {paddingLeft: '.25em'}]}>{props.name}</Text>
+                <Text style={[globals.styles.listText, {marginLeft: '.75em'}]}>{props.name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
                     <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed / 100).toFixed(2)}</Text>

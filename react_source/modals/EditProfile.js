@@ -55,7 +55,7 @@ export default function EditProfile(props) {
             onRequestClose={() => setModal(null)}>
 
             <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
-                <View style={styles.signup} onClick={handleChildClick}>
+                <View style={[styles.signup, { boxShadow: 0 }] } onClick={handleChildClick}>
 
                     <Image source={Logo} style={styles.logo} />
 

@@ -49,7 +49,7 @@ export default function NewFriend(props) {
 
                     <TextInput tabIndex={1} ref={userRef} placeholder=" Enter username or email" style={globals.styles.input} id='addFriend_name' name="userToAdd" onChangeText={() => onNameChange(userRef)} />
 
-                    <Button disabled={false}  style={globals.styles.formButton} label='Add Friend' onClick={onSubmit} />
+                    <Button disabled={false} style={globals.styles.formButton} label='Add Friend' onClick={onSubmit} />
 
                 </View>
             </View>

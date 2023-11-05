@@ -6,6 +6,8 @@ import { useRef, useState, createContext, useContext, useEffect } from 'react';
 
 import { getGroups, getGroupInfo } from "../utils/groups.js";
 
+import { getFriends } from "../utils/friends.js";
+
 import Button from '../components/Button.js'
 import { ModalContext } from './ModalContext.js';
 
@@ -274,10 +276,10 @@ function SplitExpense() {
             }
             else {
                 //Get friends list
-                json = await getFriendsInfo();
+                json = await getFriends();
 
                 if (json !== null) {
-                    setSplitList(await getFriends(json, setRefList));
+                    setSplitList(await getFriendsList(json, setRefList));
                 }
             }
         }
@@ -387,41 +389,12 @@ function getGroupMembers(json, setRefList) {
 }
 
 /**
- * Gets a users friends from the friendships.php endpoint
- * @returns {JSON} a json object of an array of friends
- */
-async function getFriendsInfo() {
-
-    // do the POST request
-    try {
-        let response = await fetch("/friendships.php", { method: 'GET', credentials: 'same-origin' });
-
-        if (response.ok) {
-            let json = await response.json();
-            if (json != null)
-                return json
-
-        }
-        else {
-            console.log(response.json()['message']);
-            return null;
-        }
-    }
-    catch (error) {
-        console.log("error in GET request to friendships (/friendships.php)");
-        console.log(error);
-    }
-
-    return null;
-}
-
-/**
  * Builds a list of SplitListItems and a refList from a friends json
  * @param {JSON} json JSON object contianing friends array
  * @param {Function} setRefList function to set the refList variable of SplitExpense
  * @returns a list of SplitListItems
  */
-function getFriends(json, setRefList) {
+function getFriendsList(json, setRefList) {
 
     let refList = [];
 

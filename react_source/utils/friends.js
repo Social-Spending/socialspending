@@ -1,7 +1,5 @@
+
 // Return an array of this user's friends
-
-import { ModalContext } from "../modals/ModalContext";
-
 // each friend object has "username" and "user_id" keys
 export async function getFriends() {
 
