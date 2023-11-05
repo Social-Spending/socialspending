@@ -60,7 +60,7 @@ function Account({ showNotif }) {
             <View style={styles.container}>
                 <Button style={styles.newExpense} hoverStyle={styles.newExpense} textStyle={globals.styles.h4} label="+ NEW EXPENSE" onClick={() => setModal(<NewExpense/>)} />
                 <Button style={styles.notif} hoverStyle={styles.notif} svg={Bell} iconStyle={styles.bell} onClick={showNotif} />
-                <HeaderText style={[globals.styles.h3, styles.text, { marginLeft: '1em' }]}>{currUsername}</HeaderText>
+                <HeaderLink href="/profile/" style={[globals.styles.h3, styles.text, { marginLeft: '1em' }]}>{currUsername}</HeaderLink>
                 <Text style={[styles.text, { paddingHorizontal: '0', color: globals.COLOR_BEIGE }]}>|</Text>
                 <HeaderText style={[globals.styles.h3, styles.text, {cursor: 'pointer'}]} onClick={doSignout}>Signout</HeaderText>
             </View>

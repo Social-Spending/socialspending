@@ -29,7 +29,7 @@ export default function GroupInfo(props) {
     let [iconPath, setIconPath] = useState(null);
 
     const setModal = useContext(ModalContext);
-    const { currUserID } = useContext(GlobalContext);
+    const { currUserID, reRenderCount} = useContext(GlobalContext);
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -48,7 +48,7 @@ export default function GroupInfo(props) {
         }
         getItems();
             
-    }, [props.id]);
+    }, [props.id, reRenderCount]);
     if (props.id == null || groupName == null) {
         return (<></>);
     }
@@ -70,7 +70,7 @@ export default function GroupInfo(props) {
                     <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} svg={Leave} iconStyle={styles.icon} label='LEAVE GROUP' onClick={leave} />
                 </View>
                 <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, { color: globals.COLOR_GRAY, fontWeight: 600, paddingLeft: '1em', paddingBottom: '1.5em' }]}>Members</Text>
+                    <Text style={[globals.styles.h3, styles.listTitle]}>Members</Text>
                     <View style={styles.listHeader} >
 
                         <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>USERNAME</Text>
@@ -84,7 +84,7 @@ export default function GroupInfo(props) {
                 </View>
 
                 <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, { color: globals.COLOR_GRAY, fontWeight: 600, paddingLeft: '1em', paddingBottom: '1.5em' }]}>Transactions</Text>
+                    <Text style={[globals.styles.h3, styles.listTitle]}>Transactions</Text>
                     <View style={styles.listHeader} >
 
                         <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>TRANSACTION</Text>
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
 
     },
     listContainer: {
-        flex:1,
+        height: 'auto',
         marginTop: '2em',
         boxShadow: '0px 0px 5px 5px #eee',
         borderRadius: '1em',
@@ -273,6 +273,12 @@ const styles = StyleSheet.create({
         borderWidth: '1px',
         borderColor: '#eee',
         paddingBottom: '.5em'
+    },
+    listTitle: {
+        color: globals.COLOR_GRAY,
+        fontWeight: 600,
+        paddingLeft: '1em',
+        paddingBottom: '1.5em' 
     },
     icon: {
         fill: globals.COLOR_WHITE,

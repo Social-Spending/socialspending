@@ -486,11 +486,12 @@ function fillGroupTransactions(&$group, $userID)
     $groupID = $group['group_id'];
 
     // query to get all transactions linked to this group
-    $sql =  'SELECT t.transaction_id, t.name, t.date, tp.amount as user_debt '.
+    $sql =  'SELECT t.transaction_id, t.name, t.date, COALESCE(tp.amount, 0) as user_debt '.
             'FROM transactions t '.
             'JOIN group_transactions gt ON t.transaction_id = gt.transaction_id '.
-            'JOIN transaction_participants tp ON tp.transaction_id = gt.transaction_id '.
-            'WHERE gt.group_id = ? AND tp.user_id = ?;';
+            'JOIN group_members gm ON gm.group_id = gt.group_id '.
+            'LEFT JOIN transaction_participants tp ON tp.user_id = gm.user_id '.
+            'WHERE gm.group_id = ? AND gm.user_id = ?;';
     $result = $mysqli->execute_query($sql, [$groupID, $userID]);
 
     // check that query was successful

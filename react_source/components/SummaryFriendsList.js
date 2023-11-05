@@ -5,20 +5,21 @@ import { useState, useEffect, useContext } from 'react';
 
 import { Link } from "expo-router";
 
-import { getGroups } from '../utils/groups.js'
+import { getFriends } from '../utils/friends.js'
 import Button from "./Button.js";
 import { ModalContext } from "../modals/ModalContext.js";
 import WaitForAuth from "./WaitForAuth.js";
 import Loading from "./Loading.js";
+import NewFriend from "../modals/NewFriend.js";
 import { GlobalContext } from "./GlobalContext.js";
 
-export default function GroupsList(props) {
+export default function SummaryFriendsList(props) {
 
     let setModal = useContext(ModalContext);
 
 
-    const addGroupModal = () => {
-        setModal(<NewGroup />);
+    const addFriendModal = () => {
+        setModal(<NewFriend />);
     }
 
     return (
@@ -26,77 +27,72 @@ export default function GroupsList(props) {
         <View style={[globals.styles.summaryList, props.style]}>
 
             <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
-                <Text style={[globals.styles.h2, globals.styles.summaryLabel]}>GROUPS</Text>
-                <Button style={[globals.styles.formButton, globals.styles.newGroupOrFriendButton]} label='+ CREATE GROUP' onClick={addGroupModal} />
+                <Text style={[globals.styles.h2, globals.styles.summaryLabel]}>FRIENDS</Text>
+                <Button style={[globals.styles.formButton, globals.styles.newGroupOrFriendButton]} label='+ ADD FRIEND' onClick={addFriendModal} />
             </View>
 
             <View style={{ alignSelf: 'center', height: '1px', width: '92%', backgroundColor: globals.COLOR_GRAY, marginTop: '.5em' }} />
             
             <WaitForAuth redirectOnNotLoggedIn={'/login'}>
-                <GroupList />
+                <FriendList />
             </WaitForAuth>
 
         </View>
     );
 }
 
-function GroupList() {
+function FriendList() {
 
-    let [groupItems, setGroupItems] = useState(null);
+    let [summaryFriendItems, setSummaryFriendItems] = useState(null);
     const {reRenderCount} = useContext(GlobalContext);
+
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
         // On load asynchronously request groups and construct the list
         async function getItems() {
 
-            setGroupItems(await buildGroups());
+            setSummaryFriendItems(await buildFriends());
         }
         getItems();
 
     }, [reRenderCount]);
 
-    if (groupItems === null) {
-        //List hasnt loaded yet show nothing
+    if (summaryFriendItems === null) {
+        //List hasn't loaded yet, show nothing
         return (
             <Loading />
 
         );
 
     } else {
-        //List has been returned, render it
+        // List has been parsed into SummaryFriendItem components, render it
         return (
             <View style={globals.styles.list}>
                 <View style={[globals.styles.listItem, { padding: 0, position: 'sticky', top: 0, zIndex: 1, backgroundColor: globals.COLOR_WHITE }]} >
-                    <Text style={[globals.styles.h3, globals.styles.listText]}>GROUP NAME</Text>
+                    <Text style={[globals.styles.h3, globals.styles.listText]}>USERNAME</Text>
                     <View style={{ width: 'auto', paddingRight: '.5em', minWidth: '5em', alignItems: 'flex-end' }}>
                         <Text style={[globals.styles.h3, globals.styles.listText]}>BALANCE</Text>
                     </View>
                 </View>
-                {groupItems}
+                {summaryFriendItems}
 
             </View>
         );
     }
 }
 
-function GroupItem(props) {
+function SummaryFriendItem(props) {
 
-    let text = props.owed < 0 ? "You're Owed" : "You Owe";
+    let text = props.owed < 0 ? "Owes You" : "You Owe";
     let color = props.owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
 
     return (
 
-        <Link href={'/groups/' + props.id} asChild>
+        <Link href={'/profile/' + props.id} asChild>
             <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
-                <View style={globals.styles.listIconAndTextContainer}>
-                    <Image
-                        style={[globals.styles.listIcon, { marginLeft: '.75em', width: '2.5em', height: '2.5em'}]}
-                        source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
-                    />
-                    <Text style={[globals.styles.listText, {paddingLeft: '.25em'}]}>{props.name}</Text>
-                </View>
+                <Text style={[globals.styles.listText, {marginLeft: '.75em'}]}>{props.name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
                     <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
@@ -108,19 +104,17 @@ function GroupItem(props) {
     );
 }
 
-async function buildGroups() {
+async function buildFriends() {
 
-    let groupList = [];
-    
-    let groups = await getGroups();
+    let friendList = [];
 
-    if (groups === null) return groupList;
+    let friends = await getFriends();
 
-    for (let i = 0; i < groups.length; i++) {
-                    
-        groupList.push(<GroupItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} owed={groups[i].debt} icon_path={groups[i].icon_path} />);
+    if (friends === null) return friendList;
+
+    for (let i = 0; i < friends.length; i++) {
+        friendList.push(<SummaryFriendItem key={i} border={i > 0} name={friends[i].username} id={friends[i].user_id} owed={friends[i].debt} />);
     }
-           
-    return groupList;
 
+    return friendList;
 }

@@ -52,7 +52,7 @@ function sendFriendRequest($username) {
     $sql = "SELECT user_id
             FROM users
             WHERE username=?";
-    
+
     $result = $mysqli->execute_query($sql, [$username]);
     if ($result->num_rows == 0) {
         // http_response_code(HTTP_BAD_REQUEST);
@@ -61,6 +61,41 @@ function sendFriendRequest($username) {
     }
 
     $other_user_id = $result->fetch_assoc()["user_id"];
+
+
+    // query to check if users are already friends
+    $sql = "SELECT user_id_1, user_id_2
+    FROM friendships
+    WHERE (user_id_1 = ? AND user_id_2 = ?)
+    OR (user_id_1 = ? AND user_id_2 = ?);";
+    $result = $mysqli->execute_query($sql, [$other_user_id, $user_id, $user_id, $other_user_id]);
+    // check for errors
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+    // check if there was a row, meaning these two are friends
+    if ($result->num_rows > 0)
+    {
+        returnMessage('Users are already friends', 400);
+    }
+
+    // query to check if there is already a friend request
+    $sql = "SELECT notification_id
+            FROM notifications
+            WHERE type = 'friend_request'
+            AND ((friend_request_user_id = ? AND user_id = ?)
+                OR (friend_request_user_id = ? AND user_id = ?))";
+    $result = $mysqli->execute_query($sql, [$user_id, $other_user_id, $other_user_id, $user_id]);
+    if (!$result)
+    {
+        handleDBError();
+    }
+    if ($result->num_rows > 0)
+    {
+        returnMessage('Outstanding friend request with this user', 400);
+    }
 
     //Create notification
     $sql = "INSERT INTO notifications (user_id, type, friend_request_user_id)
@@ -111,33 +146,33 @@ function viewFriends() {
 
     $friends_array = [];
 
-    //Find friendships where we are the first user
-    $sql = "SELECT users.username, users.user_id
-            FROM friendships
-            LEFT JOIN users
-            ON friendships.user_id_2 = users.user_id
-            WHERE user_id_1=?";
-    
-    $result = $mysqli->execute_query($sql, [$user_id]);
+    // Find all friendships with this user and debts between them
+    $sql = "SELECT u.user_id, u.username, COALESCE(d.amount, 0) as debt
+            FROM users u
+            INNER JOIN (
+                SELECT CASE
+                    WHEN user_id_1 = ? THEN user_id_2
+                    ELSE user_id_1
+                END AS friend_id
+                FROM friendships
+                WHERE user_id_1 = ? OR user_id_2 = ?
+            ) AS f ON u.user_id = f.friend_id
+            LEFT JOIN debts d ON (u.user_id = d.creditor AND ? = d.debtor)
+            OR (u.user_id = d.debtor AND ? = d.creditor);";
 
-    for ($i = 0; $i < $result->num_rows; $i++) {
-        array_push($friends_array, $result->fetch_assoc());
+    $result = $mysqli->execute_query($sql, [$user_id, $user_id, $user_id, $user_id, $user_id]);
+
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+    while ($row = $result->fetch_assoc()) {
+        array_push($friends_array, $row);
     }
 
-    //Find friendships where we are the second user
-    $sql = "SELECT users.username, users.user_id
-            FROM friendships
-            LEFT JOIN users
-            ON friendships.user_id_1 = users.user_id
-            WHERE user_id_2=?";
-    
-    $result = $mysqli->execute_query($sql, [$user_id]);
 
-    for ($i = 0; $i < $result->num_rows; $i++) {
-        array_push($friends_array, $result->fetch_assoc());
-    }
-
-    $json_data = json_encode($friends_array);
+    $json_data = json_encode(array_values($friends_array));
     header('Content-Type: application/json');
     echo $json_data;
     http_response_code(HTTP_OK);

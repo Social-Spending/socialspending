@@ -44,6 +44,9 @@ export function GlobalContextProvider (props) {
     // state var to indicate if browser is still waiting for getUserInfo
     const [isLoading, setIsLoading] = useState(true);
     var cancelGetUserInfoController = null;
+    // state var to re-render page
+    const [reRenderCount, setReRenderCount] = useState(0);
+    const reRender = () => {setReRenderCount(reRenderCount + 1);};
 
     useEffect(() => {
             // Check if user is logged in and if they are get their username
@@ -68,6 +71,8 @@ export function GlobalContextProvider (props) {
                 currUsername: currUsername,
                 loginAttempts: [loginAttempts, setLoginAttempts],
                 isLoading: isLoading,
+                reRenderCount: reRenderCount,
+                reRender: reRender,
                 doSignout: () => doSignout(setIsLoggedIn, setCurrUserID, setCurrUsername)
             }}
         >

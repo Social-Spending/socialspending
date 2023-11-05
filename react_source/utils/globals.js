@@ -239,6 +239,32 @@ export const styles = StyleSheet.create({
         position: 'fixed',
         top: 0
     },
+    summaryList: {
+        width: '35vw',
+        minHeight: '20em',
+        //height: '55vh',
+        backgroundColor: COLOR_WHITE,
+        minWidth: '25em',
+        boxShadow: '0px 0px 5px 5px #eee',
 
+        justifyContent: 'flex-start',
+        alignItems: 'left',
+        overflow: 'hidden'
+    },
+    summaryLabel: {
+        marginLeft: '3%',
+        paddingLeft: ' .5em',
+        paddingTop: '2em',
+        paddingBottom: '0em',
+        color: COLOR_GRAY,
+    },
+    newGroupOrFriendButton: {
+        marginRight: '3%',
+        marginTop: '2em',
+        paddingBottom: '0em',
+        color: COLOR_ORANGE,
+        alignSelf: 'flex-end',
+        width: '10em'
+    }
 
 });
