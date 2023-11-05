@@ -139,9 +139,34 @@ function removeNotification($notification_id) {
     global $mysqli;
 
     $sql = "DELETE FROM notifications
-            WHERE notification_id=?";
+            WHERE notification_id = ?";
 
     $mysqli->execute_query($sql, [$notification_id]);
+}
+
+/*
+Adds a new notification to a given user's feed about a transaction
+    Params
+        $transaction_id - The unique identifier for the transaction being modified
+        $user_id - The user that should be notified
+
+TODO: Does not check if the user exists. Does it need to?
+*/
+function addApprovalRequestNotification($transaction_id, $user_id)
+{
+    global $mysqli;
+
+    $sql = "INSERT INTO notifications
+                        (user_id, type, transaction_id)
+            VALUES      (?, approval_request, ?)";
+
+    $response = $mysqli->execute_query($sql, [$user_id, $transaction_id]);
+
+    if ($response !== true) {
+        //Error with insertion of notif
+        http_response_code(HTTP_INTERNAL_SERVER_ERROR);
+        return;
+    }
 }
 
 ?>
