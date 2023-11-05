@@ -8,6 +8,7 @@ import { Link } from "expo-router";
 import { getGroups } from '../utils/groups.js'
 import Button from "./Button.js";
 import { ModalContext } from "../modals/ModalContext.js";
+import NewGroup  from "../modals/NewGroup.js";
 import WaitForAuth from "./WaitForAuth.js";
 import Loading from "./Loading.js";
 import { GlobalContext } from "./GlobalContext.js";
