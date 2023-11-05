@@ -66,10 +66,10 @@ function GroupList() {
         //List has been returned, render it
         return (
             <View style={globals.styles.list}>
-                <View style={[globals.styles.listItem, { position: 'sticky', top: 0, zIndex: 1 }]} >
-                    <Text style={[globals.styles.h3, globals.styles.listText, { marginBottom: '-.5em' }]}>GROUP NAME</Text>
+                <View style={[globals.styles.listItem, { padding: 0, position: 'sticky', top: 0, zIndex: 1, backgroundColor: globals.COLOR_WHITE }]} >
+                    <Text style={[globals.styles.h3, globals.styles.listText]}>GROUP NAME</Text>
                     <View style={{ width: 'auto', paddingRight: '.5em', minWidth: '5em', alignItems: 'flex-end' }}>
-                        <Text style={[globals.styles.h3, globals.styles.listText, { marginBottom: '-.5em' }]}>BALANCE</Text>
+                        <Text style={[globals.styles.h3, globals.styles.listText]}>BALANCE</Text>
                     </View>
                 </View>
                 {groupItems}
@@ -129,9 +129,9 @@ const styles = StyleSheet.create({
     groups: {
         width: '35vw',
         minHeight: '20em',
-        height: '25vw',
+        height: '55vh',
         backgroundColor: globals.COLOR_WHITE,
-        minWidth: '20em',
+        minWidth: '25em',
         boxShadow: '0px 0px 5px 5px #eee',
 
         justifyContent: 'flex-start',
