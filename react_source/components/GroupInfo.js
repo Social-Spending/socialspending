@@ -29,7 +29,7 @@ export default function GroupInfo(props) {
     let [iconPath, setIconPath] = useState(null);
 
     const setModal = useContext(ModalContext);
-    const { currUserID } = useContext(GlobalContext);
+    const { currUserID, reRenderCount} = useContext(GlobalContext);
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -48,7 +48,7 @@ export default function GroupInfo(props) {
         }
         getItems();
             
-    }, [props.id]);
+    }, [props.id, reRenderCount]);
     if (props.id == null || groupName == null) {
         return (<></>);
     }

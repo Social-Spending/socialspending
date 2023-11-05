@@ -11,6 +11,7 @@ import { ModalContext } from "../modals/ModalContext.js";
 import WaitForAuth from "./WaitForAuth.js";
 import Loading from "./Loading.js";
 import NewFriend from "../modals/NewFriend.js";
+import { GlobalContext } from "./GlobalContext.js";
 
 export default function SummaryFriendsList(props) {
 
@@ -43,6 +44,8 @@ export default function SummaryFriendsList(props) {
 function FriendList() {
 
     let [summaryFriendItems, setSummaryFriendItems] = useState(null);
+    const {reRenderCount} = useContext(GlobalContext);
+
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -53,7 +56,7 @@ function FriendList() {
         }
         getItems();
 
-    }, []);
+    }, [reRenderCount]);
 
     if (summaryFriendItems === null) {
         //List hasn't loaded yet, show nothing

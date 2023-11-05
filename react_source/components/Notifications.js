@@ -13,8 +13,9 @@ import { ModalContext } from '../modals/ModalContext.js';
 import TransactionInfo from '../modals/TransactionInfo.js';
 import VerifyAction from '../modals/VerifyAction.js';
 import WaitForAuth from './WaitForAuth.js';
+import { GlobalContext } from './GlobalContext.js';
 
-const RemoveContext = createContext(null);
+const NotificationContext = createContext(null);
 
 export default function Notifications(props) {
     const [friendRequests, setFriendRequests] = useState([]);
@@ -60,7 +61,7 @@ export default function Notifications(props) {
 
 
     return (
-        <RemoveContext.Provider value={removeNotif }>
+        <NotificationContext.Provider value={{removeNotif:removeNotif}}>
             <View style={[styles.notifShelf, props.show ? { width: '20vw', minWidth: '16em', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
                 <WaitForAuth requireLogin={true} >
                     <View style={[props.show ? { width: '18vw', minWidth: '14.4em', display: "block" } : { width: '0', display: "none"}]}>
@@ -80,17 +81,19 @@ export default function Notifications(props) {
                 </WaitForAuth>
             
             </View>
-        </RemoveContext.Provider>
+        </NotificationContext.Provider>
     );
 }
 function Section(props) {
     const [open, setOpen] = useState(true);
+    // use isNEmpty to conditionally render the down chevron only if there are actually things to expand
+    let isNEmpty = props.children.length > 0;
 
     return (
         <>
             <View style={{ flexDirection: 'row' } }>
                 <Text style={[globals.styles.h2, { paddingLeft: 0, color: globals.COLOR_GRAY }]} onClick={() => setOpen(!open)}>{props.name}</Text>
-                <Button style={[styles.sectionButton, {transition: '500ms', transform: (open ? 'rotate(180deg)' : ''), backgroundColor: globals.COLOR_WHITE }]} svg={DownChevron} iconStyle={{ width : '100%', fill: globals.COLOR_GRAY }} hoverStyle={{ borderRadius: '50%' }} onClick={() => setOpen(!open)} />
+                {isNEmpty && (<Button style={[styles.sectionButton, {transition: '500ms', transform: (open ? 'rotate(180deg)' : ''), backgroundColor: globals.COLOR_WHITE }]} svg={DownChevron} iconStyle={{ width : '100%', fill: globals.COLOR_GRAY }} hoverStyle={{ borderRadius: '50%' }} onClick={() => setOpen(!open)} />)}
             </View>
             <View style={[styles.notifSection, open ? { maxHeight: '75vh' } : { maxHeight: 0, overflowY: 'hidden' }]}>
                 {props.children}
@@ -103,11 +106,12 @@ function Section(props) {
 
 function FriendRequest(props) {
 
-    const removeNotif = useContext(RemoveContext);
+    const {removeNotif} = useContext(NotificationContext);
+    const {reRender} = useContext(GlobalContext);
     const setModal = useContext(ModalContext);
 
     const approve = (accept) => {
-        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "accept " : "reject ") + props.name + "'s friend request?"} accept={() => { approveFriendRequest(props.id, accept, removeNotif); setModal(null); } } reject={() => setModal(null)} exit={() => setModal(null)} />);
+        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "accept " : "reject ") + props.name + "'s friend request?"} accept={() => { approveFriendRequest(props.id, accept, removeNotif, reRender); setModal(null); } } reject={() => setModal(null)} exit={() => setModal(null)} />);
     }
 
     return (
@@ -122,7 +126,6 @@ function FriendRequest(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} />
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approve(true)} />
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
             </View>
@@ -133,7 +136,8 @@ function FriendRequest(props) {
 }
 
 function ApproveTransaction(props) {
-    const removeNotif = useContext(RemoveContext);
+    const {removeNotif} = useContext(NotificationContext);
+    const {reRender} = useContext(GlobalContext);
     const setModal = useContext(ModalContext);
 
     const viewTransaction = () => {
@@ -141,7 +145,7 @@ function ApproveTransaction(props) {
     }
 
     const approve = (accept) => {
-        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "approve " : "reject ") + props.name + "?"} accept={() => { approveTransaction(props.id, accept, removeNotif); setModal(null); }} reject={() => setModal(null)} exit={() => setModal(null)} />);
+        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "approve " : "reject ") + props.name + "?"} accept={() => { approveTransaction(props.id, accept, removeNotif, reRender); setModal(null); }} reject={() => setModal(null)} exit={() => setModal(null)} />);
     }
 
     return (
@@ -167,7 +171,7 @@ function ApproveTransaction(props) {
 }
 
 function CompletedTransaction(props) {
-    const removeNotif = useContext(RemoveContext);
+    const {removeNotif} = useContext(NotificationContext);
     const setModal = useContext(ModalContext);
 
     const viewTransaction = () => {
@@ -195,7 +199,7 @@ function CompletedTransaction(props) {
     );
 }
 
-async function approveFriendRequest(id, approved, removeNotif) {
+async function approveFriendRequest(id, approved, removeNotif, reRender) {
     let payload = `{
         "operation": ` + (approved ? "\"accept\"" : "\"reject\"") + `,
         "notification_id": ` + id + `
@@ -207,6 +211,8 @@ async function approveFriendRequest(id, approved, removeNotif) {
 
         if (response.ok) {
             removeNotif('friend_request', id);
+            // call function to refresh the Base component with new friend
+            reRender();
         } else {
 
         }
@@ -217,8 +223,9 @@ async function approveFriendRequest(id, approved, removeNotif) {
     }
 }
 
-async function approveTransaction(id, approved, removeNotif) {
+async function approveTransaction(id, approved, removeNotif, reRender) {
     removeNotif("transaction_approval", id)
+    // call function to refresh the Base component with new debts
 }
 
 async function dismissCompletedTransaction(id, removeNotif) {

@@ -10,6 +10,7 @@ import Button from "./Button.js";
 import { ModalContext } from "../modals/ModalContext.js";
 import WaitForAuth from "./WaitForAuth.js";
 import Loading from "./Loading.js";
+import { GlobalContext } from "./GlobalContext.js";
 
 export default function GroupsList(props) {
 
@@ -42,6 +43,7 @@ export default function GroupsList(props) {
 function GroupList() {
 
     let [groupItems, setGroupItems] = useState(null);
+    const {reRenderCount} = useContext(GlobalContext);
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -52,7 +54,7 @@ function GroupList() {
         }
         getItems();
 
-    }, []);
+    }, [reRenderCount]);
 
     if (groupItems === null) {
         //List hasnt loaded yet show nothing

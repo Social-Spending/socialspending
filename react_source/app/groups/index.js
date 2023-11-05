@@ -14,6 +14,7 @@ import { leaveGroup, getGroups } from '../../utils/groups.js'
 import { ModalContext } from '../../modals/ModalContext.js';
 import WaitForAuth from '../../components/WaitForAuth.js';
 import Loading from "../../components/Loading.js";
+import { GlobalContext } from '../../components/GlobalContext.js';
 
 
 export default function Page() {
@@ -37,6 +38,7 @@ function GroupList(props) {
 
     let [groupItems, setGroupItems] = useState(null);
     let setModal = useContext(ModalContext);
+    const {reRenderCount} = useContext(GlobalContext);
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -47,7 +49,7 @@ function GroupList(props) {
         }
         getItems();
 
-    }, []);
+    }, [reRenderCount]);
 
     const addGroupModal = () => {
         setModal(<NewGroup />);
