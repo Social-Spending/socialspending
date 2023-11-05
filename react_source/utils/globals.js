@@ -93,6 +93,7 @@ export const styles = StyleSheet.create({
         maxWidth: '75%',
         height: '6em',
         fontSize: '.86em',
+        color: COLOR_GRAY,
 
         borderStyle: 'none',
         borderBottomStyle: 'solid',
