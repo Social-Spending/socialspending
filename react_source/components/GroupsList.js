@@ -91,10 +91,10 @@ function GroupItem(props) {
 
                 <View style={globals.styles.listIconAndTextContainer}>
                     <Image
-                        style={[globals.styles.listIcon, { marginLeft: '7%', width: '2.5em', height: '2.5em'}]}
+                        style={[globals.styles.listIcon, { marginLeft: '.75em', width: '2.5em', height: '2.5em'}]}
                         source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
                     />
-                    <Text style={[globals.styles.listText, {paddingLeft: '5%'}]}>{props.name}</Text>
+                    <Text style={[globals.styles.listText, {paddingLeft: '.25em'}]}>{props.name}</Text>
                 </View>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>

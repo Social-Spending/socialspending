@@ -191,10 +191,9 @@ export const styles = StyleSheet.create({
     },
     listItemSeperator: {
         paddingTop: '1em',
-        backgroundColor: COLOR_WHITE,
         paddingBottom: '1em',
         justifyContent: 'space-between',
-        alignItems: 'left',
+        alignItems: 'center',
         flexDirection: 'row',
         borderStyle: 'none',
         borderTopStyle: 'solid',
