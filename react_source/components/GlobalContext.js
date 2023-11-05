@@ -61,7 +61,7 @@ export function GlobalContextProvider (props) {
     }, [loginAttempts]);
 
     return (
-        <GlobalContext.Provider
+        <GlobalContext.Provider 
             value={{
                 isLoggedIn: isLoggedIn,
                 currUserID: currUserID,

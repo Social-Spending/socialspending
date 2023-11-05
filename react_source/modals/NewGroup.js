@@ -121,11 +121,9 @@ async function submitForm(groupRef, errorRef) {
 const styles = StyleSheet.create({
     create: {
         zIndex: 1,
-        width: '30vh',
-        minHeight: '20em',
-        height: '40vh',
+        height: '20em',
         backgroundColor: globals.COLOR_WHITE,
-        minWidth: '26em',
+        width: '26em',
         borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',

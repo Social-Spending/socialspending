@@ -40,17 +40,11 @@ function Links(props) {
                 <HeaderLink href="/groups" style={[globals.styles.h3, styles.text]}> Groups </HeaderLink>
                 <HeaderLink href="/friends" style={[globals.styles.h3, styles.text]}> Friends </HeaderLink>
 
-                <HeaderLink href="/faq" style={[globals.styles.h3, styles.text]}> FAQ </HeaderLink>
-                <HeaderLink href="/about" style={[globals.styles.h3, styles.text]}> About </HeaderLink>
-
             </View>
         );
     } else {
         return (
             <View style={styles.container}>
-
-                <HeaderLink href="/faq" style={[globals.styles.h3, styles.text]}> FAQ </HeaderLink>
-                <HeaderLink href="/about" style={[globals.styles.h3, styles.text]}> About </HeaderLink>
 
             </View>
         );
@@ -161,7 +155,7 @@ const styles = StyleSheet.create({
         height: '2em',
         width: '10em',
         margin: 0,
-        marginRight: '2em',
+        marginRight: '1em',
         borderRadius: '2em'
     },
     bell: {

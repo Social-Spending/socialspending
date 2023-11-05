@@ -136,11 +136,9 @@ async function submitForm(image, groupID, userID, errorRef) {
 const styles = StyleSheet.create({
     create: {
         zIndex: 1,
-        width: '40vh',
-        minHeight: '30em',
-        height: '45vh',
+        height: '30em',
         backgroundColor: globals.COLOR_WHITE,
-        minWidth: '27em',
+        width: '27em',
         borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',

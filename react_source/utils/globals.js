@@ -50,7 +50,6 @@ export function getCookieValue(name) {
 
 export const styles = StyleSheet.create({
     container: {
-        position: 'relative',
         width: '100%',
         flex: 1,
         backgroundColor: COLOR_BEIGE,
@@ -59,7 +58,6 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     darkContainer: {
-        position: 'relative',
         width: '100%',
         flex: 1,
         backgroundColor: COLOR_DARK_BLUE,

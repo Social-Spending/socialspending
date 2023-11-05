@@ -192,12 +192,11 @@ async function getTransaction(transactionId) {
 
 const styles = StyleSheet.create({
     info: {
-        width: '45vh',
+        width: '25em',
         minHeight: '30em',
         height: 'auto',
         maxHeight: '80vh',
         backgroundColor: globals.COLOR_WHITE,
-        minWidth: '25em',
         borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',

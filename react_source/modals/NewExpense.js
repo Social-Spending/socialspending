@@ -492,12 +492,11 @@ async function submitForm(formData) {
 
 const styles = StyleSheet.create({
     create: {
-        width: '45vh',
         minHeight: '30em',
         height: 'auto',
-        maxHeight: '60vh',
+        maxHeight: '80vh',
         backgroundColor: globals.COLOR_WHITE,
-        minWidth: '25em',
+        width: '25em',
         borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',

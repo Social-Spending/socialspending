@@ -61,9 +61,9 @@ export default function Notifications(props) {
 
     return (
         <RemoveContext.Provider value={removeNotif }>
-            <View style={[styles.notifShelf, props.show ? { width: '20vw', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
+            <View style={[styles.notifShelf, props.show ? { width: '20vw', minWidth: '16em', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
                 <WaitForAuth requireLogin={true} >
-                    <View style={[props.show ? { width: '18vw', display: "block" } : { width: '0', display: "none"}]}>
+                    <View style={[props.show ? { width: '18vw', minWidth: '14.4em', display: "block" } : { width: '0', display: "none"}]}>
                         <Section name='Friend Requests'>
                             {friendRequests}
                         </Section>
@@ -284,7 +284,6 @@ const styles = StyleSheet.create({
     notifShelf: {
         overflowX: 'hidden',
         alignItems: 'center',
-        zIndex: 2,
         backgroundColor: globals.COLOR_WHITE,
         height: '100%',
         transition: '500ms',

@@ -34,7 +34,7 @@ export default function VerifyAction(props) {
  
                     <Text style={[globals.styles.text, globals.styles.h2, { paddingTop: 0, textAlign: 'center' }]}>{props.label}</Text>
                 
-                    <View style={{flexDirection: 'row', justifyContent: 'center'} }>
+                    <View style={{flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', width: 'auto', maxWidth: '100%'} }>
                         <Button style={[styles.button, { backgroundColor: globals.COLOR_BLUE }]} svg={Accept} iconStyle={styles.icon} label='CONTINUE' onClick={props.accept} />
                         <Button style={[styles.button, { backgroundColor: globals.COLOR_ORANGE }]} svg={Reject} iconStyle={styles.icon} label='CANCEL' onClick={(props.reject != undefined ? props.reject : () => setModal(null))} />
                     </View>
@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
     verify: {
         zIndex: 1,
         width: '40em',
+        maxWidth: '80vw',
         height: 'auto',
         backgroundColor: globals.COLOR_WHITE,
         borderRadius: 18,
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
         borderRadius: 1,
     },
     button: {
-        width: '100%',
+        width: '14em',
         height: '2em',
         fontSize: '1.25em',
         borderRadius: '.5em',

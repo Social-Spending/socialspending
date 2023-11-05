@@ -58,10 +58,10 @@ export default function GroupInfo(props) {
     }
 
     return (
-        <View style={{ flexDirection: 'row', flex: 1, height: '100%'}}>
+        <View style={{ flexDirection: 'row', height: '100%', flex: 1}}>
             
-            <View style={{ flex: 1, margin: '5em', padding: '2.5em', marginTop: '1em' }} >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+            <View style={styles.groupInfo} >
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
                     <View style={globals.styles.listIconAndTextContainer }>
                         <GroupIcon iconPath={iconPath} groupName={groupName} groupID={props.id} />
                         <Text style={[globals.styles.h1, styles.groupName]}>{groupName}</Text>
@@ -225,9 +225,16 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         padding: 0,
         paddingBottom: '.25em',
-        paddingLeft: '5%',
-        fontWeight: 500,
-        flexShrink: 0
+        marginHorizontal: '.5em',
+        fontWeight: 500
+    },
+    groupInfo: {
+        flex: 1,
+        width: 'auto',
+        marginTop: '1em',
+        marginHorizontal: `min(5em, 5vw)`,
+        paddingVertical: '2.5em',
+        paddingHorizontal: `min(2.5em, 2.5vw)`
     },
     listItem: {
         justifyContent: 'space-between',
@@ -252,6 +259,7 @@ const styles = StyleSheet.create({
 
     },
     listContainer: {
+        flex:1,
         marginTop: '2em',
         boxShadow: '0px 0px 5px 5px #eee',
         borderRadius: '1em',
