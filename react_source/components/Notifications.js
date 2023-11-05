@@ -2,6 +2,7 @@ import * as globals from '../utils/globals.js'
 
 import { StyleSheet, View, Text } from 'react-native';
 import { useState, useEffect, createContext, useContext } from 'react';
+import { router } from 'expo-router';
 import Button from './Button.js';
 
 import ApproveSvg   from '../assets/images/bx-check.svg';
@@ -125,7 +126,7 @@ function FriendRequest(props) {
                 
             </View>
             <View style={styles.buttonContainer}>
-
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} onClick={() => router.push("/profile/" + props.user_id)} />
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approve(true)} />
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
             </View>
@@ -250,7 +251,7 @@ async function getNotifications(type){
                     switch (type) {
                         case "friend_request":
                             for (let i = 0; i < json.length; i++) {
-                                notifications.push(<FriendRequest name={json[i].username} id={json[i].notification_id} user_id={json[i].user_id} />)
+                                notifications.push(<FriendRequest name={json[i].username} id={json[i].notification_id} user_id={json[i].friend_id} />)
                             }
                             break;
                         case "transaction_approval":
