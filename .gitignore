@@ -6,3 +6,5 @@
 /metadata.json
 /.vs/
 cookiefile
+/*.log
+/group_icons

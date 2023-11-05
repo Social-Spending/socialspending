@@ -5,10 +5,10 @@ import { useState } from 'react';
 
 import Header from './Header.js';
 import Footer from './Footer.js';
-import { getCookieValue } from './Utils.js';
 import Notifications from './Notifications.js';
 
 import { ModalContext } from '../modals/ModalContext.js';
+import WaitForAuth from './WaitForAuth.js';
 
 export default function Base(props) {
 
@@ -16,39 +16,40 @@ export default function Base(props) {
 
     const [modal, setModal] = useState(null);
 
-    //Check if user is logged in a display correct header
-    let loggedIn = (getCookieValue("session_id") !== "");
-
     return (
         <ModalContext.Provider value={setModal}>
             <View style={styles.base}>
-                <Header loggedIn={loggedIn} showNotif={() => setShowShelf(!showShelf)} />
+                <Header showNotif={() => setShowShelf(!showShelf)} />
 
-                <View style={[props.style, { flexWrap: 'nowrap' }]}>
+                <View style={[{ width: 'auto', minWidth:'100%', flexDirection: 'column', flex: 1 }]}>
 
-                    <View style={[styles.container]}>
-                        {props.children}
+                    <View style={[props.style, { flexDirection: 'row', width: '100%', flex: 1 }]}>
+                        <View style={[styles.container]}>
+                            {props.children}
+                            
+                        </View>
+
+                        <Notifications show={showShelf} />
+
                     </View>
-                
-                    <Notifications show={showShelf} />
 
                     <Footer />
 
                 </View>
-                
+
             </View>
             {modal}
         </ModalContext.Provider>
     );
 }
 
-
-
 const styles = StyleSheet.create({
     base: {
         flex: 1,
-        width: '100%',
-        height: '100%',
+        width: 'max-content',
+        minWidth: '100%',
+        height: 'auto',
+        minHeight: '100%',
         flexWrap: 'nowrap',
 
     },
@@ -61,14 +62,6 @@ const styles = StyleSheet.create({
         flexDirection: 'inherit',
         alignItems: 'inherit',
         justifyContent: 'inherit'
-
-    },
-    notifShelf: {
-        zIndex: 2,
-        backgroundColor: '#555',
-        height: '100%',
-        transition: '500ms'
-
 
     }
 

@@ -1,48 +1,35 @@
 import * as globals from '../../utils/globals.js'
 
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { router } from 'expo-router';
 import { useState, useEffect, useRef, useContext } from 'react';
-
-const LoadingGif = require('../../assets/images/loading/loading-blue-block-64.gif');
 
 import Base from '../../components/Base.js';
 import GroupInfo from '../../components/GroupInfo.js';
 import NewGroup from '../../modals/NewGroup.js'
-import VerifyAction from '../../modals/VerifyAction.js'
 import Sidebar from '../../components/CollapsibleSidebar.js'
 import Button from '../../components/Button.js';
 
 import { leaveGroup, getGroups } from '../../utils/groups.js'
 
 import { ModalContext } from '../../modals/ModalContext.js';
-
+import WaitForAuth from '../../components/WaitForAuth.js';
+import Loading from "../../components/Loading.js";
+import { GlobalContext } from '../../components/GlobalContext.js';
 
 
 export default function Page() {
-
-
-    useEffect(() => {
-        // make a quick GET request to login.php to check if the user's cookies are already authenticated
-        // assemble endpoint for authentication
-        // React advises to declare the async function directly inside useEffect
-        fetch("/login.php", { credentials: 'same-origin' }).then((response) => {
-            if (response.status != 200) {
-                // redirect
-                //router.replace("/login");
-            }
-        });
-
-    }, []);
-
     let [groupID, setGroupID] = useState(null);
-    
+
     return (
         <Base style={[globals.styles.container, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
+            
             <Sidebar title={'Groups'}>
-                <GroupList setGroupID={setGroupID}  />
+                <WaitForAuth redirectOnNotLoggedIn={'/login'}>
+                    <GroupList setGroupID={setGroupID} />
+                </WaitForAuth>
             </Sidebar>
             <GroupInfo id={groupID} />
+           
         </Base>
     );
 }
@@ -51,6 +38,7 @@ function GroupList(props) {
 
     let [groupItems, setGroupItems] = useState(null);
     let setModal = useContext(ModalContext);
+    const {reRenderCount} = useContext(GlobalContext);
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -61,16 +49,16 @@ function GroupList(props) {
         }
         getItems();
 
-    }, []);
+    }, [reRenderCount]);
 
     const addGroupModal = () => {
-        setModal(<NewGroup exit={() => setModal(null)} />);
+        setModal(<NewGroup />);
     }
 
     if (groupItems === null) {
         //List hasnt loaded yet show nothing
         return (
-            <Image source={LoadingGif} style={globals.styles.loading} />
+            <Loading />
         );
 
     } else {
@@ -88,12 +76,16 @@ function GroupList(props) {
 
 function GroupListItem(props) {
 
-    console.log(props.id);
     return (
 
         <View style={props.border ? styles.listItemSeperator : styles.listItem} onClick={() => props.setGroupID(props.id)} >
-
-            <Text style={globals.styles.listText}>{props.name}</Text>
+            <View style={globals.styles.listIconAndTextContainer}>
+                <Image
+                    style={[globals.styles.listIcon, { width: '1.25em', height: '1.25em'}]}
+                    source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
+                />
+                <Text style={globals.styles.listText}>{props.name}</Text>
+            </View>
 
         </View>
     );
@@ -109,7 +101,7 @@ async function buildGroups(setGroupID) {
 
     for (let i = 0; i < groups.length; i++) {
         if (i == 0) setGroupID(groups[i].group_id);
-        groupList.push(<GroupListItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} setGroupID={setGroupID} />);
+        groupList.push(<GroupListItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} icon_path={groups[i].icon_path} setGroupID={setGroupID} />);
     }
 
     return groupList;

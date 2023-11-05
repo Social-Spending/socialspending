@@ -40,15 +40,15 @@ const styles = StyleSheet.create({
         top: 0,
         left: 0,
         width: '15em',
-        backgroundColor: globals.COLOR_WHITE,
+        backgroundColor: globals.COLOR_BEIGE,
         overflowX: 'hidden',
         alignSelf: 'flex-start',
         transition: '500ms',
         scrollbarWidth: 'thin',
         borderStyle: 'none',
         borderRightStyle: 'solid',
-        borderWidth: 1,
-        borderColor: globals.COLOR_GRAY
+        borderWidth: 2,
+        borderColor: globals.COLOR_LIGHT_GRAY
     },
     button: {
         width: '2em',

@@ -12,10 +12,44 @@ export const COLOR_GRAY             = "#777";
 export const COLOR_LIGHT_GRAY       = "#CCC";
 export const COLOR_RED              = "#F00";
 
+export const COLOR_DISABLED         = '#66666633';
+export const COLOR_HOVER            = '#cccccc55';
+export const COLOR_MODAL            = '#33333399';
+
+export function getDefaultGroupIcon(groupName) {
+    // get array of first letter of each word in the group name
+    let matches = groupName.match(/\b(\D)/g);
+    // get the first 2 letters
+    let acronym = '';
+    for (let i = 0; i < matches.length && acronym.length < 2; i++)
+    {
+        if (matches[i] != ' ')
+        {
+            acronym = acronym + matches[i];
+        }
+    }
+
+    // return url to this site which will create an image with the black initials on a white background
+    return "https://dummyimage.com/50x50/ffffff/000000.gif&text=" + acronym;
+}
+
+
+/** 
+*   getCookieValue: Retrieves the value of a specific cookie
+*       @param {string} name     - name of cookie to retrieve
+*       @return {string}  - value of cookie or and empty string if not found
+*/
+export function getCookieValue(name) {
+    const regex = new RegExp(`(^| )${name}=([^;]+)`)
+    const match = document.cookie.match(regex)
+    if (match) {
+        return match[2]
+    }
+    return "";
+}
 
 export const styles = StyleSheet.create({
     container: {
-        position: 'relative',
         width: '100%',
         flex: 1,
         backgroundColor: COLOR_BEIGE,
@@ -24,7 +58,6 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     darkContainer: {
-        position: 'relative',
         width: '100%',
         flex: 1,
         backgroundColor: COLOR_DARK_BLUE,
@@ -47,11 +80,24 @@ export const styles = StyleSheet.create({
         width: '75%',
         height: '2.5em',
         fontSize: '.86em',
-
+        color: COLOR_GRAY,
+      
+        borderColor: COLOR_LIGHT_GRAY,
+        borderWidth: 2,
         borderRadius: 2,
-        borderTopStyle: 'none',
-        borderRightStyle: 'none',
-        borderLeftStyle: 'none'
+        borderStyle: 'none',
+        borderBottomStyle: 'solid'
+    },
+    textarea: {
+        minWidth: '75%',
+        maxWidth: '75%',
+        height: '6em',
+        fontSize: '.86em',
+        color: COLOR_GRAY,
+
+        borderStyle: 'none',
+        borderBottomStyle: 'solid',
+        fontFamily: 'Segoe UI'
     },
     error: {
         padding: '0em',
@@ -59,10 +105,10 @@ export const styles = StyleSheet.create({
         color: COLOR_RED
     },
     disabled: {
-        backgroundColor: "#66666633",
+        backgroundColor: COLOR_DISABLED,
     },
     hover: {
-        backgroundColor: "#cccccc55"
+        backgroundColor: COLOR_HOVER
     },
     labelContainer: {
         paddingTop: '1.5em',
@@ -114,12 +160,17 @@ export const styles = StyleSheet.create({
 
     },
     listItem: {
-        marginTop: '1em',
+        paddingTop: '1em',
         paddingBottom: '1em',
         justifyContent: 'space-between',
-        alignItems: 'left',
+        alignItems: 'center',
         flexDirection: 'row'
 
+    },
+    listIconAndTextContainer: {
+        flexDirection: 'row',
+        justifyContent: 'start',
+        alignItems: 'center'
     },
     listText: {
         fontSize: '1.17em',
@@ -127,14 +178,21 @@ export const styles = StyleSheet.create({
         paddingLeft: '2%',
         paddingRight: '2%',
         paddingBottom: 0,
-        color: COLOR_GRAY
+        color: COLOR_GRAY,
+        flexShrink: 0
+    },
+    listIcon: {
+        paddingTop: 0,
+        paddingLeft: '2%',
+        paddingRight: '2%',
+        paddingBottom: 0,
+        borderRadius: '50%'
     },
     listItemSeperator: {
         paddingTop: '1em',
-        backgroundColor: COLOR_WHITE,
         paddingBottom: '1em',
         justifyContent: 'space-between',
-        alignItems: 'left',
+        alignItems: 'center',
         flexDirection: 'row',
         borderStyle: 'none',
         borderTopStyle: 'solid',
@@ -175,12 +233,38 @@ export const styles = StyleSheet.create({
     modalBackground: {
         height: '100vh',
         width: '100%',
-        backgroundColor: '#33333399',
+        backgroundColor: COLOR_MODAL,
         justifyContent: 'center',
         alignItems: 'center',
         position: 'fixed',
         top: 0
     },
+    summaryList: {
+        width: '35vw',
+        minHeight: '20em',
+        //height: '55vh',
+        backgroundColor: COLOR_WHITE,
+        minWidth: '25em',
+        boxShadow: '0px 0px 5px 5px #eee',
 
+        justifyContent: 'flex-start',
+        alignItems: 'left',
+        overflow: 'hidden'
+    },
+    summaryLabel: {
+        marginLeft: '3%',
+        paddingLeft: ' .5em',
+        paddingTop: '2em',
+        paddingBottom: '0em',
+        color: COLOR_GRAY,
+    },
+    newGroupOrFriendButton: {
+        marginRight: '3%',
+        marginTop: '2em',
+        paddingBottom: '0em',
+        color: COLOR_ORANGE,
+        alignSelf: 'flex-end',
+        width: '10em'
+    }
 
 });

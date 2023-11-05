@@ -12,12 +12,12 @@ export async function getGroups() {
 
         if (response.ok) {
             let json = await response.json();
-            if (json !== null) {
-                let groups = json['groups'];
+            if (json !== null && json['groups'] !== null) {
 
-                return groups;
+                return json['groups'];
             }
-        }
+        } 
+       
     }
     catch (error) {
         console.log("error in in GET request to groups (/groups.php)");
@@ -47,6 +47,7 @@ export async function getGroupInfo(id) {
         }
         else {
             console.log(response.json()['message']);
+            router.replace("/groups");
             return null;
         }
     }

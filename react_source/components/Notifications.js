@@ -2,6 +2,7 @@ import * as globals from '../utils/globals.js'
 
 import { StyleSheet, View, Text } from 'react-native';
 import { useState, useEffect, createContext, useContext } from 'react';
+import { router } from 'expo-router';
 import Button from './Button.js';
 
 import ApproveSvg   from '../assets/images/bx-check.svg';
@@ -12,8 +13,10 @@ import DownChevron from '../assets/images/bx-chevron-down.svg';
 import { ModalContext } from '../modals/ModalContext.js';
 import TransactionInfo from '../modals/TransactionInfo.js';
 import VerifyAction from '../modals/VerifyAction.js';
+import WaitForAuth from './WaitForAuth.js';
+import { GlobalContext } from './GlobalContext.js';
 
-const RemoveContext = createContext(null);
+const NotificationContext = createContext(null);
 
 export default function Notifications(props) {
     const [friendRequests, setFriendRequests] = useState([]);
@@ -59,35 +62,39 @@ export default function Notifications(props) {
 
 
     return (
-        <RemoveContext.Provider value={removeNotif }>
-            <View style={[styles.notifShelf, props.show ? { width: '20vw', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
-                <View style={[props.show ? { width: '18vw', display: "block" } : { width: '0', display: "none"}]}>
-                    <Section name='Friend Requests'>
-                        {friendRequests}
-                    </Section>
+        <NotificationContext.Provider value={{removeNotif:removeNotif}}>
+            <View style={[styles.notifShelf, props.show ? { width: '20vw', minWidth: '16em', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
+                <WaitForAuth requireLogin={true} >
+                    <View style={[props.show ? { width: '18vw', minWidth: '14.4em', display: "block" } : { width: '0', display: "none"}]}>
+                        <Section name='Friend Requests'>
+                            {friendRequests}
+                        </Section>
                 
-                    <Section name='Pending Transactions'>
-                        {transactionApprovals}
-                    </Section>
+                        <Section name='Pending Transactions'>
+                            {transactionApprovals}
+                        </Section>
 
-                    <Section name="Compeleted Transactions">
-                        {completedTransactions}
-                    </Section>
+                        <Section name="Completed Transactions">
+                            {completedTransactions}
+                        </Section>
                 
-                </View>
+                    </View>
+                </WaitForAuth>
             
             </View>
-        </RemoveContext.Provider>
+        </NotificationContext.Provider>
     );
 }
 function Section(props) {
     const [open, setOpen] = useState(true);
+    // use isNEmpty to conditionally render the down chevron only if there are actually things to expand
+    let isNEmpty = props.children.length > 0;
 
     return (
         <>
             <View style={{ flexDirection: 'row' } }>
                 <Text style={[globals.styles.h2, { paddingLeft: 0, color: globals.COLOR_GRAY }]} onClick={() => setOpen(!open)}>{props.name}</Text>
-                <Button style={[styles.sectionButton, {transition: '500ms', transform: (open ? 'rotate(180deg)' : ''), backgroundColor: globals.COLOR_WHITE }]} svg={DownChevron} iconStyle={{ width : '100%', fill: globals.COLOR_GRAY }} hoverStyle={{ borderRadius: '50%' }} onClick={() => setOpen(!open)} />
+                {isNEmpty && (<Button style={[styles.sectionButton, {transition: '500ms', transform: (open ? 'rotate(180deg)' : ''), backgroundColor: globals.COLOR_WHITE }]} svg={DownChevron} iconStyle={{ width : '100%', fill: globals.COLOR_GRAY }} hoverStyle={{ borderRadius: '50%' }} onClick={() => setOpen(!open)} />)}
             </View>
             <View style={[styles.notifSection, open ? { maxHeight: '75vh' } : { maxHeight: 0, overflowY: 'hidden' }]}>
                 {props.children}
@@ -100,11 +107,12 @@ function Section(props) {
 
 function FriendRequest(props) {
 
-    const removeNotif = useContext(RemoveContext);
+    const {removeNotif} = useContext(NotificationContext);
+    const {reRender} = useContext(GlobalContext);
     const setModal = useContext(ModalContext);
 
     const approve = (accept) => {
-        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "accept " : "reject ") + props.name + "'s friend request?"} accept={() => { approveFriendRequest(props.id, accept, removeNotif); setModal(null); } } reject={() => setModal(null)} exit={() => setModal(null)} />);
+        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "accept " : "reject ") + props.name + "'s friend request?"} accept={() => { approveFriendRequest(props.id, accept, removeNotif, reRender); setModal(null); } } reject={() => setModal(null)} exit={() => setModal(null)} />);
     }
 
     return (
@@ -118,8 +126,7 @@ function FriendRequest(props) {
                 
             </View>
             <View style={styles.buttonContainer}>
-
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} onClick={() => router.push("/profile/" + props.user_id)} />
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approve(true)} />
                 <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
             </View>
@@ -130,7 +137,8 @@ function FriendRequest(props) {
 }
 
 function ApproveTransaction(props) {
-    const removeNotif = useContext(RemoveContext);
+    const {removeNotif} = useContext(NotificationContext);
+    const {reRender} = useContext(GlobalContext);
     const setModal = useContext(ModalContext);
 
     const viewTransaction = () => {
@@ -138,7 +146,7 @@ function ApproveTransaction(props) {
     }
 
     const approve = (accept) => {
-        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "approve " : "reject ") + props.name + "?"} accept={() => { approveTransaction(props.trans_id, props.id, accept, removeNotif); setModal(null); }} reject={() => setModal(null)} exit={() => setModal(null)} />);
+        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "approve " : "reject ") + props.name + "?"} accept={() => { approveTransaction(props.trans_id, props.id, accept, removeNotif, reRender); setModal(null); }} reject={() => setModal(null)} exit={() => setModal(null)} />);
     }
 
     return (
@@ -164,7 +172,7 @@ function ApproveTransaction(props) {
 }
 
 function CompletedTransaction(props) {
-    const removeNotif = useContext(RemoveContext);
+    const {removeNotif} = useContext(NotificationContext);
     const setModal = useContext(ModalContext);
 
     const viewTransaction = () => {
@@ -192,7 +200,7 @@ function CompletedTransaction(props) {
     );
 }
 
-async function approveFriendRequest(id, approved, removeNotif) {
+async function approveFriendRequest(id, approved, removeNotif, reRender) {
     let payload = `{
         "operation": ` + (approved ? "\"accept\"" : "\"reject\"") + `,
         "notification_id": ` + id + `
@@ -204,6 +212,8 @@ async function approveFriendRequest(id, approved, removeNotif) {
 
         if (response.ok) {
             removeNotif('friend_request', id);
+            // call function to refresh the Base component with new friend
+            reRender();
         } else {
 
         }
@@ -214,7 +224,8 @@ async function approveFriendRequest(id, approved, removeNotif) {
     }
 }
 
-async function approveTransaction(trans_id, id, approved, removeNotif) {
+
+async function approveTransaction(trans_id, id, approved, removeNotif, reRender) {
 
     let payload = `{
         "transaction_id": ` + trans_id + `
@@ -273,7 +284,7 @@ async function getNotifications(type){
                     switch (type) {
                         case "friend_request":
                             for (let i = 0; i < json.length; i++) {
-                                notifications.push(<FriendRequest name={json[i].username} id={json[i].notification_id} user_id={json[i].user_id} />)
+                                notifications.push(<FriendRequest name={json[i].username} id={json[i].notification_id} user_id={json[i].friend_id} />)
                             }
                             break;
                         case "transaction_approval":
@@ -314,7 +325,6 @@ const styles = StyleSheet.create({
     notifShelf: {
         overflowX: 'hidden',
         alignItems: 'center',
-        zIndex: 2,
         backgroundColor: globals.COLOR_WHITE,
         height: '100%',
         transition: '500ms',
