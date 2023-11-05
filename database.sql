@@ -94,8 +94,8 @@ insert into users (user_id, email, username, pass_hash) values
 (5, 'Tester 2', 'tester2', '$2y$10$OWU6zV8dDl8euugC7nK0SObp.cCZfdjyqPMMnPDEhFJtEX1cC2H9u');
 
 insert into friendships (user_id_1, user_id_2) values
--- (1, 2),
--- (1, 3),
+(1, 2),
+(1, 3),
 (2, 3);
 
 insert into transactions (transaction_id, name, date, amount, description) values
