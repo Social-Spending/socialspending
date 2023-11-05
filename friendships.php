@@ -64,7 +64,22 @@ function sendFriendRequest($username) {
 
 
     // query to check if users are already friends
-
+    $sql = "SELECT user_id_1, user_id_2
+    FROM friendships
+    WHERE (user_id_1 = ? AND user_id_2 = ?)
+    OR (user_id_1 = ? AND user_id_2 = ?);";
+    $result = $mysqli->execute_query($sql, [$other_user_id, $user_id, $user_id, $other_user_id]);
+    // check for errors
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+    // check if there was a row, meaning these two are friends
+    if ($result->num_rows > 0)
+    {
+        returnMessage('Users are already friends', 400);
+    }
 
     // query to check if there is already a friend request
     $sql = "SELECT notification_id

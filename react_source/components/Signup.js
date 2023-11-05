@@ -102,7 +102,7 @@ export default function Signup() {
  * @param {React.MutableRefObject} errorRef reference to error text field to output error text
  * @returns {boolean}                       validity of email
  */
-function checkEmail(emailRef, errorRef) {
+export function checkEmail(emailRef, errorRef) {
 
 
     // Standard RFC 5322 Compliant email regex obtained from here https://emailregex.com/
@@ -125,7 +125,7 @@ function checkEmail(emailRef, errorRef) {
  * @param {React.MutableRefObject} errorRef reference to error text field to print error text to
  * @returns {boolean}                       validity of username
  */
-function checkUsername(userRef, errorRef) {
+export function checkUsername(userRef, errorRef) {
 
     if (userRef.current.value.length >= 4) {
         errorRef.current.innerText = "";
@@ -144,7 +144,7 @@ function checkUsername(userRef, errorRef) {
  * @param {React.MutableRefObject} errorRef     reference to error text field to output error text
  * @returns {boolean}                           validity of password
  */
-function checkPassword(passwordRef, verifyRef, errorRef) {
+export function checkPassword(passwordRef, verifyRef, errorRef) {
 
     if (passwordRef.current.value != verifyRef.current.value) {
         errorRef.current.innerText = "Passwords do not match";
@@ -195,7 +195,7 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempt
     }
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     signup: {
         width: '50vh',
         minWidth: '27em',

@@ -1,4 +1,6 @@
-import * as globals from '../utils/globals.js'
+import * as globals from '../utils/globals.js';
+
+import { addFriend } from '../utils/friends.js';
 
 import { StyleSheet, Text, View, Image, Modal, TextInput } from 'react-native';
 import { router } from "expo-router";
@@ -55,47 +57,24 @@ export default function NewFriend(props) {
     );
 }
 
-/**
-* Search for users given the username or email
-* @param { React.MutableRefObject } userRef reference to group name field
-*/
+// Search for users given the username or email
 function onNameChange(userRef) {
     // TODO search for users and populate drown-down
 }
 
 async function submitForm(userRef, errorRef) {
-
-    // operation and group name in POST request
-    let payload = `{
-                        "operation": "add",
-                        "username": "` + userRef.current.value + `"
-                    }`;
-
-    // do the POST request
-    try {
-        let response = await fetch("/friendships.php", {
-            method: 'POST',
-            body: payload,
-            credentials: 'same-origin',
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-
-        if (await response.ok) {
-            // redirect
+    let responseMessage = await addFriend(userRef.current.value);
+    if (responseMessage !== null)
+    {
+        if (responseMessage == 'Success')
+        {
             router.replace("/friends");
         }
-        else {
-            // failed, display error message returned by server
-            let responseJSON = await response.json();
-            errorRef.current.innerText = responseJSON['message'];
+        else
+        {
+            errorRef.current.innerText = responseMessage;
             errorRef.current.classList.remove('hidden');
         }
-    }
-    catch (error) {
-        console.log("error in POST request to friendships (/friendships.php)");
-        console.log(error);
     }
 }
 
