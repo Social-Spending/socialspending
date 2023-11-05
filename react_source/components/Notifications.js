@@ -146,7 +146,7 @@ function ApproveTransaction(props) {
     }
 
     const approve = (accept) => {
-        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "approve " : "reject ") + props.name + "?"} accept={() => { approveTransaction(props.id, accept, removeNotif, reRender); setModal(null); }} reject={() => setModal(null)} exit={() => setModal(null)} />);
+        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "approve " : "reject ") + props.name + "?"} accept={() => { approveTransaction(props.trans_id, props.id, accept, removeNotif, reRender); setModal(null); }} reject={() => setModal(null)} exit={() => setModal(null)} />);
     }
 
     return (
@@ -224,13 +224,46 @@ async function approveFriendRequest(id, approved, removeNotif, reRender) {
     }
 }
 
-async function approveTransaction(id, approved, removeNotif, reRender) {
-    removeNotif("transaction_approval", id)
-    // call function to refresh the Base component with new debts
+
+async function approveTransaction(trans_id, id, approved, removeNotif, reRender) {
+
+    let payload = `{
+        "transaction_id": ` + trans_id + `
+    }`;
+
+    if (approved) {
+        try {
+            let response = await fetch("/transaction_approval.php", { method: 'PUT', body: payload, credentials: 'same-origin' });
+
+            if (response.ok) {
+                removeNotif('transaction_approval', id);
+            } else {
+
+            }
+        }
+        catch (error) {
+            console.error("error in PUT request to transaction_approval (/transaction_approval.php)");
+            console.error(error);
+        }
+    } else {
+        try {
+            let response = await fetch("/transactions.php", { method: 'DELETE', body: payload, credentials: 'same-origin' });
+
+            if (response.ok) {
+                removeNotif('transaction_approval', id);
+            } else {
+
+            }
+        }
+        catch (error) {
+            console.error("error in DELETE request to transactions (/transactions.php)");
+            console.error(error);
+        }
+    }
 }
 
 async function dismissCompletedTransaction(id, removeNotif) {
-    removeNotif("transaction_approval", id)
+    removeNotif("complete_transaction", id)
 }
 
 async function getNotifications(type){
