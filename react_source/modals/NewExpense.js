@@ -168,7 +168,7 @@ function ChooseName() {
             <textarea tabIndex={3} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
-                <Button disabled={nameDisabled} style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Next' onClick={onSubmit} />
+                <Button disabled={nameDisabled} style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Submit' onClick={onSubmit} />
                 <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 1)} />
             </View>
         </View>
