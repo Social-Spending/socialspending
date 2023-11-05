@@ -4,6 +4,8 @@ include_once('templates/connection.php');
 include_once('templates/cookies.php');
 include_once('templates/constants.php');
 
+include_once('notifications.php');
+
 /*
 Transactions PHP Endpoint
     POC: njones9
@@ -88,7 +90,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST")
 }
 
 /*
-UPDATE Request
+PUT Request
     - Requires JSON object in body
 */
 elseif ($_SERVER["REQUEST_METHOD"] == "PUT")
@@ -376,6 +378,9 @@ function addNewTransaction($data)
             http_response_code(HTTP_INTERNAL_SERVER_ERROR);
             return;
         }
+        
+        //Send out notifications for approval
+        addApprovalRequestNotification($transaction_id, $participant);
     }
     
     return;
@@ -421,8 +426,6 @@ function updateExistingTransaction($data)
     }
 
     
-
-
     $sql = "UPDATE  transactions
             SET     transaction_name = ?,
                     transaction_date = ?,
