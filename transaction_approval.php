@@ -4,36 +4,27 @@ include_once('templates/connection.php');
 include_once('templates/cookies.php');
 include_once('templates/constants.php');
 
+include_once('debts.php');
+
 /*
 Transaction Approval PHP Endpoint
     POC: njones9
 
-    Primary Functions:  getTransactions($user_id)
-                        getTransaction($transaction_id)
+    Primary Functions:  approveTransaction($transaction_id)
+                        submitTransaction($transaction_id)
 
-                        addNewTransaction($json_obj)
-                        updateExistingTransaction($json_obj)
-
-                        deleteTransaction($json_obj)
-
-    Helper Functions:   encapsulateTransactionData($row)
-                        validateTransactionData($json_obj)
-                        checkParticipantsForUser($array, $user_id)
+    Helper Functions:   checkTransactionStatus($transaction_id)
 
 
     Notes:
-
-        In the current state, this DOES NOT integrate with the debt computation
-        mechanisms. JSON objects could use some better notation for follow-on usage.
 
         Includes some error checking, but is not safe against malicious usage.
 
     TODO:
 
-        The updateExistingTransactions function needs some attention. Not all
-        mutable values have setters.
-
-        The Notes section provides some egregious flaws in data security.
+        Only permits a single creditor for a transaction in current state
+        
+        No other transaction code has this limitation
 
     Structure:
 
@@ -52,17 +43,17 @@ Transaction Approval PHP Endpoint
 
 
 /*
-PUT Request
+PUT Request - User is accepting an approval_request
     - Requires URL parameter for transaction_id
 */
 if ($_SERVER["REQUEST_METHOD"] == "PUT")
 {
-
-    if (!empty($_PUT)) 
+    if (isset($_GET['transaction_id']))
     {
-        if (is_string($_PUT) && json_decode($_PUT, true)) {
-            updateExistingTransaction($_PUT);
-        }
+        approveTransaction($_GET['transaction_id']);
+    } else {
+        http_response_code(HTTP_BAD_REQUEST);
+        return;
     }
 }
 
@@ -94,6 +85,8 @@ function resetTransactionApprovals($transaction_id)
 Approves a transaction for a given transaction
     Params
         $transaction_id - The unique identifier for the transaction being modified
+    Returns
+
 */
 function approveTransaction($transaction_id) 
 {
@@ -114,8 +107,27 @@ function approveTransaction($transaction_id)
             SET     has_approved = ?
             WHERE   transaction_id = ? AND user_id = ?";
 
-    $mysqli->execute_query($sql, [true, $transaction_id, $user_id]);
+    $response = $mysqli->execute_query($sql, [true, $transaction_id, $user_id]);
 
+    //User has submitted approval for a transaction they dont belong in
+    if (!boolval($response))
+    {
+        http_response_code(HTTP_BAD_REQUEST);
+        return;
+    }
+
+    //See if all users have now accepted, TRUE = all users have accepted
+    if (checkTransactionStatus($transaction_id)) 
+    {
+        if (submitTransaction($transaction_id) === false)
+        {
+            //Transaction failed to submit in some way
+            http_response_code(HTTP_INTERNAL_SERVER_ERROR);
+            return;
+        }
+    }
+
+    //Approval submitted successfully, debt possibly modified
     return;
 }
 
@@ -139,6 +151,53 @@ function checkTransactionStatus($transaction_id)
     $response = $mysqli->execute_query($sql, [$transaction_id]);
 
     return !boolval($response->num_rows);
+}
+
+/*
+Uses a transaction will full-approval and modifies the debt table
+	Params
+		$transaction_id - The unique identifier for a given transaction
+	Returns
+		false - error submiting transaction (transaction malformed)
+		true - transaction submitted succesfully
+
+TODO: Does not support multiple creditors at this time
+*/
+function submitTransaction($transaction_id)
+{
+	global $mysqli;
+
+	//Get the creditor (owed money, amount < 0), first
+	$sql = "SELECT	user_id, amount
+			FROM	transaction_participants
+			WHERE	transaction_id = ? AND amount < 0";
+	
+	$response = $mysqli->execute_query($sql, [$transaction_id]);
+
+	$creditor = $response->fetch_assoc();
+
+    // Need a creditor associated with the transaction
+	if ($creditor === NULL) 
+	{
+		return false;
+	}
+
+	$sql = "SELECT	user_id, amount
+			FROM	transaction_participants
+			WHERE	transaction_id = ? AND amount > 0";
+	
+	$response = $mysqli->execute_query($sql, [$transaction_id]);
+
+	while ($debtor = $response->fetch_assoc())
+	{
+		//Use debtor amount, NOT creditor amount; creditor amount is total of transaction
+		if (addDebt($creditor['user_id'], $debtor['user_id'], $debtor['amount']) === false)
+		{
+			return false; 
+		}
+	}
+
+	return true;	
 }
 
 ?>
