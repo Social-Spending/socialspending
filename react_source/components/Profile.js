@@ -90,7 +90,7 @@ export default function Profile(props) {
                 </View>
 
                 <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, styles.listTitle]}>Groups</Text>
+                    <Text style={[globals.styles.h3, styles.listTitle]}>Groups in Common</Text>
                     <View style={styles.listHeader} >
 
                         <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>GROUP NAME</Text>
@@ -103,7 +103,7 @@ export default function Profile(props) {
 
                 <View style={styles.listContainer}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <Text style={[globals.styles.h3, styles.listTitle]}>Transactions</Text>
+                        <Text style={[globals.styles.h3, styles.listTitle]}>Transactions in Common</Text>
                         <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
                             <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
                             <Text style={[globals.styles.listText, color]}>${Math.abs(debt / 100).toFixed(2)}</Text>
