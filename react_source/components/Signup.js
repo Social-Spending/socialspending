@@ -1,52 +1,44 @@
 /*
- *  Functions:
- *      checkEmail: Checks value of email field and prevents user from submitting if not a valid email
- *          @param: emailRef - reference to email field
- *          @param: errorRef - reference to error text field to output error text
- *          @return: boolean - validity of email
- *          
- *      checkPassword: Checks value of password field and prevents user from submitting if not equal to verify password field
- *          @param: passwordRef - reference to password field
- *          @param: verifyRef   - reference to verify password field
- *          @param: errorRef    - reference to error text field to output error text
- *          @return: boolean    - validity of password
- *          
- *      checkUsername: Checks value of username field and prevents user from submitting if too short
- *          @param: userRef     - reference to username field
- *          @param: errorRef    - reference to error text field to print error text to
- *          @return: boolean    - validity of username
- *          
- *      Submit: Creates a post request to /signup.php containing values of email, username, and password fields.
- *          @param: userRef     - reference to username field
- *          @param: emailRef    - reference to email field
- *          @param: passwordRef - reference to password field
- *          @param: errorRef    - reference to error text field to print error text to
- *          
-*/
+ *  Signup:
+ *  
+ *      Displays a form allowing email, username, and a password as input
+ *      Submit button makes a request to /signup.php containing email, password, and username
+ *      On signup, the user receives a session cookie and is redirected to /summary
+ *  
+ */
 
+import * as globals from '../utils/globals.js'
 
-
-import { StyleSheet, Text, View, Image } from 'react-native';
-import { useState, useRef } from 'react';
+import { StyleSheet, Text, View, Image, TextInput } from 'react-native';
+import { useState, useRef, useContext } from 'react';
 import { Link, router } from "expo-router";
 
 import Button from './Button.js'
-import { HeaderText } from './TextComponents.js'
 
-const Logo = require('../assets/images/LogoLong.png');
+import { GlobalContext } from '../components/GlobalContext.js';
 
+const Logo = require('../assets/images/logo/logo-name-64.png');
 
+import ShowSvg from '../assets/images/bx-show.svg';
+import HideSvg from '../assets/images/bx-hide.svg';
 
-export default function Login() {
+export default function Signup() {
+    // when a signup is completed, increment loginAttempts to trigger a re-render of GlobalContext
+    const {loginAttempts} = useContext(GlobalContext);
+    const [loginAttemptsState, setLoginAttemptsState] = loginAttempts;
 
     const [emailDisabled    , setEmailDisabled]      = useState(true);
     const [passwordDisabled , setPasswordDisabled]   = useState(true);
     const [usernameDisabled , setUsernameDisabled]   = useState(true);
+    const [showPassword     , setShowPassword]       = useState(false);
+
+    // Refs must be used in the same component they were declared in call any of these functions from a component executes them in said 
+    // components where the refs are null. This fixes that by rerouting the function to run in this component
 
     const onEmailChange     = () => { setEmailDisabled      (checkEmail(emailRef, emailErrorMessageRef)); }
     const onPasswordChange  = () => { setPasswordDisabled   (checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
     const onUsernameChange  = () => { setUsernameDisabled   (checkUsername(userRef, userErrorMessageRef)); }
-    const onSubmit          = () => { Submit                (userRef, emailRef, passwordRef, errorMessageRef); }
+    const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, errorMessageRef, loginAttemptsState, setLoginAttemptsState); }
 
     const errorMessageRef           = useRef(null);
     const emailErrorMessageRef      = useRef(null);
@@ -59,50 +51,58 @@ export default function Login() {
 
     return (
 
-        <View style={styles.login}>
+        <View style={styles.signup}>
 
             <Image source={Logo} style={styles.logo} />
 
-            <HeaderText size={2} style={[styles.label, { paddingTop: 0 }]}>Create your Account</HeaderText>
-            <Text style={styles.text}>Create an account to get started with Social Spending</Text>
+            <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>Create your Account</Text>
+            <Text style={[globals.styles.text, { paddingTop: '1em'}]}>Create an account to get started with Social Spending</Text>
 
-            <Text ref={errorMessageRef} id='signupForm_errorMessage' style={[styles.error, { paddingTop: 0 }]}></Text>
+            <Text ref={errorMessageRef} id='signupForm_errorMessage' style={[globals.styles.error, { paddingTop: 0 }]}></Text>
 
-            <View style={styles.labelContainer}>
-                <HeaderText size={5} style={styles.label}>EMAIL</HeaderText>
-                <Text ref={emailErrorMessageRef} id='email_errorMessage' style={styles.error}></Text>
+            <View style={globals.styles.labelContainer}>
+                <Text style={[globals.styles.h5, globals.styles.label]}>EMAIL</Text>
+                <Text ref={emailErrorMessageRef} id='email_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <input ref={emailRef} type='email' placeholder=" Enter your email address" style={styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
+            <TextInput tabIndex={1} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onChangeText={onEmailChange} />
 
-            <View style={styles.labelContainer}>
-                <HeaderText size={5} style={styles.label}>USERNAME</HeaderText>
-                <Text ref={userErrorMessageRef} id='username_errorMessage' style={styles.error}></Text>
+            <View style={globals.styles.labelContainer}>
+                <Text style={[globals.styles.h5, globals.styles.label]}>USERNAME</Text>
+                <Text ref={userErrorMessageRef} id='username_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <input ref={userRef} placeholder=" Enter your desired username" style={styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
+            <TextInput tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onChangeText={onUsernameChange} />
 
-            <View style={styles.labelContainer}>
-                <HeaderText size={5} style={styles.label}>PASSWORD</HeaderText>
+            <View style={[globals.styles.labelContainer, { justifyContent: 'flex-start' }]}>
+
+                <Text style={[globals.styles.h5, globals.styles.label]}>PASSWORD</Text>
+                <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1em' }} onClick={() => setShowPassword(!showPassword)}></Button>
             </View>
-            <input ref={passwordRef} placeholder=" Password" style={styles.input} id='signupForm_password' type='password' name="Password" onInput={onPasswordChange} />
+            <TextInput tabIndex={3} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' secureTextEntry={!showPassword} autoComplete="current-password" name="Password" onChangeText={onPasswordChange} />
 
-            <View style={styles.labelContainer}>
-                <HeaderText size={5} style={styles.label}>VERIFY PASSWORD</HeaderText>
-                <Text ref={passwordErrorMessageRef} id='password_errorMessage' style={styles.error}></Text>
+            <View style={globals.styles.labelContainer}>
+                <Text style={[globals.styles.h5, globals.styles.label]}>VERIFY PASSWORD</Text>
+                <Text ref={passwordErrorMessageRef} id='password_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <input ref={passwordVerifyRef} placeholder=" Verify Password" style={styles.input} id='signupForm_verifyPassword' type='password' name="Password" onInput={onPasswordChange} />
+            <TextInput tabIndex={4} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' secureTextEntry={!showPassword} autoComplete='current-password' name="Password" onChangeText={onPasswordChange} />
 
-            <Button disabled={emailDisabled || passwordDisabled || usernameDisabled} style={styles.buttonContainer} label='Create Account' onClick={onSubmit} />
+            <Button disabled={emailDisabled || passwordDisabled || usernameDisabled} style={globals.styles.formButton} label='Create Account' onClick={onSubmit} />
 
             <View style={{ flexDirection: 'row', paddingTop: '2em' }}>
-                <Text style={styles.text}>Already have an account? </Text>
-                <Link href="/login" style={[styles.text, { color: '#f7a072' }]}>Login</Link>
+                <Text style={globals.styles.text}>Already have an account? </Text>
+                <Link href="/login" style={[globals.styles.text, { color: globals.COLOR_ORANGE }]}>Login</Link>
             </View>
 
         </View>
     );
 }
 
-function checkEmail(emailRef, errorRef) {
+/**
+ * Checks value of email field and prevents user from submitting if not a valid email
+ * @param {React.MutableRefObject} emailRef reference to email field
+ * @param {React.MutableRefObject} errorRef reference to error text field to output error text
+ * @returns {boolean}                       validity of email
+ */
+export function checkEmail(emailRef, errorRef) {
 
 
     // Standard RFC 5322 Compliant email regex obtained from here https://emailregex.com/
@@ -119,7 +119,13 @@ function checkEmail(emailRef, errorRef) {
     }
 }
 
-function checkUsername(userRef, errorRef) {
+/**
+ * Checks value of username field and prevents user from submitting if too short
+ * @param {React.MutableRefObject} userRef  reference to username field
+ * @param {React.MutableRefObject} errorRef reference to error text field to print error text to
+ * @returns {boolean}                       validity of username
+ */
+export function checkUsername(userRef, errorRef) {
 
     if (userRef.current.value.length >= 4) {
         errorRef.current.innerText = "";
@@ -131,7 +137,14 @@ function checkUsername(userRef, errorRef) {
     }
 }
 
-function checkPassword(passwordRef, verifyRef, errorRef) {
+/**
+ * Checks value of password field and prevents user from submitting if not equal to verify password field
+ * @param {React.MutableRefObject} passwordRef  reference to password field
+ * @param {React.MutableRefObject} verifyRef    reference to verify password field
+ * @param {React.MutableRefObject} errorRef     reference to error text field to output error text
+ * @returns {boolean}                           validity of password
+ */
+export function checkPassword(passwordRef, verifyRef, errorRef) {
 
     if (passwordRef.current.value != verifyRef.current.value) {
         errorRef.current.innerText = "Passwords do not match";
@@ -143,9 +156,13 @@ function checkPassword(passwordRef, verifyRef, errorRef) {
     }
 }
 
-
-
-async function Submit(userRef, emailRef, passwordRef, errorRef) {
+/**
+ * @param {React.MutableRefObject} userRef          reference to username field
+ * @param {React.MutableRefObject} emailRef         reference to email field
+ * @param {React.MutableRefObject} passwordRef      reference to password field
+ * @param {React.MutableRefObject} errorRef         reference to error text field to print error text to
+ */
+async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempts, setLoginAttempts) {
 
     // pul username and password in form data for a POST request
     let payload = new URLSearchParams();
@@ -158,9 +175,11 @@ async function Submit(userRef, emailRef, passwordRef, errorRef) {
         let response = await fetch("/signup.php", { method: 'POST', body: payload, credentials: 'same-origin' });
 
         if (response.ok) {
+            // force GlobalContext to re-try getting user info
+            setLoginAttempts(loginAttempts + 1);
             // success, redirect user
             // check if this url specifies a url to which to redirect
-            router.replace("/summary");
+            router.push("/summary");
 
         }
         else {
@@ -176,76 +195,25 @@ async function Submit(userRef, emailRef, passwordRef, errorRef) {
     }
 }
 
-const styles = StyleSheet.create({
-    login: {
+export const styles = StyleSheet.create({
+    signup: {
         width: '50vh',
         minWidth: '27em',
         height: '70vh',
         minHeight: '39em',
-        backgroundColor: '#FFF',
+        backgroundColor: globals.COLOR_WHITE,
         boxShadow: '0px 0px 5px 5px #eee',
         borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
     },
     logo: {
-        height: '4em',
-        width: '8em',
+        height: '3em',
+        width: '9em',
         minWidth: '2em',
         borderRadius: 1,
     },
-    input: {
-        width: '75%',
-        height: '2.5em',
-        fontSize: '.86em',
-        borderRadius: 2,
-        borderTopStyle: 'none',
-        borderRightStyle: 'none',
-        borderLeftStyle: 'none'
-    },
-    error: {
-        paddingTop: '1.75em',
-        paddingRight: '.416em',
-        paddingLeft: '.416em',
-        color: '#F00'
-    },
-    labelContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '80%'
-    },
-    label: {
-        paddingTop: '2em',
-        paddingBottom: '.5em',
-        color: '#777'
-    },
-    forgot: {
-        paddingTop: '2em',
-        color: '#f7a072',
-        paddingBottom: '.5em',
-        alignSelf: 'flex-end'
-    },
-    checkbox: {
-        marginTop: '.75em',
-        color: '#777',
-        backgroundColor: 'red'
-    },
-    text: {
-        color: '#777',
-        fontSize: '.83em',
-        fontWeight: 600
-    },
-    buttonContainer: {
-        width: '75%',
-        height: '1.75em',
-        fontSize: '1.17em',
-        marginHorizontal: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: '1em',
-        backgroundColor: '#f7a072',
-        borderRadius: 4,
-        boxShadow: '3px 3px 3px #aaa',
-    },
+    
+    
 
 });

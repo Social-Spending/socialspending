@@ -1,21 +1,35 @@
+import * as globals from '../utils/globals.js'
+
 import { StyleSheet, View, Pressable, Text, Image } from 'react-native';
 
-import { HeaderLink, HeaderText } from './TextComponents.js'
+import { useState } from 'react';
 
 
-export default function Button({ label, style, icon, iconStyle, onClick, disabled }) {
+
+export default function Button({ label, style, hoverStyle, iconStyle, textStyle, icon, svg, onClick, disabled }) {
+    const [hover, setHover] = useState(false);
+
     return (
-        <View style={style}>
-            <Pressable style={styles.button} onPress={onClick} disabled={disabled}>
-                <Icon style={iconStyle} icon={icon} />
-                <HeaderText size={5} style={styles.buttonLabel}>{label}</HeaderText>
-            </Pressable>
-        </View>
+        
+        <Pressable style={[styles.button, style]} onPress={onClick} disabled={disabled} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+            <View style={[styles.button, hoverStyle, disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {})]} >
+            
+                <Icon svg={svg} style={iconStyle} icon={icon} />
+                <ButtonText disabled={disabled} label={label} style={textStyle} />
+            </View>
+           
+        </Pressable>
+        
     );
 }
 
 function Icon(props) {
-    if (props.icon) {
+    if (props.svg) {
+        return (
+            <props.svg style={[styles.icon, props.style]} />
+        );
+    }
+    else if (props.icon) {
         return (
             <Image source={props.icon} style={[styles.icon, props.style]} />
         );
@@ -24,9 +38,19 @@ function Icon(props) {
     }
 }
 
+function ButtonText(props) {
+    if (props.label) {
+        return (
+            <Text style={[globals.styles.h5, props.disabled ? styles.buttonLabelDisabled : styles.buttonLabel, props.style ]} >{props.label}</Text>
+        );
+    } else {
+        return;
+    }
+}
+
 const styles = StyleSheet.create({
     button: {
-        borderRadius: 10,
+        borderRadius: 1,
         width: '100%',
         height: '100%',
         alignItems: 'center',
@@ -37,12 +61,14 @@ const styles = StyleSheet.create({
         paddingRight: 8,
     },
     buttonLabel: {
-        color: '#FFF',
+        color: globals.COLOR_WHITE,
+    },
+    buttonLabelDisabled: {
+        color: '#dfdfdf',
     },
     icon: {
         aspectRatio: 1,
         justifyContent: 'flex-start',
         height: '100%',
-        borderRadius: 18,
     },
 });

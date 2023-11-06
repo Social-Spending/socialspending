@@ -1,31 +1,30 @@
+import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View } from 'react-native';
+import { useContext } from 'react';
 import { Redirect } from "expo-router";
 
+import { GlobalContext } from '../components/GlobalContext.js';
+
+import "../utils/global.css"
+import Loading from '../components/Loading.js';
 
 export default function Page() {
+    // get data from global context
+    const {isLoading, isLoggedIn} = useContext(GlobalContext);
 
+    // waiting to get user info
+    if (!isLoading) {
+        // we have user info, should we redirect?
+        if (isLoggedIn) {
+            return (<Redirect href={'/summary'} />);
+        }
+        else {
+            return (<Redirect href={'/login'} />);
 
-    return (
-        <Redirect href='/login' />
-    );
+        }
+    }
+
+    return (<Loading/>);
 }
 
-const styles = StyleSheet.create({
-    container: {
-        position: 'relative',
-        width: '100%',
-        flex: 1,
-        backgroundColor: '#f9f7f3',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    darkContainer: {
-        position: 'relative',
-        width: '100%',
-        flex: 1,
-        backgroundColor: '#2B2D42',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-});
+

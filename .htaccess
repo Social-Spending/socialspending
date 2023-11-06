@@ -1,9 +1,12 @@
 # do not allow web access to some directories
-RedirectMatch 404 \/.git
-RedirectMatch 404 \/templates
-RedirectMatch 404 README.md
-RedirectMatch 404 LICENSE
-RedirectMatch 404 database.sql
+RedirectMatch 404 ^\/.git\/
+RedirectMatch 404 ^\/templates\/
+RedirectMatch 404 ^\/README.md$
+RedirectMatch 404 ^LICENSE$
+RedirectMatch 404 ^database.sql$
+RedirectMatch 404 ^\/test\/
+RedirectMatch 404 ^\/react_source\/
+# RedirectMatch 404 ^\/(.*)\.log$
 
 Options -MultiViews
 RewriteEngine On

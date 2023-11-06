@@ -1,5 +1,10 @@
 /assets/
 /bundles/
+/_expo/
 /favicon.ico
 /index.html
 /metadata.json
+/.vs/
+cookiefile
+/*.log
+/group_icons

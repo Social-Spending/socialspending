@@ -1,27 +1,26 @@
+import * as globals from '../utils/globals.js'
 
-
-import { StyleSheet, Text, View, Image } from 'react-native';
-
-const Logo = require('../assets/images/logo.png');
+import { StyleSheet, Text, View } from 'react-native';
+import { Link, router } from "expo-router";
 
 export default function Footer() {
     return (
 
         <View style={styles.footer}>
 
-            <View style={styles.leftContainer}>
+            <Text style={{ color: globals.COLOR_BEIGE }}>Copyright ©2023 SocialSpending. All Rights Reserved.</Text>
+            <View style={{flexDirection: 'row'}}>
+                <Link href="/faq" style={{color: globals.COLOR_BEIGE}}> FAQ </Link>
+                <Link href="/about" style={{color: globals.COLOR_BEIGE}}> About </Link>
+                <Link href="/contact" style={{color: globals.COLOR_BEIGE}}> Contact Us </Link>
             </View>
-            <Text style={{ color: '#f9f7f3' }}>Copyright SocialSpending© 2023</Text>
-            <View style={styles.rightContainer}>
 
-            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     footer: {
-        position: 'absolute',
         bottom: 0,
         zIndex: 1,
         width: '100%',
@@ -31,22 +30,11 @@ const styles = StyleSheet.create({
         alignSelf: 'top',
         justifyContent: 'space-between',
         alignItems: 'center',
+        opacity: .8,
         flexDirection: 'row',
-        opacity: .8
+        paddingLeft: '1em',
+        paddingRight: '1em'
     },
-    leftContainer: {
-        flex: 1,
-        height: '100%',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-    },
-    rightContainer: {
-        flex: 1,
-        height: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-    },
+    
 
 });

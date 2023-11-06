@@ -1,63 +1,67 @@
+import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View } from 'react-native';
-import { useState, useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useState } from 'react';
 
 import Header from './Header.js';
 import Footer from './Footer.js';
-import { getCookieValue } from "./Utils.js";
+import Notifications from './Notifications.js';
+
+import { ModalContext } from '../modals/ModalContext.js';
+import WaitForAuth from './WaitForAuth.js';
 
 export default function Base(props) {
 
     const [showShelf, setShowShelf] = useState(false);
 
-    //Check if user is logged in a display correct header
-    let loggedIn = (getCookieValue("session_id") !== "");
+    const [modal, setModal] = useState(null);
 
     return (
-        <View style={styles.base}>
-            <Header loggedIn={loggedIn} showNotif={() => setShowShelf(!showShelf)} />
+        <ModalContext.Provider value={setModal}>
+            <View style={styles.base}>
+                <Header showNotif={() => setShowShelf(!showShelf)} />
 
-            <View style={[props.style, { flexWrap: 'nowrap', justifyContent: 'flex-end', flexDirection: 'row' }]}>
+                <View style={[{ width: 'auto', minWidth:'100%', flexDirection: 'column', flex: 1 }]}>
 
-                <View style={styles.container}>
-                    {props.children}
-                </View>
+                    <View style={[props.style, { flexDirection: 'row', width: '100%', flex: 1 }]}>
+                        <View style={[styles.container]}>
+                            {props.children}
+                            
+                        </View>
 
-                <View style={[styles.notifShelf, showShelf ? { width: '20vw' } : { width: '0vh' },]}>
+                        <Notifications show={showShelf} />
+
+                    </View>
+
+                    <Footer />
 
                 </View>
 
             </View>
-
-            <Footer />
-        </View>
+            {modal}
+        </ModalContext.Provider>
     );
 }
-
-
 
 const styles = StyleSheet.create({
     base: {
         flex: 1,
-        width: '100%',
-        height: '100%',
+        width: 'max-content',
+        minWidth: '100%',
+        height: 'auto',
+        minHeight: '100%',
         flexWrap: 'nowrap',
 
     },
     container: {
         flex: 1,
-        width: '100%',
-        height: 'auto',
-        flexWrap: 'nowrap',
-        justifyContent: 'center',
-        alignItems: 'center',
-
-    },
-    notifShelf: {
-        backgroundColor: '#555',
         height: '100%',
-        transition: '500ms'
-
+        minHeight: '45em',
+        width: '100%',
+        flexWrap: 'nowrap',
+        flexDirection: 'inherit',
+        alignItems: 'inherit',
+        justifyContent: 'inherit'
 
     }
 

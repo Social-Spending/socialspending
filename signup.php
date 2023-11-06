@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         // authenticate user session_id cookie now
         $row = $result->fetch_assoc();
         $uid = $row['user_id'];
-        createAndSetSessionID($uid);
+        createAndSetSessionID($uid, false);
         // return okay status code
         returnMessage('Success', 200);
     }

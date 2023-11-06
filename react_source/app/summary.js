@@ -1,34 +1,40 @@
-
-import { StyleSheet, Text, View } from 'react-native';
-
+import * as globals from '../utils/globals.js'
+import { StyleSheet, View } from 'react-native';
 import Base from '../components/Base.js';
-import Groups from '../components/Groups.js';
+import GroupsList from '../components/GroupsList.js';
+import SummaryFriendsList from '../components/SummaryFriendsList.js';
+import WaitForAuth from '../components/WaitForAuth.js';
+import SummaryTransactionsList from '../components/SummaryTransactionsList.js';
 
 export default function Page() {
-
-
     return (
-        <Base style={styles.container}>
-            <Groups />
+        <Base style={globals.styles.container}>
+            <View style={styles.summaryContainer}>
+                <View style={{flexDirection: 'column', paddingRight: '3em'} }>
+                    <GroupsList style={{ height: '38vh' }} />
+                    <SummaryFriendsList style={[styles.summaryComponentSeparator, { height: '38vh' }]} />
+                </View>
+                <WaitForAuth redirectOnNotLoggedIn="/login">
+                    <SummaryTransactionsList style={{ height: '80vh' }} />
+                </WaitForAuth>
+                
+            </View>
         </Base>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        position: 'relative',
+    summaryContainer: {
         width: '100%',
         flex: 1,
-        backgroundColor: '#f9f7f3',
+        backgroundColor: globals.COLOR_BEIGE,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
     },
-    darkContainer: {
-        position: 'relative',
-        width: '100%',
-        flex: 1,
-        backgroundColor: '#2B2D42',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+    summaryComponentSeparator: {
+        marginTop: '4vh'
+    }
+
 });
+
