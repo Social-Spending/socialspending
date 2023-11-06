@@ -76,7 +76,7 @@ export default function Profile(props) {
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
                     <View style={{flexDirection: 'row', justifyContent:'flex-start'}}>
-                        <Text style={[globals.styles.h1, styles.groupName]}>{username} / {email}</Text>
+                        <Text style={[globals.styles.h1, styles.groupName]}>{username}</Text>
                         
                     </View>
                     {isFriend ? <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} svg={UnfriendIcon} iconStyle={styles.icon} label={'UNFRIEND'} onClick={unfriend} /> : <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} iconStyle={styles.icon} label={isPendingFriend ? 'PENDING' : 'ADD FRIEND'} onClick={verifyAddFriend} disabled={isPendingFriend}/> }
