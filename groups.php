@@ -489,10 +489,9 @@ function fillGroupTransactions(&$group, $userID)
     $sql =  'SELECT t.transaction_id, t.name, t.date, COALESCE(tp.amount, 0) as user_debt '.
             'FROM transactions t '.
             'JOIN group_transactions gt ON t.transaction_id = gt.transaction_id '.
-            'JOIN group_members gm ON gm.group_id = gt.group_id '.
-            'LEFT JOIN transaction_participants tp ON tp.user_id = gm.user_id '.
-            'WHERE gm.group_id = ? AND gm.user_id = ?;';
-    $result = $mysqli->execute_query($sql, [$groupID, $userID]);
+            'LEFT JOIN transaction_participants tp ON tp.user_id = ? '.
+            'WHERE gt.group_id = ?;';
+    $result = $mysqli->execute_query($sql, [$userID, $groupID]);
 
     // check that query was successful
     if (!$result)
