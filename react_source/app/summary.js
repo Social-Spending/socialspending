@@ -10,11 +10,14 @@ export default function Page() {
     return (
         <Base style={globals.styles.container}>
             <View style={styles.summaryContainer}>
+                <View style={{flexDirection: 'column', paddingRight: '3em'} }>
+                    <GroupsList style={{ height: '38vh' }} />
+                    <SummaryFriendsList style={[styles.summaryComponentSeparator, { height: '38vh' }]} />
+                </View>
                 <WaitForAuth redirectOnNotLoggedIn="/login">
-                    <SummaryTransactionsList />
+                    <SummaryTransactionsList style={{ height: '80vh' }} />
                 </WaitForAuth>
-                <GroupsList />
-                <SummaryFriendsList style={styles.summaryComponentSeparator} />
+                
             </View>
         </Base>
     );
@@ -25,13 +28,12 @@ const styles = StyleSheet.create({
         width: '100%',
         flex: 1,
         backgroundColor: globals.COLOR_BEIGE,
-        flexDirection: 'column',
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
     },
     summaryComponentSeparator: {
-        marginTop: '1em',
-        marginBottom: '1em'
+        marginTop: '4vh'
     }
 
 });
