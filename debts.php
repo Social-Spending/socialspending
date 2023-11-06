@@ -75,9 +75,8 @@ function addDebt($creditor_id, $debtor_id, $amount) {
 	$sql = "INSERT INTO debts
 						(creditor, debtor, 	amount)
 			VALUES		(?, ?, ?)
-			AS inserted
 			ON DUPLICATE KEY 
-			UPDATE 		amount = amount + inserted.amount";
+			UPDATE 		amount = amount + VALUES(amount)";
 
 	$response = $mysqli->execute_query($sql, [$creditor_id, $debtor_id, $amount]);
 
