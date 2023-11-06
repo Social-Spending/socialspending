@@ -147,7 +147,14 @@ function getTransactions(json) {
 
     for (let i = 0; i < json['transactions'].length; i++) {
 
-        outputList.push(<TransactionListItem key={i} border={i > 0} name={json['transactions'][i].name} id={json['transactions'][i].transaction_id} owed={json['transactions'][i].user_debt} />);
+        outputList.push(<TransactionListItem
+            key={i}
+            border={i > 0}
+            name={json['transactions'][i].name}
+            id={json['transactions'][i].transaction_id}
+            owed={json['transactions'][i].user_debt}
+            isApproved={json['transactions'][i].is_approved}
+            />);
     }
 
     return outputList;
@@ -191,13 +198,15 @@ function MemberListItem({ id, name, owed, border }) {
  *      @param {number} owed         how much the participant paid/owes
  *      @return {React.JSX.Element}  DOM element  
  */
-function TransactionListItem({ id, name, owed, border }) {
+function TransactionListItem({ id, name, owed, border, isApproved }) {
 
     const setModal = useContext(ModalContext);
 
     let text = owed >= 0 ? "Borrowed" : "Paid";
     let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
     color = owed == 0 ? { color: globals.COLOR_GRAY } : color;
+
+    let pendingItalic = isApproved == 0 ? { fontStyle: 'italic' } : {};
 
     const viewTransaction = () => {
         setModal(<TransactionInfo id={id} />);
@@ -207,7 +216,7 @@ function TransactionListItem({ id, name, owed, border }) {
 
         <View style={[border ? styles.listItemSeperator : styles.listItem, {cursor:'pointer'}]} onClick={viewTransaction} >
 
-            <Text style={globals.styles.listText}>{name}</Text>
+            <Text style={[globals.styles.listText, pendingItalic]}>{name}</Text>
             <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                 <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
                 <Text style={[globals.styles.listText, color]}>${Math.abs(owed / 100).toFixed(2)}</Text>

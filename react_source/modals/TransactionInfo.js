@@ -81,6 +81,8 @@ export default function TransactionInfo(props) {
         );
     } else {
         //Transaction info has been returned, render it
+        let pendingItalic = transactionInfo['is_approved'] == 0 ? { fontStyle: 'italic' } : {};
+
         return (
            <Modal
                 transparent={true}
@@ -91,7 +93,7 @@ export default function TransactionInfo(props) {
                     <View style={styles.info} onClick={handleChildClick}>
 
                         <View style={styles.detailsContainer}>
-                            <Text style={[globals.styles.h2, styles.name]}>{transactionInfo['transaction_name']}</Text>
+                            <Text style={[globals.styles.h2, styles.name, pendingItalic]}>{transactionInfo['transaction_name']}</Text>
                         </View>
 
                         <View style={[styles.detailsContainer, { paddingBottom: '2.5em' }]}>
@@ -134,7 +136,14 @@ function getParticipants(participantList) {
 
     for (let i = 0; i < participantList.length; i++) {
 
-        outputList.push(<ListItem key={i} border={i > 0} name={participantList[i]['username']} id={participantList[i]['user_id']} owed={participantList[i]['amount']} />);
+        outputList.push(<ListItem
+            key={i}
+            border={i > 0}
+            name={participantList[i]['username']}
+            id={participantList[i]['user_id']}
+            owed={participantList[i]['amount']}
+            hasApproved={participantList[i]['has_approved']}
+        />);
     }
 
     return outputList;
@@ -148,18 +157,20 @@ function getParticipants(participantList) {
  *      @param {number} owed         how much the participant paid/owes
  *      @return {React.JSX.Element}  DOM element  
  */
-function ListItem({ id, name, owed, border }) {
+function ListItem({ id, name, owed, border, hasApproved }) {
 
     let text = owed >= 0 ? "Borrowed" : "Paid";
     let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
     color = owed == 0 ? { color: globals.COLOR_GRAY } : color;
+
+    let pendingItalic = hasApproved == 0 ? { fontStyle: 'italic' } : {};
 
     return (
 
         <Link href={'/profile/' + id} asChild>
             <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
-                <Text style={globals.styles.listText}>{name}</Text>
+                <Text style={[globals.styles.listText, pendingItalic]}>{name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
                     <Text style={[globals.styles.listText, color]}>${Math.abs(owed / 100).toFixed(2)}</Text>

@@ -49,7 +49,8 @@
                             "transaction_id":<TRANSACTION ID>,
                             "name":<TRANSACTION NAME>,
                             "date":<TRANSACTION DATE>,
-                            "user_debt":<USER_DEBT>
+                            "user_debt":<USER_DEBT>,
+                            "is_approved":<0|1>
                         }
                     ]
                 }
@@ -246,11 +247,17 @@ function handleGET()
         $returnArray['groups'] = $groups;
 
         // get transactions common to both users
-        $sql = "SELECT t.transaction_id, t.name, t.date, tp1.amount as user_debt
+        $sql = "SELECT t.transaction_id, t.name, t.date, tp1.amount as user_debt,
+                    CASE WHEN COUNT(tp3.user_id) = SUM(tp3.has_approved)
+                        THEN 1
+                        ELSE 0
+                    END AS is_approved
                 FROM transaction_participants tp1
                 INNER JOIN transaction_participants tp2 ON tp1.transaction_id = tp2.transaction_id AND tp1.user_id <> tp2.user_id
                 INNER JOIN transactions t ON t.transaction_id = tp1.transaction_id
+                INNER JOIN transaction_participants tp3 ON tp3.transaction_id = t.transaction_id
                 WHERE tp1.user_id = ? AND tp2.user_id = ?
+                GROUP BY t.transaction_id
                 ORDER BY t.date DESC
                 LIMIT ?;";
         $result = $mysqli->execute_query($sql, [$profileUserID, $currUserID, $limit]);

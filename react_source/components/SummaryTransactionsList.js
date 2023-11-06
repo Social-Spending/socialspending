@@ -81,6 +81,8 @@ function SummaryTransactionItem(props) {
     let color = props.debt < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
     color = props.debt == 0 ? { color:globals.COLOR_GRAY } : color;
 
+    let pendingItalic = props.isApproved == 0 ? { fontStyle: 'italic' } : {};
+
     function viewTransaction() {
         setModal(<TransactionInfo id={props.id} />);
     }
@@ -92,7 +94,7 @@ function SummaryTransactionItem(props) {
             onClick={viewTransaction}
         >
 
-            <Text style={[globals.styles.listText, {paddingLeft: '.25em'}]}>{props.name}</Text>
+            <Text style={[globals.styles.listText, {paddingLeft: '.25em'}, pendingItalic]}>{props.name}</Text>
             <Text style={[globals.styles.listText, {paddingLeft: '.25em'}]}>{props.date}</Text>
             <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
                 <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
@@ -126,6 +128,7 @@ async function buildTransactions(currUserID) {
                 id={transactions[i].transaction_id}
                 date={transactions[i].transaction_date}
                 debt={currUserAsParticipant.amount}
+                isApproved={transactions[i].is_approved}
             />
         );
     }

@@ -142,7 +142,17 @@ function getTransactionList(transactionsJSON) {
     let outputList = [];
 
     for (let i = 0; i < transactionsJSON.length; i++) {
-        outputList.push(<TransactionListItem key={i} border={i > 0} name={transactionsJSON[i].name} id={transactionsJSON[i].transaction_id} date={transactionsJSON[i].date} user_debt={transactionsJSON[i].user_debt} />);
+        outputList.push(
+            <TransactionListItem
+                key={i}
+                border={i > 0}
+                name={transactionsJSON[i].name}
+                id={transactionsJSON[i].transaction_id}
+                date={transactionsJSON[i].date}
+                user_debt={transactionsJSON[i].user_debt}
+                isApproved={transactionsJSON[i].is_approved}
+            />
+        );
     }
 
     return outputList;
@@ -166,12 +176,13 @@ function GroupListItem({ id, name, icon_path, border }) {
     );
 }
 
-function TransactionListItem({ id, name, date, user_debt, border }) {
+function TransactionListItem({ id, name, date, user_debt, border, isApproved }) {
 
     const setModal = useContext(ModalContext);
 
     // let text = user_debt >= 0 ? "Borrowed" : "Paid";
     // let color = user_debt >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
+    let pendingItalic = isApproved == 0 ? { fontStyle: 'italic' } : {};
 
     const viewTransaction = () => {
         setModal(<TransactionInfo id={id} />);
@@ -181,7 +192,7 @@ function TransactionListItem({ id, name, date, user_debt, border }) {
 
         <View style={[border ? styles.listItemSeperator : styles.listItem, {cursor:'pointer'}]} onClick={viewTransaction} >
 
-            <Text style={globals.styles.listText}>{name}</Text>
+            <Text style={[globals.styles.listText, pendingItalic]}>{name}</Text>
             <Text style={globals.styles.listText}>{date}</Text>
 
         </View>
