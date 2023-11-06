@@ -60,6 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT")
         if (isset($json['transaction_id'])) {
             approveTransaction($json['transaction_id']);
             return;
+	}
 
     } 
     returnMessage("No transaction_id included", HTTP_BAD_REQUEST);
