@@ -78,9 +78,9 @@ function SummaryTransactionItem(props) {
     const setModal = useContext(ModalContext);
 
     let text = props.debt < 0 ? "Paid" : "Borrowed";
-    text = props.debt == 0 ? "" : text;
     let color = props.debt < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
-    color = props.debt == 0 ? { color:globals.COLOR_BLACK } : color;
+    color = props.debt == 0 ? { color:globals.COLOR_GRAY } : color;
+
     function viewTransaction() {
         setModal(<TransactionInfo id={props.id} />);
     }

@@ -165,6 +165,7 @@ function MemberListItem({ id, name, owed, border }) {
 
     let text = owed < 0 ? "Is Owed" : "Owes";
     let color = owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+    color = owed == 0 ? { color: globals.COLOR_GRAY } : color;
 
     return (
 
@@ -196,6 +197,7 @@ function TransactionListItem({ id, name, owed, border }) {
 
     let text = owed >= 0 ? "Borrowed" : "Paid";
     let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
+    color = owed == 0 ? { color: globals.COLOR_GRAY } : color;
 
     const viewTransaction = () => {
         setModal(<TransactionInfo id={id} />);

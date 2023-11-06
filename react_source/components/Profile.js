@@ -69,6 +69,7 @@ export default function Profile(props) {
 
     let text = debt < 0 ? "Owes You" : "You Owe";
     let color = debt < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+    color = debt == 0 ? { color: globals.COLOR_GRAY } : color;
 
     return (
         <View style={{ flexDirection: 'row', height: '100%', flex: 1}}>

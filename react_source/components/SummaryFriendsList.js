@@ -86,6 +86,7 @@ function SummaryFriendItem(props) {
 
     let text = props.owed < 0 ? "Owes You" : "You Owe";
     let color = props.owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
+    color = props.owed == 0 ? { color: globals.COLOR_GRAY } : color;
 
     return (
 
