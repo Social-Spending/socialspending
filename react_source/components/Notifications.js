@@ -237,6 +237,8 @@ async function approveTransaction(trans_id, id, approved, removeNotif, reRender)
 
             if (response.ok) {
                 removeNotif('transaction_approval', id);
+                // call function to refresh the Base component with new friend
+                reRender();
             } else {
 
             }
@@ -251,6 +253,8 @@ async function approveTransaction(trans_id, id, approved, removeNotif, reRender)
 
             if (response.ok) {
                 removeNotif('transaction_approval', id);
+                // call function to refresh the Base component with new friend
+                reRender();
             } else {
 
             }
