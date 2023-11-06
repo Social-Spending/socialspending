@@ -10,6 +10,7 @@ import { getFriends } from "../utils/friends.js";
 
 import Button from '../components/Button.js'
 import { ModalContext } from './ModalContext.js';
+import { GlobalContext } from '../components/GlobalContext.js';
 
 const Logo = require('../assets/images/logo/logo-name-64.png');
 
@@ -31,11 +32,11 @@ const PAGES = {
         "transaction_description":"Bought you fools some food",
         "transaction_participants":[ 
             {
-                "uid":1,
+                "user_id":1,
                 "amount":20
             },
             {
-                "uid": 2,
+                "user_id": 2,
                 "amount":10
             } 
         ]
@@ -125,7 +126,7 @@ function ChooseName() {
 
     //Sets appropriate values of form data before updating the global version 
     //and then pushing the value to the web request
-    const onSubmit = () => {
+    async function onSubmit() {
         formData.transaction_name = nameRef.current.value;
         formData.transaction_description = descriptionRef.current.value;
         
@@ -137,7 +138,7 @@ function ChooseName() {
 
         setFormData(formData);
 
-        if (submitForm(formData)) {
+        if (await submitForm(formData, errorRef)) {
             setModal(null);
         }
     }
@@ -256,6 +257,8 @@ function SplitExpense() {
         formData: [formData, setFormData]
     } = useContext(ExpenseContext);
 
+    const { currUserID } = useContext(GlobalContext);
+
     const [splitList, setSplitList] = useState([]);
     const [refList, setRefList] = useState([]);
 
@@ -271,7 +274,7 @@ function SplitExpense() {
                 json = await getGroupInfo(groupID);
 
                 if (json !== null) {
-                    setSplitList(await getGroupMembers(json, setRefList));
+                    setSplitList(await getGroupMembers(json, currUserID, setRefList));
                 }
             }
             else {
@@ -279,7 +282,7 @@ function SplitExpense() {
                 json = await getFriends();
 
                 if (json !== null) {
-                    setSplitList(await getFriendsList(json, setRefList));
+                    setSplitList(await getFriendsList(json, currUserID, setRefList));
                 }
             }
         }
@@ -298,7 +301,7 @@ function SplitExpense() {
             if (refList[i].current.value == "" || refList[i].current.value == "0") continue;
 
             formData.transaction_participants.push({
-                uid: splitList[i].props.id,
+                user_id: splitList[i].props.id,
                 amount: parseInt(parseFloat(refList[i].current.value).toFixed(2) * 100)
             })
         }
@@ -372,15 +375,17 @@ async function buildGroups(setID, setPage) {
  * @param {Function} setRefList function to set the refList variable of SplitExpense
  * @returns a list of SplitListItems
  */
-function getGroupMembers(json, setRefList) {
+function getGroupMembers(json, currUserID, setRefList) {
 
     let refList = [];
 
     let outputList = [];
 
+    outputList.push(<SplitListItem refList={refList} key={-1} name='You' id={currUserID} />);
+
     for (let i = 0; i < json['members'].length; i++) {
 
-        outputList.push(<SplitListItem refList={refList} key={i} border={i > 0} name={json['members'][i].username} id={json['members'][i].user_id} />);
+        outputList.push(<SplitListItem refList={refList} key={i} name={json['members'][i].username} id={json['members'][i].user_id} />);
     }
 
     setRefList(refList);
@@ -394,15 +399,17 @@ function getGroupMembers(json, setRefList) {
  * @param {Function} setRefList function to set the refList variable of SplitExpense
  * @returns a list of SplitListItems
  */
-function getFriendsList(json, setRefList) {
+function getFriendsList(json, currUserID, setRefList) {
 
     let refList = [];
 
     let outputList = [];
 
+    outputList.push(<SplitListItem refList={refList} key={-1} name='You' id={currUserID} />);
+
     for (let i = 0; i < json.length; i++) {
 
-        outputList.push(<SplitListItem refList={refList} key={i} border={i > 0} name={json[i].username} id={json[i].user_id} />);
+        outputList.push(<SplitListItem refList={refList} key={i} name={json[i].username} id={json[i].user_id} />);
     }
 
     setRefList(refList);
@@ -434,9 +441,8 @@ function checkName(groupRef, errorRef) {
  * @param {Object} formData object contianing all the details for the new transaction
  * @returns {Boolean} whether or not a new transaction was created
  */
-async function submitForm(formData) {
+async function submitForm(formData, errorRef) {
 
-    console.log(JSON.stringify(formData));
     try {
         let response = await fetch("/transactions.php", {
             method: 'POST',
@@ -447,12 +453,12 @@ async function submitForm(formData) {
             }
         });
 
-        if (response.ok) {
+        if (await response.ok) {
             return true;
 
         }
         else {
-            console.log(response.json()['message']);
+            errorRef.current.innerText = await response.json()['message'];
             return false;
         }
     }

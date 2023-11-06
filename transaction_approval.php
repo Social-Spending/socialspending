@@ -3,6 +3,9 @@
 include_once('templates/connection.php');
 include_once('templates/cookies.php');
 include_once('templates/constants.php');
+include_once("templates/jsonMessage.php");
+
+include_once('notifications.php');
 
 include_once('debts.php');
 
@@ -48,13 +51,19 @@ PUT Request - User is accepting an approval_request
 */
 if ($_SERVER["REQUEST_METHOD"] == "PUT")
 {
-    if (isset($_GET['transaction_id']))
+
+    $_PUT = file_get_contents("php://input");
+    
+    if (!empty($_PUT)) 
     {
-        approveTransaction($_GET['transaction_id']);
-    } else {
-        http_response_code(HTTP_BAD_REQUEST);
-        return;
-    }
+        $json = json_decode($_PUT, true);
+        if (isset($json['transaction_id'])) {
+            approveTransaction($json['transaction_id']);
+            return;
+
+    } 
+    returnMessage("No transaction_id included", HTTP_BAD_REQUEST);
+    return;    
 }
 
 
@@ -97,7 +106,7 @@ function approveTransaction($transaction_id)
     // Unathorized, no user_id associated with cookie
     if ($user_id === 0)
     {
-        http_response_code(HTTP_UNAUTHORIZED);
+        returnMessage("User not signed in", HTTP_UNAUTHORIZED);
         return;
     }
 
@@ -112,17 +121,28 @@ function approveTransaction($transaction_id)
     //User has submitted approval for a transaction they dont belong in
     if (!boolval($response))
     {
-        http_response_code(HTTP_BAD_REQUEST);
+        returnMessage("transaction_id or user_id doesn't exist", HTTP_BAD_REQUEST);
         return;
     }
+    
+    //remove notifications
+    $sql = "SELECT  notifications.notification_id AS notification_id
+            FROM notifications
+            WHERE notifications.user_id=? AND notifications.transaction_id=?";
 
+    $approval_requests = $mysqli->execute_query($sql, [$user_id, $transaction_id]);
+
+    for ($i = 0; $i < $approval_requests->num_rows; $i++) {        
+        removeNotification($approval_requests->fetch_assoc()['notification_id']);
+    }
+    
     //See if all users have now accepted, TRUE = all users have accepted
     if (checkTransactionStatus($transaction_id)) 
     {
         if (submitTransaction($transaction_id) === false)
         {
             //Transaction failed to submit in some way
-            http_response_code(HTTP_INTERNAL_SERVER_ERROR);
+            returnMessage("Error submitting transaction", HTTP_BAD_REQUEST);
             return;
         }
     }
