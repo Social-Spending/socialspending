@@ -107,6 +107,7 @@ export default function NewExpense(props) {
 function ChooseName() {
 
     const setModal = useContext(ModalContext);
+    const {reRender} = useContext(GlobalContext);
 
     let {
         pageNum:    [pageNum    , setPageNum],
@@ -138,6 +139,7 @@ function ChooseName() {
 
         if (await submitForm(formData, errorRef)) {
             setModal(null);
+            reRender();
         }
     }
 

@@ -411,16 +411,18 @@ function addNewTransaction($data)
     }
 
     //Get AUTO_INCREMENT ID for most recent insertion
+    // The transaction_participant that created the transaction should already be approved
     $transaction_id = $mysqli->insert_id;
 
     foreach($data['transaction_participants'] as $participant) 
     {
         $sql = "INSERT INTO transaction_participants    
                             (transaction_id, user_id, has_approved, amount)
-                    VALUES  (?, ?, 0, ?)";
+                    VALUES  (?, ?, ?, ?)";
 
         $response = $mysqli->execute_query($sql, [  $transaction_id,
                                                     $participant['user_id'],
+                                                    ($participant['user_id'] == $passed_user_id) ? 1 : 0,
                                                     $participant['amount'] ]);
 
         //$response === true if insertion successful
