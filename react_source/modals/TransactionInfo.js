@@ -152,6 +152,7 @@ function ListItem({ id, name, owed, border }) {
 
     let text = owed >= 0 ? "Borrowed" : "Paid";
     let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
+    color = owed == 0 ? { color: globals.COLOR_GRAY } : color;
 
     return (
 

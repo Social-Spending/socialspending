@@ -171,7 +171,7 @@ function getTransactions($user_id)
                     transactions.description AS transaction_description
                     
             FROM transaction_participants
-            LEFT JOIN transactions ON transactions.transaction_id = transactions.transaction_id
+            LEFT JOIN transactions ON transactions.transaction_id = transaction_participants.transaction_id
             WHERE transaction_participants.user_id = ?";
 
     $transactions = $mysqli->execute_query($sql, [$user_id]);
