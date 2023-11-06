@@ -51,8 +51,6 @@ const PAGES = {
  */
 export default function NewExpense(props) {
 
-    const onSubmit = () => { submitForm(errorMessageRef); }
-
     //Variables to pass down to all children as a context so that they know and can edit the data of others
     const [pageNum, setPageNum] = useState(1);
     const [groupID, setGroupID] = useState(null);
@@ -83,7 +81,7 @@ export default function NewExpense(props) {
                 <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                     <View style={styles.create} onClick={handleChildClick}>
 
-                        <Image source={Logo} style={styles.logo} onClick={onSubmit} />
+                        <Image source={Logo} style={styles.logo} />
 
                         <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>NEW EXPENSE</Text>
 
@@ -113,7 +111,7 @@ function ChooseName() {
     let {
         pageNum:    [pageNum    , setPageNum],
         formData:   [formData   , setFormData],
-        error:      errorRef
+        errorRef:    errorRef
     } = useContext(ExpenseContext);
 
     const onNameChange = () => { setNameDisabled(checkName(nameRef, errorRef)); }
@@ -458,7 +456,8 @@ async function submitForm(formData, errorRef) {
 
         }
         else {
-            errorRef.current.innerText = await response.json()['message'];
+            let responseJSON = await await response.json();
+            errorRef.current.innerText = responseJSON.message;
             return false;
         }
     }
