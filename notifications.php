@@ -158,15 +158,14 @@ function addApprovalRequestNotification($transaction_id, $user_id)
 
     $sql = "INSERT INTO notifications
                         (user_id, type, transaction_id)
-            VALUES      (?, approval_request, ?)";
+            VALUES (?, \"approval_request\", ?)";
 
-    $response = $mysqli->execute_query($sql, [$user_id, $transaction_id]);
+    $mysqli->execute_query($sql, [$user_id, $transaction_id]);
 
-    if ($response !== true) {
-        //Error with insertion of notif
-        http_response_code(HTTP_INTERNAL_SERVER_ERROR);
-        return;
-    }
+    
+    http_response_code(HTTP_OK);
+    return;
+   
 }
 
 ?>
