@@ -61,7 +61,7 @@ function createAndSetSessionID($user_id, $remember)
 		$cookie_options = array(
 			'path' 		=> '/',
 			'domain' 	=> $domain,
-			'secure' 	=> false,
+			'secure' 	=> false, //TODO: Probably set to true for production environments
 			'httponly' 	=> false,
 			'samesite' 	=> 'Strict' // None || Lax || Strict
 			);
