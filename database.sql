@@ -100,18 +100,24 @@ insert into friendships (user_id_1, user_id_2) values
 
 insert into transactions (transaction_id, name, date, amount, description) values
 (1, 'Halal Shack', '2023-09-29', 899, 'Bought you fools some food'),
-(2, 'Example transaction', '2023-10-30', 500, 'Just a test');
+(2, 'Gas Money', '2023-10-30', 500, 'Thx for driving!'),
+(3, 'Coffee Run', '2023-10-25', 1200, '');
 
 insert into transaction_participants (transaction_id, user_id, has_approved, amount) values
 (1, 1, 1, -899),
 (1, 2, 1, 500),
 (1, 3, 1, 399),
-(2, 1, 0, 500);
+(2, 1, 0, 500),
+(2, 2, 1, -500),
+(3, 3, 1, -1200),
+(3, 1, 1, 400),
+(3, 2, 1, 500),
+(3, 4, 1, 300);
+
 
 insert into groups (group_id, group_name, icon_path) values
 (1, 'CMSC447 Bros', '/group_icons/4171f2bc82fa8a491c5734259ff9799e1e08b4ee.gif'),
-(2, 'Matts', NULL),
-(3, 'Frances and Testers', NULL);
+(2, 'Matts', NULL);
 
 insert into group_members (group_id, user_id) values
 (1, 1),
@@ -120,25 +126,28 @@ insert into group_members (group_id, user_id) values
 (1, 4),
 (1, 5),
 (2, 1),
-(2, 2),
-(3, 2),
-(3, 4),
-(3, 5);
+(2, 2);
 
 insert into group_transactions (group_id, transaction_id) values
-(1, 1);
+(1, 1),
+(2, 2),
+(1, 3);
 
 insert into debts (creditor, debtor, amount) values
-(4, 3, 2300),
-(3, 1, 300),
+(1, 2, 500),
+(1, 3, 001),
 (3, 2, 500),
-(4, 5, 700),
-(1, 2, 1100),
-(2, 4, 1300),
-(5, 2, 1700);
+(3, 4, 300);
 
 INSERT INTO `notifications` (`notification_id`, `user_id`, `type`, `transaction_id`, `friend_request_user_id`) VALUES
-('1', '1', 'friend_request', NULL, '2'), 
-('2', '1', 'friend_request', NULL, '3'),
+('1', '1', 'friend_request', NULL, '4'),
+('2', '1', 'friend_request', NULL, '5'),
 ('3', '1', 'approved_transaction', '1', NULL),
-('4', '1', 'approval_request', '2', NULL);
+('4', '1', 'approved_transaction', '3', NULL),
+('5', '1', 'approval_request', '2', NULL),
+('6', '2', 'approved_transaction', '3', NULL),
+('7', '3', 'approved_transaction', '3', NULL),
+('8', '4', 'approved_transaction', '3', NULL),
+('9', '2', 'approved_transaction', '1', NULL),
+('10', '3', 'approved_transaction', '1', NULL);
+
