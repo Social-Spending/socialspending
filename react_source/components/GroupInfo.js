@@ -205,7 +205,7 @@ function TransactionListItem({ id, name, owed, border }) {
 
     return (
 
-        <View style={border ? styles.listItemSeperator : styles.listItem} onClick={viewTransaction} >
+        <View style={[border ? styles.listItemSeperator : styles.listItem, {cursor:'pointer'}]} onClick={viewTransaction} >
 
             <Text style={globals.styles.listText}>{name}</Text>
             <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
