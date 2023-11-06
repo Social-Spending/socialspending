@@ -3,6 +3,9 @@
 include_once('templates/connection.php');
 include_once('templates/cookies.php');
 include_once('templates/constants.php');
+include_once("templates/jsonMessage.php");
+
+include_once('notifications.php');
 
 /*
 Transaction Approval PHP Endpoint
@@ -57,12 +60,15 @@ PUT Request
 */
 if ($_SERVER["REQUEST_METHOD"] == "PUT")
 {
-
+    $_PUT = file_get_contents("php://input");
+    
     if (!empty($_PUT)) 
     {
-        if (is_string($_PUT) && json_decode($_PUT, true)) {
-            updateExistingTransaction($_PUT);
-        }
+        $json = json_decode($_PUT, true);
+        if (isset($json['transaction_id'])) {
+            approveTransaction($json['transaction_id']);
+            return;
+        }  
     }
 }
 
@@ -104,7 +110,7 @@ function approveTransaction($transaction_id)
     // Unathorized, no user_id associated with cookie
     if ($user_id === 0)
     {
-        http_response_code(HTTP_UNAUTHORIZED);
+        returnMessage("User not signed in", HTTP_UNAUTHORIZED);
         return;
     }
 
@@ -114,7 +120,17 @@ function approveTransaction($transaction_id)
             SET     has_approved = ?
             WHERE   transaction_id = ? AND user_id = ?";
 
-    $mysqli->execute_query($sql, [true, $transaction_id, $user_id]);
+    $mysqli->execute_query($sql, [1, $transaction_id, $user_id]);
+    
+    $sql = "SELECT  notifications.notification_id AS notification_id
+            FROM notifications
+            WHERE notifications.user_id=? AND notifications.transaction_id=?";
+
+    $approval_requests = $mysqli->execute_query($sql, [$user_id, $transaction_id]);
+
+    for ($i = 0; $i < $approval_requests->num_rows; $i++) {        
+        removeNotification($approval_requests->fetch_assoc()['notification_id']);
+    }
 
     return;
 }

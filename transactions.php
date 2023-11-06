@@ -3,6 +3,7 @@
 include_once('templates/connection.php');
 include_once('templates/cookies.php');
 include_once('templates/constants.php');
+include_once("templates/jsonMessage.php");
 
 include_once('notifications.php');
 
@@ -70,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     } 
     // No other valid GET requests, fail out
     else {
-        http_response_code(HTTP_BAD_REQUEST);
+        returnMessage("Incorrect parameters specified", HTTP_BAD_REQUEST);
         return;
     }
 } 
@@ -79,12 +80,13 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 POST Request
     - Requires JSON object in body
 */
-elseif ($_SERVER["REQUEST_METHOD"] == "POST") 
+elseif ($_SERVER["REQUEST_METHOD"] == "POST")      
 {
+    $_POST = file_get_contents("php://input");
     if (!empty($_POST)) 
     {
         if (is_string($_POST) && json_decode($_POST, true)) {
-            addNewTransaction($_POST);
+            addNewTransaction(json_decode($_POST, true));
         }
     }
 }
@@ -100,7 +102,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "PUT")
     if (!empty($_PUT)) 
     {
         if (is_string($_PUT) && json_decode($_PUT, true)) {
-            updateExistingTransaction($_PUT);
+            updateExistingTransaction(json_decode($_PUT, true));
         }
     }
 }
@@ -113,14 +115,25 @@ DELETE Request
 */
 elseif ($_SERVER["REQUEST_METHOD"] == "DELETE")
 {    
-    //Check that user_id was passed as URL parameter
-    if (isset($_GET['transaction_id'])) 
-    {
-        deleteTransaction($_GET['transaction_id']);
-        return;
+
+    $_DELETE = file_get_contents("php://input");
+    //Check that transaction_id was passed as URL parameter
+    if (!empty($_DELETE) && is_string($_DELETE) && json_decode($_DELETE, true)) {
+        $json = json_decode($_DELETE, true);
+
+        if (isset($json["transaction_id"])) {
+            deleteTransaction($json['transaction_id']);
+            return;
+
+        }else{
+            returnMessage("No transaction_id passed", HTTP_BAD_REQUEST);
+            return;
+        }
+        
+       
     } else {
         // No user_id passed, bad request. Cannot retrieve all transactions for everyone
-        http_response_code(HTTP_BAD_REQUEST);
+        returnMessage("Error while parsing JSON", HTTP_BAD_REQUEST);
         return;
     }
 }
@@ -139,14 +152,15 @@ function getTransactions($user_id)
     if ($passed_user_id === 0) 
     {
         // Forbidden, no identifier
-        http_response_code(HTTP_UNAUTHORIZED);
+        returnMessage("User not signed in", HTTP_UNAUTHORIZED);
         return;
     }
 
     if ($passed_user_id !== intval($user_id))
     {
         // User attempted to access resource they cannot access
-        http_response_code(HTTP_FORBIDDEN);
+        returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
+        return;
     }
 
     //Retrieves all information about transactions that $user_id particpated in
@@ -196,7 +210,7 @@ function getTransaction($transaction_id) {
     if ($passed_user_id === 0) 
     {
         // Unathorized, no user_id associated with cookie
-        http_response_code(HTTP_UNAUTHORIZED);
+        returnMessage("User not signed in", HTTP_UNAUTHORIZED);
         return;
     }
 
@@ -217,7 +231,7 @@ function getTransaction($transaction_id) {
     // User attempted to access transaction they are not a part of
     if (!checkParticipantsForUser($response, $passed_user_id))
     {
-        http_response_code(HTTP_FORBIDDEN);
+        returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
         return;
     }
 
@@ -319,7 +333,7 @@ function addNewTransaction($data)
 
     // If invalid data, return HTTP_400 (Bad Request)
     if (!validateTransactionData($data)) {  
-        http_response_code(HTTP_BAD_REQUEST);
+        returnMessage("Invalid request", HTTP_BAD_REQUEST);
         return;
     }
 
@@ -330,14 +344,14 @@ function addNewTransaction($data)
     // Unathorized, no user_id associated with cookie
     if ($passed_user_id === 0)
     {
-        http_response_code(HTTP_UNAUTHORIZED);
+        returnMessage("User not signed in", HTTP_UNAUTHORIZED);
         return;
     }
 
     // User attempted to access transaction they are not a part of
     if (!checkParticipantsForUser($data, $passed_user_id))
     {
-        http_response_code(HTTP_FORBIDDEN);
+        returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
         return;
     }
 
@@ -345,8 +359,8 @@ function addNewTransaction($data)
     //TODO this follows the same pattern as validation, room for improvement
 
     $sql = "INSERT INTO transactions    
-                        (name, date, description)
-                VALUES  (?, ?, ?)";
+                        (name, date, amount, description)
+                VALUES  (?, ?, 0, ?)";
 
     $response = $mysqli->execute_query($sql, [  $data['transaction_name'],
                                                 $data['transaction_date'],
@@ -355,7 +369,7 @@ function addNewTransaction($data)
     //$response === true if insertion successful
     if ($response !== true) {
         //JSON was valid, clearly something internal (HTTP_500) occured
-        http_response_code(HTTP_INTERNAL_SERVER_ERROR);
+        returnMessage("Error creating transaction", HTTP_INTERNAL_SERVER_ERROR);
         return;
     }
 
@@ -365,8 +379,8 @@ function addNewTransaction($data)
     foreach($data['transaction_participants'] as $participant) 
     {
         $sql = "INSERT INTO transaction_participants    
-                            (transaction_id, user_id, amount)
-                    VALUES  (?, ?, ?, ?)";
+                            (transaction_id, user_id, has_approved, amount)
+                    VALUES  (?, ?, 0, ?)";
 
         $response = $mysqli->execute_query($sql, [  $transaction_id,
                                                     $participant['user_id'],
@@ -375,12 +389,12 @@ function addNewTransaction($data)
         //$response === true if insertion successful
         if ($response !== true) {
             //JSON was valid, clearly something internal (HTTP_500) occured
-            http_response_code(HTTP_INTERNAL_SERVER_ERROR);
+            returnMessage("Error creating transaction", HTTP_INTERNAL_SERVER_ERROR);
             return;
         }
         
         //Send out notifications for approval
-        addApprovalRequestNotification($transaction_id, $participant);
+        addApprovalRequestNotification($transaction_id, $participant['user_id']);
     }
     
     return;
@@ -414,14 +428,14 @@ function updateExistingTransaction($data)
     // Unathorized, no user_id associated with cookie OR
     if ($passed_user_id === 0)
     {
-        http_response_code(HTTP_UNAUTHORIZED);
+        returnMessage("User not signed in", HTTP_UNAUTHORIZED);
         return;
     }
 
     // User attempted to access transaction they are not a part of
     if (!checkParticipantsForUser($data, $passed_user_id))
     {
-        http_response_code(HTTP_FORBIDDEN);
+        returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
         return;
     }
 
@@ -442,7 +456,7 @@ function updateExistingTransaction($data)
     //$response === true if update successful
     if ($response !== true) {
         //JSON was valid, clearly something internal (HTTP_500) occured
-        http_response_code(500);
+        returnMessage("Failed to update transaction", HTTP_INTERNAL_SERVER_ERROR);
         return;
     }
 
@@ -475,20 +489,20 @@ function validateTransactionData($data)
     //Needed keys for participants (p)
     $nkp = ['user_id', 'amount'];
 
-    /*
+     /*
     Find the keys in common between the needed_keys and the keys provided
     If the number of keys in common matches the number of keys needed, all necessary keys exist
     If not, return HTTP_400, bad request formatting
     */
-    if (count($nkt) !== count(array_intersect(array_keys($data), $nkt))) {
-        return false;
+    foreach($nkt as $key){
+        if(!isset($data[$key])) return false;
     }
 
-    // Repeat for each participant (p)in non-associative array, ensures each user block is valid
-    foreach ($data['transaction_participants'] as $p)
+    foreach ($data['transaction_participants'] as $participant)
     {
-        if (count($nkp) !== count(array_intersect(array_keys($p), $nkp))) {
-            return false;
+        // Repeat for each participant (p)in non-associative array, ensures each user block is valid
+        foreach($nkp as $key){
+            if(!isset($participant[$key])) return false;
         }
     }
 
@@ -517,7 +531,7 @@ function deleteTransaction($transaction_id)
     // No transaction found, return 404
     if (mysqli_num_rows($transaction_participants) == 0)
     {
-        http_response_code(HTTP_NOT_FOUND);
+        returnMessage("Transaction not found", HTTP_NOT_FOUND);
         return;
     }
 
@@ -531,14 +545,14 @@ function deleteTransaction($transaction_id)
     // Unathorized, no user_id associated with cookie OR
     if ($passed_user_id === 0)
     {
-        http_response_code(HTTP_UNAUTHORIZED);
+        returnMessage("User not signed in", HTTP_UNAUTHORIZED);
         return;
     }
 
     // User attempted to access transaction they are not a part of
     if (!checkParticipantsForUser($data, $passed_user_id))
     {
-        http_response_code(HTTP_FORBIDDEN);
+        returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
         return;
     }
 
@@ -550,7 +564,7 @@ function deleteTransaction($transaction_id)
 
     //$response === true if delete successful
     if ($response !== true) {
-        http_response_code(HTTP_BAD_REQUEST);
+        returnMessage("Failed delete", HTTP_INTERNAL_SERVER_ERROR);
         return;
     }
 }
