@@ -164,15 +164,21 @@ function getTransactions($user_id)
     }
 
     //Retrieves all information about transactions that $user_id particpated in
-    $sql = "SELECT  transaction_participants.user_id AS user_id,
+    $sql = "SELECT  tp1.user_id AS user_id,
                     transactions.transaction_id AS transaction_id,
                     transactions.name AS transaction_name,
                     transactions.date AS transaction_date,
-                    transactions.description AS transaction_description
+                    transactions.description AS transaction_description,
+                    CASE WHEN COUNT(tp2.user_id) = SUM(tp2.has_approved)
+                        THEN 1
+                        ELSE 0
+                    END AS is_approved
                     
-            FROM transaction_participants
-            LEFT JOIN transactions ON transactions.transaction_id = transaction_participants.transaction_id
-            WHERE transaction_participants.user_id = ?";
+            FROM transaction_participants tp1
+            JOIN transactions ON transactions.transaction_id = tp1.transaction_id
+            JOIN transaction_participants tp2 ON tp2.transaction_id = transactions.transaction_id
+            WHERE tp1.user_id = ?
+            GROUP BY transaction_id";
 
     $transactions = $mysqli->execute_query($sql, [$user_id]);
 
@@ -218,10 +224,16 @@ function getTransaction($transaction_id) {
     $sql = "SELECT  transactions.transaction_id AS transaction_id,
                     transactions.name AS transaction_name,
                     transactions.date AS transaction_date,
-                    transactions.description AS transaction_description
+                    transactions.description AS transaction_description,
+                    CASE WHEN COUNT(tp.user_id) = SUM(tp.has_approved)
+                        THEN 1
+                        ELSE 0
+                    END AS is_approved
       
             FROM transactions
-            WHERE transactions.transaction_id = ?";
+            JOIN transaction_participants tp ON tp.transaction_id = transactions.transaction_id
+            WHERE transactions.transaction_id = ?
+            GROUP BY transaction_id";
 
     $transaction = $mysqli->execute_query($sql, [$transaction_id]);
 
@@ -302,6 +314,7 @@ function encapsulateTransactionData($row)
     $transaction['transaction_name'] = $row['transaction_name'];
     $transaction['transaction_date'] = $row['transaction_date'];
     $transaction['transaction_description'] = $row['transaction_description'];
+    $transaction['is_approved'] = $row['is_approved'];
 
 
     // Fetch data about participants *in* that given transaction
