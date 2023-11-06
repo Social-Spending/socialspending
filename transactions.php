@@ -267,6 +267,24 @@ function checkParticipantsForUser($array, $user_id)
 }
 
 
+/* Helper function to check whether the sum of amounts for all participants is 0
+    Params
+        $date - associative array for transaction
+    Returns
+        true - sum of amounts is 0
+        false - sum of amounts is not 0
+*/
+function checkAmountsSumToZero($data)
+{
+    $sum = 0;
+    foreach($data['transaction_participants'] as $participant)
+    {
+        $sum += intval($participant['amount']);
+    }
+
+    return $sum === 0;
+}
+
 /*
 Pass this function a row of data from a sql query concerning transactions
     Returns an associative array entailing all details of that transaction
@@ -353,6 +371,12 @@ function addNewTransaction($data)
     {
         returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
         return;
+    }
+
+    // check that sum of all participant amount is 0
+    if (!checkAmountsSumToZero($data))
+    {
+        returnMessage("Sum of all amounts should be 0", HTTP_BAD_REQUEST);
     }
 
     
