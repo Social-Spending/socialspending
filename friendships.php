@@ -147,7 +147,7 @@ function viewFriends() {
     $friends_array = [];
 
     // Find all friendships with this user and debts between them
-    $sql = "SELECT u.user_id, u.username, COALESCE(d.amount, 0) as debt
+    $sql = "SELECT u.user_id, u.username, COALESCE(SUM(dsum.debt), 0) as debt
             FROM users u
             INNER JOIN (
                 SELECT CASE
@@ -157,10 +157,16 @@ function viewFriends() {
                 FROM friendships
                 WHERE user_id_1 = ? OR user_id_2 = ?
             ) AS f ON u.user_id = f.friend_id
-            LEFT JOIN debts d ON (u.user_id = d.creditor AND ? = d.debtor)
-            OR (u.user_id = d.debtor AND ? = d.creditor);";
+            LEFT JOIN (
+                SELECT
+                    CASE WHEN debtor = ? THEN creditor ELSE debtor END AS creditor,
+                    CASE WHEN debtor = ? THEN amount ELSE -1*amount END AS debt
+                FROM debts
+                WHERE debtor = ? OR creditor = ?
+            ) as dsum ON (f.friend_id = dsum.creditor)
+            GROUP BY user_id;";
 
-    $result = $mysqli->execute_query($sql, [$user_id, $user_id, $user_id, $user_id, $user_id]);
+    $result = $mysqli->execute_query($sql, [$user_id, $user_id, $user_id, $user_id, $user_id, $user_id, $user_id]);
 
     if (!$result)
     {

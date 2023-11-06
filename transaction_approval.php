@@ -7,7 +7,7 @@ include_once("templates/jsonMessage.php");
 
 include_once('notifications.php');
 
-include_once('debts.php');
+include_once("templates/debtHelpers.php");
 
 /*
 Transaction Approval PHP Endpoint
