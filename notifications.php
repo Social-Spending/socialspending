@@ -42,6 +42,9 @@ function getNotifications($type) {
 		case "complete_transaction":
 			getApprovedTransactions($user_id);
 			break;
+        case "group_invite":
+            getGroupInvites($user_id);
+            break;
 		default:
             returnMessage($type . " is not a valid notification type", HTTP_BAD_REQUEST);
 			break;
@@ -126,6 +129,39 @@ function getApprovedTransactions($user_id) {
     }
 
     $json_data = json_encode($approved_transactions_array);
+    header('Content-Type: application/json');
+    echo $json_data;
+    http_response_code(HTTP_OK);
+}
+
+/*
+Returns group invite notifications
+    - user_id = User ID to return notifications for
+*/
+function getGroupInvites($user_id) {
+    global $mysqli;
+
+    $sql = "SELECT  n.notification_id AS notification_id,
+    				g.group_name AS group_name,
+                    n.group_id AS group_id
+            FROM notifications n
+            JOIN groups g ON g.group_id = n.group_id
+            WHERE n.user_id = ? AND n.type = 'group_invite';";
+
+    $results = $mysqli->execute_query($sql, [$user_id]);
+    // check if failure
+    if (!$results)
+    {
+        // not sure if this is the way notifications.php returns other error messages
+        handleDBError();
+    }
+
+    $group_invites_array = array();
+    while ($row = $results->fetch_assoc()) {
+        array_push($group_invites_array, $row);
+    }
+
+    $json_data = json_encode($group_invites_array);
     header('Content-Type: application/json');
     echo $json_data;
     http_response_code(HTTP_OK);
