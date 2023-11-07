@@ -15,7 +15,7 @@ import UploadIcon from "../modals/UploadIcon.js";
 import Leave from '../assets/images/bx-log-out.svg';
 import Upload from '../assets/images/bx-upload.svg';
 
-import { getGroupInfo, leaveGroup } from '../utils/groups.js'
+import { getGroupInfo, leaveGroup, kickMemberFromGroup } from '../utils/groups.js'
 
 import { ModalContext } from '../modals/ModalContext.js';
 import { GlobalContext } from "./GlobalContext.js";
@@ -130,11 +130,11 @@ function getGroupMembers(currUserID, json) {
    
     let outputList = [];
 
-    outputList.push(<MemberListItem key={-1} border={false} name="You" id={currUserID} owed={json.debt} />);
+    outputList.push(<MemberListItem key={-1} border={false} name="You" id={currUserID} owed={json.debt} group_id={json.group_id} />);
 
     for (let i = 0; i < json['members'].length; i++) {
 
-        outputList.push(<MemberListItem key={i} border={true} name={json['members'][i].username} id={json['members'][i].user_id} owed={json['members'][i].debt} />);
+        outputList.push(<MemberListItem key={i} border={true} name={json['members'][i].username} id={json['members'][i].user_id} owed={json['members'][i].debt} group_id={json.group_id} />);
     }
 
     return outputList;
@@ -166,20 +166,34 @@ function getTransactions(json) {
  *      @param {number} id           user_id of participant
  *      @param {string} name         username of participant
  *      @param {number} owed         how much the participant paid/owes
+ *      @param {number} group_id     group_id for the page being displayed
  *      @return {React.JSX.Element}  DOM element  
  */
-function MemberListItem({ id, name, owed, border }) {
+function MemberListItem({ id, name, owed, border, group_id }) {
 
     let text = owed < 0 ? "Is Owed" : "Owes";
     let color = owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
     color = owed == 0 ? { color: globals.COLOR_GRAY } : color;
+
+    // get currUserID to remove the 'kick' button next to the member list item for the current user
+    // get reRender to re-load the page after a user has been removed
+    const { currUserID, reRender} = useContext(GlobalContext);
+    const setModal = useContext(ModalContext);
+
+    function kickMember(event) {
+        event.preventDefault();
+        setModal(<VerifyAction label={'Are you sure you want to remove '+name+' from the group?'} accept={() => kickMemberFromGroup(id, group_id, setModal, reRender)} />);
+    }
 
     return (
 
         <Link href={'/profile/' + id} asChild>
             <View style={border ? styles.listItemSeperator : styles.listItem} >
 
-                <Text style={globals.styles.listText}>{name}</Text>
+                <View style={globals.styles.listIconAndTextContainer}>
+                    <Text style={globals.styles.listText}>{name}</Text>
+                    {currUserID != id ? <Button style={[globals.styles.transparentButton, { width: '1.75em', margin: 0, marginTop: '.25em' }]} svg={Leave} iconStyle={styles.kickButton} aria-label="Kick User" onClick={kickMember} /> : <></>}
+                </View>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
                     <Text style={[globals.styles.listText, color]}>${Math.abs(owed / 100).toFixed(2)}</Text>
@@ -293,6 +307,10 @@ const styles = StyleSheet.create({
     },
     icon: {
         fill: globals.COLOR_WHITE,
+        width: '1.25em'
+    },
+    kickButton: {
+        fill: globals.COLOR_GRAY,
         width: '1.25em'
     },
     uploadContainer: {

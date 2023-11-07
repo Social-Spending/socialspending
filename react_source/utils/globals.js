@@ -135,6 +135,13 @@ export const styles = StyleSheet.create({
         borderRadius: 4,
         boxShadow: '3px 3px 3px #aaa',
     },
+    transparentButton: {
+        width: '75%',
+        fontSize: '1.17em',
+        marginHorizontal: 20,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
     showPassword: {
         fontSize: '1.2em',
         height: '100%',
