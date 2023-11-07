@@ -52,8 +52,8 @@ const PAGES = {
 export default function NewExpense(props) {
 
     //Variables to pass down to all children as a context so that they know and can edit the data of others
-    const [pageNum, setPageNum] = useState(1);
-    const [groupID, setGroupID] = useState(null);
+    const [pageNum, setPageNum] = useState(props.groupID ? 3 : 1);
+    const [groupID, setGroupID] = useState(props.groupID ? props.groupID : null);
     const [formData, setFormData] = useState({});
 
     const errorMessageRef = useRef(null);
