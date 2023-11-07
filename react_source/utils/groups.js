@@ -92,3 +92,38 @@ export async function leaveGroup(id) {
         console.log(error);
     }
 }
+
+export async function kickMemberFromGroup(user_id, group_id, setModal, reRender) {
+    let payload = {
+        'operation': 'kick_user',
+        'group_id': group_id,
+        'user_id': user_id
+    };
+
+    // do the POST request
+    try {
+        let response = await fetch("/groups.php", {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            credentials: 'same-origin',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (await response.ok) {
+            // close modal and re-render the group page
+            setModal(null);
+            reRender();
+        }
+        else {
+            // failed, display error message returned by server
+            console.log("Error while kicking user with id "+user_id+" from group");
+            console.log(error);
+        }
+    }
+    catch (error) {
+    console.log("error in kick_user operation (POST request) to /groups.php");
+    console.log(error);
+    }
+}
