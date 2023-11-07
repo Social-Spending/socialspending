@@ -145,7 +145,7 @@ function ChooseName() {
 
     return (
         <View style={[
-                styles.pageContianer, {
+                styles.pageContainer, {
                 display: pageNum != PAGES.CHOOSE_NAME ? 'none' : 'inherit'
         }]} >
             <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Enter transaction name and description to get started</Text>
@@ -188,14 +188,14 @@ function SelectSplit() {
     } = useContext(ExpenseContext);
 
     return (
-        <View style={[styles.pageContianer, {
+        <View style={[styles.pageContainer, {
             display: pageNum != PAGES.SELECT_SPLIT ? 'none' : 'inherit'
         }]}>
             <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Do you want to split between a group or friends?</Text>
 
             <Button style={[globals.styles.formButton, { margin: 0, marginBottom: '.5em', marginTop: '1.5em' }]} label='Group' onClick={() => setPageNum(PAGES.SELECT_GROUP)} />
 
-            <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '.5em' }]} label='Friends' onClick={
+            <Button style={[globals.styles.formButton, { margin: 0, marginTop: '.5em', marginBottom: '2em' }]} label='Friends' onClick={
                 () => {
                     setPageNum(PAGES.SPLIT_EXPENSE);
                     setGroupID(null);
@@ -231,12 +231,14 @@ function SelectGroup() {
     }, [pageNum]);
 
     return (
-        <View style={[styles.pageContianer, {
+        <View style={[styles.pageContainer, {
             display: pageNum != PAGES.SELECT_GROUP ? 'none' : 'inherit'
         }]}>
             <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Which group is this transaction for?</Text>
 
-            {groups}
+            <View style={[globals.styles.list, { alignItems: 'center', justifyContent: 'center', width: '75%' }]} >
+                {groups}
+            </View>
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
                 <Button  style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 1)} />
@@ -261,6 +263,7 @@ function SplitExpense() {
 
     const [splitList, setSplitList] = useState([]);
     const [refList, setRefList] = useState([]);
+    const [paidList, setPaidList] = useState([]);
 
     // If users selected a group, groupID will be set and so we get the member list for that group
     // Otherwise get the users friends
@@ -274,7 +277,7 @@ function SplitExpense() {
                 json = await getGroupInfo(groupID);
 
                 if (json !== null) {
-                    setSplitList(await getGroupMembers(json, currUserID, setRefList));
+                    setSplitList(await getGroupMembers(json, currUserID, setPaidList, setRefList));
                 }
             }
             else {
@@ -282,7 +285,7 @@ function SplitExpense() {
                 json = await getFriends();
 
                 if (json !== null) {
-                    setSplitList(await getFriendsList(json, currUserID, setRefList));
+                    setSplitList(await getFriendsList(json, currUserID, setPaidList, setRefList));
                 }
             }
         }
@@ -297,12 +300,13 @@ function SplitExpense() {
         formData.transaction_participants = [];
 
         for (let i = 0; i < splitList.length; i++) {
+
             //Dont add users with 0 values
             if (refList[i].current.value == "" || refList[i].current.value == "0") continue;
 
             formData.transaction_participants.push({
                 user_id: splitList[i].props.id,
-                amount: parseInt(parseFloat(refList[i].current.value).toFixed(2) * 100)
+                amount: parseInt(parseFloat(refList[i].current.value).toFixed(2) * (paidList[i].current ? -100 : 100))
             })
         }
         setFormData(formData);
@@ -310,14 +314,19 @@ function SplitExpense() {
     }
 
     return (
-        <View style={[styles.pageContianer, {
+        <View style={[styles.pageContainer, {
             display: pageNum != PAGES.SPLIT_EXPENSE ? 'none' : 'inherit'
         }]}>
             <Text style={[globals.styles.text, { paddingTop: '1em' }]}>How much did each person contribute?</Text>
 
-            {splitList}
+            
+            <View style={[globals.styles.list, { width: '80%' }]} >
+                {splitList}
+            </View>
+            
+            
 
-            <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
+            <View style={{justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
                 <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 2)} />
                 <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Next' onClick={onSubmit} />
             </View>
@@ -330,17 +339,40 @@ function SplitExpense() {
 function SplitListItem(props) {
 
     const inputRef = useRef(null);
-    props.refList.push(inputRef);
+    const paid = useRef(true);
+    const [reRender, setReRender] = useState(0);
+
+    useEffect(() => {
+        props.refList.push(inputRef);
+        props.paidList.push(paid);
+
+    }, []);
+
+    function updateButton() {
+        paid.current = !paid.current;
+        setReRender(reRender + 1);
+    }
+    
+   
 
     return (
         
-        <View style={[styles.listItem, {width: '75%'}]} >
+        <View style={[styles.listItem, {width: '100%'}]} >
 
             <Text style={[globals.styles.listText, { marginVertical: 'auto' }]}>{props.name}</Text>
-            <View style={{ width: '5em' }}>
-                <input ref={inputRef} style={globals.styles.input} step={.01} type='number' placeholder={0}></input>
-                
+            <View style={{flexDirection: 'row', width: 'auto' }}>
+                <Button
+                    style={{ width: 'auto', marginTop: '.25em' }}
+                    textStyle={{ fontWeight: '500', color: paid.current ? globals.COLOR_BLUE : globals.COLOR_ORANGE }}
+                    label={paid.current ? "Paid" : "Borrowed"}
+                    onClick={updateButton} />
+
+                <View style={{ width: '5em' }}>
+                    <input ref={inputRef} style={globals.styles.input} step={.01} type='number' placeholder={0} min={0}></input>
+
+                </View>
             </View>
+           
            
         </View>
         
@@ -359,7 +391,7 @@ async function buildGroups(setID, setPage) {
     const groups = await getGroups();
 
     for (let i = 0; i < groups.length; i++) {
-        outputList.push(<Button style={[globals.styles.formButton, { margin: 0, marginVertical: '.5em' }]} label={groups[i].group_name} onClick={
+        outputList.push(<Button style={[globals.styles.formButton, { width: '100%', margin: 0, marginVertical: '.5em' }]} label={groups[i].group_name} onClick={
             () => { 
                 setID(groups[i].group_id);
                 setPage(PAGES.SPLIT_EXPENSE);
@@ -375,19 +407,20 @@ async function buildGroups(setID, setPage) {
  * @param {Function} setRefList function to set the refList variable of SplitExpense
  * @returns a list of SplitListItems
  */
-function getGroupMembers(json, currUserID, setRefList) {
+function getGroupMembers(json, currUserID, setPaidList, setRefList) {
 
     let refList = [];
 
     let outputList = [];
+    let paidList = [];
 
-    outputList.push(<SplitListItem refList={refList} key={-1} name='You' id={currUserID} />);
+    outputList.push(<SplitListItem paidList={paidList} refList={refList} key={-1} name='You' id={currUserID} />);
 
     for (let i = 0; i < json['members'].length; i++) {
 
-        outputList.push(<SplitListItem refList={refList} key={i} name={json['members'][i].username} id={json['members'][i].user_id} />);
+        outputList.push(<SplitListItem paidList={paidList} refList={refList} key={i} name={json['members'][i].username} id={json['members'][i].user_id} />);
     }
-
+    setPaidList(paidList);
     setRefList(refList);
     return outputList;
 
@@ -399,19 +432,21 @@ function getGroupMembers(json, currUserID, setRefList) {
  * @param {Function} setRefList function to set the refList variable of SplitExpense
  * @returns a list of SplitListItems
  */
-function getFriendsList(json, currUserID, setRefList) {
+function getFriendsList(json, currUserID, setPaidList, setRefList) {
 
     let refList = [];
 
     let outputList = [];
+    let paidList = [];
 
-    outputList.push(<SplitListItem refList={refList} key={-1} name='You' id={currUserID} />);
+    outputList.push(<SplitListItem paidList={paidList} refList={refList} key={-1} name='You' id={currUserID} />);
 
     for (let i = 0; i < json.length; i++) {
 
-        outputList.push(<SplitListItem refList={refList} key={i} name={json[i].username} id={json[i].user_id} />);
+        outputList.push(<SplitListItem paidList={paidList} refList={refList} key={i} name={json[i].username} id={json[i].user_id} />);
     }
 
+    setPaidList(paidList);
     setRefList(refList);
     return outputList;
 
@@ -472,7 +507,7 @@ async function submitForm(formData, errorRef) {
 
 const styles = StyleSheet.create({
     create: {
-        minHeight: '30em',
+        minHeight: '25em',
         height: 'auto',
         maxHeight: '80vh',
         backgroundColor: globals.COLOR_WHITE,
@@ -482,10 +517,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         opacity: 1
     },
-    pageContianer: {
+    pageContainer: {
+        flex: 1,
+        height: 'auto', 
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
+
+        overflowY: 'none',
     },
     listItem: {
         justifyContent: 'space-between',
