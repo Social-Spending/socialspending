@@ -52,7 +52,6 @@ function handlePOST()
     }
 
     // get data from POST
-    // TODO: protect against SQL injection
     if (!isset($_POST['group_id']) || !isset($_FILES['icon']))
     {
         returnMessage('Missing form fields', 400);

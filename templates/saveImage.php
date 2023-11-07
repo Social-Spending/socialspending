@@ -56,6 +56,10 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
 
     imagecopyresized($image, $image, 0, 0, 0, 0, $allowedWidth, $allowedHeight, $actualWidth, $actualHeight);
 
+    // make sure this destination folder exists
+    if (!file_exists($dir)) {
+        mkdir($dir, 0777, true);
+    }
     // generate random name for the file and save
     do
     {
@@ -63,7 +67,11 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
         $serverFileName = $dir.$imageID.'.gif';
     }
     while (file_exists($serverFileName));
-    imagegif($image, $serverFileName);
+    if (!imagegif($image, $serverFileName))
+    {
+        $_VALIDATE_IMAGE_FAILURE_MESSAGE = 'Failed to save image';
+        return false;
+    }
     imagedestroy($image);
 
     // result is path to image file on server

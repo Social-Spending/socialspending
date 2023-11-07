@@ -107,7 +107,7 @@ function GroupIcon({ iconPath, groupName, groupID }) {
     const setModal = useContext(ModalContext);
 
     const upload = () => {
-        setModal(<UploadIcon groupID={groupID} />);
+        setModal(<UploadIcon groupNUser={true} groupID={groupID} />);
     }
 
     return (

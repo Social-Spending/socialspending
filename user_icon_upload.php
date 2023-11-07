@@ -50,7 +50,6 @@ function handlePOST()
     }
 
     // get data from POST
-    // TODO: protect against SQL injection
     if (!isset($_FILES['icon']))
     {
         returnMessage('Missing \'icon\' form field', 400);

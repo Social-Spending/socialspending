@@ -33,6 +33,23 @@ export function getDefaultGroupIcon(groupName) {
     return "https://dummyimage.com/50x50/ffffff/000000.gif&text=" + acronym;
 }
 
+export function getDefaultUserIcon(username) {
+    // get array of uppercase letters used in the username
+    let matches = username.match(/[A-Z]/g);
+    // get the first 2 uppercase letters
+    let acronym = '';
+    for (let i = 0; i < matches.length && acronym.length < 2; i++)
+    {
+        if (matches[i] != ' ')
+        {
+            acronym = acronym + matches[i];
+        }
+    }
+
+    // return url to this site which will create an image with the black initials on a white background
+    return "https://dummyimage.com/50x50/ffffff/000000.gif&text=" + acronym;
+}
+
 
 /** 
 *   getCookieValue: Retrieves the value of a specific cookie
@@ -190,7 +207,6 @@ export const styles = StyleSheet.create({
     },
     listIcon: {
         paddingTop: 0,
-        paddingLeft: '2%',
         paddingRight: '2%',
         paddingBottom: 0,
         borderRadius: '50%'
