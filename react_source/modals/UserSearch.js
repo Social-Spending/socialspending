@@ -21,7 +21,7 @@ const Logo = require('../assets/images/logo/logo-name-64.png');
  *      @param {string} label        question presented to the user
  *      @param {string} submitLabel        text to put on the 'submit' button
  *      @param {StyleSheet} style    Styles to use
- *      @param {} exit               ?
+ *      @param {Function} exit               function to call when exiting if you dont want to exit the modal for some reason
  *      @param {number} onSubmit     function handle for what to do with the username/email when user presses submit
  *                                   onSubmit takes args (user, setErrorMsg, setModal, reRender)...
  *                                   where  'user' is a string of the username/email entered

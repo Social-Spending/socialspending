@@ -1005,7 +1005,7 @@ function getSpecifiedUserFromJSON($bodyJSON)
     global $mysqli;
 
     // get user by user_id
-    if ($bodyJSON['user_id'] !== null)
+    if (isset($bodyJSON['user_id']))
     {
         // check that this user exists
         $userID = $bodyJSON['user_id'];
@@ -1025,7 +1025,7 @@ function getSpecifiedUserFromJSON($bodyJSON)
         return $userID;
     }
     // get user by username/email
-    elseif ($bodyJSON['user'] !== null)
+    elseif (isset($bodyJSON['user']))
     {
         // user username/email to get userID
         $user = $bodyJSON['user'];

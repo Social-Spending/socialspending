@@ -69,7 +69,11 @@ export default function Notifications(props) {
         <NotificationContext.Provider value={{removeNotif:removeNotif}}>
             <View style={[styles.notifShelf, props.show ? { width: '20vw', minWidth: '16em', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
                 <WaitForAuth requireLogin={true} >
-                    <View style={[props.show ? { width: '18vw', minWidth: '14.4em', display: "block" } : { width: '0', display: "none"}]}>
+                    <View style={[props.show ? { width: '18vw', minWidth: '14.4em', display: "block" } : { width: '0', display: "none" }]}>
+                        <Section name="Group Invites">
+                            {groupInvites}
+                        </Section>
+
                         <Section name='Friend Requests'>
                             {friendRequests}
                         </Section>
@@ -82,9 +86,7 @@ export default function Notifications(props) {
                             {completedTransactions}
                         </Section>
 
-                        <Section name="Group Invites">
-                            {groupInvites}
-                        </Section>
+                        
                     </View>
                 </WaitForAuth>
             

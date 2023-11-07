@@ -89,7 +89,7 @@ async function submitForm(image, groupID, userID, errorRef) {
 
             if (await response.ok) {
                 // redirect
-                router.replace("/groups");
+                router.replace("/groups?id=" + groupID);
             }
             else {
                 // failed, display error message returned by server

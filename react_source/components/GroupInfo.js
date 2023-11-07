@@ -13,8 +13,8 @@ import UploadIcon from "../modals/UploadIcon.js";
 
 
 import Leave from '../assets/images/bx-log-out.svg';
-// TODO get new icon for invite member button
-import InviteIcon from '../assets/images/bx-log-out.svg';
+import InviteIcon from '../assets/images/bx-user-plus.svg';
+import KickIcon from '../assets/images/bx-user-minus.svg';
 import Upload from '../assets/images/bx-upload.svg';
 
 import { getGroupInfo, leaveGroup, kickMemberFromGroup, revokeInvitation, sendGroupInvitation } from '../utils/groups.js'
@@ -80,13 +80,14 @@ export default function GroupInfo(props) {
                         <Text style={[globals.styles.h1, styles.groupName]}>{groupName}</Text>
                     </View>
                     
-                    <View style={styles.groupButtonContainer}>
-                        <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em', marginRight: '.25em' }]} svg={InviteIcon} iconStyle={styles.icon} label='INVITE MEMBER' onClick={inviteMember} />
-                        <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} svg={Leave} iconStyle={styles.icon} label='LEAVE GROUP' onClick={leave} />
-                    </View>
+                    <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} svg={Leave} iconStyle={styles.icon} label='LEAVE GROUP' onClick={leave} />
+                    
                 </View>
                 <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, styles.listTitle]}>Members</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Text style={[globals.styles.h3, styles.listTitle]}>Members</Text>
+                        <Button style={[globals.styles.formButton, { width: '10em', margin: 0, marginTop: '.45em', marginRight: '.75em' }]} svg={InviteIcon} iconStyle={styles.icon} label='ADD MEMBER' onClick={inviteMember} />
+                    </View>
                     <View style={styles.listHeader} >
 
                         <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>USERNAME</Text>
@@ -222,7 +223,7 @@ function MemberListItem({ id, name, owed, border, group_id }) {
 
                 <View style={globals.styles.listIconAndTextContainer}>
                     <Text style={globals.styles.listText}>{name}</Text>
-                    {currUserID != id ? <Button style={[globals.styles.transparentButton, { width: '1.75em', margin: 0, marginTop: '.25em' }]} svg={Leave} iconStyle={styles.kickButton} aria-label="Kick User" onClick={kickMember} /> : <></>}
+                    {currUserID != id ? <Button style={[globals.styles.transparentButton, { width: '1.75em', margin: 0, marginTop: '.25em' }]} svg={KickIcon} iconStyle={styles.kickButton} aria-label="Kick User" onClick={kickMember} /> : <></>}
                 </View>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
@@ -260,7 +261,7 @@ function PendingMemberListItem({ id, name, border, group_id }) {
 
                 <View style={globals.styles.listIconAndTextContainer}>
                     <Text style={[globals.styles.listText, {fontStyle: 'italic'}]}>{name}</Text>
-                    <Button style={[globals.styles.transparentButton, { width: '1.75em', margin: 0, marginTop: '.25em' }]} svg={Leave} iconStyle={styles.kickButton} aria-label="Revoke Invite" onClick={revokeInvite} />
+                    <Button style={[globals.styles.transparentButton, { width: '1.75em', margin: 0, marginTop: '.25em' }]} svg={KickIcon} iconStyle={styles.kickButton} aria-label="Revoke Invite" onClick={revokeInvite} />
                 </View>
 
             </View>
@@ -350,7 +351,7 @@ const styles = StyleSheet.create({
         marginTop: '2em',
         boxShadow: '0px 0px 5px 5px #eee',
         borderRadius: '1em',
-        backgroundColor: globals.COLOR_WHITE
+        backgroundColor: globals.COLOR_WHITE,
     },
     listHeader: {
         flexDirection: 'row',
@@ -384,11 +385,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: globals.COLOR_MODAL
-    },
-    groupButtonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'right',
-        alignItems: 'center'
     }
 
 });

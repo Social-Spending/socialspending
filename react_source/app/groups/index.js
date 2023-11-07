@@ -2,6 +2,7 @@ import * as globals from '../../utils/globals.js'
 
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState, useEffect, useRef, useContext } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 
 import Base from '../../components/Base.js';
 import GroupInfo from '../../components/GroupInfo.js';
@@ -18,14 +19,16 @@ import { GlobalContext } from '../../components/GlobalContext.js';
 
 
 export default function Page() {
-    let [groupID, setGroupID] = useState(null);
+
+    const { id } = useLocalSearchParams();
+    let [groupID, setGroupID] = useState(id ? parseInt(id) : null);
 
     return (
         <Base style={[globals.styles.container, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
             
             <WaitForAuth redirectOnNotLoggedIn={'/login'}>
                 <Sidebar title={'Groups'}>
-                        <GroupList setGroupID={setGroupID} />
+                    <GroupList groupID={groupID} setGroupID={setGroupID} />
                 </Sidebar>
                 <GroupInfo id={groupID} />
             </WaitForAuth>
@@ -45,7 +48,7 @@ function GroupList(props) {
         // On load asynchronously request groups and construct the list
         async function getItems() {
 
-            setGroupItems(await buildGroups(props.setGroupID));
+            setGroupItems(await buildGroups(props.groupID, props.setGroupID));
         }
         getItems();
 
@@ -91,7 +94,7 @@ function GroupListItem(props) {
     );
 }
 
-async function buildGroups(setGroupID) {
+async function buildGroups(groupID, setGroupID) {
 
     let groupList = [];
 
@@ -100,7 +103,7 @@ async function buildGroups(setGroupID) {
     if (groups === null) return groupList;
 
     for (let i = 0; i < groups.length; i++) {
-        if (i == 0) setGroupID(groups[i].group_id);
+        if (i == 0 && groupID == null) setGroupID(groups[i].group_id);
         groupList.push(<GroupListItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} icon_path={groups[i].icon_path} setGroupID={setGroupID} />);
     }
 
