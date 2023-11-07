@@ -3,6 +3,7 @@ create table users (
 	email text not null,
 	username text not null unique,
 	pass_hash char(255) not null,
+	icon_path text null,
 	primary key (user_id),
 	FULLTEXT(username, email)
 );

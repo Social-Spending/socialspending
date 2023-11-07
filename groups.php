@@ -31,6 +31,7 @@
                                     {
                                         "username":<USERNAME>,
                                         "user_id":<USER ID>,
+                                        "icon_path":<PATH TO ICON FILE>,
                                         "debt":<DEBT>
                                     },
                                     ...,
@@ -89,6 +90,7 @@
                             {
                                 "username":<USERNAME>,
                                 "user_id":<USER ID>,
+                                "icon_path":<PATH TO ICON FILE>,
                                 "debt":<DEBT>
                             },
                             ...,
