@@ -79,12 +79,14 @@ create table notifications (
 	notification_id int not null AUTO_INCREMENT,
 	user_id int not null,
 	type text not null,
-	transaction_id int,
-	friend_request_user_id int,
+	transaction_id int null default null,
+	friend_request_user_id int null default null,
+	group_id int null default null,
 	primary key (notification_id),
 	foreign key (user_id) references users(user_id) on delete cascade on update cascade,
 	foreign key (transaction_id) references transactions(transaction_id) on delete cascade on update cascade,
-	foreign key (friend_request_user_id) references users(user_id) on delete cascade on update cascade
+	foreign key (friend_request_user_id) references users(user_id) on delete cascade on update cascade,
+	foreign key (group_id) references groups(group_id) on delete cascade on update cascade
 );
 
 insert into users (user_id, email, username, pass_hash) values
