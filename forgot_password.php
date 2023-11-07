@@ -82,8 +82,10 @@ function sendEmail() {
     if (mail($to, $subject, $message, $headers) == false) 
     {
         http_response_code(500);
+        echo "Failure to Send";
     } else {
         http_response_code(202);
+        echo "Successful Send";
     }
     return;
 }
