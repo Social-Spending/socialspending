@@ -158,14 +158,18 @@ function handleGET()
 
 
     // get the profile user's info
-    $sql = "SELECT u.user_id, u.username, u.email, COALESCE(d.amount, 0) as debt, d.debtor
+    $sql = "SELECT u.user_id, u.username, u.email, COALESCE(SUM(dsum.debt), 0) as debt
             FROM users u
-            JOIN users u2
-            LEFT JOIN debts d
-            ON (d.creditor = u.user_id AND d.debtor = u2.user_id)
-            OR (d.creditor = u2.user_id AND d.debtor = u.user_id)
-            WHERE u.user_id = ? AND u2.user_id = ?;";
-    $result = $mysqli->execute_query($sql, [$profileUserID, $currUserID]);
+            LEFT JOIN (
+                SELECT
+                    CASE WHEN debtor = ? THEN creditor ELSE debtor END AS creditor,
+                    CASE WHEN debtor = ? THEN amount ELSE -1*amount END AS debt
+                FROM debts
+                WHERE debtor = ? OR creditor = ?
+            ) as dsum ON u.user_id = dsum.creditor
+            WHERE u.user_id = ?
+            GROUP BY u.user_id;";
+    $result = $mysqli->execute_query($sql, [$currUserID, $currUserID, $currUserID, $currUserID, $profileUserID]);
     // check for errors
     if (!$result)
     {
@@ -180,12 +184,6 @@ function handleGET()
         'email' => $row['email'],
         'debt' => $row['debt']
     );
-    // if there is a non-zero debt, decide if it's positive or negative
-    if ($row['debt'] && $row['debtor'] != $currUserID)
-    {
-        // selected user is debtor, which means the current user's debt is negative
-        $returnArray['debt'] *= -1;
-    }
 
     if ($profileUserID != $currUserID)
     {
