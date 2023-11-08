@@ -57,8 +57,11 @@ export default function SidebarFriendList(props) {
     }
 }
 
-// properties: name, icon_path, border, setFriendID
+// properties: name, icon_path, border, setFriendID, isPending
 function SidebarFriendListItems(props) {
+    // show pending friend requests in italics
+    let pendingItalic = props.isPending == 1 ? { fontStyle: 'italic' } : {};
+
     return (
         <View style={[props.border ? globals.styles.listItemSeperator : globals.styles.listItem, {cursor: 'pointer'}]} onClick={() => props.setFriendID(props.id)} >
             <View style={globals.styles.listIconAndTextContainer}>
@@ -66,7 +69,7 @@ function SidebarFriendListItems(props) {
                     style={[globals.styles.listIcon, { width: '1.25em', height: '1.25em'}]}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultUserIcon(props.name)}
                 />
-                <Text style={globals.styles.listText}>{props.name}</Text>
+                <Text style={[globals.styles.listText, pendingItalic]}>{props.name}</Text>
             </View>
         </View>
     );
@@ -90,6 +93,7 @@ async function buildSidebarFriendListItems(friendID, setFriendID)
             name={friendJSON[i].username}
             id={friendJSON[i].user_id}
             icon_path={friendJSON[i].icon_path}
+            isPending={friendJSON[i].is_pending}
             setFriendID={setFriendID}
         />);
     }

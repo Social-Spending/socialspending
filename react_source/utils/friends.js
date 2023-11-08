@@ -117,3 +117,63 @@ export async function addFriend(username) {
 
     return null;
 }
+
+/* accept or reject friend request sent to the current user
+ * @param notification_id notification_id of the friend request
+ * @param acceptNReject when true, accept friend request
+ *                      when false, reject friend request
+ * @return 0 on success; otherwise return the message explaining the error
+*/
+export async function acceptRejectFriendRequest(notification_id, acceptNReject)
+{
+    let payload = {
+        'operation': (acceptNReject ? 'accept' : 'reject'),
+        'notification_id': notification_id
+    };
+
+    // do the POST request
+    try {
+        let response = await fetch("/friendships.php", { method: 'POST', body: JSON.stringify(payload), credentials: 'same-origin' });
+
+        if (response.ok) {
+            return 0;
+        } else {
+            let responseJSON = await response.json();
+            return responseJSON['message'];
+        }
+    }
+    catch (error) {
+        console.error("error in POST request to accept/reject friend request (/friendships.php)");
+        console.error(error);
+    }
+    return 'Could not send POST request';
+}
+
+/* cancel a friend request sent from the current user
+ * @param notification_id notification_id of the friend request
+ * @return 0 on success; otherwise return the message explaining the error
+*/
+export async function cancelFriendRequest(notification_id)
+{
+    let payload = {
+        'operation': 'cancel',
+        'notification_id': notification_id
+    };
+
+    // do the POST request
+    try {
+        let response = await fetch("/friendships.php", { method: 'POST', body: JSON.stringify(payload), credentials: 'same-origin' });
+
+        if (response.ok) {
+            return 0;
+        } else {
+            let responseJSON = await response.json();
+            return responseJSON['message'];
+        }
+    }
+    catch (error) {
+        console.error("error in POST request to accept/reject friend request (/friendships.php)");
+        console.error(error);
+    }
+    return 'Could not send POST request';
+}

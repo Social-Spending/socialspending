@@ -30,10 +30,12 @@
                     "user_id":<USER ID>,
                     "username":<USERNAME>,
                     "email":<USER EMAIL>,
-                    "icon_path":<PATH TO ICON FILE>,
-                    "debt":<DEBT>,
+                    "icon_path":<PATH TO ICON FILE | null>,
+                    "debt":<DEBT | null>,
                     "is_friend":<true | false>,
                     "is_pending_friend":<true | false>,
+                    "friend_request_notification_id":<[FRIEND REQUEST notification_id] | null>,
+                    "friend_request_can_approve":<true | false | null>
                     "groups":
                     [
                         {
@@ -62,6 +64,11 @@
                 "transactions" is a list of most recent transactions where the current user and the specified user are both participants.
                 <PATH TO ICON FILE> will be a relative path that is url-encoded in utf-8...
                     Before using the value to assemble a URI, pass the value through the decodeURI function (in javascript)
+                If "is_friend"==false, "debt" will be null.
+                If "is_pending_friend"==false, "friend_request_notification_id" and "friend_request_can_approve" will be null.
+                "friend_request_can_approve" indicates if the friend request is directed towards the current user...
+                    If "friend_request_can_approve"==false, the current user may cancel the friend request
+                    If "friend_request_can_approve"==true, the current user may accept or reject the friend request
     - POST: Update the current user's profile information
         - Request:
             - Headers:
@@ -207,11 +214,12 @@ function handleGET()
         // check if there was a row, meaning these two are friends
         $returnArray['is_friend'] = $result->num_rows > 0;
 
+
         // get if there is an outstanding friend request
         if (!$returnArray['is_friend'])
         {
             // query to check if there is already a friend request
-            $sql = "SELECT notification_id
+            $sql = "SELECT notification_id, user_id as destination_user_id
                 FROM notifications
                 WHERE type = 'friend_request'
                 AND ((friend_request_user_id = ? AND user_id = ?) OR (friend_request_user_id = ? AND user_id = ?))";
@@ -221,10 +229,20 @@ function handleGET()
                 handleDBError();
             }
             $returnArray['is_pending_friend'] = $result->num_rows > 0;
+            // if there is a pending friend request, get whether the current user sent it or
+            if ($returnArray['is_pending_friend'])
+            {
+                $row = $result->fetch_assoc();
+                $returnArray['friend_request_notification_id'] = $row['notification_id'];
+                // user can approve if the notification is in the currently logged in user's inbox
+                $returnArray['friend_request_can_approve'] = $row['destination_user_id'] == $currUserID;
+            }
         }
         else
         {
             $returnArray['is_pending_friend'] = false;
+            $returnArray['friend_request_notification_id'] = null;
+            $returnArray['friend_request_can_approve'] = null;
         }
 
         // get groups both users are a member of

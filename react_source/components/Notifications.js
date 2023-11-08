@@ -5,6 +5,8 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { router } from 'expo-router';
 import Button from './Button.js';
 
+import { acceptRejectFriendRequest } from '../utils/friends.js';
+
 import ApproveSvg   from '../assets/images/bx-check.svg';
 import DenySvg      from '../assets/images/bx-x.svg';
 import DetailsSvg   from '../assets/images/bx-detail.svg';
@@ -23,7 +25,10 @@ export default function Notifications(props) {
     const [transactionApprovals, setTransactionApprovals] = useState([]);
     const [completedTransactions, setCompletedTransactions] = useState([]);
     const [groupInvites, setGroupInvites] = useState([]);
-   
+
+    // get global context var to refresh when page reload is requested
+    const {reRenderCount} = useContext(GlobalContext);
+
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -37,7 +42,7 @@ export default function Notifications(props) {
         }
         getItems();
 
-    }, []);
+    }, [reRenderCount]);
 
     const removeNotif = (type, id) => {
         switch (type) {
@@ -244,26 +249,16 @@ function GroupInvite(props) {
 }
 
 async function approveFriendRequest(id, approved, removeNotif, reRender) {
-    let payload = `{
-        "operation": ` + (approved ? "\"accept\"" : "\"reject\"") + `,
-        "notification_id": ` + id + `
-    }`;
-
-    // do the POST request
-    try {
-        let response = await fetch("/friendships.php", { method: 'POST', body: payload, credentials: 'same-origin' });
-
-        if (response.ok) {
-            removeNotif('friend_request', id);
-            // call function to refresh the Base component with new friend
-            reRender();
-        } else {
-
-        }
+    let response = await acceptRejectFriendRequest(id, approved);
+    if (response === 0) {
+        // success
+        removeNotif('friend_request', id);
+        // call function to refresh the Base component with new friend
+        reRender();
     }
-    catch (error) {
-        console.error("error in POST request to friendships (/friendships.php)");
-        console.error(error);
+    else {
+        // otherwise, error
+        console.log(response);
     }
 }
 
