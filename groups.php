@@ -52,7 +52,8 @@
                                 [
                                     {
                                         "username":<USERNAME>,
-                                        "user_id":<USER ID>
+                                        "user_id":<USER ID>,
+                                        "icon_path":<PATH TO ICON FILE>
                                     },
                                     ...,
                                     {}
@@ -119,7 +120,8 @@
                         [
                             {
                                 "username":<USERNAME>,
-                                "user_id":<USER ID>
+                                "user_id":<USER ID>,
+                                "icon_path":<PATH TO ICON FILE>
                             },
                             ...,
                             {}
@@ -506,7 +508,7 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief, $nodebts)
         // members will start as an associate array indexed by user_id
         $membersArray = array();
         // query to get all members
-        $sql =  'SELECT u.user_id, u.username FROM group_members as gm '.
+        $sql =  'SELECT u.user_id, u.username, u.icon_path FROM group_members as gm '.
                 'INNER JOIN users as u ON u.user_id=gm.user_id '.
                 'WHERE gm.group_id = ?;';
         $result = $mysqli->execute_query($sql, [$groupID]);
@@ -635,7 +637,7 @@ function fillGroupPendingInvites(&$group)
     $groupID = $group['group_id'];
 
     // query to get all pending group invites to this group
-    $sql = "SELECT u.username, u.user_id
+    $sql = "SELECT u.username, u.user_id, u.icon_path
             FROM notifications n
             INNER JOIN users u
                 ON n.user_id = u.user_id

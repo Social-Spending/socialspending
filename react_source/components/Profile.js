@@ -25,6 +25,7 @@ export default function Profile(props) {
     let [transactions, setTransactions] = useState(null);
     let [username, setUsername] = useState(null);
     let [email, setEmail] = useState(null);
+    let [iconPath, setIconPath] = useState(null);
     let [debt, setDebt] = useState(null);
     let [isFriend, setIsFriend] = useState(false);
     let [isPendingFriend, setIsPendingFriend] = useState(true);
@@ -46,6 +47,7 @@ export default function Profile(props) {
             if (json != null) {
                 setUsername(json.username);
                 setEmail(json.email);
+                setIconPath(json.icon_path);
                 setDebt(json.debt);
                 setIsFriend(json.is_friend);
                 setIsPendingFriend(json.is_pending_friend);
@@ -75,7 +77,11 @@ export default function Profile(props) {
         <View style={{ flexDirection: 'row', height: '100%', flex: 1}}>
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
-                    <View style={{flexDirection: 'row', justifyContent:'flex-start'}}>
+                    <View style={globals.styles.listIconAndTextContainer}>
+                        <Image
+                            style={[globals.styles.listIcon, { width: '3em', height: '3em' }]}
+                            source={iconPath !== null ? decodeURI(iconPath) : globals.getDefaultUserIcon(username)}
+                        />
                         <Text style={[globals.styles.h1, styles.groupName]}>{username}</Text>
                         
                     </View>
@@ -162,7 +168,7 @@ function GroupListItem({ id, name, icon_path, border }) {
     return (
 
         <Link href={'/groups/' + id} asChild>
-            <View style={border ? styles.listItemSeperator : styles.listItem} >
+            <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
                 <View style={globals.styles.listIconAndTextContainer}>
                     <Image
                         style={[globals.styles.listIcon, { marginLeft: '.75em', width: '2.5em', height: '2.5em'}]}
@@ -190,7 +196,7 @@ function TransactionListItem({ id, name, date, user_debt, border, isApproved }) 
 
     return (
 
-        <View style={[border ? styles.listItemSeperator : styles.listItem, {cursor:'pointer'}]} onClick={viewTransaction} >
+        <View style={[border ? globals.styles.listItemSeperator : globals.styles.listItem, {cursor:'pointer'}]} onClick={viewTransaction} >
 
             <Text style={[globals.styles.listText, pendingItalic]}>{name}</Text>
             <Text style={globals.styles.listText}>{date}</Text>
@@ -198,20 +204,6 @@ function TransactionListItem({ id, name, date, user_debt, border, isApproved }) 
         </View>
 
     );
-    // return (
-
-    //     <View style={border ? styles.listItemSeperator : styles.listItem} onClick={viewTransaction} >
-
-    //         <Text style={globals.styles.listText}>{name}</Text>
-    //         <Text style={globals.styles.listText}>{date}</Text>
-    //         <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
-    //             <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-    //             <Text style={[globals.styles.listText, color]}>${Math.abs(user_debt / 100).toFixed(2)}</Text>
-    //         </View>
-
-    //     </View>
-
-    // );
 }
 
 
@@ -231,28 +223,6 @@ const styles = StyleSheet.create({
         marginHorizontal: `min(5em, 5vw)`,
         paddingVertical: '2.5em',
         paddingHorizontal: `min(2.5em, 2.5vw)`
-    },
-    listItem: {
-        justifyContent: 'space-between',
-        alignItems: 'left',
-        flexDirection: 'row',
-        marginTop: '.5em',
-        paddingBottom: '.5em',
-        paddingLeft: '1em'
-
-    },
-    listItemSeperator: {
-        justifyContent: 'space-between',
-        alignItems: 'left',
-        flexDirection: 'row',
-        borderStyle: 'none',
-        borderTopStyle: 'solid',
-        borderWidth: '1px',
-        borderColor: '#eee',
-        paddingTop: '.5em',
-        paddingBottom: '.5em',
-        paddingLeft: '1em'
-
     },
     listContainer: {
         height: 'auto',

@@ -32,7 +32,7 @@ export default function GroupInfo(props) {
     let [iconPath, setIconPath] = useState(null);
 
     const setModal = useContext(ModalContext);
-    const { currUserID, reRenderCount} = useContext(GlobalContext);
+    const { currUserID, currUsername, currUserIconPath, reRenderCount} = useContext(GlobalContext);
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -45,7 +45,7 @@ export default function GroupInfo(props) {
             if (json !== null) {
                 setGroupName(json.group_name);
                 setIconPath(json.icon_path);
-                setGroupMembers(getGroupMembers(currUserID, json));
+                setGroupMembers(getGroupMembers(currUserID, currUsername, currUserIconPath, json));
                 setTransactions(getTransactions(json));
             }            
         }
@@ -142,18 +142,38 @@ function GroupIcon({ iconPath, groupName, groupID }) {
     );
 }
 
-function getGroupMembers(currUserID, json) {
+function getGroupMembers(currUserID, currUsername, currUserIconPath, json) {
 
    
     let outputList = [];
 
     // add current user
-    outputList.push(<MemberListItem key={-1} border={false} name="You" id={currUserID} owed={json.debt} group_id={json.group_id} />);
+    if (currUserIconPath == null)
+    {
+        currUserIconPath = globals.getDefaultUserIcon(currUsername);
+    }
+    outputList.push(<MemberListItem
+        key={-1}
+        border={false}
+        name="You"
+        id={currUserID}
+        owed={json.debt}
+        group_id={json.group_id}
+        icon_path={currUserIconPath}
+    />);
 
     // add existing group members
     for (let i = 0; i < json['members'].length; i++) {
 
-        outputList.push(<MemberListItem key={i} border={true} name={json['members'][i].username} id={json['members'][i].user_id} owed={json['members'][i].debt} group_id={json.group_id} />);
+        outputList.push(<MemberListItem
+            key={i}
+            border={true}
+            name={json['members'][i].username}
+            id={json['members'][i].user_id}
+            owed={json['members'][i].debt}
+            group_id={json.group_id}
+            icon_path={json['members'][i].icon_path}
+        />);
     }
 
     // add members with pending invites
@@ -164,6 +184,7 @@ function getGroupMembers(currUserID, json) {
             border={true}
             name={json['pending_invites'][i].username}
             id={json['pending_invites'][i].user_id}
+            icon_path={json['pending_invites'][i].icon_path}
             group_id={json.group_id}
         />);
     }
@@ -198,9 +219,10 @@ function getTransactions(json) {
  *      @param {string} name         username of participant
  *      @param {number} owed         how much the participant paid/owes
  *      @param {number} group_id     group_id for the page being displayed
+ *      @param {string} icon_path    relative link to icon resource
  *      @return {React.JSX.Element}  DOM element  
  */
-function MemberListItem({ id, name, owed, border, group_id }) {
+function MemberListItem({ id, name, owed, border, group_id, icon_path }) {
 
     let text = owed < 0 ? "Is Owed" : "Owes";
     let color = owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
@@ -208,7 +230,7 @@ function MemberListItem({ id, name, owed, border, group_id }) {
 
     // get currUserID to remove the 'kick' button next to the member list item for the current user
     // get reRender to re-load the page after a user has been removed
-    const { currUserID, reRender} = useContext(GlobalContext);
+    const { currUserID, reRender } = useContext(GlobalContext);
     const setModal = useContext(ModalContext);
 
     function kickMember(event) {
@@ -219,10 +241,13 @@ function MemberListItem({ id, name, owed, border, group_id }) {
     return (
 
         <Link href={'/profile/' + id} asChild>
-            <View style={border ? styles.listItemSeperator : styles.listItem} >
-
+            <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
                 <View style={globals.styles.listIconAndTextContainer}>
-                    <Text style={globals.styles.listText}>{name}</Text>
+                    <Image
+                        style={[globals.styles.listIcon, {marginLeft: '.75em', width: '2.5em', height: '2.5em'}]}
+                        source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultUserIcon(name)}
+                    />
+                    <Text style={[globals.styles.listText, {paddingLeft: '.25em'}]}>{name}</Text>
                     {currUserID != id ? <Button style={[globals.styles.transparentButton, { width: '1.75em', margin: 0, marginTop: '.25em' }]} svg={KickIcon} iconStyle={styles.kickButton} aria-label="Kick User" onClick={kickMember} /> : <></>}
                 </View>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
@@ -241,9 +266,10 @@ function MemberListItem({ id, name, owed, border, group_id }) {
  *      @param {number} id           user_id of participant
  *      @param {string} name         username of participant
  *      @param {number} group_id     group_id for the page being displayed
+ *      @param {string} icon_path    relative link to this user's profile icon
  *      @return {React.JSX.Element}  DOM element  
  */
-function PendingMemberListItem({ id, name, border, group_id }) {
+function PendingMemberListItem({ id, name, border, group_id, icon_path }) {
     // get currUserID to remove the 'kick' button next to the member list item for the current user
     // get reRender to re-load the page after a user has been removed
     const { currUserID, reRender} = useContext(GlobalContext);
@@ -257,10 +283,14 @@ function PendingMemberListItem({ id, name, border, group_id }) {
     return (
 
         <Link href={'/profile/' + id} asChild>
-            <View style={border ? styles.listItemSeperator : styles.listItem} >
+            <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
                 <View style={globals.styles.listIconAndTextContainer}>
-                    <Text style={[globals.styles.listText, {fontStyle: 'italic'}]}>{name}</Text>
+                    <Image
+                        style={[globals.styles.listIcon, {marginLeft: '.75em', width: '2.5em', height: '2.5em'}]}
+                        source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultUserIcon(name)}
+                    />
+                    <Text style={[globals.styles.listText, {fontStyle: 'italic', paddingLeft: '.25em'}]}>{name}</Text>
                     <Button style={[globals.styles.transparentButton, { width: '1.75em', margin: 0, marginTop: '.25em' }]} svg={KickIcon} iconStyle={styles.kickButton} aria-label="Revoke Invite" onClick={revokeInvite} />
                 </View>
 
@@ -293,7 +323,7 @@ function TransactionListItem({ id, name, owed, border, isApproved }) {
 
     return (
 
-        <View style={[border ? styles.listItemSeperator : styles.listItem, {cursor:'pointer'}]} onClick={viewTransaction} >
+        <View style={[border ? globals.styles.listItemSeperator : globals.styles.listItem, {cursor:'pointer'}]} onClick={viewTransaction} >
 
             <Text style={[globals.styles.listText, pendingItalic]}>{name}</Text>
             <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
@@ -323,28 +353,6 @@ const styles = StyleSheet.create({
         marginHorizontal: `min(5em, 5vw)`,
         paddingVertical: '2.5em',
         paddingHorizontal: `min(2.5em, 2.5vw)`
-    },
-    listItem: {
-        justifyContent: 'space-between',
-        alignItems: 'left',
-        flexDirection: 'row',
-        marginTop: '.5em',
-        paddingBottom: '.5em',
-        paddingLeft: '1em'
-
-    },
-    listItemSeperator: {
-        justifyContent: 'space-between',
-        alignItems: 'left',
-        flexDirection: 'row',
-        borderStyle: 'none',
-        borderTopStyle: 'solid',
-        borderWidth: '1px',
-        borderColor: '#eee',
-        paddingTop: '.5em',
-        paddingBottom: '.5em',
-        paddingLeft: '1em'
-
     },
     listContainer: {
         height: 'auto',

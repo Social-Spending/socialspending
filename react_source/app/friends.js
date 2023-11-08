@@ -69,10 +69,17 @@ function SidebarFriendList(props) {
     }
 }
 
+// properties: name, icon_path, border, setFriendID
 function SidebarFriendListItems(props) {
     return (
-        <View style={props.border ? styles.listItemSeperator : styles.listItem} onClick={() => props.setFriendID(props.id)} >
-            <Text style={globals.styles.listText}>{props.name}</Text>
+        <View style={[props.border ? globals.styles.listItemSeperator : globals.styles.listItem, {cursor: 'pointer'}]} onClick={() => props.setFriendID(props.id)} >
+            <View style={globals.styles.listIconAndTextContainer}>
+                <Image
+                    style={[globals.styles.listIcon, { width: '1.25em', height: '1.25em'}]}
+                    source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultUserIcon(props.name)}
+                />
+                <Text style={globals.styles.listText}>{props.name}</Text>
+            </View>
         </View>
     );
 }
@@ -87,37 +94,16 @@ async function buildSidebarFriendListItems(setFriendID)
 
     for (let i = 0; i < friendJSON.length; i++) {
         if (i == 0) setFriendID(friendJSON[i].user_id);
-        friendList.push(<SidebarFriendListItems key={i} border={i > 0} name={friendJSON[i].username} id={friendJSON[i].user_id} setFriendID={setFriendID} />);
+        friendList.push(<SidebarFriendListItems
+            key={i}
+            border={i > 0}
+            name={friendJSON[i].username}
+            id={friendJSON[i].user_id}
+            icon_path={friendJSON[i].icon_path}
+            setFriendID={setFriendID}
+        />);
     }
 
     return friendList;
 }
 
-const styles = StyleSheet.create({
-
-    listItem: {
-        justifyContent: 'space-between',
-        alignItems: 'left',
-        flexDirection: 'row',
-        marginTop: '.5em',
-        paddingBottom: '.5em',
-        paddingLeft: '1em',
-        cursor: 'pointer'
-
-    },
-    listItemSeperator: {
-        justifyContent: 'space-between',
-        alignItems: 'left',
-        flexDirection: 'row',
-        borderStyle: 'none',
-        borderTopStyle: 'solid',
-        borderWidth: '1px',
-        borderColor: '#eee',
-        paddingTop: '.5em',
-        paddingBottom: '.5em',
-        paddingLeft: '1em',
-        cursor: 'pointer'
-
-    }
-
-});
