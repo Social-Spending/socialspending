@@ -805,7 +805,7 @@ function handleCreate($userID, $bodyJSON)
     // array users that could not be found
     $usersInvalidJSON = array();
     $usersNotFound = array();
-    if ($bodyJSON['members'] !== null)
+    if (isset($bodyJSON['members']))
     {
         foreach ($bodyJSON['members'] as $newMember)
         {
