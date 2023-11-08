@@ -312,6 +312,22 @@ function SplitExpense() {
         setFormData(formData);
 
     }
+    const splitPaid = (paid) => {
+        let total = 0;
+        let count = 0;
+        for (let i = 0; i < refList.length; i++) {
+            if (paidList[i].current == paid) {
+                total += refList[i].current.value == "" ? 0 : parseInt(parseFloat(refList[i].current.value).toFixed(2) * 100);
+                count++;
+            }
+            
+        }
+        for (let i = 0; i < refList.length; i++) {
+            if (paidList[i].current == paid) refList[i].current.value = (total / count / 100).toFixed(2);
+
+        }
+    }
+    
 
     return (
         <View style={[styles.pageContainer, {
@@ -319,7 +335,20 @@ function SplitExpense() {
         }]}>
             <Text style={[globals.styles.text, { paddingTop: '1em' }]}>How much did each person contribute?</Text>
 
-            
+            <View style={{width: '75%', justifyContent: 'space-between', flexDirection: 'row' }}>
+                <Button
+                    style={{ width: 'auto', height: 'auto', marginTop: '.25em' }}
+                    textStyle={{ fontSize: '.75em', fontWeight: '500', color: globals.COLOR_BLUE }}
+                    label="Split Paid Evenly"
+                    onClick={() => splitPaid(true)} />
+                <Button
+                    style={{ width: 'auto', height: 'auto', marginTop: '.25em' }}
+                    textStyle={{ fontSize: '.75em', fontWeight: '500', color: globals.COLOR_ORANGE }}
+                    label="Split Borrowed Evenly"
+                    onClick={() => splitPaid(false)} /> 
+            </View>
+           
+
             <View style={[globals.styles.list, { width: '80%' }]} >
                 {splitList}
             </View>
@@ -367,7 +396,7 @@ function SplitListItem(props) {
                     label={paid.current ? "Paid" : "Borrowed"}
                     onClick={updateButton} />
 
-                <View style={{ width: '5em' }}>
+                <View style={{ width: '6em' }}>
                     <input ref={inputRef} style={globals.styles.input} step={.01} type='number' placeholder={0} min={0}></input>
 
                 </View>
