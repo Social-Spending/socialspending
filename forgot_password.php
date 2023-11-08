@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 function sendEmail() {
     global $DKIM_PRIVATE_KEY, $DKIM_DOMAIN, $DKIM_SELECTOR;
 
-    $to = "dvhwzhhjvnqiugzoqt@cwmxc.com";
+    $to = "njones9@umbc.edu";
     $subject = "Social Spending Email";
     $message = "Just a test of the ability to send automated emails from PHP endpoints.";
 
