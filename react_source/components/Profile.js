@@ -184,7 +184,7 @@ function FriendInteractionButtons({isFriend, isPendingFriend, friendRequestCanAp
                         onClick={() => unAcceptRejectFriend(false)}
                     />
                     <Button
-                        style={[globals.styles.formButton, styles.friendInteractionButton, {paddingLeft: '0.75em'}]}
+                        style={[globals.styles.formButton, styles.friendInteractionButton]}
                         svg={ApproveSvg}
                         iconStyle={styles.icon}
                         label={'ACCEPT FRIEND REQUEST'}
