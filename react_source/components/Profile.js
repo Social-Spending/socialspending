@@ -249,16 +249,6 @@ const styles = StyleSheet.create({
     icon: {
         fill: globals.COLOR_WHITE,
         width: '1.25em'
-    },
-    uploadContainer: {
-        cursor: 'pointer',
-        position: 'absolute',
-        width: '3em',
-        height: '3em',
-        borderRadius: '50%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: globals.COLOR_MODAL
     }
 
 });
