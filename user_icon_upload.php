@@ -7,15 +7,13 @@
             - Headers:
                 - cookies: session_id=***
                 - Content-Type: multipart/form-data
-            - body: form data with text group ID and icon file
-                "group_id":<GROUP ID>,
+            - body: form data with icon file
                 "icon":<ICON_FILE>
         - Response:
             - Status Codes:
                 - 200 if image was uploaded successfully
-                - 400 if request body is invalid, or the image size or format was invalid
+                - 400 if image size or format was invalid
                 - 401 if session_id cookie is not present or invalid
-                - 404 if the specified group doesn't exist or current user is not a member
                 - 500 if the database could not be reached, or file could not be saved
             - Headers:
                 - Content-Type: application/json
@@ -52,14 +50,13 @@ function handlePOST()
     }
 
     // get data from POST
-    if (!isset($_POST['group_id']) || !isset($_FILES['icon']))
+    if (!isset($_FILES['icon']))
     {
-        returnMessage('Missing form fields', 400);
+        returnMessage('Missing \'icon\' form field', 400);
     }
-    $groupID = $_POST['group_id'];
 
     // parse to image and save as gif to filesystem
-    $serverFileName = validateAndSaveImage($_FILES['icon'], MAX_ICON_SIZE, GROUP_ICON_WIDTH, GROUP_ICON_HEIGHT, GROUP_ICON_DIR);
+    $serverFileName = validateAndSaveImage($_FILES['icon'], MAX_ICON_SIZE, USER_ICON_WIDTH, USER_ICON_HEIGHT, USER_ICON_DIR);
     if (!$serverFileName)
     {
         returnMessage($_VALIDATE_IMAGE_FAILURE_MESSAGE, 400);
@@ -68,12 +65,11 @@ function handlePOST()
     // TODO get and remove old icon file if size becomes an issue
 
     // query to store image path with the group
-    $sql =  'UPDATE groups g '.
-            'INNER JOIN group_members gm ON gm.group_id = g.group_id '.
-            'SET g.icon_path = ? '.
-            'WHERE g.group_id = ? AND gm.user_id = ?;';
+    $sql =  'UPDATE users u '.
+            'SET u.icon_path = ? '.
+            'WHERE u.user_id = ?;';
 
-    $result = $mysqli->execute_query($sql, ["/".$serverFileName, $groupID, $userID]);
+    $result = $mysqli->execute_query($sql, ["/".$serverFileName, $userID]);
     // check for errors
     if (!$result)
     {
@@ -85,7 +81,7 @@ function handlePOST()
     {
         // delete file
         unlink($serverFileName);
-        returnMessage('Group not found or user is not a member', 404);
+        returnMessage('Failed to update user profile with icon path', 500);
     }
 
     // success

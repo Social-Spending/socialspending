@@ -147,7 +147,7 @@ function viewFriends() {
     $friends_array = [];
 
     // Find all friendships with this user and debts between them
-    $sql = "SELECT u.user_id, u.username, COALESCE(SUM(dsum.debt), 0) as debt
+    $sql = "SELECT u.user_id, u.username, u.icon_path, COALESCE(SUM(dsum.debt), 0) as debt
             FROM users u
             INNER JOIN (
                 SELECT CASE

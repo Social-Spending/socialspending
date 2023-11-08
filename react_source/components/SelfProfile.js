@@ -3,29 +3,32 @@ import * as globals from "../utils/globals.js";
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { useState, useEffect, useContext } from 'react';
 
-import { Link } from "expo-router";
-
 import Button from "./Button.js";
 
-import TransactionInfo from "../modals/TransactionInfo.js";
-import VerifyAction from "../modals/VerifyAction.js";
-
-
-import UnfriendIcon from '../assets/images/bx-log-out.svg';
-
-import { getUserInfo, removeFriend, addFriend} from '../utils/friends.js'
+import { getUserInfo } from '../utils/friends.js'
 
 import { ModalContext } from '../modals/ModalContext.js';
 import { GlobalContext } from "./GlobalContext.js";
 import EditProfile from "../modals/EditProfile.js";
+import UploadIcon from "../modals/UploadIcon.js";
+
+import Upload from '../assets/images/bx-upload.svg';
 
 
 export default function SelfProfile(props) {
-    let [username, setUsername] = useState(null);
-    let [email, setEmail] = useState(null);
 
     const setModal = useContext(ModalContext);
-    const {reRenderCount, currUserID, isLoading} = useContext(GlobalContext);
+    const {
+        reRenderCount,
+        currUserID,
+        currUsername,
+        isLoading,
+        currUserIconPath
+    } = useContext(GlobalContext);
+
+    let [username, setUsername] = useState(currUsername);
+    let [email, setEmail] = useState(null);
+    let [iconPath, setIconPath] = useState(currUserIconPath);
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -40,6 +43,7 @@ export default function SelfProfile(props) {
             if (json != null) {
                 setUsername(json.username);
                 setEmail(json.email);
+                setIconPath(json.icon_path);
             }
         }
         getItems();
@@ -53,7 +57,10 @@ export default function SelfProfile(props) {
         <View style={{ flexDirection: 'row', height: '100%', flex: 1}}>
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
+                    <View style={globals.styles.listIconAndTextContainer} >
+                        <UserIcon iconPath={iconPath} username={username} />
                         <Text style={[globals.styles.h1, styles.groupName]}>Your Profile</Text>
+                    </View>
                 </View>
                 <View style={styles.list}>
                     <View style={[styles.listHeader, styles.listItem]}>
@@ -70,6 +77,29 @@ export default function SelfProfile(props) {
                 </View>
             </View>
         </View>
+    );
+}
+
+function UserIcon({iconPath, username}) {
+
+    const [hover, setHover] = useState(false);
+    const setModal = useContext(ModalContext);
+
+    const upload = () => {
+        setModal(<UploadIcon groupNUser={false} />);
+    }
+
+    return (
+        <View onClick={upload}  onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+            <Image
+                style={[globals.styles.listIcon, { width: '3em', height: '3em' }]}
+                source={iconPath !== null ? decodeURI(iconPath) : globals.getDefaultUserIcon(username)}
+            />
+            <View style={[{ display: hover ? 'inherit' : 'none'}, styles.uploadContainer]}>
+                <Upload style={{ fill: globals.COLOR_WHITE, width: '2em', height: '2em' }} />
+            </View>
+        </View>
+
     );
 }
 

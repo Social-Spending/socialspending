@@ -52,7 +52,7 @@ function Links(props) {
 }
 
 function Account({ showNotif }) {
-    const { isLoggedIn, currUsername, doSignout } = useContext(GlobalContext);
+    const { isLoggedIn, currUsername, currUserIconPath, doSignout } = useContext(GlobalContext);
     const setModal = useContext(ModalContext);
 
     if (isLoggedIn) {
@@ -60,7 +60,15 @@ function Account({ showNotif }) {
             <View style={styles.container}>
                 <Button style={styles.newExpense} hoverStyle={styles.newExpense} textStyle={globals.styles.h4} label="+ NEW EXPENSE" onClick={() => setModal(<NewExpense/>)} />
                 <Button style={styles.notif} hoverStyle={styles.notif} svg={Bell} iconStyle={styles.bell} onClick={showNotif} />
-                <HeaderLink href="/profile/" style={[globals.styles.h3, styles.text, { marginLeft: '1em' }]}>{currUsername}</HeaderLink>
+                <HeaderLink href="/profile/" style={{marginLeft: '1em'}} >
+                    <View style={[globals.styles.h3, styles.headerIconAndUsernameContainer]} >
+                        <Image
+                            style={styles.headerUserIcon}
+                            source={currUserIconPath !== null ? decodeURI(currUserIconPath) : globals.getDefaultUserIcon(currUsername)}
+                        />
+                        <Text style={[styles.text, {marginLeft: '.5em'}]} >{currUsername}</Text>
+                    </View>
+                </HeaderLink>
                 <Text style={[styles.text, { paddingHorizontal: '0', color: globals.COLOR_BEIGE }]}>|</Text>
                 <HeaderText style={[globals.styles.h3, styles.text, {cursor: 'pointer'}]} onClick={doSignout}>Signout</HeaderText>
             </View>
@@ -166,4 +174,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         fill: globals.COLOR_BEIGE
     },
+    headerIconAndUsernameContainer: {
+        flexDirection: 'row',
+        justifyContent: 'right',
+        alignItems: 'center'
+    },
+    headerUserIcon: {
+        padding: 0,
+        borderRadius: '50%',
+        width: '1.85em',
+        height: '1.85em'
+    }
 });

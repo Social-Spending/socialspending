@@ -30,6 +30,7 @@
                     "user_id":<USER ID>,
                     "username":<USERNAME>,
                     "email":<USER EMAIL>,
+                    "icon_path":<PATH TO ICON FILE>,
                     "debt":<DEBT>,
                     "is_friend":<true | false>,
                     "is_pending_friend":<true | false>,
@@ -59,6 +60,8 @@
                     or (negative) amount the specified user owes the current user.
                 "groups" is a list of groups the current user has in common with the specified user.
                 "transactions" is a list of most recent transactions where the current user and the specified user are both participants.
+                <PATH TO ICON FILE> will be a relative path that is url-encoded in utf-8...
+                    Before using the value to assemble a URI, pass the value through the decodeURI function (in javascript)
     - POST: Update the current user's profile information
         - Request:
             - Headers:
@@ -158,7 +161,7 @@ function handleGET()
 
 
     // get the profile user's info
-    $sql = "SELECT u.user_id, u.username, u.email, COALESCE(SUM(dsum.debt), 0) as debt
+    $sql = "SELECT u.user_id, u.username, u.email, u.icon_path, COALESCE(SUM(dsum.debt), 0) as debt
             FROM users u
             LEFT JOIN (
                 SELECT
@@ -178,12 +181,14 @@ function handleGET()
     }
     // unpack data
     $row = $result->fetch_assoc();
-    $returnArray = array(
-        'user_id' => $row['user_id'],
-        'username' => $row['username'],
-        'email' => $row['email'],
-        'debt' => $row['debt']
-    );
+    // $returnArray = array(
+    //     'user_id' => $row['user_id'],
+    //     'username' => $row['username'],
+    //     'email' => $row['email'],
+    //     'icon_path' => $row['icon_path'],
+    //     'debt' => $row['debt']
+    // );
+    $returnArray = $row;
 
     if ($profileUserID != $currUserID)
     {
