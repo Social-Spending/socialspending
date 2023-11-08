@@ -51,7 +51,7 @@ export async function getUserInfo(id) {
     return null;
 }
 
-export async function removeFriend(username, reRender) {
+export async function removeFriend(username, reRender = null) {
     // put username to search in request body
     let payload = {
         "operation": "remove",
@@ -74,7 +74,7 @@ export async function removeFriend(username, reRender) {
             if (json !== null) {
                 // successfully removed friend
                 // reload the window, because this will change the sidebar if on the /friends page
-                reRender();
+                if ( reRender) reRender();
                 return json;
             }
 
