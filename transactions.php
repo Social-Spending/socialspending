@@ -6,6 +6,7 @@ include_once('templates/constants.php');
 include_once("templates/jsonMessage.php");
 
 include_once('notifications.php');
+include_once('templates/groupHelpers.php');
 
 /*
 Transactions PHP Endpoint
@@ -36,7 +37,6 @@ Transactions PHP Endpoint
         The updateExistingTransactions function needs some attention. Not all
         mutable values have setters.
 
-        The Notes section provides some egregious flaws in data security.
 
     Structure:
 
@@ -44,6 +44,118 @@ Transactions PHP Endpoint
 
         Incoming request is triaged and dispatched to functions which exist
         at the bottom of the file.
+*/
+
+/*
+    Request Types
+
+    GET: Get ALL transactions associated with a given user
+
+        Ex: https://socialspendingapp.com/transactions.php?user_id={USER_ID}
+            Returns JSON Object of the following type:
+                [
+                    {
+                        "transaction_id":1,
+                        "transaction_name":"Halal Shack",
+                        "transaction_date":"2023-09-29",
+                        "transaction_description":"Bought you fools some food",
+                        "group_id": 2,
+                        "is_approved": 1,
+                        "transaction_participants":[ 
+                                                    {
+                                                    "user_id":1,
+                                                    "username":"Roasted715Jr",
+                                                    "has_approved":0,
+                                                    "amount":2000
+                                                    },
+                                                    {
+                                                    "user_id": 2,
+                                                    "username":"Soap_Ninja",
+                                                    "has_approved":0,
+                                                    "amount":-2000
+                                                    } 
+                                                    ]
+                    },
+                    {...}
+                ]
+
+    GET: Get single transaction, given by TRANSACTION_ID
+
+        Ex: https://socialspendingapp.com/transactions.php?transaction_id={TRANSACTION_ID}
+
+            Returns JSON Object of the following type:
+                {
+                    "transaction_id":1,
+                    "transaction_name":"Halal Shack",
+                    "transaction_date":"2023-09-29",
+                    "transaction_description":"Bought you fools some food",
+                    "group_id": 2,
+                    "is_approved": 1,
+                    "transaction_participants":[ 
+                                                {
+                                                "user_id":1,
+                                                "username":"Roasted715Jr",
+                                                "has_approved":0,
+                                                "amount":2000
+                                                },
+                                                {
+                                                "user_id": 2,
+                                                "username":"Soap_Ninja",
+                                                "has_approved":0,
+                                                "amount":-2000
+                                                } 
+                                                ]
+                }
+
+    POST: Add a new transaction to the transaction table 
+
+        Ex: https://socialspendingapp.com/transactions.php
+
+            Expects JSON Object of the following type:
+                {
+                    "transaction_name":"Halal Shack",
+                    "transaction_date":"2023-09-29",
+                    "transaction_description":"Bought you fools some food",
+                    "group_id":2
+                    "transaction_participants":[ 
+                                                {
+                                                    "user_id":1,
+                                                    "amount":20
+                                                    },
+                                                    {
+                                                    "user_id": 2,
+                                                    "amount":10
+                                                    } 
+                                                ]
+                }
+
+    PUT: Updates an existing transaction, given by TRANSACTION_ID
+
+        Ex:https://socialspendingapp.com/transactions.php?transaction_id={TRANSACTION_ID}
+
+            Expects JSON Object of the following type:
+                {
+                    "transaction_name":"Halal Shack",
+                    "transaction_date":"2023-09-29",
+                    "transaction_description":"Bought you fools some food",
+                    "group_id":2
+                    "transaction_participants":[ 
+                                                {
+                                                    "user_id":1,
+                                                    "amount":20
+                                                    },
+                                                    {
+                                                    "user_id": 2,
+                                                    "amount":10
+                                                    } 
+                                                ]
+                }
+
+    DELETE: Deletes a transaction, given by TRANSACTION_ID
+
+        Ex: https://socialspendingapp.com/transactions.php?transaction_id={TRANSACTION_ID}
+    
+        Expects no JSON Object, returns no JSON object
 */
 
 ###################
@@ -164,21 +276,21 @@ function getTransactions($user_id)
     }
 
     //Retrieves all information about transactions that $user_id particpated in
-    $sql = "SELECT  tp1.user_id AS user_id,
-                    transactions.transaction_id AS transaction_id,
+    $sql = "SELECT  transactions.transaction_id AS transaction_id,
                     transactions.name AS transaction_name,
                     transactions.date AS transaction_date,
                     transactions.description AS transaction_description,
-                    CASE WHEN COUNT(tp2.user_id) = SUM(tp2.has_approved)
+                    group_transactions.group_id as group_id,
+                    CASE WHEN COUNT(tp.user_id) = SUM(tp.has_approved)
                         THEN 1
                         ELSE 0
                     END AS is_approved
-                    
-            FROM transaction_participants tp1
-            JOIN transactions ON transactions.transaction_id = tp1.transaction_id
-            JOIN transaction_participants tp2 ON tp2.transaction_id = transactions.transaction_id
-            WHERE tp1.user_id = ?
-            GROUP BY transaction_id";
+
+                FROM transactions
+                JOIN transaction_participants tp ON tp.transaction_id = transactions.transaction_id
+                JOIN group_transactions ON group_transactions.transaction_id = transactions.transaction_id
+                WHERE transactions.transaction_id = ?
+                GROUP BY transaction_id";
 
     $transactions = $mysqli->execute_query($sql, [$user_id]);
 
@@ -225,6 +337,7 @@ function getTransaction($transaction_id) {
                     transactions.name AS transaction_name,
                     transactions.date AS transaction_date,
                     transactions.description AS transaction_description,
+                    group_transactions.group_id as group_id,
                     CASE WHEN COUNT(tp.user_id) = SUM(tp.has_approved)
                         THEN 1
                         ELSE 0
@@ -232,6 +345,7 @@ function getTransaction($transaction_id) {
       
             FROM transactions
             JOIN transaction_participants tp ON tp.transaction_id = transactions.transaction_id
+            JOIN group_transactions ON group_transactions.transaction_id = transactions.transaction_id
             WHERE transactions.transaction_id = ?
             GROUP BY transaction_id";
 
@@ -314,6 +428,7 @@ function encapsulateTransactionData($row)
     $transaction['transaction_name'] = $row['transaction_name'];
     $transaction['transaction_date'] = $row['transaction_date'];
     $transaction['transaction_description'] = $row['transaction_description'];
+    $transaction['group_id'] = $row['group_id'];
     $transaction['is_approved'] = $row['is_approved'];
 
 
@@ -394,12 +509,16 @@ function addNewTransaction($data)
         returnMessage("Sum of all amounts should be 0", HTTP_BAD_REQUEST);
     }
 
+    if (!is_null($data['group_id']) && !is_numeric($data['group_id'])) 
+    {
+        returnMessage("group_id must be NULL or INT", HTTP_BAD_REQUEST);
+        return;
+    }
     
     //TODO this follows the same pattern as validation, room for improvement
 
-    $sql = "INSERT INTO transactions    
-                        (name, date, amount, description)
-                VALUES  (?, ?, 0, ?)";
+    $sql = "INSERT INTO transactions    (name, date, amount, description)
+                                VALUES  (?, ?, 0, ?)";
 
     $response = $mysqli->execute_query($sql, [  $data['transaction_name'],
                                                 $data['transaction_date'],
@@ -415,6 +534,30 @@ function addNewTransaction($data)
     //Get AUTO_INCREMENT ID for most recent insertion
     // The transaction_participant that created the transaction should already be approved
     $transaction_id = $mysqli->insert_id;
+
+
+    // Insert group_id -> transaction_id relationship if not null (part of group)
+    if (!is_null($data['group_id']))
+    {   
+        //Verify that the user belongs to the group they have passed
+        if (!verifyGroupAndUserIDs(validateSessionID(), $data['group_id']))
+        {
+            returnMessage("User is not a member of passed group_id", HTTP_FORBIDDEN);
+            return;
+        }
+
+        $sql = "INSERT INTO group_transactions
+                            (group_id, transaction_id)
+                    VALUES  (?, ?)";
+                    
+        $response = $mysqli->execute_query($sql, [$data['group_id'], $transaction_id]);
+    }
+
+    if ($response !== true) {
+        //JSON was valid, clearly something internal (HTTP_500) occured
+        returnMessage("Error creating transaction", HTTP_INTERNAL_SERVER_ERROR);
+        return;
+    }
 
     foreach($data['transaction_participants'] as $participant) 
     {
@@ -564,8 +707,8 @@ function deleteTransaction($transaction_id)
 
     // Need to get participants for specified transaction for data security
     $sql = "SELECT  transaction_participants.user_id AS user_id
-            FROM transaction_participants
-            WHERE transaction_id = ?";
+            FROM    transaction_participants
+            WHERE   transaction_id = ?";
 
     $transaction_participants = $mysqli->execute_query($sql, [intval($transaction_id)]);
 

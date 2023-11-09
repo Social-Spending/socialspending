@@ -69,7 +69,7 @@ create table group_members (
 
 create table group_transactions (
 	group_id int not null,
-	transaction_id int not null,
+	transaction_id int not null unique,
 	primary key (group_id, transaction_id),
 	foreign key (group_id) references groups(group_id) on delete cascade on update cascade,
 	foreign key (transaction_id) references transactions(transaction_id) on delete cascade on update cascade

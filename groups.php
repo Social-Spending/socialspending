@@ -391,6 +391,8 @@ include_once('templates/connection.php');
 include_once('templates/cookies.php');
 include_once('templates/jsonMessage.php');
 
+include_once('templates/groupHelpers.php');
+
 function handleGET($userID)
 {
     global $mysqli;
@@ -968,27 +970,7 @@ function createGroupInvitation($groupID, $userID)
     }
 }
 
-// verify that a group exists and that the given user is a member
-// send an error response if group not found or user is not a member
-function verifyGroupAndUserIDs($userID, $groupID)
-{
-    global $mysqli;
-    // check that this group exists and user is a member
-    $sql =  'SELECT gm.group_id FROM group_members as gm '.
-            'WHERE gm.user_id = ? AND gm.group_id = ?;';
-    $result = $mysqli->execute_query($sql, [$userID, $groupID]);
-    // check that query was successful
-    if (!$result)
-    {
-        // query failed, internal server error
-        handleDBError();
-    }
-    // check that group was found
-    if ($result->num_rows == 0)
-    {
-        returnMessage('Group with group_id '.$groupID.' doesn\'t exist or user is not a member.', 404);
-    }
-}
+
 
 // given the request body as a json object, return the specified group ID
 // send an error response if group_id was not given
@@ -1060,7 +1042,12 @@ function handleInviteUser($userID, $bodyJSON)
     global $mysqli;
 
     $groupID = getGroupIDFromJSON($bodyJSON);
-    verifyGroupAndUserIDs($userID, $groupID);
+
+    if (!verifyGroupAndUserIDs($userID, $groupID))
+    {
+        return;
+    }
+
     $userIDToAdd = getSpecifiedUserFromJSON($bodyJSON);
 
     // create invitation
@@ -1075,7 +1062,12 @@ function handleCancelInvite($userID, $bodyJSON)
     global $mysqli;
 
     $groupID = getGroupIDFromJSON($bodyJSON);
-    verifyGroupAndUserIDs($userID, $groupID);
+
+    if (!verifyGroupAndUserIDs($userID, $groupID))
+    {
+        return;
+    }
+
     $userIDToRevoke = getSpecifiedUserFromJSON($bodyJSON);
 
     // remove invitation
@@ -1180,7 +1172,11 @@ function handleKickUser($userID, $bodyJSON)
     global $mysqli;
 
     $groupID = getGroupIDFromJSON($bodyJSON);
-    verifyGroupAndUserIDs($userID, $groupID);
+
+    if (!verifyGroupAndUserIDs($userID, $groupID))
+    {
+        return;
+    }
 
     $userIDToRemove = getSpecifiedUserFromJSON($bodyJSON);
 
@@ -1250,7 +1246,11 @@ function handleDelete($userID, $bodyJSON)
     global $mysqli;
 
     $groupID = getGroupIDFromJSON($bodyJSON);
-    verifyGroupAndUserIDs($userID, $groupID);
+
+    if (!verifyGroupAndUserIDs($userID, $groupID))
+    {
+        return;
+    }
 
     deleteGroup($groupID);
 
@@ -1264,7 +1264,12 @@ function handleRename($userID, $bodyJSON)
     global $mysqli;
 
     $groupID = getGroupIDFromJSON($bodyJSON);
-    verifyGroupAndUserIDs($userID, $groupID);
+
+    if (!verifyGroupAndUserIDs($userID, $groupID))
+    {
+        return;
+    }
+
     // get new group name
     if ($bodyJSON['group_new_name'] === null)
     {
@@ -1292,7 +1297,11 @@ function handleLeave($userID, $bodyJSON)
     global $mysqli;
 
     $groupID = getGroupIDFromJSON($bodyJSON);
-    verifyGroupAndUserIDs($userID, $groupID);
+
+    if (!verifyGroupAndUserIDs($userID, $groupID))
+    {
+        return;
+    }
 
     // delete group membership for this user
     deleteGroupMembership($groupID, $userID);
