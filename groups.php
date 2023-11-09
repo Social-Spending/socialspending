@@ -1042,12 +1042,7 @@ function handleInviteUser($userID, $bodyJSON)
     global $mysqli;
 
     $groupID = getGroupIDFromJSON($bodyJSON);
-
-    if (!verifyGroupAndUserIDs($userID, $groupID))
-    {
-        return;
-    }
-
+    verifyGroupAndUserIDs($userID, $groupID);
     $userIDToAdd = getSpecifiedUserFromJSON($bodyJSON);
 
     // create invitation
@@ -1062,12 +1057,7 @@ function handleCancelInvite($userID, $bodyJSON)
     global $mysqli;
 
     $groupID = getGroupIDFromJSON($bodyJSON);
-
-    if (!verifyGroupAndUserIDs($userID, $groupID))
-    {
-        return;
-    }
-
+    verifyGroupAndUserIDs($userID, $groupID);
     $userIDToRevoke = getSpecifiedUserFromJSON($bodyJSON);
 
     // remove invitation
@@ -1172,11 +1162,7 @@ function handleKickUser($userID, $bodyJSON)
     global $mysqli;
 
     $groupID = getGroupIDFromJSON($bodyJSON);
-
-    if (!verifyGroupAndUserIDs($userID, $groupID))
-    {
-        return;
-    }
+    verifyGroupAndUserIDs($userID, $groupID);
 
     $userIDToRemove = getSpecifiedUserFromJSON($bodyJSON);
 
@@ -1246,11 +1232,7 @@ function handleDelete($userID, $bodyJSON)
     global $mysqli;
 
     $groupID = getGroupIDFromJSON($bodyJSON);
-
-    if (!verifyGroupAndUserIDs($userID, $groupID))
-    {
-        return;
-    }
+    verifyGroupAndUserIDs($userID, $groupID);
 
     deleteGroup($groupID);
 
@@ -1264,12 +1246,7 @@ function handleRename($userID, $bodyJSON)
     global $mysqli;
 
     $groupID = getGroupIDFromJSON($bodyJSON);
-
-    if (!verifyGroupAndUserIDs($userID, $groupID))
-    {
-        return;
-    }
-
+    verifyGroupAndUserIDs($userID, $groupID);
     // get new group name
     if ($bodyJSON['group_new_name'] === null)
     {
@@ -1297,11 +1274,7 @@ function handleLeave($userID, $bodyJSON)
     global $mysqli;
 
     $groupID = getGroupIDFromJSON($bodyJSON);
-
-    if (!verifyGroupAndUserIDs($userID, $groupID))
-    {
-        return;
-    }
+    verifyGroupAndUserIDs($userID, $groupID);
 
     // delete group membership for this user
     deleteGroupMembership($groupID, $userID);
