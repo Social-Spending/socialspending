@@ -7,7 +7,7 @@ include_once("templates/jsonMessage.php");
 
 include_once('notifications.php');
 
-include_once("templates/debtHelpers.php");
+include_once('templates/debtHelpers.php');
 
 /*
 Transaction Approval PHP Endpoint
@@ -182,40 +182,58 @@ Uses a transaction will full-approval and modifies the debt table
 		false - error submiting transaction (transaction malformed)
 		true - transaction submitted succesfully
 
-TODO: Does not support multiple creditors at this time
 */
 function submitTransaction($transaction_id)
 {
 	global $mysqli;
 
-	//Get the creditor (owed money, amount < 0), first
+	//Get the creditors (owed money, amount < 0), first
 	$sql = "SELECT	user_id, amount
 			FROM	transaction_participants
 			WHERE	transaction_id = ? AND amount < 0";
 	
-	$response = $mysqli->execute_query($sql, [$transaction_id]);
-
-	$creditor = $response->fetch_assoc();
+	$creditor_response = $mysqli->execute_query($sql, [$transaction_id]);
 
     // Need a creditor associated with the transaction
-	if ($creditor === NULL) 
+	if (!$creditor_response || mysqli_num_rows($creditor_response) == 0) 
 	{
 		return false;
 	}
+
+    //Determine the amount that all creditors lent
+    $sum_credited = 0;
+    while ($creditor = $creditor_response->fetch_assoc())
+    {
+        $sum_credited += $creditor['amount'];
+    }
 
 	$sql = "SELECT	user_id, amount
 			FROM	transaction_participants
 			WHERE	transaction_id = ? AND amount > 0";
 	
-	$response = $mysqli->execute_query($sql, [$transaction_id]);
+	$debtor_response = $mysqli->execute_query($sql, [$transaction_id]);
 
-	while ($debtor = $response->fetch_assoc())
-	{
-		//Use debtor amount, NOT creditor amount; creditor amount is total of transaction
-		if (addDebt($creditor['user_id'], $debtor['user_id'], $debtor['amount']) === false)
-		{
-			return false; 
-		}
+	while ($debtor = $debtor_response->fetch_assoc())
+	{   
+        mysqli_data_seek($creditor_response,0);
+        while ($creditor = $creditor_response->fetch_assoc())
+        {
+            /*
+            Divide amount borrowed among creditors, ratioed by contribution amount (positive)
+            
+            amount_owed_to_creditor = amount_borrowed * (amount_creditor_lent / amount_all_creditors_lent)
+                (Postitive)         =   (Positive)    *   [  (Negative)       /          (Negative) ]
+            
+            */
+            $amount_owed = $debtor['amount'] * ($creditor['amount'] / $sum_credited );
+
+            //Add amount to debt ledger
+            if (addDebt($creditor['user_id'], $debtor['user_id'], $amount_owed) === false)
+            { 
+                return false; 
+            }
+        }
+
 	}
 
 	return true;	
