@@ -1,13 +1,13 @@
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image, Modal } from 'react-native';
-import { router } from "expo-router";
+import { Text, View, Image, Modal } from '../utils/globals.js';
+
 import { useRef, useState, useContext } from 'react';
 
 
 import Button from '../components/Button.js'
 
-const Logo = require('../assets/images/logo/logo-name-64.png');
+import Logo from '../assets/images/logo/logo-name-64.png';
 
 
 import Accept from '../assets/images/bx-check.svg';
@@ -27,16 +27,16 @@ export default function VerifyAction(props) {
             visible={true}
             onRequestClose={() => setModal(null)}>
 
-            <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                 <View style={styles.verify} onClick={handleChildClick}>
 
                     <Image source={Logo} style={styles.logo} />
  
-                    <Text style={[globals.styles.text, globals.styles.h2, { paddingTop: 0, textAlign: 'center' }]}>{props.label}</Text>
+                    <Text style={{ ...globals.styles.text, ...globals.styles.h2, ...{ paddingTop: 0, textAlign: 'center' }}}>{props.label}</Text>
                 
                     <View style={{flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', width: 'auto', maxWidth: '100%'} }>
-                        <Button style={[styles.button, { backgroundColor: globals.COLOR_BLUE }]} svg={Accept} iconStyle={styles.icon} label='CONTINUE' onClick={props.accept} />
-                        <Button style={[styles.button, { backgroundColor: globals.COLOR_ORANGE }]} svg={Reject} iconStyle={styles.icon} label='CANCEL' onClick={(props.reject != undefined ? props.reject : () => setModal(null))} />
+                        <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_BLUE }}} svg={Accept} iconStyle={styles.icon} label='CONTINUE' onClick={props.accept} />
+                        <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_ORANGE }}} svg={Reject} iconStyle={styles.icon} label='CANCEL' onClick={(props.reject != undefined ? props.reject : () => setModal(null))} />
                     </View>
                 
 
@@ -47,7 +47,7 @@ export default function VerifyAction(props) {
     );
 }
 
-const styles = StyleSheet.create({
+const styles = {
     verify: {
         zIndex: 1,
         width: '40em',
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     },
     icon: {
         fill: globals.COLOR_WHITE,
-        width: '1.25em'
+        width: '1.5em'
     }
 
-});
+};

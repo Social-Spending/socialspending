@@ -1,8 +1,7 @@
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, View, Text } from 'react-native';
+import { View, Text } from '../utils/globals.js';
 import { useState, useEffect, createContext, useContext } from 'react';
-import { router } from 'expo-router';
 import Button from './Button.js';
 
 import ApproveSvg   from '../assets/images/bx-check.svg';
@@ -15,15 +14,19 @@ import TransactionInfo from '../modals/TransactionInfo.js';
 import VerifyAction from '../modals/VerifyAction.js';
 import WaitForAuth from './WaitForAuth.js';
 import { GlobalContext } from './GlobalContext.js';
+import { useNavigate } from 'react-router-dom/dist/index.js';
 
 const NotificationContext = createContext(null);
+
+var navigate = 0;
 
 export default function Notifications(props) {
     const [friendRequests, setFriendRequests] = useState([]);
     const [transactionApprovals, setTransactionApprovals] = useState([]);
     const [completedTransactions, setCompletedTransactions] = useState([]);
     const [groupInvites, setGroupInvites] = useState([]);
-   
+
+    navigate = useNavigate();
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -67,9 +70,9 @@ export default function Notifications(props) {
 
     return (
         <NotificationContext.Provider value={{removeNotif:removeNotif}}>
-            <View style={[styles.notifShelf, props.show ? { width: '20vw', minWidth: '16em', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
+            <View style={{ ...styles.notifShelf, ...props.show ? { width: '20vw', minWidth: '16em', borderLeftStyle: 'solid' } : { width: '0vh' }}}>
                 <WaitForAuth requireLogin={true} >
-                    <View style={[props.show ? { width: '18vw', minWidth: '14.4em', display: "block" } : { width: '0', display: "none" }]}>
+                    <View style={{ ...props.show ? { width: '18vw', minWidth: '14.4em', display: "block" } : { width: '0', display: "none" }}}>
                         <Section name="Group Invites">
                             {groupInvites}
                         </Section>
@@ -102,10 +105,10 @@ function Section(props) {
     return (
         <>
             <View style={{ flexDirection: 'row' } }>
-                <Text style={[globals.styles.h2, { paddingLeft: 0, color: globals.COLOR_GRAY }]} onClick={() => setOpen(!open)}>{props.name}</Text>
-                {isNEmpty && (<Button style={[styles.sectionButton, {transition: '500ms', transform: (open ? 'rotate(180deg)' : ''), backgroundColor: globals.COLOR_WHITE }]} svg={DownChevron} iconStyle={{ width : '100%', fill: globals.COLOR_GRAY }} hoverStyle={{ borderRadius: '50%' }} onClick={() => setOpen(!open)} />)}
+                <Text style={{ ...globals.styles.h2, ...{ paddingLeft: 0, color: globals.COLOR_GRAY }}} onClick={() => setOpen(!open)}>{props.name}</Text>
+                {isNEmpty && (<Button style={{ ...styles.sectionButton, ...{transition: '500ms', transform: (open ? 'rotate(180deg)' : ''), backgroundColor: globals.COLOR_WHITE }}} svg={DownChevron} iconStyle={{ width : '100%', fill: globals.COLOR_GRAY }} hoverStyle={{ borderRadius: '50%' }} onClick={() => setOpen(!open)} />)}
             </View>
-            <View style={[styles.notifSection, open ? { maxHeight: '75vh' } : { maxHeight: 0, overflowY: 'hidden' }]}>
+            <View style={{ ...styles.notifSection, ...open ? { maxHeight: '75vh' } : { maxHeight: 0, overflowY: 'hidden' }}}>
                 {props.children}
             </View>
         </>
@@ -135,9 +138,9 @@ function FriendRequest(props) {
                 
             </View>
             <View style={styles.buttonContainer}>
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} onClick={() => router.push("/profile/" + props.user_id)} />
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approve(true)} />
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY, width: '1.5em' }} onClick={() => navigate("/profile/" + props.user_id)} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approve(true)} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
             </View>
                       
         </View>
@@ -170,9 +173,9 @@ function ApproveTransaction(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} onClick={viewTransaction} />
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approve(true)} />
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY, width: '1.5em'}} onClick={viewTransaction} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approve(true)} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
             </View>
                       
         </View>
@@ -200,8 +203,8 @@ function CompletedTransaction(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY }} onClick={viewTransaction} />
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => dismissCompletedTransaction(props.id, removeNotif)} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY, width: '1.5em' }} onClick={viewTransaction} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => dismissCompletedTransaction(props.id, removeNotif)} />
             </View>
                       
         </View>
@@ -234,8 +237,8 @@ function GroupInvite(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approve(true)} />
-                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '1.5em' }} onClick={() => approve(true)} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
             </View>
 
         </View>
@@ -409,7 +412,7 @@ async function getNotifications(type){
 
 
 
-const styles = StyleSheet.create({
+const styles = {
     notifShelf: {
         overflowX: 'hidden',
         alignItems: 'center',
@@ -469,4 +472,4 @@ const styles = StyleSheet.create({
         color: globals.COLOR_GRAY
     },
 
-});
+};

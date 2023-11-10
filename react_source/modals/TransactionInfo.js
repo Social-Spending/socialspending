@@ -14,11 +14,11 @@
 
 import * as globals from "../utils/globals.js";
 
-import { StyleSheet, Text, View, Image, Modal } from 'react-native';
-import { Link } from "expo-router";
+import { Text, View, Modal } from '../utils/globals.js';
 import { useState, useEffect, useContext } from 'react';
 import { ModalContext } from "./ModalContext.js";
 import Loading from "../components/Loading.js";
+import { Link } from "react-router-dom/dist/index.js";
 
 
 export default function TransactionInfo(props) {
@@ -53,7 +53,7 @@ export default function TransactionInfo(props) {
             visible={true}
             onRequestClose={() => setModal(null)}>
 
-                <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                     <View style={styles.info} onClick={handleChildClick}>
                         <Loading />
                     </View>
@@ -72,7 +72,7 @@ export default function TransactionInfo(props) {
                 visible={true}
                 onRequestClose={() => setModal(null)}>
 
-                <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                     <View style={styles.info} onClick={handleChildClick}>
                     <Text style={globals.styles.error}> {text} </Text>
                     </View>
@@ -89,20 +89,20 @@ export default function TransactionInfo(props) {
                 visible={true}
                 onRequestClose={() => setModal(null)}>
 
-                <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                     <View style={styles.info} onClick={handleChildClick}>
 
                         <View style={styles.detailsContainer}>
-                            <Text style={[globals.styles.h2, styles.name, pendingItalic]}>{transactionInfo['transaction_name']}</Text>
+                            <Text style={{ ...globals.styles.h2, ...styles.name, ...pendingItalic}}>{transactionInfo['transaction_name']}</Text>
                         </View>
 
-                        <View style={[styles.detailsContainer, { paddingBottom: '2.5em' }]}>
+                        <View style={{ ...styles.detailsContainer, ...{ paddingBottom: '2.5em' }}}>
                             <Text style={styles.details}>Transaction #{transactionInfo['transaction_id']}</Text>
                             <Text style={styles.details}>{transactionInfo['transaction_date']}</Text>
                         </View>
 
                         <View style={styles.detailsContainer}>
-                            <Text style={[globals.styles.h4, styles.details]}>Description:</Text>
+                            <Text style={{ ...globals.styles.h4, ...styles.details}}>Description:</Text>
                         </View>
                         <View style={styles.detailsContainer}>
                             <Text style={styles.description}>{transactionInfo['transaction_description']}</Text>
@@ -111,10 +111,10 @@ export default function TransactionInfo(props) {
                         <View style={{ alignSelf: 'center', height: '1px', width: '80%', backgroundColor: globals.COLOR_GRAY }} />
 
                         <View style={styles.detailsContainer}>
-                            <Text style={[globals.styles.h4, styles.participants]}>Participants:</Text>
+                            <Text style={{ ...globals.styles.h4, ...styles.participants}}>Participants:</Text>
                         </View>
 
-                        <View style={[globals.styles.list, { width: '80%' }, transactionInfo['transaction_participants'].length < 5 ? { scrollbarWidth: 'none' } : {}]}>
+                        <View style={{ ...globals.styles.list, ...{ width: '80%' }}}>
                             {getParticipants(transactionInfo['transaction_participants'])}
                         </View>
                     </View>
@@ -167,13 +167,13 @@ function ListItem({ id, name, owed, border, hasApproved }) {
 
     return (
 
-        <Link href={'/profile/' + id} asChild>
+        <Link href={'/profile/' + id}>
             <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
-                <Text style={[globals.styles.listText, pendingItalic]}>{name}</Text>
+                <Text style={{ ...globals.styles.listText, ...pendingItalic}}>{name}</Text>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
-                    <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                    <Text style={[globals.styles.listText, color]}>${Math.abs(owed / 100).toFixed(2)}</Text>
+                    <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
+                    <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(owed / 100).toFixed(2)}</Text>
                 </View>
 
             </View>
@@ -202,7 +202,7 @@ async function getTransaction(transactionId) {
     }
 }
 
-const styles = StyleSheet.create({
+const styles = {
     info: {
         width: '25em',
         minHeight: '30em',
@@ -247,4 +247,4 @@ const styles = StyleSheet.create({
     }
 
 
-});
+};

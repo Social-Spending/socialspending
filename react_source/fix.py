@@ -1,6 +1,6 @@
 import re
 
-file = "./components/footer.js"
+file = "./modals/TransactionInfo.js"
 
 f = open(file, "r")
 

@@ -31,11 +31,11 @@ function Icon(props) {
             <ReactSVG
                 beforeInjection={(svg) => {
                     svg.setAttribute('fill', 'current');
-                    svg.setAttribute('height', '100%');
-                    svg.setAttribute('width', '100%');
+                    svg.setAttribute('height', props.style.height ? props.style.height : '100%');
+                    svg.setAttribute('width', props.style.width ? props.style.width : '100%');
                 }}
                 src={props.svg}
-                style={{ ...styles.icon, ...props.style }} />
+                style={{ ...{justifyContent: 'center', alignItems:'center'}, ...styles.icon, ...props.style }} />
         );
     }
     else if (props.icon) {
@@ -50,7 +50,7 @@ function Icon(props) {
 function ButtonText(props) {
     if (props.label) {
         return (
-            <Text style={{ ...globals.styles.h4, ...(props.disabled ? styles.buttonLabelDisabled : styles.buttonLabel), ...props.style}} >{props.label}</Text>
+            <Text style={{ ...globals.styles.h4, ...{fontSize: '1.05em'}, ...(props.disabled ? styles.buttonLabelDisabled : styles.buttonLabel), ...props.style}} >{props.label}</Text>
         );
     } else {
         return;
@@ -77,7 +77,6 @@ const styles = {
     },
     icon: {
         aspectRatio: 1,
-        justifyContent: 'flex-start',
         height: '100%',
     },
 };

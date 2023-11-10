@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import Header from './Header.js';
 import Footer from './Footer.js';
+import Notifications from './Notifications.js';
 
 import { ModalContext } from '../modals/ModalContext.js';
 
@@ -27,7 +28,7 @@ export default function Base(props) {
                             
                         </View>
 
-                        
+                        <Notifications show={showShelf} />
 
                     </View>
 

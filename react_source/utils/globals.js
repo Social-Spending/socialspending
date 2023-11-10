@@ -24,13 +24,19 @@ export const View = React.forwardRef((props, ref) => (
 ));
 
 export const Text = React.forwardRef((props, ref) => (
-    <div ref={ref} {...props}>
+    <div ref={ref} {...props} style={{ ...{fontSize: '.85em'}, ...props.style} }>
         {props.children}
     </div>
 ));
 
 export const Image = React.forwardRef((props, ref) => (
     <img ref={ref} src={props.source} {...props} />
+));
+
+export const Modal = React.forwardRef((props, ref) => (
+    <div ref={ref} {...props}>
+        {props.children}
+    </div>
 ));
 
 
@@ -212,6 +218,8 @@ export const styles = {
 
     },
     listItem: {
+        flex: 1,
+        height: 'auto',
         paddingTop: '.5em',
         paddingBottom: '.5em',
         paddingLeft: '1em',
@@ -242,6 +250,8 @@ export const styles = {
         borderRadius: '50%'
     },
     listItemSeperator: {
+        flex: 1,
+        height:'auto',
         paddingTop: '.5em',
         paddingBottom: '.5em',
         paddingLeft: '1em',
