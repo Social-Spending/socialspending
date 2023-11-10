@@ -48,7 +48,7 @@ module.exports = {
                             /* ... */
                         },
                     },
-                ],
+                ]
             },
             {
                 test: /\.?js$/,
@@ -65,13 +65,10 @@ module.exports = {
                 type: 'asset/resource',
             },
             {
-                test: /\.css$/i,
+                test: /(\.css)$/,
                 use: ["style-loader", "css-loader"],
             }
             
         ]
-    },
-    optimization: {
-        runtimeChunk: 'single',
     }
 };

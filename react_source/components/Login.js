@@ -11,8 +11,6 @@ import * as globals from '../utils/globals.js'
 
 import { View, Text, Image } from '../utils/globals.js'
 
-import StyleSheet from "reactjs-stylesheet";
-
 import { useRef, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 

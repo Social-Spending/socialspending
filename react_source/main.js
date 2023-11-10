@@ -6,7 +6,7 @@ import { Route } from 'react-router-dom';
 
 import { View } from "./utils/globals.js"
 
-import "./utils/global.css"
+require("./utils/global.css");
 
 import {
     createBrowserRouter,

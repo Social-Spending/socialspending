@@ -5,12 +5,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 class HTMLFix {
     apply(compiler) {
         compiler.hooks.emit.tap("Route", (compilation) => {
-            let source = compilation.getAsset('index.html').source.source();
+            let source = compilation.getAsset('index.html').source._source.source();
 
             source = source.replaceAll("src=\"./bundles/", "src=\"/bundles/");
 
-            compilation.getAsset('index.html').source._value = source;
-            compilation.getAsset('index.html').source._valueAsString = source;
+            compilation.getAsset('index.html').source._source._value = source;
+            compilation.getAsset('index.html').source._source._valueAsString = source;
+            compilation.getAsset('index.html').source._cachedSource = source;
         })
     }
 }
@@ -54,7 +55,7 @@ module.exports = {
                 use: {
                     loader: "babel-loader",
                     options: {
-                        presets: ['@babel/preset-env', '@babel/preset-react']
+                        presets: ['babel-preset-expo', '@babel/preset-env', '@babel/preset-react']
                     }
                 }
             },
