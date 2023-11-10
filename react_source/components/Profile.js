@@ -1,9 +1,9 @@
 import * as globals from "../utils/globals.js";
 
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { Text, View, Image } from '../utils/globals.js';
 import { useState, useEffect, useContext } from 'react';
 
-import { Link } from "expo-router";
+import { Link } from "react-router-dom";
 
 import Button from "./Button.js";
 
@@ -79,16 +79,16 @@ export default function Profile(props) {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
                     <View style={globals.styles.listIconAndTextContainer}>
                         <Image
-                            style={[globals.styles.listIcon, { width: '3em', height: '3em' }]}
+                            style={{ ...globals.styles.listIcon, ...{ width: '3em', height: '3em' }}}
                             source={iconPath !== null ? decodeURI(iconPath) : globals.getDefaultUserIcon(username)}
                         />
-                        <Text style={[globals.styles.h1, styles.groupName]}>{username}</Text>
+                        <Text style={{ ...globals.styles.h1, ...styles.groupName}}>{username}</Text>
                         
                     </View>
-                    {isFriend ? <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} svg={UnfriendIcon} iconStyle={styles.icon} label={'UNFRIEND'} onClick={unfriend} /> : <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} iconStyle={styles.icon} label={isPendingFriend ? 'PENDING' : 'ADD FRIEND'} onClick={verifyAddFriend} disabled={isPendingFriend}/> }
+                    {isFriend ? <Button style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' }}} svg={UnfriendIcon} iconStyle={styles.icon} label={'UNFRIEND'} onClick={unfriend} /> : <Button style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' }}} iconStyle={styles.icon} label={isPendingFriend ? 'PENDING' : 'ADD FRIEND'} onClick={verifyAddFriend} disabled={isPendingFriend}/> }
                 </View>
                 <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, styles.listTitle]}>Email</Text>
+                    <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Email</Text>
                     <View style={styles.listHeader} >
 
                         <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600', paddingBottom: '1.5em' }}>{email}</Text>
@@ -97,23 +97,23 @@ export default function Profile(props) {
                 </View>
 
                 <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, styles.listTitle]}>Groups in Common</Text>
+                    <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Groups in Common</Text>
                     <View style={styles.listHeader} >
 
                         <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>GROUP NAME</Text>
 
                     </View>
-                    <View style={[globals.styles.list, { marginTop: '.25em', width: '100%', marginBottom: '1em' }]}>
+                    <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' }}}>
                         {groups}
                     </View>
                 </View>
 
                 <View style={styles.listContainer}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <Text style={[globals.styles.h3, styles.listTitle]}>Transactions in Common</Text>
-                        <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
-                            <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                            <Text style={[globals.styles.listText, color]}>${Math.abs(debt / 100).toFixed(2)}</Text>
+                        <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Transactions in Common</Text>
+                        <View style={{ width: 'auto', paddingRight: '.5em', margin: 'auto 0', minWidth: '5em', alignItems: 'center' }}>
+                            <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
+                            <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(debt / 100).toFixed(2)}</Text>
                         </View>
                     </View>
                     
@@ -123,7 +123,7 @@ export default function Profile(props) {
                         <Text style={{ color: globals.COLOR_GRAY, paddingRight: '2em' }}>DATE</Text>
 
                     </View>
-                    <View style={[globals.styles.list, { marginTop: '.25em', width: '100%', marginBottom: '1em' }]}>
+                    <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' }}}>
                         {transactions}
                     </View>
 
@@ -167,14 +167,14 @@ function getTransactionList(transactionsJSON) {
 function GroupListItem({ id, name, icon_path, border }) {
     return (
 
-        <Link href={'/groups/' + id} asChild>
+        <Link to={'/groups/' + id}>
             <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
                 <View style={globals.styles.listIconAndTextContainer}>
                     <Image
-                        style={[globals.styles.listIcon, { marginLeft: '.75em', width: '2.5em', height: '2.5em'}]}
+                        style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em'}}}
                         source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultGroupIcon(name)}
                     />
-                    <Text style={[globals.styles.listText, {paddingLeft: '.25em'}]}>{name}</Text>
+                    <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}}}>{name}</Text>
                 </View>
             </View>
         </Link>
@@ -196,9 +196,9 @@ function TransactionListItem({ id, name, date, user_debt, border, isApproved }) 
 
     return (
 
-        <View style={[border ? globals.styles.listItemSeperator : globals.styles.listItem, {cursor:'pointer'}]} onClick={viewTransaction} >
+        <View style={{ ...border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{cursor:'pointer'}}} onClick={viewTransaction} >
 
-            <Text style={[globals.styles.listText, pendingItalic]}>{name}</Text>
+            <Text style={{ ...globals.styles.listText, ...pendingItalic}}>{name}</Text>
             <Text style={globals.styles.listText}>{date}</Text>
 
         </View>
@@ -207,22 +207,20 @@ function TransactionListItem({ id, name, date, user_debt, border, isApproved }) 
 }
 
 
-const styles = StyleSheet.create({
+const styles = {
     groupName: {
         color: globals.COLOR_GRAY,
         borderRadius: 2,
         padding: 0,
         paddingBottom: '.25em',
-        marginHorizontal: '.5em',
+        margin: '0 .5em',
         fontWeight: 500
     },
     groupInfo: {
         flex: 1,
         width: 'auto',
-        marginTop: '1em',
-        marginHorizontal: `min(5em, 5vw)`,
-        paddingVertical: '2.5em',
-        paddingHorizontal: `min(2.5em, 2.5vw)`
+        margin: `1em min(5em, 5vw)`,
+        padding: '2.5em min(2.5em, 2.5vw)',
     },
     listContainer: {
         height: 'auto',
@@ -240,8 +238,7 @@ const styles = StyleSheet.create({
     listHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        borderStyle: 'none',
-        borderBottomStyle: 'solid',
+        borderStyle: 'none none solid',
         borderWidth: '1px',
         borderColor: '#eee',
         paddingBottom: '.5em'
@@ -251,4 +248,4 @@ const styles = StyleSheet.create({
         width: '1.25em'
     }
 
-});
+};

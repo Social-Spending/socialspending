@@ -1,11 +1,7 @@
 import * as globals from "../utils/globals.js";
 
-import { StyleSheet, Text, View, Image } from 'react-native';
-import { useState, useEffect } from 'react';
-
-import { Link } from "expo-router";
-
-const LoadingGif = require('../assets/images/loading/loading-blue-block-64.gif');
+import { Text, View } from '../utils/globals.js';
+import { useState } from 'react';
 
 import Button from './Button.js';
 
@@ -18,12 +14,12 @@ export default function Sidebar(props) {
     const [open, setOpen] = useState(true);
     
     return (
-        <View style={[styles.sidebar, { width: open ? '15em' : '2em' }]} >
+        <View style={{ ...styles.sidebar, ...{ width: open ? '15em' : '2em' }}} >
             <View style={{ flexDirection: 'row', width: '100%'}}>
-                <Text style={[globals.styles.h3, styles.title, open ? {} : { display: 'none' }] }>{props.title}</Text>
-                <Button style={styles.button} svg={LeftChevron} iconStyle={[styles.buttonIcon, { transform: open ? '' : 'rotate(180deg)' }]} onClick={() => setOpen(!open)} />
+                <Text style={{ ...globals.styles.h3, ...styles.title, ...open ? {} : { display: 'none' }}}>{props.title}</Text>
+                <Button style={styles.button} svg={LeftChevron} iconStyle={{ ...styles.buttonIcon, ...{ transform: open ? '' : 'rotate(180deg)' }}} onClick={() => setOpen(!open)} />
             </View>
-            <View style={[{ width: '15em' }, { display: open ? 'block' : 'none' }]}>
+            <View style={{ ...{ width: '15em' }, ...{ display: open ? 'block' : 'none' }}}>
 
                 {props.children}
             </View>
@@ -33,7 +29,7 @@ export default function Sidebar(props) {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
     sidebar: {
         height: '100%',
         zIndex: 1,
@@ -66,4 +62,4 @@ const styles = StyleSheet.create({
         paddingTop: 0,
         marginTop: '.05em',
     }
-});
+};

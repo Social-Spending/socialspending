@@ -1,6 +1,6 @@
 import * as globals from '../utils/globals.js'
 
-import { Text, View, Image } from 'react-native';
+import { Text, View, Image } from '../utils/globals.js';
 import { useState, useEffect, useContext } from 'react';
 
 import NewFriend from '../modals/NewFriend.js';
@@ -49,7 +49,7 @@ export default function SidebarFriendList(props) {
         return (
             <>
                 {friendItems}
-                <Button style={{ height: '2em' }} textStyle={{ color: globals.COLOR_GRAY }} label="+ Add Friend" onClick={addFriendModal} />
+                <Button style={{ height: '2em' }} textStyle={{ ...globals.styles.h5, ...{ color: globals.COLOR_GRAY }}} label="+ Add Friend" onClick={addFriendModal} />
             </>
 
         );
@@ -60,10 +60,10 @@ export default function SidebarFriendList(props) {
 // properties: name, icon_path, border, setFriendID
 function SidebarFriendListItems(props) {
     return (
-        <View style={[props.border ? globals.styles.listItemSeperator : globals.styles.listItem, {cursor: 'pointer'}]} onClick={() => props.setFriendID(props.id)} >
+        <View style={{ ...props.border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{cursor: 'pointer'}}} onClick={() => props.setFriendID(props.id)} >
             <View style={globals.styles.listIconAndTextContainer}>
                 <Image
-                    style={[globals.styles.listIcon, { width: '1.25em', height: '1.25em'}]}
+                    style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em'}}}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultUserIcon(props.name)}
                 />
                 <Text style={globals.styles.listText}>{props.name}</Text>
