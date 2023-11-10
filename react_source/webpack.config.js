@@ -1,6 +1,7 @@
 const path = require('path');
 const { ProvidePlugin } = require("webpack");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CompressionPlugin = require("compression-webpack-plugin");
 
 class HTMLFix {
     //replaces ./bundles/... with /bundles/... to fix routing to web bundle in sub trees
@@ -73,6 +74,15 @@ module.exports = {
     },
     optimization: {
 
-        usedExports: true
+        usedExports: true,
+        splitChunks: {
+            cacheGroups: {
+                commons: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all'
+                }
+            }
+        }
     },
 };

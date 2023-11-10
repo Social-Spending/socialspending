@@ -9,12 +9,12 @@ import { useNavigate } from 'react-router-dom/dist/index.js';
 //      if redirectOnLoggedIn is set, redirect to this target (placing an entry in the history) if isLoggedIn==true
 //      if redirectOnNotLoggedIn is set, redirect to this target (placing an entry in the history) if isLoggedIn==false
 //      if requireLogin is set and requireLogin == true, content will only be rendered if isLoggedIn==true
-let navigate = 0;
+
 
 export default function WaitForAuth(props) {
     // get data from global context
     const { isLoading, isLoggedIn } = useContext(GlobalContext);
-    navigate = useNavigate();
+    let navigate = useNavigate();
 
     // waiting to get user info
     if (isLoading) return (

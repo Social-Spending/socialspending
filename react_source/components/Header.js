@@ -1,7 +1,7 @@
 import * as globals from '../utils/globals.js'
 
 import { View, Image, Text } from '../utils/globals.js';
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom/dist/index.js";
 import { useState, useContext } from 'react';
 
 import Button from './Button.js'

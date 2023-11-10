@@ -1,6 +1,6 @@
 import re
 
-file = "./components/Signup.js"
+file = "./components/SummaryTransactionsList.js"
 
 f = open(file, "r")
 

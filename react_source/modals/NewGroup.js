@@ -7,15 +7,17 @@
 */
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image, Modal, TextInput } from 'react-native';
-import { router } from "expo-router";
+import { Text, View, Image, Modal } from '../utils/globals.js';
 import { useRef, useState, useContext } from 'react';
 
 
 import Button from '../components/Button.js'
 import { ModalContext } from './ModalContext.js';
+import { useNavigate } from 'react-router-dom/dist/index.js';
 
-const Logo = require('../assets/images/logo/logo-name-64.png');
+import Logo from '../assets/images/logo/logo-name-64.png';
+
+let navigate = 0;
 
 export default function NewGroup(props) {
 
@@ -28,6 +30,8 @@ export default function NewGroup(props) {
     const errorMessageRef = useRef(null);
     const groupRef = useRef(null);
 
+    navigate = useNavigate();
+
     function handleChildClick(e) {
         e.stopPropagation();
     }
@@ -39,21 +43,21 @@ export default function NewGroup(props) {
             visible={true}
             onRequestClose={() => setModal(null)}>
 
-            <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                 <View style={styles.create} onClick={handleChildClick}>
 
                     <Image source={Logo} style={styles.logo} />
 
-                    <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>CREATE GROUP</Text>
-                    <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Enter a new group name to get started</Text>
+                    <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>CREATE GROUP</Text>
+                    <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Enter a new group name to get started</Text>
 
                     <Text ref={errorMessageRef} id='createGroup_errorMessage' style={globals.styles.error}></Text>
 
                     <View style={globals.styles.labelContainer}>
-                        <Text style={[globals.styles.h5, globals.styles.label]}>GROUP NAME</Text>
+                        <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>GROUP NAME</Text>
                     </View>
 
-                    <TextInput tabIndex={1} ref={groupRef} placeholder=" Enter name of new group" style={globals.styles.input} id='createGroup_name' name="Group Name" onChangeText={onNameChange} />
+                    <input tabIndex={1} ref={groupRef} placeholder=" Enter name of new group" style={globals.styles.input} id='createGroup_name' name="Group Name" onInput={onNameChange} />
 
                     <Button disabled={nameDisabled}  style={globals.styles.formButton} label='Create New Group' onClick={onSubmit} />
 
@@ -103,7 +107,7 @@ async function submitForm(groupRef, errorRef) {
 
         if (await response.ok) {
             // redirect
-            router.replace("/groups");
+            navigate("/groups", {replace: true});
         }
         else {
             // failed, display error message returned by server
@@ -118,7 +122,7 @@ async function submitForm(groupRef, errorRef) {
     }
 }
 
-const styles = StyleSheet.create({
+const styles = {
     create: {
         zIndex: 1,
         height: '20em',
@@ -136,4 +140,4 @@ const styles = StyleSheet.create({
         borderRadius: 1,
     }
 
-});
+};

@@ -37,16 +37,13 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Route } from 'react-router-dom';
 
 import { View } from "./utils/globals.js"
 
 require("./utils/global.css");
 
-import {
-    createBrowserRouter,
-    RouterProvider,
-} from "react-router-dom";
+
+import { Outlet, Route, RouterProvider, createBrowserRouter, useNavigate } from 'react-router-dom/dist/index.js';
 
 _IMPORT_PAGE_ROUTES_ // DO NOT PUT THIS ANYWHERE ELSE IN THE APP EVEN IN QUOTES OR A COMMENT
 
@@ -55,17 +52,24 @@ const domNode = document.getElementById('app');
 const root = createRoot(domNode);
 root.render(<Main />);
 
-
-
+export var navigate = 0;
 function Main() {
 
-
     return (
+        
         <View style={{flex: 1}}>
-            <RouterProvider router={router} />
+            <RouterProvider router={router}>
+                <NavigateHandler/>
+
+            </RouterProvider>
         </View>
         
     );
+}
+
+function NavigateHandler() {
+    navigate = useNavigate();
+    return (<></>)
 }
 
 

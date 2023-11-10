@@ -12,7 +12,7 @@ import * as globals from '../utils/globals.js'
 import { View, Text, Image } from '../utils/globals.js'
 
 import { useRef, useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom/dist/index.js';
 
 import ShowSvg from '../assets/images/bx-show.svg';
 import HideSvg from '../assets/images/bx-hide.svg';

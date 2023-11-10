@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { navigate } from "../main";
 
 
 export async function getGroups() {
@@ -47,7 +47,7 @@ export async function getGroupInfo(id) {
         }
         else {
             console.log(response.json()['message']);
-            router.replace("/groups");
+            navigate("/groups", {replace: true});
             return null;
         }
     }
@@ -79,7 +79,7 @@ export async function leaveGroup(id) {
 
         if (await response.ok) {
             // redirect
-            router.replace("/groups");
+            navigate("/groups", { replace: true });
         }
         else {
             // failed, display error message returned by server

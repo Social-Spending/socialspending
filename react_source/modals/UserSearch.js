@@ -1,9 +1,8 @@
 import * as globals from '../utils/globals.js';
 
-import { addFriend } from '../utils/friends.js';
 
-import { StyleSheet, Text, View, Image, Modal, TextInput } from 'react-native';
-import { router } from "expo-router";
+import { Text, View, Image, Modal } from '../utils/globals.js';
+
 import { useRef, useState, useContext } from 'react';
 
 
@@ -11,7 +10,7 @@ import Button from '../components/Button.js'
 import { ModalContext } from './ModalContext.js';
 import { GlobalContext } from '../components/GlobalContext.js';
 
-const Logo = require('../assets/images/logo/logo-name-64.png');
+import Logo from '../assets/images/logo/logo-name-64.png';
 
 
 /**
@@ -20,7 +19,7 @@ const Logo = require('../assets/images/logo/logo-name-64.png');
  *      @param {string} title        title of the modal to be displayed
  *      @param {string} label        question presented to the user
  *      @param {string} submitLabel        text to put on the 'submit' button
- *      @param {StyleSheet} style    Styles to use
+ *      @param {JSON Object} style    Styles to use
  *      @param {Function} exit               function to call when exiting if you dont want to exit the modal for some reason
  *      @param {number} onSubmit     function handle for what to do with the username/email when user presses submit
  *                                   onSubmit takes args (user, setErrorMsg, setModal, reRender)...
@@ -60,21 +59,21 @@ export default function UserSearch(props) {
             visible={true}
             onRequestClose={() => setModal(null)}>
 
-            <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                 <View style={styles.create} onClick={handleChildClick}>
 
                     <Image source={Logo} style={styles.logo} />
 
-                    <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>{props.title}</Text>
-                    <Text style={[globals.styles.text, { paddingTop: '1em' }]}>{props.label}</Text>
+                    <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>{props.title}</Text>
+                    <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>{props.label}</Text>
 
                     <Text ref={errorMessageRef} id='userSearch_errorMessage' style={globals.styles.error}></Text>
 
                     <View style={globals.styles.labelContainer}>
-                        <Text style={[globals.styles.h5, globals.styles.label]}>USERNAME OR EMAIL</Text>
+                        <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>USERNAME OR EMAIL</Text>
                     </View>
 
-                    <TextInput tabIndex={1} ref={userRef} placeholder=" Enter username or email" style={globals.styles.input} id='userSearch_name' name="user" onChangeText={() => onNameChange(userRef)} />
+                    <input tabIndex={1} ref={userRef} placeholder=" Enter username or email" style={globals.styles.input} id='userSearch_name' name="user" onChangeText={() => onInput(userRef)} />
 
                     <Button disabled={false} style={globals.styles.formButton} label={props.submitLabel} onClick={onSubmit} />
 
@@ -89,7 +88,7 @@ function onNameChange(userRef) {
     // TODO search for users and populate drown-down
 }
 
-const styles = StyleSheet.create({
+const styles = {
     create: {
         zIndex: 1,
         height: '20em',
@@ -107,4 +106,4 @@ const styles = StyleSheet.create({
         borderRadius: 1,
     }
 
-});
+};

@@ -18,15 +18,13 @@ import { useNavigate } from 'react-router-dom/dist/index.js';
 
 const NotificationContext = createContext(null);
 
-var navigate = 0;
+import { navigate } from '../main.js';
 
 export default function Notifications(props) {
     const [friendRequests, setFriendRequests] = useState([]);
     const [transactionApprovals, setTransactionApprovals] = useState([]);
     const [completedTransactions, setCompletedTransactions] = useState([]);
     const [groupInvites, setGroupInvites] = useState([]);
-
-    navigate = useNavigate();
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -70,7 +68,7 @@ export default function Notifications(props) {
 
     return (
         <NotificationContext.Provider value={{removeNotif:removeNotif}}>
-            <View style={{ ...styles.notifShelf, ...props.show ? { width: '20vw', minWidth: '16em', borderLeftStyle: 'solid' } : { width: '0vh' }}}>
+            <View style={{ ...styles.notifShelf, ...props.show ? { width: '20vw', minWidth: '16em', borderStyle: 'none none none solid' } : { width: '0vh' }}}>
                 <WaitForAuth requireLogin={true} >
                     <View style={{ ...props.show ? { width: '18vw', minWidth: '14.4em', display: "block" } : { width: '0', display: "none" }}}>
                         <Section name="Group Invites">
@@ -369,24 +367,24 @@ async function getNotifications(type){
                     switch (type) {
                         case "friend_request":
                             for (let i = 0; i < json.length; i++) {
-                                notifications.push(<FriendRequest name={json[i].username} id={json[i].notification_id} user_id={json[i].friend_id} />)
+                                notifications.push(<FriendRequest key={i} name={json[i].username} id={json[i].notification_id} user_id={json[i].friend_id} />)
                             }
                             break;
                         case "transaction_approval":
                             for (let i = 0; i < json.length; i++) {
-                                notifications.push(<ApproveTransaction name={json[i].name} id={json[i].notification_id} trans_id={json[i].transaction_id} />)
+                                notifications.push(<ApproveTransaction key={i} name={json[i].name} id={json[i].notification_id} trans_id={json[i].transaction_id} />)
                             }
                             break;
                         case "complete_transaction":
 
                             for (let i = 0; i < json.length; i++) {
-                                notifications.push(<CompletedTransaction name={json[i].name} id={json[i].notification_id} trans_id={json[i].transaction_id} />)
+                                notifications.push(<CompletedTransaction key={i} name={json[i].name} id={json[i].notification_id} trans_id={json[i].transaction_id} />)
                             }
                             break;
                         case "group_invite":
 
                             for (let i = 0; i < json.length; i++) {
-                                notifications.push(<GroupInvite name={json[i].group_name} id={json[i].notification_id} group_id={json[i].group_id} />)
+                                notifications.push(<GroupInvite key={i} name={json[i].group_name} id={json[i].notification_id} group_id={json[i].group_id} />)
                             }
 
                             break;

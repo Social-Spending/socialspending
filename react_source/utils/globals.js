@@ -264,6 +264,16 @@ export const styles = {
         borderColor: '#eee'
 
     },
+    listLabel: {
+        flex: 'initial',
+        padding: 0,
+        position: 'sticky',
+        top: 0,
+        zIndex: 1,
+        backgroundColor: COLOR_WHITE,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
     h1: {
         padding: '1em',
         fontSize: '2em',

@@ -1,7 +1,7 @@
 import * as globals from '../utils/globals.js'
 
 import { Text, View } from '../utils/globals.js';
-import { Link, } from "react-router-dom";
+import { Link } from "react-router-dom/dist/index.js";
 
 export default function Footer() {
     return (

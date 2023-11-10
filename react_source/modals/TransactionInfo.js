@@ -144,6 +144,30 @@ function getParticipants(participantList) {
             owed={participantList[i]['amount']}
             hasApproved={participantList[i]['has_approved']}
         />);
+        outputList.push(<ListItem
+            key={i}
+            border={i > 0}
+            name={participantList[i]['username']}
+            id={participantList[i]['user_id']}
+            owed={participantList[i]['amount']}
+            hasApproved={participantList[i]['has_approved']}
+        />);
+        outputList.push(<ListItem
+            key={i}
+            border={i > 0}
+            name={participantList[i]['username']}
+            id={participantList[i]['user_id']}
+            owed={participantList[i]['amount']}
+            hasApproved={participantList[i]['has_approved']}
+        />);
+        outputList.push(<ListItem
+            key={i}
+            border={i > 0}
+            name={participantList[i]['username']}
+            id={participantList[i]['user_id']}
+            owed={participantList[i]['amount']}
+            hasApproved={participantList[i]['has_approved']}
+        />);
     }
 
     return outputList;
@@ -167,7 +191,7 @@ function ListItem({ id, name, owed, border, hasApproved }) {
 
     return (
 
-        <Link href={'/profile/' + id}>
+        <Link to={'/profile/' + id}>
             <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
                 <Text style={{ ...globals.styles.listText, ...pendingItalic}}>{name}</Text>
