@@ -165,11 +165,12 @@ const styles = {
         marginBottom: '1em'
     },
     display: {
-        marginVertical: '1em',
+        margin: '1em',
         width: '10em',
         height: '10em',
         borderRadius: '50%',
-        borderWidth: 4,
+        borderStyle: 'solid',
+        borderWidth: '4px',
         borderColor: globals.COLOR_LIGHT_GRAY
     }
 

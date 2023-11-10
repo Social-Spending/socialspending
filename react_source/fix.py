@@ -1,6 +1,6 @@
 import re
 
-file = "./modals/UploadIcon.js"
+file = "./modals/EditProfile.js"
 
 f = open(file, "r")
 

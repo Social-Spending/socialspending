@@ -18,13 +18,14 @@ import { useNavigate } from 'react-router-dom/dist/index.js';
 
 const NotificationContext = createContext(null);
 
-import { navigate } from '../main.js';
-
+let navigate = 0;
 export default function Notifications(props) {
     const [friendRequests, setFriendRequests] = useState([]);
     const [transactionApprovals, setTransactionApprovals] = useState([]);
     const [completedTransactions, setCompletedTransactions] = useState([]);
     const [groupInvites, setGroupInvites] = useState([]);
+
+    navigate = useNavigate();
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect

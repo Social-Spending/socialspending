@@ -1,3 +1,4 @@
+import { useState } from "react";
 
 
 export const COLOR_BLUE = "#00B2C2";
@@ -23,15 +24,26 @@ export const View = React.forwardRef((props, ref) => (
     </div>
 ));
 
+
 export const Text = React.forwardRef((props, ref) => (
     <div ref={ref} {...props} style={{ ...{fontSize: '.85em'}, ...props.style} }>
         {props.children}
     </div>
 ));
 
-export const Image = React.forwardRef((props, ref) => (
-    <img ref={ref} src={props.source} {...props} />
-));
+export const Image = React.forwardRef(function ImageType(props, ref) {
+    const [imgStyle, setImgStyle] = useState({ height: 'auto', maxHeight: '100%' });
+    function onImgLoad({ target: img }) {
+        setImgStyle(img.naturalWidth > img.naturalHeight ? { height: 'auto', maxHeight: '100%' } : { width: 'auto', maxWidth: '100%' });
+    }
+
+    return (
+        <div {...props} style={{ ...props.style, ...{ overflow: 'hidden', justifyContent: 'center', alignItems: 'center' } }} >
+            <img ref={ref} src={props.source} onLoad={onImgLoad} style={imgStyle} />
+        </div>
+
+    );
+});
 
 export const Modal = React.forwardRef((props, ref) => (
     <div ref={ref} {...props}>
@@ -243,10 +255,8 @@ export const styles = {
         flexShrink: 0
     },
     listIcon: {
-        paddingTop: 0,
-        paddingLeft: '2%',
-        paddingRight: '2%',
-        paddingBottom: 0,
+        flex: '0 0 auto',
+        aspectRatio: 1,
         borderRadius: '50%'
     },
     listItemSeperator: {

@@ -9,21 +9,19 @@ import Button from "./Button.js";
 
 import TransactionInfo from "../modals/TransactionInfo.js";
 import VerifyAction from "../modals/VerifyAction.js";
-import UploadIcon from "../modals/UploadIcon.js";
 
 
 import Leave from '../assets/images/bx-log-out.svg';
 import InviteIcon from '../assets/images/bx-user-plus.svg';
 import KickIcon from '../assets/images/bx-user-minus.svg';
-import Upload from '../assets/images/bx-upload.svg';
 
 import { getGroupInfo, leaveGroup, kickMemberFromGroup, revokeInvitation, sendGroupInvitation } from '../utils/groups.js'
 
 import { ModalContext } from '../modals/ModalContext.js';
 import { GlobalContext } from "./GlobalContext.js";
 import UserSearch from "../modals/UserSearch.js";
-import { ReactSVG } from "react-svg";
 import { useNavigate } from "react-router-dom/dist/index.js";
+import ChangeableIcon from "./ChangeableIcon.js"
 
 
 export default function GroupInfo(props) {
@@ -80,7 +78,7 @@ export default function GroupInfo(props) {
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
                     <View style={globals.styles.listIconAndTextContainer }>
-                        <GroupIcon iconPath={iconPath} groupName={groupName} groupID={props.id} />
+                        <ChangeableIcon iconPath={iconPath} groupName={groupName} groupID={props.id} />
                         <Text style={{ ...globals.styles.h1, ...styles.groupName}}>{groupName}</Text>
                     </View>
                     
@@ -119,37 +117,6 @@ export default function GroupInfo(props) {
                 </View>
             </View> 
         </View>
-    );
-}
-
-function GroupIcon({ iconPath, groupName, groupID }) {
-
-    const [hover, setHover] = useState(false);
-    const setModal = useContext(ModalContext);
-
-    const upload = () => {
-        setModal(<UploadIcon groupID={groupID} />);
-    }
-
-    return (
-        <View onClick={upload}  onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-            <Image
-                style={{ ...globals.styles.listIcon, ...{ width: '3em', height: '3em' }}}
-                source={iconPath !== null ? decodeURI(iconPath) : globals.getDefaultGroupIcon(groupName)}
-            />
-            <View style={{ ...{ display: hover ? 'inherit' : 'none' }, ...styles.uploadContainer }}>
-
-                <ReactSVG
-                    beforeInjection={(svg) => {
-                        svg.setAttribute('fill', globals.COLOR_WHITE);
-                        svg.setAttribute('height', '2em');
-                        svg.setAttribute('width', '2em');
-                    }}
-                    src={Upload}/>
-            </View>
-            
-        </View>
-        
     );
 }
 

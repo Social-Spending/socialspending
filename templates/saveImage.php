@@ -54,7 +54,9 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
     $size = min($actualWidth, $actualHeight);
     $image = imagecrop($image, ['x' => $actualWidth / 2 - $size / 2, 'y' => $actualHeight / 2 - $size / 2, 'width' => $size, 'height' => $size]);
 
-    imagecopyresized($newimage, $image, 0, 0, 0, 0, $allowedWidth, $allowedHeight, $actualWidth, $actualHeight);
+    $resizedImage = imagecreate($allowedWidth, $allowedHeight);
+
+    imagecopyresized($resizedImage, $image, 0, 0, 0, 0, $allowedWidth, $allowedHeight, $size, $size);
 
     // make sure this destination folder exists
     if (!file_exists($dir)) {
@@ -67,12 +69,12 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
         $serverFileName = $dir.$imageID.'.gif';
     }
     while (file_exists($serverFileName));
-    if (!imagegif($newimage, $serverFileName))
+    if (!imagegif($resizedImage, $serverFileName))
     {
         $_VALIDATE_IMAGE_FAILURE_MESSAGE = 'Failed to save image';
         return false;
     }
-    imagedestroy($newimage);
+    imagedestroy($resizedImage);
 
     // result is path to image file on server
     return $serverFileName;
