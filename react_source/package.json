@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "map": "webpack --config webpack.config.js --devtool \"source-map\"",
+    "map": "webpack --config webpack.config.js --devtool \"source-map\" && npx source-map-explorer ./dist/bundles/main.bundle.js",
     "export": "webpack --config webpack.config.js",
     "start": "webpack --config webpack.config.dev.js --watch"
   },

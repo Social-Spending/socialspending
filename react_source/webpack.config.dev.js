@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const buildPath = path.resolve(__dirname, '../');
 
 class HTMLFix {
+    //replaces ./bundles/... with /bundles/... to fix routing to web bundle in sub trees
     apply(compiler) {
         compiler.hooks.emit.tap("Route", (compilation) => {
             let source = compilation.getAsset('index.html').source.source();
@@ -65,7 +66,7 @@ module.exports = {
                 type: 'asset/resource',
             },
             {
-                test: /(\.css)$/,
+                test: /\.css$/i, ,
                 use: ["style-loader", "css-loader"],
             }
             

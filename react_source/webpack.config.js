@@ -3,6 +3,7 @@ const { ProvidePlugin } = require("webpack");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 class HTMLFix {
+    //replaces ./bundles/... with /bundles/... to fix routing to web bundle in sub trees
     apply(compiler) {
         compiler.hooks.emit.tap("Route", (compilation) => {
             let source = compilation.getAsset('index.html').source._source.source();
@@ -55,7 +56,7 @@ module.exports = {
                 use: {
                     loader: "babel-loader",
                     options: {
-                        presets: ['babel-preset-expo', '@babel/preset-env', '@babel/preset-react']
+                        presets: ['babel-preset-expo', '@babel/preset-react']
                     }
                 }
             },
