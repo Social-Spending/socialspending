@@ -32,6 +32,7 @@ module.exports = {
     output: {
         filename: './bundles/[name].bundle.js',
         path: path.resolve(__dirname, 'dist'),
+        assetModuleFilename: './assets/[hash]',
         clean: true
     },
     module: {

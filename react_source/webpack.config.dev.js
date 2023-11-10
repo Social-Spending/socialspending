@@ -25,7 +25,7 @@ module.exports = {
             title: 'Social Spending',
         }),
         new ProvidePlugin({
-            React: 'react',
+            React: 'react'
         }),
         new HTMLFix()
         
@@ -34,7 +34,8 @@ module.exports = {
     devtool: 'inline-source-map',
     output: {
         filename: './bundles/dev.bundle.js',
-        path: buildPath
+        path: buildPath,
+        assetModuleFilename: './assets/[hash][ext]'
     },
     module: {
         rules: [
@@ -61,16 +62,13 @@ module.exports = {
             },
             {
                 test: /\.(png|jp(e*)g|svg|gif)$/,
-                use: ['file-loader'],
+                type: 'asset/resource',
             },
             {
                 test: /\.css$/i,
                 use: ["style-loader", "css-loader"],
-            },
-            {
-                test: /\.svg$/,
-                use: ['@svgr/webpack'],
-            },
+            }
+            
         ]
     }
 };
