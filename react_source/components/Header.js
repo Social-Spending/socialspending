@@ -18,7 +18,7 @@ export default function Header({showNotif }) {
         <View style={styles.header}>
 
             <View style={styles.container}>
-                <Link href="/">
+                <Link to="/">
                     <Image source={Logo} style={styles.logo} />
                 </Link>
 
@@ -94,7 +94,7 @@ function HeaderLink(props) {
     const [hover, setHover] = useState(false);
 
     return (
-        <Link style={{ ...props.style, ...hover ? globals.styles.hover : {}}} href={props.href} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+        <Link style={{ ...props.style, ...hover ? globals.styles.hover : {}}} to={props.href} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             {props.children}
         </Link>
     );

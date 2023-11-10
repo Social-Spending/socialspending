@@ -67,7 +67,7 @@ export default function Login() {
                     <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, width: '1.25em' }} onClick={() => setShowPassword(!showPassword)}></Button>
                 </View>
                 
-                <Link href="/forgot" style={{ ...globals.styles.h5, ...styles.forgot}}>Forgot Password?</Link> 
+                <Link to="/forgot" style={{ ...globals.styles.h5, ...styles.forgot}}>Forgot Password?</Link> 
             </View>
             <input tabIndex={2} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='loginForm_password' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password" name="Password" />
 
@@ -81,7 +81,7 @@ export default function Login() {
 
             <View style={{ flexDirection: 'row', justifyContent: 'flex-start', paddingTop: '2em' }}>
                 <Text style={{...globals.styles.text, ...{paddingRight: '.5em' }}}>New to our platform?</Text>
-                <Link href="/signup" style={{ ...globals.styles.text, ...{ color: globals.COLOR_ORANGE }}}>Create an Account</Link>
+                <Link to="/signup" style={{ ...globals.styles.text, ...{ color: globals.COLOR_ORANGE }}}>Create an Account</Link>
             </View>
 
         </View>
@@ -104,7 +104,6 @@ async function submitForm(userRef, passwordRef, rememberRef, errorRef, loginAtte
             // force GlobalContext to re-try getting user info
             setLoginAttempts(loginAttempts + 1);
             // redirect
-            router.push("/summary");
         }
         else {
             // failed, display error message returned by server

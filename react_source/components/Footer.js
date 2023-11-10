@@ -10,9 +10,9 @@ export default function Footer() {
 
             <Text style={styles.footerText}>Copyright ©2023 SocialSpending. All Rights Reserved.</Text>
             <View style={{flexDirection: 'row'}}>
-                <Link href="/faq" style={styles.footerText}> FAQ </Link>
-                <Link href="/about" style={styles.footerText}> About </Link>
-                <Link href="/contact" style={styles.footerText}> Contact Us </Link>
+                <Link to="/faq" style={styles.footerText}> FAQ </Link>
+                <Link to="/about" style={styles.footerText}> About </Link>
+                <Link to="/contact" style={styles.footerText}> Contact Us </Link>
             </View>
 
         </View>

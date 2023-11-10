@@ -1,6 +1,6 @@
 import re
 
-file = "./modals/TransactionInfo.js"
+file = "./components/Signup.js"
 
 f = open(file, "r")
 

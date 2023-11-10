@@ -9,15 +9,15 @@
 
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image, TextInput } from 'react-native';
+import { Text, View, Image } from '../utils/globals.js';
 import { useState, useRef, useContext } from 'react';
-import { Link, router } from "expo-router";
+import { Link } from "react-router-dom";
 
 import Button from './Button.js'
 
 import { GlobalContext } from '../components/GlobalContext.js';
 
-const Logo = require('../assets/images/logo/logo-name-64.png');
+import Logo from '../assets/images/logo/logo-name-64.png';
 
 import ShowSvg from '../assets/images/bx-show.svg';
 import HideSvg from '../assets/images/bx-hide.svg';
@@ -55,41 +55,41 @@ export default function Signup() {
 
             <Image source={Logo} style={styles.logo} />
 
-            <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>Create your Account</Text>
-            <Text style={[globals.styles.text, { paddingTop: '1em'}]}>Create an account to get started with Social Spending</Text>
+            <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>Create your Account</Text>
+            <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em'}}}>Create an account to get started with Social Spending</Text>
 
-            <Text ref={errorMessageRef} id='signupForm_errorMessage' style={[globals.styles.error, { paddingTop: 0 }]}></Text>
+            <Text ref={errorMessageRef} id='signupForm_errorMessage' style={{ ...globals.styles.error, ...{ paddingTop: 0 }}}></Text>
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>EMAIL</Text>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>EMAIL</Text>
                 <Text ref={emailErrorMessageRef} id='email_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <TextInput tabIndex={1} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onChangeText={onEmailChange} />
+            <input tabIndex={1} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>USERNAME</Text>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>USERNAME</Text>
                 <Text ref={userErrorMessageRef} id='username_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <TextInput tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onChangeText={onUsernameChange} />
+            <input tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
 
-            <View style={[globals.styles.labelContainer, { justifyContent: 'flex-start' }]}>
+            <View style={{ ...globals.styles.labelContainer, ...{ justifyContent: 'flex-start' }}}>
 
-                <Text style={[globals.styles.h5, globals.styles.label]}>PASSWORD</Text>
-                <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1em' }} onClick={() => setShowPassword(!showPassword)}></Button>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</Text>
+                <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1.25em' }} onClick={() => setShowPassword(!showPassword)}></Button>
             </View>
-            <TextInput tabIndex={3} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' secureTextEntry={!showPassword} autoComplete="current-password" name="Password" onChangeText={onPasswordChange} />
+            <input tabIndex={3} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' type={showPassword ? "text" : "password"} autoComplete="current-password" name="Password" onInput={onPasswordChange} />
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>VERIFY PASSWORD</Text>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>VERIFY PASSWORD</Text>
                 <Text ref={passwordErrorMessageRef} id='password_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <TextInput tabIndex={4} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' secureTextEntry={!showPassword} autoComplete='current-password' name="Password" onChangeText={onPasswordChange} />
+            <input tabIndex={4} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password" onInput={onPasswordChange} />
 
             <Button disabled={emailDisabled || passwordDisabled || usernameDisabled} style={globals.styles.formButton} label='Create Account' onClick={onSubmit} />
 
             <View style={{ flexDirection: 'row', paddingTop: '2em' }}>
-                <Text style={globals.styles.text}>Already have an account? </Text>
-                <Link href="/login" style={[globals.styles.text, { color: globals.COLOR_ORANGE }]}>Login</Link>
+                <Text style={{ ...globals.styles.text, ...{ paddingRight: '.5em' }}}>Already have an account? </Text>
+                <Link to="/login" style={{ ...globals.styles.text, ...{ color: globals.COLOR_ORANGE }}}>Login</Link>
             </View>
 
         </View>
@@ -179,7 +179,6 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempt
             setLoginAttempts(loginAttempts + 1);
             // success, redirect user
             // check if this url specifies a url to which to redirect
-            router.push("/summary");
 
         }
         else {
@@ -195,7 +194,7 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempt
     }
 }
 
-export const styles = StyleSheet.create({
+export const styles = {
     signup: {
         width: '50vh',
         minWidth: '27em',
@@ -216,4 +215,4 @@ export const styles = StyleSheet.create({
     
     
 
-});
+};
