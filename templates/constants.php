@@ -17,10 +17,17 @@ const HTTP_INTERNAL_SERVER_ERROR = 500;
 // max size of image uploads, in bytes
 // 1MB
 const MAX_ICON_SIZE = 1024 * 1024;
+
 // directory where group icon files will be placed
 const GROUP_ICON_DIR = 'group_icons/';
-// allowed size for group icons
+// allowed size for group icons, in pixels
 const GROUP_ICON_WIDTH = 64;
 const GROUP_ICON_HEIGHT = 64;
+
+// directory where user icon files will be placed
+const USER_ICON_DIR = 'user_icons/';
+// allowed size for user icons, in pixels
+const USER_ICON_WIDTH = 64;
+const USER_ICON_HEIGHT = 64;
 
 ?>

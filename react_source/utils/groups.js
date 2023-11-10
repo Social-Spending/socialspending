@@ -123,7 +123,77 @@ export async function kickMemberFromGroup(user_id, group_id, setModal, reRender)
         }
     }
     catch (error) {
-    console.log("error in kick_user operation (POST request) to /groups.php");
-    console.log(error);
+        console.log("error in kick_user operation (POST request) to /groups.php");
+        console.log(error);
+    }
+}
+
+export async function revokeInvitation(user_id, group_id, setModal, reRender) {
+    let payload = {
+        'operation': 'cancel_invite',
+        'group_id': group_id,
+        'user_id': user_id
+    };
+
+    // do the POST request
+    try {
+        let response = await fetch("/groups.php", {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            credentials: 'same-origin',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (await response.ok) {
+            // close modal and re-render the group page
+            setModal(null);
+            reRender();
+        }
+        else {
+            // failed, display error message returned by server
+            console.log("Error while revoking group invitation from user with id "+user_id);
+            console.log(error);
+        }
+    }
+    catch (error) {
+        console.log("error in cancel_invite operation (POST request) to /groups.php");
+        console.log(error);
+    }
+}
+
+export async function sendGroupInvitation(username, group_id, setModal, reRender, setErrorMsg) {
+    let payload = {
+        'operation': 'invite_user',
+        'group_id': group_id,
+        'user': username
+    };
+
+    // do the POST request
+    try {
+        let response = await fetch("/groups.php", {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            credentials: 'same-origin',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (await response.ok) {
+            // close modal and re-render the group page
+            setModal(null);
+            reRender();
+        }
+        else {
+            // failed, display error message returned by server
+            responseJSON = await response.json();
+            setErrorMsg(responseJSON['message']);
+        }
+    }
+    catch (error) {
+        console.log("error in invite_user operation (POST request) to /groups.php");
+        console.log(error);
     }
 }

@@ -39,6 +39,7 @@ export function GlobalContextProvider (props) {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [currUserID, setCurrUserID] = useState(0);
     const [currUsername, setCurrUsername] = useState('New User');
+    const [currUserIconPath, setCurrUserIconPath] = useState(null);
     // state var to re-try getting user info when a login/signup attempt is made
     const [loginAttempts, setLoginAttempts] = useState(0);
     // state var to indicate if browser is still waiting for getUserInfo
@@ -60,7 +61,7 @@ export function GlobalContextProvider (props) {
             cancelGetUserInfoController = new AbortController()
             setIsLoading(true);
             // getUserInfo will update state variables and trigger a re-render
-            getUserInfo(setIsLoggedIn, setCurrUserID, setCurrUsername, setIsLoading, cancelGetUserInfoController.signal);
+            getUserInfo(setIsLoggedIn, setCurrUserID, setCurrUsername, setCurrUserIconPath, setIsLoading, cancelGetUserInfoController.signal);
     }, [loginAttempts]);
 
     return (
@@ -69,6 +70,7 @@ export function GlobalContextProvider (props) {
                 isLoggedIn: isLoggedIn,
                 currUserID: currUserID,
                 currUsername: currUsername,
+                currUserIconPath: currUserIconPath,
                 loginAttempts: [loginAttempts, setLoginAttempts],
                 isLoading: isLoading,
                 reRenderCount: reRenderCount,
@@ -81,7 +83,7 @@ export function GlobalContextProvider (props) {
     );
 }
 
-async function getUserInfo(setIsLoggedIn, setCurrUserID, setCurrUsername, setIsLoading, signal) {
+async function getUserInfo(setIsLoggedIn, setCurrUserID, setCurrUsername, setCurrUserIconPath, setIsLoading, signal) {
     // simple GET request to user info endpoint
     let endpoint = '/user_info.php';
     try {
@@ -105,6 +107,7 @@ async function getUserInfo(setIsLoggedIn, setCurrUserID, setCurrUsername, setIsL
         setIsLoggedIn(true);
         setCurrUserID(responseJSON['user_id']);
         setCurrUsername(responseJSON['username']);
+        setCurrUserIconPath(responseJSON['icon_path']);
     }
     setIsLoading(false);
 }

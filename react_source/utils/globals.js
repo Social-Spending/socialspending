@@ -19,20 +19,47 @@ export const COLOR_MODAL            = '#33333399';
 export function getDefaultGroupIcon(groupName) {
     // get array of first letter of each word in the group name
     let matches = groupName.match(/\b(\D)/g);
-    // get the first 2 letters
-    let acronym = '';
-    for (let i = 0; i < matches.length && acronym.length < 2; i++)
+
+    // if there are no letters to present
+    if (matches == null)
     {
-        if (matches[i] != ' ')
-        {
-            acronym = acronym + matches[i];
-        }
+        // no letters to present, just use a space
+        return _getDummyImage([' ']);
     }
 
+    // otherwise, get the first 2 letters
     // return url to this site which will create an image with the black initials on a white background
-    return "https://dummyimage.com/50x50/ffffff/000000.gif&text=" + acronym;
+    return _getDummyImage(matches);
 }
 
+export function getDefaultUserIcon(username) {
+    // get array of uppercase letters used in the username
+    let matches = username.match(/[A-Z]/g);
+
+    // if there are no uppercase letters
+    if (matches == null)
+    {
+        return getDefaultGroupIcon(username);
+    }
+
+    // else, return url to this site which will create an image with the black initials on a white background
+    return _getDummyImage(matches);
+}
+
+// helper function that returns a dummy image with the first 2 letters of the given 'initials' array
+function _getDummyImage(initials)
+{
+    // stop after 2 letters or no more letters
+    let acronym = '';
+    for (let i = 0; i < initials.length && acronym.length < 2; i++)
+    {
+        if (initials[i] != ' ')
+        {
+            acronym = acronym + initials[i];
+        }
+    }
+    return "https://dummyimage.com/50x50/ffffff/000000.gif&text=" + encodeURIComponent(acronym);
+}
 
 /** 
 *   getCookieValue: Retrieves the value of a specific cookie
@@ -167,8 +194,9 @@ export const styles = StyleSheet.create({
 
     },
     listItem: {
-        paddingTop: '1em',
-        paddingBottom: '1em',
+        paddingTop: '.5em',
+        paddingBottom: '.5em',
+        paddingLeft: '1em',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row'
@@ -196,8 +224,9 @@ export const styles = StyleSheet.create({
         borderRadius: '50%'
     },
     listItemSeperator: {
-        paddingTop: '1em',
-        paddingBottom: '1em',
+        paddingTop: '.5em',
+        paddingBottom: '.5em',
+        paddingLeft: '1em',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',

@@ -9,15 +9,33 @@ include_once("templates/jsonMessage.php");
 GET Request
     - Param 1 = "notification_type"
     - Param 2 = "user_id"
+POST Request
+    - Param 1 = "operation"
+    - Param 2 = "notification_id"
 */
-if (str_contains($_SERVER["REQUEST_URI"], "notifications.php") && $_SERVER["REQUEST_METHOD"] == "GET") {
-    //Check if user_id and a notification type were passed
-    if (isset($_GET["type"])) {
-		getNotifications($_GET["type"]);
+if (str_contains($_SERVER["REQUEST_URI"], "notifications.php")) {
+    if ($_SERVER["REQUEST_METHOD"] == "GET") {
+        //Check if user_id and a notification type were passed
+        if (isset($_GET["type"])) {
+            getNotifications($_GET["type"]);
+        }
+        //No other valid GET requests, fail out
+        else {
+            returnMessage("Notification type not given", HTTP_BAD_REQUEST);
+        }
     }
-	//No other valid GET requests, fail out
-    else {
-        returnMessage("Notification type not given", HTTP_BAD_REQUEST);
+    elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $body = file_get_contents("php://input");
+        $bodyJSON = json_decode($body, true);
+
+        //Check if user_id and a notification type were passed
+        if (isset($bodyJSON["operation"]) && $bodyJSON["operation"] == "dismiss" && isset($bodyJSON["notification_id"])) {
+            dismissNotification($bodyJSON["notification_id"]);
+        }
+        //No other valid POST requests, fail out
+        else {
+            returnMessage("Operation and/or notification_id not not given or invalid", HTTP_BAD_REQUEST);
+        }
     }
 } 
 
@@ -42,6 +60,9 @@ function getNotifications($type) {
 		case "complete_transaction":
 			getApprovedTransactions($user_id);
 			break;
+        case "group_invite":
+            getGroupInvites($user_id);
+            break;
 		default:
             returnMessage($type . " is not a valid notification type", HTTP_BAD_REQUEST);
 			break;
@@ -132,6 +153,39 @@ function getApprovedTransactions($user_id) {
 }
 
 /*
+Returns group invite notifications
+    - user_id = User ID to return notifications for
+*/
+function getGroupInvites($user_id) {
+    global $mysqli;
+
+    $sql = "SELECT  n.notification_id AS notification_id,
+    				g.group_name AS group_name,
+                    n.group_id AS group_id
+            FROM notifications n
+            JOIN groups g ON g.group_id = n.group_id
+            WHERE n.user_id = ? AND n.type = 'group_invite';";
+
+    $results = $mysqli->execute_query($sql, [$user_id]);
+    // check if failure
+    if (!$results)
+    {
+        // not sure if this is the way notifications.php returns other error messages
+        handleDBError();
+    }
+
+    $group_invites_array = array();
+    while ($row = $results->fetch_assoc()) {
+        array_push($group_invites_array, $row);
+    }
+
+    $json_data = json_encode($group_invites_array);
+    header('Content-Type: application/json');
+    echo $json_data;
+    http_response_code(HTTP_OK);
+}
+
+/*
 Removes a notification from the database
     - notification_id = ID of notification to remove from the DB
 */
@@ -166,6 +220,39 @@ function addApprovalRequestNotification($transaction_id, $user_id)
     http_response_code(HTTP_OK);
     return;
    
+}
+
+/*
+Dismiss a notification
+    Params
+        $transaction_id - The key for the transaction to dismiss
+*/
+function dismissNotification($notification_id)
+{
+    global $mysqli;
+
+    //Get the user ID from the cookie
+    $user_id = intval(validateSessionID());
+    if ($user_id === 0) {
+        returnMessage("Valid session not found for user", HTTP_UNAUTHORIZED);
+    }
+
+    $sql = "DELETE
+            FROM notifications
+            WHERE notification_id = ? AND user_id = ?;";
+    $response = $mysqli->execute_query($sql, [$notification_id, $user_id]);
+
+    if (!$response)
+    {
+        http_response_code(HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    if ($mysqli->affected_rows == 0)
+    {
+        http_response_code(HTTP_NOT_FOUND);
+    }
+
+    http_response_code(HTTP_OK);
 }
 
 ?>

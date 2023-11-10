@@ -323,6 +323,7 @@ function encapsulateTransactionData($row)
     // User with user_id=$user_id should ALWAYS be a participant
     $sql = "SELECT  transaction_participants.user_id AS user_id,
                     users.username AS username,
+                    users.icon_path AS icon_path,
                     transaction_participants.has_approved AS has_approved,
                     transaction_participants.amount AS amount
 
@@ -339,6 +340,7 @@ function encapsulateTransactionData($row)
         // Data about the participants in a given transaction
         $transaction['transaction_participants'][$j]['user_id'] = $subrow['user_id'];
         $transaction['transaction_participants'][$j]['username'] = $subrow['username'];
+        $transaction['transaction_participants'][$j]['icon_path'] = $subrow['icon_path'];
         $transaction['transaction_participants'][$j]['has_approved'] = $subrow['has_approved'];
         $transaction['transaction_participants'][$j]['amount'] = $subrow['amount'];
         $j++;

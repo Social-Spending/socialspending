@@ -28,6 +28,8 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
             acceptFriendRequest($json["notification_id"]);
         elseif ($json["operation"] == "reject" && isset($json["notification_id"]))
             rejectFriendRequest($json["notification_id"]);
+        elseif ($json["operation"] == "cancel" && isset($json["notification_id"]))
+            cancelFriendRequest($json["notification_id"]);
         elseif ($json["operation"] == "add" && isset($json["username"]))
             sendFriendRequest($json["username"]);
         elseif ($json["operation"] == "remove" && isset($json["username"]))
@@ -147,7 +149,7 @@ function viewFriends() {
     $friends_array = [];
 
     // Find all friendships with this user and debts between them
-    $sql = "SELECT u.user_id, u.username, COALESCE(SUM(dsum.debt), 0) as debt
+    $sql = "SELECT u.user_id, u.username, u.icon_path, COALESCE(SUM(dsum.debt), 0) as debt, 0 as is_pending
             FROM users u
             INNER JOIN (
                 SELECT CASE
@@ -164,9 +166,15 @@ function viewFriends() {
                 FROM debts
                 WHERE debtor = ? OR creditor = ?
             ) as dsum ON (f.friend_id = dsum.creditor)
-            GROUP BY user_id;";
+            GROUP BY user_id
+            UNION ALL
+            SELECT u.user_id, u.username, u.icon_path, NULL as debt, 1 as is_pending
+            FROM notifications n
+            INNER JOIN users u ON n.user_id = u.user_id
+            WHERE n.type = 'friend_request' AND n.friend_request_user_id = ?
+            ORDER BY is_pending ASC;";
 
-    $result = $mysqli->execute_query($sql, [$user_id, $user_id, $user_id, $user_id, $user_id, $user_id, $user_id]);
+    $result = $mysqli->execute_query($sql, [$user_id, $user_id, $user_id, $user_id, $user_id, $user_id, $user_id, $user_id]);
 
     if (!$result)
     {
@@ -236,6 +244,34 @@ function rejectFriendRequest($notification_id) {
 
     //Perform the operation
     removeNotification($notification_id);
+
+    returnMessage("Success", HTTP_OK);
+}
+
+function cancelFriendRequest($notification_id) {
+    global $mysqli, $_VALIDATE_COOKIE_ERRORNO;
+
+    // user must have valid sessionID
+    $userID = validateSessionID();
+    if ($userID == 0) {
+        // failed to validate cookie, check if it was db error or just invalid cookie
+        if ($_VALIDATE_COOKIE_ERRORNO == SESSION_ID_INVALID) {
+            returnMessage('Invalid session_id cookie', HTTP_UNAUTHORIZED);
+        }
+        handleDBError();
+    }
+
+    //Verify current user ID corresponds to the notification
+    $sql = "DELETE FROM notifications
+            WHERE type = 'friend_request' AND notification_id = ? AND friend_request_user_id = ?;";
+
+    $response = $mysqli->execute_query($sql, [$notification_id, $userID]);
+    if (!$response) {
+        handleDBError();
+    }
+    if ($mysqli->affected_rows == 0) {
+        returnMessage("Notification with ID " . $notification_id . " not found", HTTP_NOT_FOUND);
+    }
 
     returnMessage("Success", HTTP_OK);
 }
