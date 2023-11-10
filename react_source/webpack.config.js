@@ -16,7 +16,7 @@ class HTMLFix {
 }
 
 module.exports = {
-
+    mode: 'production',
     entry: './main.js',
     plugins: [
         new HtmlWebpackPlugin({
@@ -32,7 +32,7 @@ module.exports = {
     output: {
         filename: './bundles/[name].bundle.js',
         path: path.resolve(__dirname, 'dist'),
-        assetModuleFilename: './assets/[hash]',
+        assetModuleFilename: './assets/[hash][ext]',
         clean: true
     },
     module: {
@@ -60,16 +60,17 @@ module.exports = {
             },
             {
                 test: /\.(png|jp(e*)g|svg|gif)$/,
-                use: ['file-loader'],
+                type: 'asset/resource',
             },
             {
                 test: /\.css$/i,
                 use: ["style-loader", "css-loader"],
-            },
-            {
-                test: /\.svg$/,
-                use: ['@svgr/webpack'],
-            },
+            }
+
         ]
+    },
+    optimization: {
+
+        usedExports: true
     },
 };
