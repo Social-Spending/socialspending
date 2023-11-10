@@ -7,6 +7,7 @@ import { useState, useContext } from 'react';
 import Button from './Button.js'
 
 const Logo = require('../assets/images/logo/logo-64.png');
+import RingingBell from '../assets/images/bxs-bell-ring.svg';
 import Bell from '../assets/images/bxs-bell.svg';
 
 import {GlobalContext} from './GlobalContext.js';
@@ -14,7 +15,7 @@ import { ModalContext } from '../modals/ModalContext.js';
 
 import NewExpense from '../modals/NewExpense.js';
 
-export default function Header({showNotif }) {
+export default function Header({showNotif, isNotifShown, areNotifs }) {
     return (
         <View style={styles.header}>
 
@@ -26,7 +27,7 @@ export default function Header({showNotif }) {
                 <Links />
 
             </View>
-            <Account showNotif={showNotif} />
+            <Account showNotif={showNotif} isNotifShown={isNotifShown} areNotifs={areNotifs} />
         </View>
     );
 }
@@ -51,7 +52,7 @@ function Links(props) {
     }
 }
 
-function Account({ showNotif }) {
+function Account({ showNotif, isNotifShown, areNotifs }) {
     const { isLoggedIn, currUsername, currUserIconPath, doSignout } = useContext(GlobalContext);
     const setModal = useContext(ModalContext);
 
@@ -59,7 +60,7 @@ function Account({ showNotif }) {
         return (
             <View style={styles.container}>
                 <Button style={styles.newExpense} hoverStyle={styles.newExpense} textStyle={globals.styles.h4} label="+ NEW EXPENSE" onClick={() => setModal(<NewExpense/>)} />
-                <Button style={styles.notif} hoverStyle={styles.notif} svg={Bell} iconStyle={styles.bell} onClick={showNotif} />
+                <Button style={styles.notif} hoverStyle={styles.notif} svg={areNotifs ? RingingBell : Bell} iconStyle={[styles.bell, {fill: globals.COLOR_BEIGE}]} onClick={showNotif} />
                 <HeaderLink href="/profile/" style={{marginLeft: '1em'}} >
                     <View style={[globals.styles.h3, styles.headerIconAndUsernameContainer]} >
                         <Image
@@ -157,7 +158,7 @@ const styles = StyleSheet.create({
         minHeight: '2em',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: '50%',
+        borderRadius: '50%'
     },
     newExpense: {
         height: '2em',
@@ -171,8 +172,7 @@ const styles = StyleSheet.create({
         minWidth: '1.5em',
         height: '100%',
         alignItems: 'center',
-        justifyContent: 'center',
-        fill: globals.COLOR_BEIGE
+        justifyContent: 'center'
     },
     headerIconAndUsernameContainer: {
         flexDirection: 'row',
