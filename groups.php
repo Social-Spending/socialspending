@@ -31,6 +31,7 @@
                                     {
                                         "username":<USERNAME>,
                                         "user_id":<USER ID>,
+                                        "icon_path":<PATH TO ICON FILE>,
                                         "debt":<DEBT>
                                     },
                                     ...,
@@ -46,6 +47,16 @@
                                     },
                                     ...,
                                     {}
+                                ],
+                                "pending_invites":
+                                [
+                                    {
+                                        "username":<USERNAME>,
+                                        "user_id":<USER ID>,
+                                        "icon_path":<PATH TO ICON FILE>
+                                    },
+                                    ...,
+                                    {}
                                 ]
                             },
                             ...,
@@ -54,7 +65,7 @@
                     }
                     The "members" list does not include the currently logged in user.
                     "debt" is an integer value that is the (positive) amount the user owes or the (negative) amount the user is owed.
-                    If `brief=true` in the URL parameters, the "members" and "transactions" nodes are omitted from all groups.
+                    If `brief=true` in the URL parameters, the "members", "transactions", and "pending_invites" nodes are omitted from all groups.
                     If `nodebts=true` in the URL parameters, the "debt" and "transactions" nodes are omitted everywhere.
                     <RESULT> is a message explaining the status code to a user.
                     <USER_DEBT> will be a (positive) amount the user owes for a given transaction or ...
@@ -89,6 +100,7 @@
                             {
                                 "username":<USERNAME>,
                                 "user_id":<USER ID>,
+                                "icon_path":<PATH TO ICON FILE>,
                                 "debt":<DEBT>
                             },
                             ...,
@@ -103,11 +115,21 @@
                             },
                             ...,
                             {}
+                        ],
+                        "pending_invites":
+                        [
+                            {
+                                "username":<USERNAME>,
+                                "user_id":<USER ID>,
+                                "icon_path":<PATH TO ICON FILE>
+                            },
+                            ...,
+                            {}
                         ]
                     }
                     The "members" list does not include the currently logged in user.
                     "debt" is an integer value that is the (positive) amount the user owes or the (negative) amount the user is owed.
-                    If `brief=true` in the URL parameters, the "members" and "transactions" nodes are omitted.
+                    If `brief=true` in the URL parameters, the "members", "transactions", and "pending_invites" nodes are omitted.
                     If `nodebts=true` in the URL parameters, the "debt" and "transactions" nodes are omitted everywhere.
                     <RESULT> is a message explaining the status code to a user.
                     <USER_DEBT> will be a (positive) amount the user owes for a given transaction or ...
@@ -151,14 +173,14 @@
                         "message":<RESULT>
                     }
                     Where <RESULT> is a message explaining the status code to a user
-        ADD_USER operation: add a specified user to the specified group
+        INVITE_USER operation: create a group invitation for a specified user to the specified group
             - Request:
                 - Headers:
                     - Content-Type: application/json
                     - cookies: session_id=***
                 - body: serialized JSON in one of the following formats
                     {
-                        "operation":"add_user",
+                        "operation":"invite_user",
                         "group_id":<GROUP ID>,
                         "user":<USERNAME/EMAIL>,
                         "user_id":<USER ID>
@@ -167,10 +189,89 @@
                     If both username/email and user ID are specified, the user ID will be used.
             - Response:
                 - Status Codes:
+                    - 200 if user was successfully invited to the group
+                    - 400 if request body is invalid, ...
+                        user is already a member of the group, ...
+                        or user already has a pending invitation to the group
+                    - 401 if session_id cookie is not present or invalid
+                    - 404 if currently logged in user is not a member of this group, group does not exist, or user does not exist
+                    - 500 if the database could not be reached
+                - Headers:
+                    - Content-Type: application/json
+                - body: serialized JSON in the following format
+                    {
+                        "message":<RESULT>
+                    }
+                    Where <RESULT> is a message explaining the status code to a user
+        CANCEL_INVITE operation: revoke a group invitation for a given user
+            - Request:
+                - Headers:
+                    - Content-Type: application/json
+                    - cookies: session_id=***
+                - body: serialized JSON in one of the following formats
+                    {
+                        "operation":"cancel_invite",
+                        "group_id":<GROUP ID>,
+                        "user":<USERNAME/EMAIL>,
+                        "user_id":<USER ID>
+                    }
+                    And where either "user":<USERNAME/EMAIL> OR "user_id":<USER ID> are specified.
+                    If both username/email and user ID are specified, the user ID will be used.
+            - Response:
+                - Status Codes:
+                    - 200 if invite was successfully revoked or invite does not exist
+                    - 400 if request body is invalid
+                    - 401 if session_id cookie is not present or invalid
+                    - 404 if currently logged in user is not a member of this group,...
+                            or the specified user could not be found
+                    - 500 if the database could not be reached
+                - Headers:
+                    - Content-Type: application/json
+                - body: serialized JSON in the following format
+                    {
+                        "message":<RESULT>
+                    }
+                    Where <RESULT> is a message explaining the status code to a user
+        ACCEPT_INVITATION operation: accept a group invitation
+            - Request:
+                - Headers:
+                    - Content-Type: application/json
+                    - cookies: session_id=***
+                - body: serialized JSON in one of the following formats
+                    {
+                        "operation":"accept_invitation",
+                        "notification_id":<NOTIFICATION ID>
+                    }
+            - Response:
+                - Status Codes:
                     - 200 if user was successfully added to the group
                     - 400 if request body is invalid
                     - 401 if session_id cookie is not present or invalid
-                    - 404 if currently logged in user is not a member of this group, group does not exist, or user does not exist
+                    - 404 if currently logged in user does not have the given notification
+                    - 500 if the database could not be reached
+                - Headers:
+                    - Content-Type: application/json
+                - body: serialized JSON in the following format
+                    {
+                        "message":<RESULT>
+                    }
+                    Where <RESULT> is a message explaining the status code to a user
+        REJECT_INVITATION operation: reject a group invitation
+            - Request:
+                - Headers:
+                    - Content-Type: application/json
+                    - cookies: session_id=***
+                - body: serialized JSON in one of the following formats
+                    {
+                        "operation":"reject_invitation",
+                        "notification_id":<NOTIFICATION ID>
+                    }
+            - Response:
+                - Status Codes:
+                    - 200 if user successfully removed the group invitation,...
+                            or group notification never existed
+                    - 400 if request body is invalid
+                    - 401 if session_id cookie is not present or invalid
                     - 500 if the database could not be reached
                 - Headers:
                     - Content-Type: application/json
@@ -407,7 +508,7 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief, $nodebts)
         // members will start as an associate array indexed by user_id
         $membersArray = array();
         // query to get all members
-        $sql =  'SELECT u.user_id, u.username FROM group_members as gm '.
+        $sql =  'SELECT u.user_id, u.username, u.icon_path FROM group_members as gm '.
                 'INNER JOIN users as u ON u.user_id=gm.user_id '.
                 'WHERE gm.group_id = ?;';
         $result = $mysqli->execute_query($sql, [$groupID]);
@@ -467,11 +568,18 @@ function fillUserBalanceAndMembers(&$group, $userID, $brief, $nodebts)
             fillGroupTransactions($group, $userID);
         }
 
+
         // do not include current user as a member
         unset($membersArray[$userID]);
 
         // convert array to simple indexed array and store with group
         $group['members'] = array_values($membersArray);
+    }
+
+    if (!$brief)
+    {
+        // brief==false, also add list of pending invites
+        fillGroupPendingInvites($group);
     }
 }
 
@@ -517,6 +625,41 @@ function fillGroupTransactions(&$group, $userID)
 
     // convert array to simple indexed array and store with group
     $group['transactions'] = array_values($transactions);
+}
+
+// function will add the list of pending invites to this group
+// does not check if brief==false, do that before calling this
+// $group is the associative array for this group, and will be populated with data
+function fillGroupPendingInvites(&$group)
+{
+    global $mysqli;
+
+    $groupID = $group['group_id'];
+
+    // query to get all pending group invites to this group
+    $sql = "SELECT u.username, u.user_id, u.icon_path
+            FROM notifications n
+            INNER JOIN users u
+                ON n.user_id = u.user_id
+            WHERE n.type = 'group_invite' AND n.group_id = ?";
+    $result = $mysqli->execute_query($sql, [$groupID]);
+
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+
+    // put all pending into an array;
+    $pendingInvites = array();
+    while ($row = $result->fetch_assoc())
+    {
+        $pendingInvites[] = $row;
+    }
+
+    // store with group
+    $group['pending_invites'] = $pendingInvites;
 }
 
 function handleGetGroupInfo($userID, $brief, $nodebts)
@@ -585,9 +728,21 @@ function handlePOST($userID)
     {
         handleCreate($userID, $bodyJSON);
     }
-    elseif ($operation == 'add_user')
+    elseif ($operation == 'invite_user')
     {
-        handleAddUser($userID, $bodyJSON);
+        handleInviteUser($userID, $bodyJSON);
+    }
+    elseif ($operation == 'cancel_invite')
+    {
+        handleCancelInvite($userID, $bodyJSON);
+    }
+    elseif ($operation == 'accept_invitation')
+    {
+        handleAcceptInvitation($userID, $bodyJSON);
+    }
+    elseif ($operation == 'reject_invitation')
+    {
+        handleRejectInvitation($userID, $bodyJSON);
     }
     elseif ($operation == 'kick_user')
     {
@@ -642,14 +797,15 @@ function handleCreate($userID, $bodyJSON)
     // get groupID from result
     $groupID = $result->fetch_row()[0];
 
+    // add currently logged in user to group
+    insertGroupMembership($groupID, $userID);
 
-    // get a list of members to add to this group
+    // get a list of members to invite to this group
     $newMembers = array();
-    $newMembers[] = $userID;
     // array users that could not be found
     $usersInvalidJSON = array();
     $usersNotFound = array();
-    if ($bodyJSON['members'] !== null)
+    if (isset($bodyJSON['members']))
     {
         foreach ($bodyJSON['members'] as $newMember)
         {
@@ -705,11 +861,10 @@ function handleCreate($userID, $bodyJSON)
         }
     }
 
-
-    // now add the members
+    // now invite the specified members
     foreach ($newMembers as $userIDToAdd)
     {
-        insertGroupMembership($groupID, $userIDToAdd);
+        createGroupInvitation($groupID, $userIDToAdd);
     }
 
     // print users that with malformed JSON
@@ -765,6 +920,54 @@ function insertGroupMembership($groupID, $userID)
     }
 }
 
+// helper function to create a group invitation to the specified group
+// $groupID is the id of the group to which the invitation will point
+// $userIDToInvite is the id of the user to invite
+function createGroupInvitation($groupID, $userID)
+{
+    global $mysqli;
+
+    // check if user is already a member
+    $sql = "SELECT user_id
+            FROM group_members gm
+            WHERE gm.user_id = ? AND gm.group_id = ?;";
+    $result = $mysqli->execute_query($sql, [$userID, $groupID]);
+    if (!$result)
+    {
+        handleDBError();
+    }
+    if ($result->num_rows > 0)
+    {
+        returnMessage('User is already a member of this group', 400);
+    }
+
+    // check if user already has a pending invitation
+    $sql = "SELECT notification_id
+            FROM notifications
+            WHERE type = 'group_invite'
+            AND (user_id = ? AND group_id = ?);";
+    $result = $mysqli->execute_query($sql, [$userID, $groupID]);
+    if (!$result)
+    {
+        handleDBError();
+    }
+    if ($result->num_rows > 0)
+    {
+        returnMessage('Outstanding group invite for this user', 400);
+    }
+
+    // add invitation to notifications
+    $sql = "INSERT INTO notifications (user_id, type, group_id)
+            VALUES (?, \"group_invite\", ?);";
+    $mysqli->execute_query($sql, [$userID, $groupID]);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+}
+
 // verify that a group exists and that the given user is a member
 // send an error response if group not found or user is not a member
 function verifyGroupAndUserIDs($userID, $groupID)
@@ -806,7 +1009,7 @@ function getSpecifiedUserFromJSON($bodyJSON)
     global $mysqli;
 
     // get user by user_id
-    if ($bodyJSON['user_id'] !== null)
+    if (isset($bodyJSON['user_id']))
     {
         // check that this user exists
         $userID = $bodyJSON['user_id'];
@@ -826,7 +1029,7 @@ function getSpecifiedUserFromJSON($bodyJSON)
         return $userID;
     }
     // get user by username/email
-    elseif ($bodyJSON['user'] !== null)
+    elseif (isset($bodyJSON['user']))
     {
         // user username/email to get userID
         $user = $bodyJSON['user'];
@@ -852,7 +1055,7 @@ function getSpecifiedUserFromJSON($bodyJSON)
     returnMessage('Missing \'user_id\' or \'user\'', 400);
 }
 
-function handleAddUser($userID, $bodyJSON)
+function handleInviteUser($userID, $bodyJSON)
 {
     global $mysqli;
 
@@ -860,10 +1063,115 @@ function handleAddUser($userID, $bodyJSON)
     verifyGroupAndUserIDs($userID, $groupID);
     $userIDToAdd = getSpecifiedUserFromJSON($bodyJSON);
 
-    // add user
-    insertGroupMembership($groupID, $userIDToAdd);
+    // create invitation
+    createGroupInvitation($groupID, $userIDToAdd);
 
     // otherwise, success
+    returnMessage('Success', 200);
+}
+
+function handleCancelInvite($userID, $bodyJSON)
+{
+    global $mysqli;
+
+    $groupID = getGroupIDFromJSON($bodyJSON);
+    verifyGroupAndUserIDs($userID, $groupID);
+    $userIDToRevoke = getSpecifiedUserFromJSON($bodyJSON);
+
+    // remove invitation
+    $sql = "DELETE FROM notifications
+            WHERE type='group_invite'
+                AND user_id = ?
+                AND group_id = ?;";
+    $result = $mysqli->execute_query($sql, [$userIDToRevoke, $groupID]);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+
+    // otherwise, success
+    returnMessage('Success', 200);
+}
+
+// get the notification_id from JSON body data, if it exists
+// if key was not set, print an error to user and exit
+// returned notification id is not guaranteed to be valid
+function getNotificationIDFromJSON($bodyJSON)
+{
+    if ($bodyJSON['notification_id'] !== null)
+    {
+        return $bodyJSON['notification_id'];
+    }
+    returnMessage('Missing \'notification_id\'', 400);
+}
+
+// remove the specified notification from the user's feed
+// this function checks that the notification belongs to the user
+function removeNotification($userID, $notificationID)
+{
+    global $mysqli;
+
+    $sql = "DELETE FROM notifications
+            WHERE notification_id = ?
+                AND user_id = ?";
+    $result = $mysqli->execute_query($sql, [$notificationID, $userID]);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+}
+
+function handleAcceptInvitation($userID, $bodyJSON)
+{
+    global $mysqli;
+
+    $notificationID = getNotificationIDFromJSON($bodyJSON);
+
+    // check that notification exists, and if it does, get the groupID from it
+    $sql = "SELECT group_id
+            FROM notifications
+            WHERE notification_id = ?
+                AND user_id = ?";
+    $result = $mysqli->execute_query($sql, [$notificationID, $userID]);
+    // check that query was successful
+    if (!$result)
+    {
+        // query failed, internal server error
+        handleDBError();
+    }
+    // check that there are result
+    if ($result->num_rows == 0)
+    {
+        returnMessage('Invitation does not exist', 404);
+    }
+
+    // get valid result, extract groupID
+    $row = $result->fetch_assoc();
+    $groupID = $row['group_id'];
+
+    // insert membership
+    insertGroupMembership($groupID, $userID);
+    // remove notification
+    removeNotification($userID, $notificationID);
+
+    // success
+    returnMessage('Success', 200);
+}
+
+function handleRejectInvitation($userID, $bodyJSON)
+{
+    global $mysqli;
+
+    $notificationID = getNotificationIDFromJSON($bodyJSON);
+
+    // remove notification, if it exists
+    removeNotification($userID, $notificationID);
+
+    // success
     returnMessage('Success', 200);
 }
 

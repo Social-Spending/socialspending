@@ -5,6 +5,8 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { router } from 'expo-router';
 import Button from './Button.js';
 
+import { acceptRejectFriendRequest } from '../utils/friends.js';
+
 import ApproveSvg   from '../assets/images/bx-check.svg';
 import DenySvg      from '../assets/images/bx-x.svg';
 import DetailsSvg   from '../assets/images/bx-detail.svg';
@@ -22,8 +24,11 @@ export default function Notifications(props) {
     const [friendRequests, setFriendRequests] = useState([]);
     const [transactionApprovals, setTransactionApprovals] = useState([]);
     const [completedTransactions, setCompletedTransactions] = useState([]);
-    
-   
+    const [groupInvites, setGroupInvites] = useState([]);
+
+    // get global context var to refresh when page reload is requested
+    const {reRenderCount} = useContext(GlobalContext);
+
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -33,11 +38,11 @@ export default function Notifications(props) {
             setFriendRequests(await getNotifications("friend_request"));
             setTransactionApprovals(await getNotifications("transaction_approval"));
             setCompletedTransactions(await getNotifications("complete_transaction"));
-            
+            setGroupInvites(await getNotifications("group_invite"));
         }
         getItems();
 
-    }, []);
+    }, [reRenderCount]);
 
     const removeNotif = (type, id) => {
         switch (type) {
@@ -53,19 +58,28 @@ export default function Notifications(props) {
 
                 setCompletedTransactions(completedTransactions.filter((notif) => notif.props.id != id));
                 break;
+            case "group_invite":
+
+                setGroupInvites(groupInvites.filter((notif) => notif.props.id != id));
+                break;
             default:
                 break;
         }
     }
 
-    
+    // if the page requested that we show notification bar by default, do so only if there are also notifications present
+    props.setAreNotifs(friendRequests.length || transactionApprovals.length || completedTransactions.length || groupInvites.length);
 
 
     return (
         <NotificationContext.Provider value={{removeNotif:removeNotif}}>
             <View style={[styles.notifShelf, props.show ? { width: '20vw', minWidth: '16em', borderLeftStyle: 'solid' } : { width: '0vh' }]}>
                 <WaitForAuth requireLogin={true} >
-                    <View style={[props.show ? { width: '18vw', minWidth: '14.4em', display: "block" } : { width: '0', display: "none"}]}>
+                    <View style={[props.show ? { width: '18vw', minWidth: '14.4em', display: "block" } : { width: '0', display: "none" }]}>
+                        <Section name="Group Invites">
+                            {groupInvites}
+                        </Section>
+
                         <Section name='Friend Requests'>
                             {friendRequests}
                         </Section>
@@ -77,7 +91,8 @@ export default function Notifications(props) {
                         <Section name="Completed Transactions">
                             {completedTransactions}
                         </Section>
-                
+
+                        
                     </View>
                 </WaitForAuth>
             
@@ -184,7 +199,7 @@ function CompletedTransaction(props) {
             
             <View style={{flex: 1}}>
                 <Text style={styles.text}>New Completed Transaction {props.date}</Text>
-                <View style={{ flexDirection: 'columnn', justifyContent: 'center' }}>
+                <View style={{ flexDirection: 'column', justifyContent: 'center' }}>
                     <Text style={styles.notificationText}>{props.name}</Text>
                 </View>
                 
@@ -200,27 +215,51 @@ function CompletedTransaction(props) {
     );
 }
 
-async function approveFriendRequest(id, approved, removeNotif, reRender) {
-    let payload = `{
-        "operation": ` + (approved ? "\"accept\"" : "\"reject\"") + `,
-        "notification_id": ` + id + `
-    }`;
+/* properties:  name is group name
+                id is notification id
+                group_id is group id
+*/
+function GroupInvite(props) {
+    const {removeNotif} = useContext(NotificationContext);
+    const {reRender} = useContext(GlobalContext);
+    const setModal = useContext(ModalContext);
 
-    // do the POST request
-    try {
-        let response = await fetch("/friendships.php", { method: 'POST', body: payload, credentials: 'same-origin' });
-
-        if (response.ok) {
-            removeNotif('friend_request', id);
-            // call function to refresh the Base component with new friend
-            reRender();
-        } else {
-
-        }
+    const approve = (accept) => {
+        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "join " : "ignore invite to ") + props.name + "?"} accept={() => { approveGroupInvite(props.id, accept, removeNotif, reRender); setModal(null); }} reject={() => setModal(null)} exit={() => setModal(null)} />);
     }
-    catch (error) {
-        console.error("error in POST request to friendships (/friendships.php)");
-        console.error(error);
+
+    return (
+        <View style={styles.notification}>
+
+            <View style={{flex: 1}}>
+                <Text style={styles.text}>New Group Invite</Text>
+                <View style={{ flexDirection: 'column', justifyContent: 'center' }}>
+                    <Text style={styles.notificationText}>{props.name}</Text>
+                </View>
+
+            </View>
+            <View style={styles.buttonContainer}>
+
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approve(true)} />
+                <Button style={[styles.button, { backgroundColor: globals.COLOR_WHITE }]} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
+            </View>
+
+        </View>
+
+    );
+}
+
+async function approveFriendRequest(id, approved, removeNotif, reRender) {
+    let response = await acceptRejectFriendRequest(id, approved);
+    if (response === 0) {
+        // success
+        removeNotif('friend_request', id);
+        // call function to refresh the Base component with new friend
+        reRender();
+    }
+    else {
+        // otherwise, error
+        console.log(response);
     }
 }
 
@@ -266,8 +305,71 @@ async function approveTransaction(trans_id, id, approved, removeNotif, reRender)
     }
 }
 
+async function approveGroupInvite(notification_id, accept, removeNotif, reRender) {
+    // 'operation' values are defined by groups.php backend api
+    let payload = {
+        'notification_id': notification_id,
+        'operation': accept ? 'accept_invitation' : 'reject_invitation'
+    };
+
+    // do the POST request
+    try {
+        let response = await fetch("/groups.php", {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            credentials: 'same-origin',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (await response.ok) {
+            // remove notification and re-render the group page
+            removeNotif('group_invite', notification_id);
+            reRender();
+        }
+        else {
+            // failed, display error message returned by server
+            console.log("Error while accepting/rejecting group invite");
+            console.log(error);
+        }
+    }
+    catch (error) {
+        console.log("error in accept_invitation/reject_invitation operation (POST request) to /groups.php");
+        console.log(error);
+    }
+}
+
 async function dismissCompletedTransaction(id, removeNotif) {
-    removeNotif("complete_transaction", id)
+    let payload = {
+        'notification_id': id,
+        'operation': 'dismiss'
+    };
+
+    // do the POST request
+    try {
+        let response = await fetch("/notifications.php", {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            credentials: 'same-origin',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (await response.ok) {
+            // remove notification and re-render the group page
+            removeNotif("complete_transaction", id)
+        }
+        else {
+            // failed, display error message returned by server
+            console.log("Error while dismissing completed transaction");
+        }
+    }
+    catch (error) {
+        console.log("error in POST request to /notifications.php");
+        console.log(error);
+    }
 }
 
 async function getNotifications(type){
@@ -300,6 +402,12 @@ async function getNotifications(type){
 
                             for (let i = 0; i < json.length; i++) {
                                 notifications.push(<CompletedTransaction name={json[i].name} id={json[i].notification_id} trans_id={json[i].transaction_id} />)
+                            }
+                            break;
+                        case "group_invite":
+
+                            for (let i = 0; i < json.length; i++) {
+                                notifications.push(<GroupInvite name={json[i].group_name} id={json[i].notification_id} group_id={json[i].group_id} />)
                             }
 
                             break;

@@ -1,10 +1,3 @@
-/*
- *  Functions:
- *      submitForm: Creates a post request to /groups.php containing values of group name field.
- *          @param: groupRef    - reference to group name field
- *          @param: errorRef    - reference to error text field to print error text to
- *          
-*/
 import * as globals from '../utils/globals.js'
 
 import { StyleSheet, Text, View, Image, Modal, TextInput } from 'react-native';
@@ -19,14 +12,36 @@ const Logo = require('../assets/images/logo/logo-name-64.png');
 
 import Accept from '../assets/images/bx-check.svg';
 import Reject from '../assets/images/bx-x.svg';
+import { GlobalContext } from '../components/GlobalContext.js';
 
+/**
+ *  Modal to upload an icon to user or group
+ *      @param {boolean} groupNUser  boolean indicating if uploading a group or user icon
+ *                                   if true, upload group icon
+ *                                   if false, upload user icon
+ *      @param {number} groupID      group_id for which the icon will be updated
+ *                                   only required if groupNUser==true
+ *      @param {StyleSheet} style    styles to be presented on the outer View
+ *      @param {function} exit       ?
+ *      @return {React.JSX.Element}  DOM element
+ */
 export default function UploadIcon(props) {
-
-    const onSubmit = () => { submitForm(image, props.groupID, props.userID, errorMessageRef); }
 
     const [image, setImage] = useState(null);
 
     const setModal = useContext(ModalContext);
+    // if uploading a group icon, reloading the page will suffice
+    if (props.groupNUser) {
+        var {reRender} = useContext(GlobalContext);
+    }
+    // if uploading a user icon, we need to increment loginAttempt to get new user info in GlobalContext
+    else {
+        var {loginAttempts: [loginAttempts, setLoginAttempts]} = useContext(GlobalContext);
+        var reRender = () => {
+            setLoginAttempts(loginAttempts + 1);
+        }
+    }
+
     const errorMessageRef = useRef(null);
     const imageRef = useRef(null);
 
@@ -34,9 +49,16 @@ export default function UploadIcon(props) {
         e.stopPropagation();
     }
 
+    function setErrorMsg(msg) {
+        errorMessageRef.current.innerText = msg;
+        errorMessageRef.current.classList.remove('hidden');
+    }
+
     const updateImageSource = (e) => {
         setImage(e.target.files[0]);
     }
+
+    const onSubmit = () => { submitForm(image, props.groupNUser, props.groupID, setErrorMsg, reRender, setModal); }
 
     return (
         <Modal
@@ -69,69 +91,50 @@ export default function UploadIcon(props) {
     );
 }
 
-async function submitForm(image, groupID, userID, errorRef) {
+// groupID will be undefined when groupNUser==false
+async function submitForm(image, groupNUser, groupID, setErrorMsg, reRender, setModal) {
 
     // append image
     var formData = new FormData();
     formData.append('icon', image);
 
-    if (groupID) {
+    // fill in endpoint and form data depending on whether the user is uploading a group icon or user icon
+    let endpoint = '';
+    if (groupNUser) {
         //Uploading group icon so send group id
         formData.append('group_id', groupID);
+        endpoint = '/group_icon_upload.php';
+    }
+    else {
+        //Uploading user icon
+        endpoint = '/user_icon_upload.php';
+    }
 
-        // do the POST request
-        try {
-            let response = await fetch("/group_icon_upload.php", {
-                method: 'POST',
-                body: formData,
-                credentials: 'same-origin'
-            });
+    // do the POST request
+    try {
+        let response = await fetch(endpoint, {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        });
 
-            if (await response.ok) {
-                // redirect
-                router.replace("/groups");
-            }
-            else {
-                // failed, display error message returned by server
-                let responseJSON = await response.json();
-                errorRef.current.innerText = responseJSON['message'];
-                errorRef.current.classList.remove('hidden');
-            }
+        if (await response.ok) {
+            // close modal and re-render page
+            setModal(null);
+            reRender();
         }
-        catch (error) {
-            console.log("error in POST request to group_icon_upload (/group_icon_upload.php)");
-            console.log(error);
-        }
-    } else if (userID) {
-        //Uploading user icon so send user id
-        formData.append('user_id', groupID);
-
-        // do the POST request
-        try {
-            let response = await fetch("/user_icon_upload.php", {
-                method: 'POST',
-                body: formData,
-                credentials: 'same-origin'
-            });
-
-            if (await response.ok) {
-                // redirect
-                router.replace("/profile");
-            }
-            else {
-                // failed, display error message returned by server
-                let responseJSON = await response.json();
-                errorRef.current.innerText = responseJSON['message'];
-                errorRef.current.classList.remove('hidden');
-            }
-        }
-        catch (error) {
-            console.log("error in POST request to user_icon_upload (/user_icon_upload.php)");
-            console.log(error);
+        else {
+            // failed, display error message returned by server
+            let responseJSON = await response.json();
+            setErrorMsg(responseJSON['message']);
         }
     }
-    
+    catch (error) {
+        console.log("error in POST request to "+endpoint);
+        console.log(error);
+    }
 }
+
 
 const styles = StyleSheet.create({
     create: {

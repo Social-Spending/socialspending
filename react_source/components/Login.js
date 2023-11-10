@@ -22,12 +22,12 @@ import { GlobalContext } from '../components/GlobalContext.js';
 
 const Logo = require('../assets/images/logo/logo-name-64.png');
 
-export default function Login() {
+export default function Login(props) {
     // when a login is completed, increment loginAttempts to trigger a re-render of GlobalContext
     const {loginAttempts} = useContext(GlobalContext);
     const [loginAttemptsState, setLoginAttemptsState] = loginAttempts;
     const onSubmit = () => {
-        submitForm(userRef, passwordRef, rememberRef, errorMessageRef, loginAttemptsState, setLoginAttemptsState);
+        submitForm(props.origin, userRef, passwordRef, rememberRef, errorMessageRef, loginAttemptsState, setLoginAttemptsState);
     }
 
     const [showPassword, setShowPassword] = useState(false);
@@ -84,7 +84,7 @@ export default function Login() {
     );
 }
 
-async function submitForm(userRef, passwordRef, rememberRef, errorRef, loginAttempts, setLoginAttempts) {
+async function submitForm(origin, userRef, passwordRef, rememberRef, errorRef, loginAttempts, setLoginAttempts) {
 
     // pul username and password in form data for a POST request
     let payload = new URLSearchParams();
@@ -100,7 +100,9 @@ async function submitForm(userRef, passwordRef, rememberRef, errorRef, loginAtte
             // force GlobalContext to re-try getting user info
             setLoginAttempts(loginAttempts + 1);
             // redirect
-            router.push("/summary");
+            
+            
+           
         }
         else {
             // failed, display error message returned by server
