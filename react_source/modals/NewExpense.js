@@ -52,8 +52,8 @@ const PAGES = {
 export default function NewExpense(props) {
 
     //Variables to pass down to all children as a context so that they know and can edit the data of others
-    const [pageNum, setPageNum] = useState(1);
-    const [groupID, setGroupID] = useState(null);
+    const [pageNum, setPageNum] = useState(props.groupID || props.profile ? PAGES.SPLIT_EXPENSE : PAGES.SELECT_SPLIT);
+    const [groupID, setGroupID] = useState(props.groupID ? props.groupID : null);
     const [formData, setFormData] = useState({});
 
     const errorMessageRef = useRef(null);
@@ -117,7 +117,7 @@ function ChooseName() {
 
     const onNameChange = () => { setNameDisabled(checkName(nameRef, errorRef)); }
 
-    const [nameDisabled, setNameDisabled] = useState(false);
+    const [nameDisabled, setNameDisabled] = useState(true);
 
     const nameRef = useRef(null);
     const dateRef = useRef(null);
@@ -318,7 +318,7 @@ function SplitExpense() {
             {splitList}
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 2)} />
+                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(PAGES.SELECT_SPLIT)} />
                 <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Next' onClick={onSubmit} />
             </View>
         </View>
