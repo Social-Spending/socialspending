@@ -15,7 +15,7 @@ export default function Page() {
         <Base style={[globals.styles.container, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
 
         <Sidebar title={'Friends'}>
-            <WaitForAuth redirectOnNotLoggedIn={'/login'}>
+            <WaitForAuth redirectOnNotLoggedIn={'/login?origin=friends'}>
                 <SidebarFriendList friendID={friendID} setFriendID={setFriendID} />
             </WaitForAuth>
         </Sidebar>
