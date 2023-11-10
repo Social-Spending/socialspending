@@ -26,14 +26,22 @@ function generateRoutes(routePath, path, keys, json, useLayout = "_layout.js" in
         // if index.js can either be a root node or a pathless child of the root node if there is a layout
         if (keys[i] === "index.js") {
             if (!useLayout) {
-                //generate this node and move all other nodes in the directory as a child
+                //generate a node that does nothing but act as a parent move all nodes in the directory as a child
+                //Index is set to a path of "" to indicate its the desired node for the path
+               
+                routerJson.push({
+                    path: "",
+                    element: "/*__PURE__*/React.createElement(_app" + path + "_" + "index, null)"
+                });
                 let tempJson = routerJson;
+
                 routerJson = [];
                 routerJson.push({
                     path: routePath,
-                    element: "/*__PURE__*/React.createElement(_app" + path + "_" + "index, null)", // Creates an element in format <_app_[subfolder]_{element} /> but as a function
+                    element: "/*__PURE__*/React.createElement(Outlet, null)", // Creates an element in format <_app_[subfolder]_{element} /> but as a function
                     children: generateRoutes(routePath, path, keys.slice(i + 1), json).concat(tempJson)
                 });
+
                 break;
             } else {
                 //pathless node - do nothing special

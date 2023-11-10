@@ -144,30 +144,7 @@ function getParticipants(participantList) {
             owed={participantList[i]['amount']}
             hasApproved={participantList[i]['has_approved']}
         />);
-        outputList.push(<ListItem
-            key={i}
-            border={i > 0}
-            name={participantList[i]['username']}
-            id={participantList[i]['user_id']}
-            owed={participantList[i]['amount']}
-            hasApproved={participantList[i]['has_approved']}
-        />);
-        outputList.push(<ListItem
-            key={i}
-            border={i > 0}
-            name={participantList[i]['username']}
-            id={participantList[i]['user_id']}
-            owed={participantList[i]['amount']}
-            hasApproved={participantList[i]['has_approved']}
-        />);
-        outputList.push(<ListItem
-            key={i}
-            border={i > 0}
-            name={participantList[i]['username']}
-            id={participantList[i]['user_id']}
-            owed={participantList[i]['amount']}
-            hasApproved={participantList[i]['has_approved']}
-        />);
+        
     }
 
     return outputList;

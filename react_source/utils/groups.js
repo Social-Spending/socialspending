@@ -1,5 +1,3 @@
-import { navigate } from "../main";
-
 
 export async function getGroups() {
 
@@ -27,7 +25,7 @@ export async function getGroups() {
     return null;
 
 }
-export async function getGroupInfo(id) {
+export async function getGroupInfo(id, navigate) {
 
 
     // pul username and password in form data for a POST request
@@ -60,7 +58,7 @@ export async function getGroupInfo(id) {
 
 }
 
-export async function leaveGroup(id) {
+export async function leaveGroup(id, navigate) {
     let payload = `{
                         "operation": "leave",
                         "group_id": ` + id + `

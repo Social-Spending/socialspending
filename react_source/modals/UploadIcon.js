@@ -1,14 +1,13 @@
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image, Modal, TextInput } from 'react-native';
-import { router } from "expo-router";
+import { Text, View, Image, Modal } from '../utils/globals.js';
 import { useRef, useState, useContext } from 'react';
 
 
 import Button from '../components/Button.js'
 import { ModalContext } from './ModalContext.js';
 
-const Logo = require('../assets/images/logo/logo-name-64.png');
+import Logo from '../assets/images/logo/logo-name-64.png';
 
 import Accept from '../assets/images/bx-check.svg';
 import Reject from '../assets/images/bx-x.svg';
@@ -58,7 +57,7 @@ export default function UploadIcon(props) {
         setImage(e.target.files[0]);
     }
 
-    const onSubmit = () => { submitForm(image, props.groupNUser, props.groupID, setErrorMsg, reRender, setModal); }
+    const onSubmit = () => { submitForm(image, props.groupID, setErrorMsg, reRender, setModal); }
 
     return (
         <Modal
@@ -66,12 +65,12 @@ export default function UploadIcon(props) {
             visible={true}
             onRequestClose={() => setModal(null)}>
 
-            <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                 <View style={styles.create} onClick={handleChildClick}>
 
                     <Image source={Logo} style={styles.logo} />
 
-                    <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>UPLOAD ICON</Text>
+                    <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>UPLOAD ICON</Text>
 
                     <Image style={styles.display} source={image == null ? null : URL.createObjectURL(image)}/>
 
@@ -80,8 +79,8 @@ export default function UploadIcon(props) {
                     <input ref={imageRef} type="file" accept="image/*" onInput={updateImageSource} />
 
                     <View style={{ flexDirection: 'row', justifyContent: 'center', width:'75%' }}>
-                        <Button disabled={image == null} style={[styles.button, { backgroundColor: globals.COLOR_BLUE }]} svg={Accept} iconStyle={styles.icon} label='UPLOAD' onClick={onSubmit} />
-                        <Button style={[styles.button, { backgroundColor: globals.COLOR_ORANGE }]} svg={Reject} iconStyle={styles.icon} label='CANCEL' onClick={() => setModal(null)} />
+                        <Button disabled={image == null} style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_BLUE }}} svg={Accept} iconStyle={styles.icon} label='UPLOAD' onClick={onSubmit} />
+                        <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_ORANGE }}} svg={Reject} iconStyle={styles.icon} label='CANCEL' onClick={() => setModal(null)} />
                     </View>
 
                 </View>
@@ -92,7 +91,7 @@ export default function UploadIcon(props) {
 }
 
 // groupID will be undefined when groupNUser==false
-async function submitForm(image, groupNUser, groupID, setErrorMsg, reRender, setModal) {
+async function submitForm(image, groupID, setErrorMsg, reRender, setModal) {
 
     // append image
     var formData = new FormData();
@@ -100,7 +99,7 @@ async function submitForm(image, groupNUser, groupID, setErrorMsg, reRender, set
 
     // fill in endpoint and form data depending on whether the user is uploading a group icon or user icon
     let endpoint = '';
-    if (groupNUser) {
+    if (groupID) {
         //Uploading group icon so send group id
         formData.append('group_id', groupID);
         endpoint = '/group_icon_upload.php';
@@ -136,7 +135,7 @@ async function submitForm(image, groupNUser, groupID, setErrorMsg, reRender, set
 }
 
 
-const styles = StyleSheet.create({
+const styles = {
     create: {
         zIndex: 1,
         height: '30em',
@@ -174,4 +173,4 @@ const styles = StyleSheet.create({
         borderColor: globals.COLOR_LIGHT_GRAY
     }
 
-});
+};

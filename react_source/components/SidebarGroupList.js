@@ -1,6 +1,6 @@
 import * as globals from '../utils/globals.js'
 
-import { Text, View, Image } from 'react-native';
+import { Text, View, Image } from '../utils/globals.js';
 import { useState, useEffect, useContext } from 'react';
 
 import NewGroup from '../modals/NewGroup.js'
@@ -53,7 +53,7 @@ export default function SidebarGroupList(props) {
         return (
             <>
                 {groupItems}
-                <Button style={{ height: '2em' }} textStyle={{ color: globals.COLOR_GRAY }} label="+ Create New Group" onClick={addGroupModal} />                
+                <Button style={{ height: '2em' }} textStyle={{ ...globals.styles.h5, ...{ color: globals.COLOR_GRAY }}} label="+ Create New Group" onClick={addGroupModal} />                
             </>
 
         );
@@ -65,10 +65,10 @@ function GroupListItem(props) {
 
     return (
 
-        <View style={[props.border ? globals.styles.listItemSeperator : globals.styles.listItem, {cursor: 'pointer'}]} onClick={() => props.setGroupID(props.id)} >
+        <View style={{ ...props.border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{cursor: 'pointer'}}} onClick={() => props.setGroupID(props.id)} >
             <View style={globals.styles.listIconAndTextContainer}>
                 <Image
-                    style={[globals.styles.listIcon, { width: '1.25em', height: '1.25em'}]}
+                    style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em'}}}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
                 />
                 <Text style={globals.styles.listText}>{props.name}</Text>

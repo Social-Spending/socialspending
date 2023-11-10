@@ -1,6 +1,6 @@
 import re
 
-file = "./components/SidebarFriendList.js"
+file = "./modals/UploadIcon.js"
 
 f = open(file, "r")
 

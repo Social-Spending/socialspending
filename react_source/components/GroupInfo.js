@@ -1,9 +1,9 @@
 import * as globals from "../utils/globals.js";
 
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { Text, View, Image } from '../utils/globals.js';
 import { useState, useEffect, useContext } from 'react';
 
-import { Link } from "expo-router";
+import { Link } from "react-router-dom";
 
 import Button from "./Button.js";
 
@@ -22,6 +22,8 @@ import { getGroupInfo, leaveGroup, kickMemberFromGroup, revokeInvitation, sendGr
 import { ModalContext } from '../modals/ModalContext.js';
 import { GlobalContext } from "./GlobalContext.js";
 import UserSearch from "../modals/UserSearch.js";
+import { ReactSVG } from "react-svg";
+import { useNavigate } from "react-router-dom/dist/index.js";
 
 
 export default function GroupInfo(props) {
@@ -32,7 +34,9 @@ export default function GroupInfo(props) {
     let [iconPath, setIconPath] = useState(null);
 
     const setModal = useContext(ModalContext);
-    const { currUserID, currUsername, currUserIconPath, reRenderCount} = useContext(GlobalContext);
+    const { currUserID, currUsername, currUserIconPath, reRenderCount } = useContext(GlobalContext);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
@@ -40,7 +44,7 @@ export default function GroupInfo(props) {
         async function getItems() {
             let json = null;
 
-            if (props.id != null) json = await getGroupInfo(props.id);
+            if (props.id != null) json = await getGroupInfo(props.id, navigate);
 
             if (json !== null) {
                 setGroupName(json.group_name);
@@ -57,7 +61,7 @@ export default function GroupInfo(props) {
     }
 
     const leave = () => {
-        setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => leaveGroup(props.id)} />);
+        setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => leaveGroup(props.id, navigate)} />);
     }
 
     function inviteMember() {
@@ -77,16 +81,16 @@ export default function GroupInfo(props) {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
                     <View style={globals.styles.listIconAndTextContainer }>
                         <GroupIcon iconPath={iconPath} groupName={groupName} groupID={props.id} />
-                        <Text style={[globals.styles.h1, styles.groupName]}>{groupName}</Text>
+                        <Text style={{ ...globals.styles.h1, ...styles.groupName}}>{groupName}</Text>
                     </View>
                     
-                    <Button style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]} svg={Leave} iconStyle={styles.icon} label='LEAVE GROUP' onClick={leave} />
+                    <Button style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' }}} svg={Leave} iconStyle={styles.icon} label='LEAVE GROUP' onClick={leave} />
                     
                 </View>
                 <View style={styles.listContainer}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={[globals.styles.h3, styles.listTitle]}>Members</Text>
-                        <Button style={[globals.styles.formButton, { width: '10em', margin: 0, marginTop: '.45em', marginRight: '.75em' }]} svg={InviteIcon} iconStyle={styles.icon} label='ADD MEMBER' onClick={inviteMember} />
+                        <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Members</Text>
+                        <Button style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' }}} svg={InviteIcon} iconStyle={styles.icon} label='ADD MEMBER' onClick={inviteMember} />
                     </View>
                     <View style={styles.listHeader} >
 
@@ -94,21 +98,21 @@ export default function GroupInfo(props) {
                         <Text style={{ color: globals.COLOR_GRAY, paddingRight: '2em' }}>STANDING</Text>
 
                     </View>
-                    <View style={[globals.styles.list, { marginTop: '.25em', width: '100%', marginBottom: '1em' }]}>
+                    <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' }}}>
                         {groupMembers}
                     </View>
 
                 </View>
 
                 <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, styles.listTitle]}>Transactions</Text>
+                    <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Transactions</Text>
                     <View style={styles.listHeader} >
 
                         <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>TRANSACTION</Text>
                         <Text style={{ color: globals.COLOR_GRAY, paddingRight: '2em' }}>YOUR CONTRIBUTION</Text>
 
                     </View>
-                    <View style={[globals.styles.list, { marginTop: '.25em', width: '100%', marginBottom: '1em' }]}>
+                    <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' }}}>
                         {transactions}
                     </View>
 
@@ -124,17 +128,24 @@ function GroupIcon({ iconPath, groupName, groupID }) {
     const setModal = useContext(ModalContext);
 
     const upload = () => {
-        setModal(<UploadIcon groupNUser={true} groupID={groupID} />);
+        setModal(<UploadIcon groupID={groupID} />);
     }
 
     return (
         <View onClick={upload}  onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             <Image
-                style={[globals.styles.listIcon, { width: '3em', height: '3em' }]}
+                style={{ ...globals.styles.listIcon, ...{ width: '3em', height: '3em' }}}
                 source={iconPath !== null ? decodeURI(iconPath) : globals.getDefaultGroupIcon(groupName)}
             />
-            <View style={[{ display: hover ? 'inherit' : 'none'}, styles.uploadContainer]}>
-                <Upload style={{ fill: globals.COLOR_WHITE, width: '2em', height: '2em' }} />
+            <View style={{ ...{ display: hover ? 'inherit' : 'none' }, ...styles.uploadContainer }}>
+
+                <ReactSVG
+                    beforeInjection={(svg) => {
+                        svg.setAttribute('fill', globals.COLOR_WHITE);
+                        svg.setAttribute('height', '2em');
+                        svg.setAttribute('width', '2em');
+                    }}
+                    src={Upload}/>
             </View>
             
         </View>
@@ -180,7 +191,7 @@ function getGroupMembers(currUserID, currUsername, currUserIconPath, json) {
     for (let i = 0; i < json['pending_invites'].length; i++) {
 
         outputList.push(<PendingMemberListItem
-            key={i}
+            key={i + json['members'].length}
             border={true}
             name={json['pending_invites'][i].username}
             id={json['pending_invites'][i].user_id}
@@ -240,19 +251,19 @@ function MemberListItem({ id, name, owed, border, group_id, icon_path }) {
 
     return (
 
-        <Link href={'/profile/' + id} asChild>
+        <Link to={'/profile/' + id}>
             <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
                 <View style={globals.styles.listIconAndTextContainer}>
                     <Image
-                        style={[globals.styles.listIcon, {marginLeft: '.75em', width: '2.5em', height: '2.5em'}]}
+                        style={{ ...globals.styles.listIcon, ...{marginLeft: '.75em', width: '2.5em', height: '2.5em'}}}
                         source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultUserIcon(name)}
                     />
-                    <Text style={[globals.styles.listText, {paddingLeft: '.25em'}]}>{name}</Text>
-                    {currUserID != id ? <Button style={[globals.styles.transparentButton, { width: '1.75em', margin: 0, marginTop: '.25em' }]} svg={KickIcon} iconStyle={styles.kickButton} aria-label="Kick User" onClick={kickMember} /> : <></>}
+                    <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}}}>{name}</Text>
+                    {currUserID != id ? <Button style={{ ...globals.styles.transparentButton, ...{ width: '1.75em', margin: 0, marginTop: '.25em' }}} svg={KickIcon} iconStyle={styles.kickButton} aria-label="Kick User" onClick={kickMember} /> : <></>}
                 </View>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
-                    <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                    <Text style={[globals.styles.listText, color]}>${Math.abs(owed / 100).toFixed(2)}</Text>
+                    <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
+                    <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(owed / 100).toFixed(2)}</Text>
                 </View>
 
             </View>
@@ -282,16 +293,16 @@ function PendingMemberListItem({ id, name, border, group_id, icon_path }) {
 
     return (
 
-        <Link href={'/profile/' + id} asChild>
+        <Link to={'/profile/' + id}>
             <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
 
                 <View style={globals.styles.listIconAndTextContainer}>
                     <Image
-                        style={[globals.styles.listIcon, {marginLeft: '.75em', width: '2.5em', height: '2.5em'}]}
+                        style={{ ...globals.styles.listIcon, ...{marginLeft: '.75em', width: '2.5em', height: '2.5em'}}}
                         source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultUserIcon(name)}
                     />
-                    <Text style={[globals.styles.listText, {fontStyle: 'italic', paddingLeft: '.25em'}]}>{name}</Text>
-                    <Button style={[globals.styles.transparentButton, { width: '1.75em', margin: 0, marginTop: '.25em' }]} svg={KickIcon} iconStyle={styles.kickButton} aria-label="Revoke Invite" onClick={revokeInvite} />
+                    <Text style={{ ...globals.styles.listText, ...{fontStyle: 'italic', paddingLeft: '.25em'}}}>{name}</Text>
+                    <Button style={{ ...globals.styles.transparentButton, ...{ width: '1.75em', margin: 0, marginTop: '.25em' }}} svg={KickIcon} iconStyle={styles.kickButton} aria-label="Revoke Invite" onClick={revokeInvite} />
                 </View>
 
             </View>
@@ -323,12 +334,12 @@ function TransactionListItem({ id, name, owed, border, isApproved }) {
 
     return (
 
-        <View style={[border ? globals.styles.listItemSeperator : globals.styles.listItem, {cursor:'pointer'}]} onClick={viewTransaction} >
+        <View style={{ ...border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{cursor:'pointer'}}} onClick={viewTransaction} >
 
-            <Text style={[globals.styles.listText, pendingItalic]}>{name}</Text>
+            <Text style={{ ...globals.styles.listText, ...pendingItalic}}>{name}</Text>
             <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
-                <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                <Text style={[globals.styles.listText, color]}>${Math.abs(owed / 100).toFixed(2)}</Text>
+                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
+                <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(owed / 100).toFixed(2)}</Text>
             </View>
 
         </View>
@@ -337,22 +348,21 @@ function TransactionListItem({ id, name, owed, border, isApproved }) {
     );
 }
 
-const styles = StyleSheet.create({
+const styles = {
     groupName: {
         color: globals.COLOR_GRAY,
         borderRadius: 2,
         padding: 0,
         paddingBottom: '.25em',
-        marginHorizontal: '.5em',
+        margin: '0 .5em',
         fontWeight: 500
     },
     groupInfo: {
         flex: 1,
         width: 'auto',
         marginTop: '1em',
-        marginHorizontal: `min(5em, 5vw)`,
-        paddingVertical: '2.5em',
-        paddingHorizontal: `min(2.5em, 2.5vw)`
+        margin: `1em min(5em, 5vw)`,
+        padding: `2.5em min(2.5em, 2.5vw)`
     },
     listContainer: {
         height: 'auto',
@@ -364,8 +374,7 @@ const styles = StyleSheet.create({
     listHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        borderStyle: 'none',
-        borderBottomStyle: 'solid',
+        borderStyle: 'none none solid',
         borderWidth: '1px',
         borderColor: '#eee',
         paddingBottom: '.5em'
@@ -378,7 +387,7 @@ const styles = StyleSheet.create({
     },
     icon: {
         fill: globals.COLOR_WHITE,
-        width: '1.25em'
+        width: '1.5em'
     },
     kickButton: {
         fill: globals.COLOR_GRAY,
@@ -395,4 +404,4 @@ const styles = StyleSheet.create({
         backgroundColor: globals.COLOR_MODAL
     }
 
-});
+};
