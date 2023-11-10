@@ -11,6 +11,7 @@ import Bell from '../assets/images/bxs-bell.svg';
 
 import {GlobalContext} from './GlobalContext.js';
 import { ModalContext } from '../modals/ModalContext.js';
+import NewExpense from '../modals/NewExpense.js';
 
 
 export default function Header({showNotif }) {
@@ -53,10 +54,10 @@ function Links(props) {
 function Account({ showNotif }) {
     const { isLoggedIn, currUsername, currUserIconPath, doSignout } = useContext(GlobalContext);
     const setModal = useContext(ModalContext);
-    //<Button style={styles.newExpense} hoverStyle={styles.newExpense} textStyle={globals.styles.h4} label="+ NEW EXPENSE" onClick={() => setModal(<NewExpense />)} />
     if (isLoggedIn) {
         return (
             <View style={styles.container}>
+                <Button style={styles.newExpense} hoverStyle={styles.newExpense} textStyle={{ ...globals.styles.h5, ...{ fontSize: '1em' }}} label="+ NEW EXPENSE" onClick={() => setModal(<NewExpense />)} />
                 <Button style={styles.notif} hoverStyle={styles.notif} svg={Bell} iconStyle={styles.bell} onClick={showNotif} />
                 <HeaderLink href="/profile/" style={{marginLeft: '1em'}} >
                     <View style={styles.headerIconAndUsernameContainer} >
@@ -159,7 +160,7 @@ const styles = {
     },
     newExpense: {
         height: '2em',
-        width: '10em',
+        width: '13em',
         margin: 0,
         marginRight: '1em',
         borderRadius: '2em'

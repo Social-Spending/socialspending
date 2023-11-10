@@ -241,6 +241,7 @@ export const styles = {
 
     },
     listIconAndTextContainer: {
+        flex: 'auto',
         flexDirection: 'row',
         justifyContent: 'start',
         alignItems: 'center'
@@ -252,7 +253,7 @@ export const styles = {
         paddingRight: '2%',
         paddingBottom: 0,
         color: COLOR_GRAY,
-        flexShrink: 0
+        height:'auto',
     },
     listIcon: {
         flex: '0 0 auto',
@@ -275,7 +276,7 @@ export const styles = {
 
     },
     listLabel: {
-        flex: 'initial',
+        minHeight: 'auto',
         padding: 0,
         position: 'sticky',
         top: 0,

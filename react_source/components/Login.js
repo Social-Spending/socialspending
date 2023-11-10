@@ -106,7 +106,7 @@ async function submitForm(userRef, passwordRef, rememberRef, errorRef, loginAtte
         else {
             // failed, display error message returned by server
             let responseJSON = await response.json();
-            errorRef.current.innertext = responseJSON['message'];
+            errorRef.current.innerText = responseJSON['message'];
             errorRef.current.classList.remove('hidden');
         }
     }

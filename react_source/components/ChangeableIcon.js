@@ -22,7 +22,7 @@ export default function ChangeableIcon({ iconPath, name, groupID }) {
         <View onClick={upload} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             <Image
                 style={{ ...globals.styles.listIcon, ...{ width: '3em', height: '3em' } }}
-                source={iconPath !== null ? decodeURI(iconPath) : globals.getDefaultGroupIcon(name)}
+                source={iconPath !== null ? decodeURI(iconPath) : (groupID ? globals.getDefaultGroupIcon(name) : globals.getDefaultUserIcon(name))}
             />
             <View style={{ ...{ display: hover ? 'inherit' : 'none' }, ...styles.uploadContainer }}>
 

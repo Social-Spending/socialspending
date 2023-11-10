@@ -78,7 +78,7 @@ export default function GroupInfo(props) {
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
                     <View style={globals.styles.listIconAndTextContainer }>
-                        <ChangeableIcon iconPath={iconPath} groupName={groupName} groupID={props.id} />
+                        <ChangeableIcon iconPath={iconPath} name={groupName} groupID={props.id} />
                         <Text style={{ ...globals.styles.h1, ...styles.groupName}}>{groupName}</Text>
                     </View>
                     

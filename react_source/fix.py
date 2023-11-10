@@ -1,6 +1,6 @@
 import re
 
-file = "./modals/EditProfile.js"
+file = "./modals/NewExpense.js"
 
 f = open(file, "r")
 

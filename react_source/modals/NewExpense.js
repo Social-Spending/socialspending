@@ -1,7 +1,6 @@
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image, Modal } from 'react-native';
-import { router } from "expo-router";
+import { Text, View, Image, Modal } from '../utils/globals.js';
 import { useRef, useState, createContext, useContext, useEffect } from 'react';
 
 import { getGroups, getGroupInfo } from "../utils/groups.js";
@@ -78,12 +77,12 @@ export default function NewExpense(props) {
                 visible={true}
                 onRequestClose={() => setModal(null)}>
 
-                <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
                     <View style={styles.create} onClick={handleChildClick}>
 
                         <Image source={Logo} style={styles.logo} />
 
-                        <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>NEW EXPENSE</Text>
+                        <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>NEW EXPENSE</Text>
 
                         <Text ref={errorMessageRef} id='createExpense_errorMessage' style={globals.styles.error}></Text>
 
@@ -117,7 +116,7 @@ function ChooseName() {
 
     const onNameChange = () => { setNameDisabled(checkName(nameRef, errorRef)); }
 
-    const [nameDisabled, setNameDisabled] = useState(false);
+    const [nameDisabled, setNameDisabled] = useState(true);
 
     const nameRef = useRef(null);
     const dateRef = useRef(null);
@@ -144,33 +143,32 @@ function ChooseName() {
     }
 
     return (
-        <View style={[
-                styles.pageContianer, {
+        <View style={{ ...styles.pageContianer, ...{
                 display: pageNum != PAGES.CHOOSE_NAME ? 'none' : 'inherit'
-        }]} >
-            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Enter transaction name and description to get started</Text>
+        }}} >
+            <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Enter transaction name and description to get started</Text>
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>EXPENSE NAME *</Text>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>EXPENSE NAME *</Text>
             </View>
 
             <input tabIndex={1} ref={nameRef} placeholder=" Enter name of new expense" style={globals.styles.input} id='createExpense_name' name="Expense Name" onInput={onNameChange} />
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>EXPENSE DATE</Text>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>EXPENSE DATE</Text>
             </View>
 
             <input tabIndex={2} ref={dateRef} type="date" style={globals.styles.input} id='createExpense_date' name="Expense date" />
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>DESCRIPTION</Text>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>DESCRIPTION</Text>
             </View>
 
             <textarea tabIndex={3} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
-                <Button disabled={nameDisabled} style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Submit' onClick={onSubmit} />
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 1)} />
+                <Button disabled={nameDisabled} style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' }}} label='Submit' onClick={onSubmit} />
+                <Button style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' }}} label='Back' onClick={() => setPageNum(pageNum - 1)} />
             </View>
         </View>
     );
@@ -188,14 +186,14 @@ function SelectSplit() {
     } = useContext(ExpenseContext);
 
     return (
-        <View style={[styles.pageContianer, {
+        <View style={{ ...styles.pageContianer, ...{
             display: pageNum != PAGES.SELECT_SPLIT ? 'none' : 'inherit'
-        }]}>
-            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Do you want to split between a group or friends?</Text>
+        }}}>
+            <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Do you want to split between a group or friends?</Text>
 
-            <Button style={[globals.styles.formButton, { margin: 0, marginBottom: '.5em', marginTop: '1.5em' }]} label='Group' onClick={() => setPageNum(PAGES.SELECT_GROUP)} />
+            <Button style={{ ...globals.styles.formButton, ...{ margin: '1.5em 0 .5em 0' }}} label='Group' onClick={() => setPageNum(PAGES.SELECT_GROUP)} />
 
-            <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '.5em' }]} label='Friends' onClick={
+            <Button style={{ ...globals.styles.formButton, ...{ margin: '.5em 0' }}} label='Friends' onClick={
                 () => {
                     setPageNum(PAGES.SPLIT_EXPENSE);
                     setGroupID(null);
@@ -231,15 +229,15 @@ function SelectGroup() {
     }, [pageNum]);
 
     return (
-        <View style={[styles.pageContianer, {
+        <View style={{ ...styles.pageContianer, ...{
             display: pageNum != PAGES.SELECT_GROUP ? 'none' : 'inherit'
-        }]}>
-            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Which group is this transaction for?</Text>
+        }}}>
+            <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Which group is this transaction for?</Text>
 
             {groups}
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button  style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 1)} />
+                <Button  style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' }}} label='Back' onClick={() => setPageNum(pageNum - 1)} />
             </View>
         </View>
     );
@@ -310,16 +308,16 @@ function SplitExpense() {
     }
 
     return (
-        <View style={[styles.pageContianer, {
+        <View style={{ ...styles.pageContianer, ...{
             display: pageNum != PAGES.SPLIT_EXPENSE ? 'none' : 'inherit'
-        }]}>
-            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>How much did each person contribute?</Text>
+        }}}>
+            <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>How much did each person contribute?</Text>
 
             {splitList}
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 2)} />
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Next' onClick={onSubmit} />
+                <Button style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' }}} label='Back' onClick={() => setPageNum(pageNum - 2)} />
+                <Button style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' }}} label='Next' onClick={onSubmit} />
             </View>
         </View>
     );
@@ -334,9 +332,9 @@ function SplitListItem(props) {
 
     return (
         
-        <View style={[styles.listItem, {width: '75%'}]} >
+        <View style={{ ...styles.listItem, ...{width: '75%'}}} >
 
-            <Text style={[globals.styles.listText, { marginVertical: 'auto' }]}>{props.name}</Text>
+            <Text style={{ ...globals.styles.listText, ...{ marginVertical: 'auto' }}}>{props.name}</Text>
             <View style={{ width: '5em' }}>
                 <input ref={inputRef} style={globals.styles.input} step={.01} type='number' placeholder={0}></input>
                 
@@ -359,7 +357,7 @@ async function buildGroups(setID, setPage) {
     const groups = await getGroups();
 
     for (let i = 0; i < groups.length; i++) {
-        outputList.push(<Button style={[globals.styles.formButton, { margin: 0, marginVertical: '.5em' }]} label={groups[i].group_name} onClick={
+        outputList.push(<Button style={{ ...globals.styles.formButton, ...{ margin: '.5em 0' }}} label={groups[i].group_name} onClick={
             () => { 
                 setID(groups[i].group_id);
                 setPage(PAGES.SPLIT_EXPENSE);
@@ -470,7 +468,7 @@ async function submitForm(formData, errorRef) {
    return false;
 }
 
-const styles = StyleSheet.create({
+const styles = {
     create: {
         minHeight: '30em',
         height: 'auto',
@@ -501,4 +499,4 @@ const styles = StyleSheet.create({
         marginTop: '1em'
     }
 
-});
+};
