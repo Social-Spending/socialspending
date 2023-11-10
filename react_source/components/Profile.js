@@ -17,6 +17,7 @@ import { getUserInfo, removeFriend, addFriend} from '../utils/friends.js'
 
 import { ModalContext } from '../modals/ModalContext.js';
 import { GlobalContext } from "./GlobalContext.js";
+import NewExpense from "../modals/NewExpense.js";
 
 
 export default function Profile(props) {
@@ -67,6 +68,10 @@ export default function Profile(props) {
         setModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={() => {addFriend(username); setIsPendingFriend(true); setModal(null);}} />);
     }
 
+    const addExpense = () => {
+        setModal(<NewExpense profile={true} />);
+    }
+
     let text = debt < 0 ? "Owes You" : "You Owe";
     let color = debt < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
     color = debt == 0 ? { color: globals.COLOR_GRAY } : color;
@@ -105,10 +110,14 @@ export default function Profile(props) {
                 <View style={styles.listContainer}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                         <Text style={[globals.styles.h3, styles.listTitle]}>Transactions in Common</Text>
-                        <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
-                            <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                            <Text style={[globals.styles.listText, color]}>${Math.abs(debt / 100).toFixed(2)}</Text>
+                        <View style={{ flexDirection: 'row' }}>
+                            <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '.45em', minWidth: '5em', alignItems: 'center' }}>
+                                <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
+                                <Text style={[globals.styles.listText, color]}>${Math.abs(debt / 100).toFixed(2)}</Text>
+                            </View>
+                            <Button style={[globals.styles.formButton, { width: '10em', margin: 0, marginTop: '.45em', marginRight: '.75em' }]} label='+ NEW EXPENSE' onClick={addExpense} />
                         </View>
+                        
                     </View>
                     
                     <View style={styles.listHeader} >
