@@ -22,6 +22,7 @@ import { GlobalContext } from "./GlobalContext.js";
 import UserSearch from "../modals/UserSearch.js";
 import { useNavigate } from "react-router-dom/dist/index.js";
 import ChangeableIcon from "./ChangeableIcon.js"
+import NewExpense from "../modals/NewExpense.js";
 
 
 export default function GroupInfo(props) {
@@ -112,7 +113,7 @@ export default function GroupInfo(props) {
                 <View style={styles.listContainer}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <Text style={{ ...globals.styles.h3, ...styles.listTitle }}>Transactions</Text>
-                        <Button style={{}...globals.styles.formButton, ...{ width: '10em', margin: 0, marginTop: '.45em', marginRight: '.75em' }}} label='+ NEW EXPENSE' onClick={addExpense} />
+                        <Button style={{...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' }}} label='+ NEW EXPENSE' onClick={addExpense} />
                     </View>
                     <View style={styles.listHeader} >
 

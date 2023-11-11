@@ -27,6 +27,8 @@ export default function Notifications(props) {
     const [completedTransactions, setCompletedTransactions] = useState([]);
     const [groupInvites, setGroupInvites] = useState([]);
 
+    let [notifCount, setNotifCount] = useState(0);
+
     // get global context var to refresh when page reload is requested
     const {reRenderCount} = useContext(GlobalContext);
 
@@ -35,14 +37,22 @@ export default function Notifications(props) {
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
         // On load asynchronously request groups and construct the list
-        async function getItems() {
 
-            setFriendRequests(await getNotifications("friend_request"));
-            setTransactionApprovals(await getNotifications("transaction_approval"));
-            setCompletedTransactions(await getNotifications("complete_transaction"));
-            setGroupInvites(await getNotifications("group_invite"));
+        function addNotifCount(amount) {
+            notifCount = notifCount + amount
+            setNotifCount(notifCount);
         }
-        getItems();
+        async function getItems() {
+            
+            setFriendRequests(await getNotifications("friend_request", addNotifCount));
+            setTransactionApprovals(await getNotifications("transaction_approval", addNotifCount));
+            setCompletedTransactions(await getNotifications("complete_transaction", addNotifCount));
+            setGroupInvites(await getNotifications("group_invite", addNotifCount));
+
+            // if the page requested that we show notification bar by default, do so only if there are also notifications present
+            props.setAreNotifs(notifCount);
+        }
+        getItems(); 
 
     }, [reRenderCount]);
 
@@ -50,27 +60,31 @@ export default function Notifications(props) {
         switch (type) {
             case "friend_request":
 
-                setFriendRequests(friendRequests.filter((notif) => notif.props.id != id));             
+                setFriendRequests(friendRequests.filter((notif) => notif.props.id != id));   
+                setNotifCount(notifCount - 1);
                 break;
             case "transaction_approval":
 
                 setTransactionApprovals(transactionApprovals.filter((notif) => notif.props.id != id));
+                setNotifCount(notifCount - 1);
                 break;
             case "complete_transaction":
 
                 setCompletedTransactions(completedTransactions.filter((notif) => notif.props.id != id));
+                setNotifCount(notifCount - 1);
                 break;
             case "group_invite":
 
                 setGroupInvites(groupInvites.filter((notif) => notif.props.id != id));
+                setNotifCount(notifCount - 1);
                 break;
             default:
                 break;
         }
     }
 
-    // if the page requested that we show notification bar by default, do so only if there are also notifications present
-    props.setAreNotifs(friendRequests.length || transactionApprovals.length || completedTransactions.length || groupInvites.length);
+    
+   
 
 
     return (
@@ -374,7 +388,7 @@ async function dismissCompletedTransaction(id, removeNotif) {
     }
 }
 
-async function getNotifications(type){
+async function getNotifications(type, addNotifCount){
 
     let notifications = [];
 
@@ -389,6 +403,8 @@ async function getNotifications(type){
             try {
                 let json = await response.json();
                 if (json !== null) {
+
+                    addNotifCount(json.length);
                     switch (type) {
                         case "friend_request":
                             for (let i = 0; i < json.length; i++) {

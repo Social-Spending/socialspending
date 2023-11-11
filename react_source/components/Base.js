@@ -1,7 +1,7 @@
-import * as globals from '../utils/globals.js'
+
 
 import { View } from '../utils/globals.js';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Header from './Header.js';
 import Footer from './Footer.js';

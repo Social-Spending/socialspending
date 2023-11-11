@@ -143,7 +143,8 @@ function ChooseName() {
     }
 
     return (
-        <View style={{ ...styles.pageContianer, ...{
+        <View style={{
+            ...styles.pageContainer, ...{
                 display: pageNum != PAGES.CHOOSE_NAME ? 'none' : 'inherit'
         }}} >
             <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Enter transaction name and description to get started</Text>
@@ -186,7 +187,8 @@ function SelectSplit() {
     } = useContext(ExpenseContext);
 
     return (
-        <View style={{ ...styles.pageContianer, ...{
+        <View style={{
+            ...styles.pageContainer, ...{
             display: pageNum != PAGES.SELECT_SPLIT ? 'none' : 'inherit'
         }}}>
             <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Do you want to split between a group or friends?</Text>
@@ -229,12 +231,13 @@ function SelectGroup() {
     }, [pageNum]);
 
     return (
-        <View style={{ ...styles.pageContianer, ...{
+        <View style={{
+            ...styles.pageContainer, ...{
             display: pageNum != PAGES.SELECT_GROUP ? 'none' : 'inherit'
         }}}>
             <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Which group is this transaction for?</Text>
 
-            <View style={[globals.styles.list, { alignItems: 'center', justifyContent: 'center', width: '75%' }]} >
+            <View style={{ ...globals.styles.list, ...{ alignItems: 'center', justifyContent: 'center', width: '100%' } }} >
                 {groups}
             </View>
 
@@ -328,7 +331,8 @@ function SplitExpense() {
     
 
     return (
-        <View style={{ ...styles.pageContianer, ...{
+        <View style={{
+            ...styles.pageContainer, ...{
             display: pageNum != PAGES.SPLIT_EXPENSE ? 'none' : 'inherit'
         }}}>
             <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>How much did each person contribute?</Text>
@@ -347,7 +351,7 @@ function SplitExpense() {
             </View>
            
 
-            <View style={[globals.styles.list, { width: '80%' }]} >
+            <View style={{ ...globals.styles.list, ...{ width: '75%', alignItems: 'center' } }} >
                 {splitList}
             </View>
             
@@ -385,7 +389,7 @@ function SplitListItem(props) {
 
     return (
         
-        <View style={{ ...styles.listItem, ...{width: '75%'}}} >
+        <View style={{ ...styles.listItem, ...{width: '100%'}}} >
 
             <Text style={{ ...globals.styles.listText, ...{ margin: 'auto 0' }}}>{props.name}</Text>
             <View style={{flexDirection: 'row', width: 'auto' }}>
@@ -546,7 +550,6 @@ const styles = {
         opacity: 1
     },
     pageContainer: {
-        flex: 1,
         height: 'auto', 
         width: '100%',
         justifyContent: 'center',

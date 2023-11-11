@@ -69,7 +69,7 @@ function SidebarFriendListItems(props) {
                     style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em'}}}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultUserIcon(props.name)}
                 />
-                <Text style={[globals.styles.listText, pendingItalic]}>{props.name}</Text>
+                <Text style={{...globals.styles.listText, ...pendingItalic}}>{props.name}</Text>
             </View>
         </View>
     );
