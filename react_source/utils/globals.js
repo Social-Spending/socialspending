@@ -232,9 +232,7 @@ export const styles = {
     listItem: {
         flex: 1,
         height: 'auto',
-        paddingTop: '.5em',
-        paddingBottom: '.5em',
-        paddingLeft: '1em',
+        padding: '.5em 1em',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row'
@@ -249,8 +247,6 @@ export const styles = {
     listText: {
         fontSize: '1.17em',
         paddingTop: 0,
-        paddingLeft: '2%',
-        paddingRight: '2%',
         paddingBottom: 0,
         color: COLOR_GRAY,
         height:'auto',
@@ -262,10 +258,8 @@ export const styles = {
     },
     listItemSeperator: {
         flex: 1,
-        height:'auto',
-        paddingTop: '.5em',
-        paddingBottom: '.5em',
-        paddingLeft: '1em',
+        height: 'auto',
+        padding: '.5em 1em',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
