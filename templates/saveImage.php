@@ -3,8 +3,8 @@
 // Helper function for importing images, then saving them on the filesystem
 // $file            is object returned from indexing the super global $_FILES
 // $maxSize         is the maximum allowed image size, in bytes
-// $allowedWidth    is the allowed width, in pixels
-// $allowedHeight   is the allowed height, in pixels
+// $allowedWidth    is the allowed width, in pixels. If 0 or negative, then the original width will be kept
+// $allowedHeight   is the allowed height, in pixels. If 0 or negative, then the original height will be kept
 // $dir             is a path on the filesystem where the image will be saved
 // on success, returns the relative directory (in the filesystem) of the saved image
 //      ie. 'directory/image.gif' (note there is no leading backslash)
@@ -51,8 +51,18 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
     $actualWidth = imagesx($image);
     $actualHeight = imagesy($image);
 
-    $size = min($actualWidth, $actualHeight);
-    $image = imagecrop($image, ['x' => $actualWidth / 2 - $size / 2, 'y' => $actualHeight / 2 - $size / 2, 'width' => $size, 'height' => $size]);
+    //Determine the new size for the image
+    $xSize = min($actualWidth, $actualHeight);
+    $ySize = $xSize;
+
+    //Determine if we want to keep origina dimensions
+    if ($allowedWidth <= 0)
+        $xSize = $actualWidth;
+
+    if ($allowedHeight <= 0)
+        $ySize = $actualHeight;
+
+    $image = imagecrop($image, ['x' => $actualWidth / 2 - $xSize / 2, 'y' => $actualHeight / 2 - $ySize / 2, 'width' => $xSize, 'height' => $ySize]);
 
     imagecopyresized($image, $image, 0, 0, 0, 0, $allowedWidth, $allowedHeight, $actualWidth, $actualHeight);
 

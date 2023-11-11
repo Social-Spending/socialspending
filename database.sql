@@ -20,6 +20,7 @@ create table transactions (
 	name varchar(100) not null,
 	date date not null,
 	amount int not null,
+	receipt_path text null,
 	description text not null,
 	primary key (transaction_id)
 );
