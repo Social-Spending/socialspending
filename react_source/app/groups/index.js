@@ -21,7 +21,7 @@ export default function Page() {
     return (
         <Base style={{ ...globals.styles.container, ...{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }}}>
             
-            <WaitForAuth redirectOnNotLoggedIn={'/login'}>
+            <WaitForAuth redirectOnNotLoggedIn={'/login?origin=groups'}>
                 <Sidebar title={'Groups'}>
                     <SidebarGroupList groupID={groupID} setGroupID={setGroupID} />
                 </Sidebar>

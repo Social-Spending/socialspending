@@ -23,7 +23,7 @@ import { GlobalContext } from '../components/GlobalContext.js';
 
 import Logo from '../assets/images/logo/logo-name-64.png';
 
-export default function Login() {
+export default function Login(props) {
     // when a login is completed, increment loginAttempts to trigger a re-render of GlobalContext
     const {loginAttempts} = useContext(GlobalContext);
     const [loginAttemptsState, setLoginAttemptsState] = loginAttempts;

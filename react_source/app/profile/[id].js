@@ -25,7 +25,7 @@ export default function Page() {
 
     return (
         <Base style={{ ...globals.styles.container, ...{ justifyContent: 'flex-start', alignItems: 'flex-start' }}}>
-           <WaitForAuth redirectOnNotLoggedIn={'/login'}>
+           <WaitForAuth redirectOnNotLoggedIn={'/login?origin=profile/' + slug.id}>
                 <Profile id={slug.id} />
            </WaitForAuth>
         </Base>

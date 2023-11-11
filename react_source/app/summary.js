@@ -8,7 +8,7 @@ import SummaryTransactionsList from '../components/SummaryTransactionsList.js';
 
 export default function Page() {
     return (
-        <Base style={globals.styles.container}>
+        <Base style={globals.styles.container} defaultDisplayNotif={true}>
             <View style={styles.summaryContainer}>
                 <View style={{flexDirection: 'column', paddingRight: '3em'} }>
                     <GroupsList style={{ height: '38vh' }} />

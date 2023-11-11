@@ -11,12 +11,16 @@ import TransactionInfo from "../modals/TransactionInfo.js";
 import VerifyAction from "../modals/VerifyAction.js";
 
 
-import UnfriendIcon from '../assets/images/bx-log-out.svg';
+import UnfriendIcon from '../assets/images/bx-user-minus.svg';
+import ApproveSvg   from '../assets/images/bx-user-check.svg';
+import DenySvg      from '../assets/images/bx-user-x.svg';
+import AddFriendSvg from '../assets/images/bx-user-plus.svg';
 
-import { getUserInfo, removeFriend, addFriend} from '../utils/friends.js'
+import { getUserInfo, removeFriend, addFriend, acceptRejectFriendRequest, cancelFriendRequest} from '../utils/friends.js'
 
 import { ModalContext } from '../modals/ModalContext.js';
 import { GlobalContext } from "./GlobalContext.js";
+import NewExpense from "../modals/NewExpense.js";
 
 
 export default function Profile(props) {
@@ -28,10 +32,26 @@ export default function Profile(props) {
     let [iconPath, setIconPath] = useState(null);
     let [debt, setDebt] = useState(null);
     let [isFriend, setIsFriend] = useState(false);
-    let [isPendingFriend, setIsPendingFriend] = useState(true);
+    let [isPendingFriend, setIsPendingFriend] = useState(false);
+    let [friendRequestNotificationID, setFriendRequestNotificationID] = useState(null);
+    let [friendRequestCanApprove, setFriendRequestCanApprove] = useState(null);
 
     const setModal = useContext(ModalContext);
-    const {reRenderCount, reRender} = useContext(GlobalContext);
+    const { reRenderCount } = useContext(GlobalContext);
+
+
+    function unfriend() {
+        setModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={() => {removeFriend(username); setIsFriend(false); setModal(null); }} />);
+    }
+    function verifyAddFriend() {
+        setModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={() => { addFriend(username); setIsPendingFriend(true);  setModal(null);}} />);
+    }
+    function verifyAcceptRejectFriend(acceptNReject) {
+        setModal(<VerifyAction label={"Are you sure you want to "+(acceptNReject ? "accept" : "reject")+" friend request from " + username + "?"} accept={() => {acceptRejectFriendRequest(friendRequestNotificationID, acceptNReject); setIsPendingFriend(false); setIsFriend(acceptNReject); setModal(null);}} />);
+    }
+    function verifyCancelFriendRequest() {
+        setModal(<VerifyAction label={"Are you sure you want to revoke your friend request to " + username + "?"} accept={() => {cancelFriendRequest(friendRequestNotificationID); setIsPendingFriend(false); setModal(null);}} />);
+    }
 
 
     useEffect(() => {
@@ -51,6 +71,8 @@ export default function Profile(props) {
                 setDebt(json.debt);
                 setIsFriend(json.is_friend);
                 setIsPendingFriend(json.is_pending_friend);
+                setFriendRequestNotificationID(json.friend_request_notification_id);
+                setFriendRequestCanApprove(json.friend_request_can_approve);
                 setGroups(getGroupList(json.groups));
                 setTransactions(getTransactionList(json.transactions));
             }
@@ -62,11 +84,9 @@ export default function Profile(props) {
         return (<></>);
     }
 
-    function unfriend() {
-        setModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={() => {removeFriend(username, reRender); setIsFriend(false); setModal(null);}} />);
-    }
-    function verifyAddFriend() {
-        setModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={() => {addFriend(username); setIsPendingFriend(true); setModal(null);}} />);
+
+    const addExpense = () => {
+        setModal(<NewExpense profile={true} />);
     }
 
     let text = debt < 0 ? "Owes You" : "You Owe";
@@ -85,7 +105,15 @@ export default function Profile(props) {
                         <Text style={{ ...globals.styles.h1, ...styles.groupName}}>{username}</Text>
                         
                     </View>
-                    {isFriend ? <Button style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' }}} svg={UnfriendIcon} iconStyle={styles.icon} label={'UNFRIEND'} onClick={unfriend} /> : <Button style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' }}} iconStyle={styles.icon} label={isPendingFriend ? 'PENDING' : 'ADD FRIEND'} onClick={verifyAddFriend} disabled={isPendingFriend}/> }
+                    <FriendInteractionButtons
+                        isFriend={isFriend}
+                        isPendingFriend={isPendingFriend}
+                        friendRequestCanApprove={friendRequestCanApprove}
+                        onUnfriend={unfriend}
+                        unAcceptRejectFriend={(acceptNReject) => verifyAcceptRejectFriend(acceptNReject)}
+                        onCancelFriend={verifyCancelFriendRequest}
+                        onAddFriend={verifyAddFriend}
+                    />
                 </View>
                 <View style={styles.listContainer}>
                     <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Email</Text>
@@ -110,10 +138,13 @@ export default function Profile(props) {
 
                 <View style={styles.listContainer}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Transactions in Common</Text>
-                        <View style={{ width: 'auto', paddingRight: '.5em', margin: 'auto 0', minWidth: '5em', alignItems: 'center' }}>
-                            <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
-                            <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(debt / 100).toFixed(2)}</Text>
+                        <Text style={{ ...globals.styles.h3, ...styles.listTitle }}>Transactions in Common</Text>
+                        <View style={{ flexDirection: 'row' }}>
+                            <View style={{ width: 'auto', paddingRight: '.5em', margin: 'auto 0', minWidth: '5em', alignItems: 'center' }}>
+                                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
+                                <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(debt / 100).toFixed(2)}</Text>
+                            </View>
+                            <Button style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' }}} label='+ NEW EXPENSE' onClick={addExpense} />
                         </View>
                     </View>
                     
@@ -131,6 +162,66 @@ export default function Profile(props) {
             </View>
         </View>
     );
+}
+
+function FriendInteractionButtons({isFriend, isPendingFriend, friendRequestCanApprove, onUnfriend, unAcceptRejectFriend, onCancelFriend, onAddFriend}) {
+    // function to return an array of DOM buttons that let you interact with the friendship
+    // ie. add friend, unfriend, accept friend request, reject friend request, cancel friend request
+    // this must be called after all other state variables have been set
+    if (isFriend) {
+        // users are friends, only option is to not be friends
+        return (<Button
+            style={{ ...globals.styles.formButton, ...{ width: '15em', margin: '.25em 0 0 0' }}}
+            svg={UnfriendIcon}
+            iconStyle={styles.icon}
+            label={'UNFRIEND'}
+            onClick={onUnfriend}
+        />);
+    }
+    else if (isPendingFriend) {
+        // pending friend request
+        if (friendRequestCanApprove) {
+            // friend request has been sent to this user, options are to accept to reject request
+            return (
+                <View>
+                    <Button
+                        style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
+                        svg={DenySvg}
+                        iconStyle={styles.icon}
+                        label={'REJECT FRIEND REQUEST'}
+                        onClick={() => unAcceptRejectFriend(false)}
+                    />
+                    <Button
+                        style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
+                        svg={ApproveSvg}
+                        iconStyle={styles.icon}
+                        label={'ACCEPT FRIEND REQUEST'}
+                        onClick={() => unAcceptRejectFriend(true)}
+                    />
+                </View>
+            );
+        }
+        else {
+            // friend request was sent by the current user, option is to cancel it
+            return (<Button
+                style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
+                svg={DenySvg}
+                iconStyle={styles.icon}
+                label={'CANCEL FRIEND REQUEST'}
+                onClick={onCancelFriend}
+            />);
+        }
+    }
+    else {
+        // no pending friend request, only option is to send friend request
+        return (<Button
+            style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
+            svg={AddFriendSvg}
+            iconStyle={styles.icon}
+            label={'ADD FRIEND'}
+            onClick={onAddFriend}
+        />);
+    }
 }
 
 function getGroupList(groupsJSON) {
@@ -246,6 +337,11 @@ const styles = {
     icon: {
         fill: globals.COLOR_WHITE,
         width: '1.25em'
+    },
+    friendInteractionButton: {
+        width: '15em',
+        margin: 0,
+        marginTop: '.25em'
     }
 
 };

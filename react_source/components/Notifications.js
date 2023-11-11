@@ -4,6 +4,8 @@ import { View, Text } from '../utils/globals.js';
 import { useState, useEffect, createContext, useContext } from 'react';
 import Button from './Button.js';
 
+import { acceptRejectFriendRequest } from '../utils/friends.js';
+
 import ApproveSvg   from '../assets/images/bx-check.svg';
 import DenySvg      from '../assets/images/bx-x.svg';
 import DetailsSvg   from '../assets/images/bx-detail.svg';
@@ -25,6 +27,9 @@ export default function Notifications(props) {
     const [completedTransactions, setCompletedTransactions] = useState([]);
     const [groupInvites, setGroupInvites] = useState([]);
 
+    // get global context var to refresh when page reload is requested
+    const {reRenderCount} = useContext(GlobalContext);
+
     navigate = useNavigate();
 
     useEffect(() => {
@@ -39,7 +44,7 @@ export default function Notifications(props) {
         }
         getItems();
 
-    }, []);
+    }, [reRenderCount]);
 
     const removeNotif = (type, id) => {
         switch (type) {
@@ -64,7 +69,8 @@ export default function Notifications(props) {
         }
     }
 
-    
+    // if the page requested that we show notification bar by default, do so only if there are also notifications present
+    props.setAreNotifs(friendRequests.length || transactionApprovals.length || completedTransactions.length || groupInvites.length);
 
 
     return (
@@ -246,26 +252,16 @@ function GroupInvite(props) {
 }
 
 async function approveFriendRequest(id, approved, removeNotif, reRender) {
-    let payload = `{
-        "operation": ` + (approved ? "\"accept\"" : "\"reject\"") + `,
-        "notification_id": ` + id + `
-    }`;
-
-    // do the POST request
-    try {
-        let response = await fetch("/friendships.php", { method: 'POST', body: payload, credentials: 'same-origin' });
-
-        if (response.ok) {
-            removeNotif('friend_request', id);
-            // call function to refresh the Base component with new friend
-            reRender();
-        } else {
-
-        }
+    let response = await acceptRejectFriendRequest(id, approved);
+    if (response === 0) {
+        // success
+        removeNotif('friend_request', id);
+        // call function to refresh the Base component with new friend
+        reRender();
     }
-    catch (error) {
-        console.error("error in POST request to friendships (/friendships.php)");
-        console.error(error);
+    else {
+        // otherwise, error
+        console.log(response);
     }
 }
 
@@ -347,7 +343,35 @@ async function approveGroupInvite(notification_id, accept, removeNotif, reRender
 }
 
 async function dismissCompletedTransaction(id, removeNotif) {
-    removeNotif("complete_transaction", id)
+    let payload = {
+        'notification_id': id,
+        'operation': 'dismiss'
+    };
+
+    // do the POST request
+    try {
+        let response = await fetch("/notifications.php", {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            credentials: 'same-origin',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (await response.ok) {
+            // remove notification and re-render the group page
+            removeNotif("complete_transaction", id)
+        }
+        else {
+            // failed, display error message returned by server
+            console.log("Error while dismissing completed transaction");
+        }
+    }
+    catch (error) {
+        console.log("error in POST request to /notifications.php");
+        console.log(error);
+    }
 }
 
 async function getNotifications(type){

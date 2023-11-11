@@ -118,15 +118,19 @@ async function buildFriends() {
 
     if (friends === null) return friendList;
 
+    // only add friends that are not pending
     for (let i = 0; i < friends.length; i++) {
-        friendList.push(<SummaryFriendItem
-            key={i}
-            border={i > 0}
-            name={friends[i].username}
-            id={friends[i].user_id}
-            icon_path={friends[i].icon_path}
-            owed={friends[i].debt}
-        />);
+        if (friends[i].is_pending == 0)
+        {
+            friendList.push(<SummaryFriendItem
+                key={i}
+                border={i > 0}
+                name={friends[i].username}
+                id={friends[i].user_id}
+                icon_path={friends[i].icon_path}
+                owed={friends[i].debt}
+            />);
+        }
     }
 
     return friendList;
