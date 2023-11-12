@@ -54,12 +54,12 @@ export default function NewGroup(props) {
                     <Text ref={errorMessageRef} id='createGroup_errorMessage' style={globals.styles.error}></Text>
 
                     <View style={globals.styles.labelContainer}>
-                        <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>GROUP NAME</Text>
+                        <label htmlFor="createGroup_name" style={{ ...globals.styles.h5, ...globals.styles.label}}>GROUP NAME</label>
                     </View>
 
-                    <input tabIndex={1} ref={groupRef} placeholder=" Enter name of new group" style={globals.styles.input} id='createGroup_name' name="Group Name" onInput={onNameChange} />
+                    <input autoFocus tabIndex={0} ref={groupRef} placeholder=" Enter name of new group" style={globals.styles.input} id='createGroup_name' name="Group Name" onInput={onNameChange} />
 
-                    <Button disabled={nameDisabled}  style={globals.styles.formButton} label='Create New Group' onClick={onSubmit} />
+                    <Button tabIndex={0} disabled={nameDisabled}  style={globals.styles.formButton} label='Create New Group' onClick={onSubmit} />
 
                 </View>
             </View>
@@ -78,10 +78,16 @@ function checkName(groupRef, errorRef) {
 
     if (groupRef.current.value.length >= 4) {
         errorRef.current.innerText = "";
+
+        groupRef.current.removeAttribute("aria-invalid");
+        groupRef.current.removeAttribute("aria-errormessage");
         return false;
 
     } else {
         errorRef.current.innerText = "Group name must be at least 4 characters";
+
+        groupRef.current.setAttribute("aria-invalid", true);
+        groupRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         return true;
     }
 }
@@ -114,6 +120,8 @@ async function submitForm(groupRef, errorRef) {
             let responseJSON = await response.json();
             errorRef.current.innerText = responseJSON['message'];
             errorRef.current.classList.remove('hidden');
+            groupRef.current.setAttribute("aria-invalid", true);
+            groupRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         }
     }
     catch (error) {

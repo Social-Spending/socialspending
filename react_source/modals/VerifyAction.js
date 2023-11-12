@@ -35,8 +35,8 @@ export default function VerifyAction(props) {
                     <Text style={{ ...globals.styles.text, ...globals.styles.h2, ...{ paddingTop: 0, textAlign: 'center' }}}>{props.label}</Text>
                 
                     <View style={{flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', width: 'auto', maxWidth: '100%'} }>
-                        <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_BLUE }}} svg={Accept} iconStyle={styles.icon} label='CONTINUE' onClick={props.accept} />
-                        <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_ORANGE }}} svg={Reject} iconStyle={styles.icon} label='CANCEL' onClick={(props.reject != undefined ? props.reject : () => setModal(null))} />
+                        <Button autoFocus tabIndex={0} style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_BLUE }}} svg={Accept} iconStyle={styles.icon} label='CONTINUE' onClick={props.accept} />
+                        <Button tabIndex={0} style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_ORANGE }}} svg={Reject} iconStyle={styles.icon} label='CANCEL' onClick={(props.reject != undefined ? props.reject : () => setModal(null))} />
                     </View>
                 
 

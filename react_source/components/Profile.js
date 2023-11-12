@@ -37,7 +37,7 @@ export default function Profile(props) {
     let [friendRequestCanApprove, setFriendRequestCanApprove] = useState(null);
 
     const setModal = useContext(ModalContext);
-    const { reRenderCount } = useContext(GlobalContext);
+    const { reRenderCount, currUserID } = useContext(GlobalContext);
 
 
     function unfriend() {
@@ -60,7 +60,7 @@ export default function Profile(props) {
         async function getItems() {
             let json = null;
 
-            if (props.id != null) {
+            if (props.id != null && props.id != currUserID) {
                 json = await getUserInfo(props.id);
             }
 

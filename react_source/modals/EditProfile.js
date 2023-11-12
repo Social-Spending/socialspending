@@ -64,31 +64,31 @@ export default function EditProfile(props) {
                     <Text ref={errorMessageRef} id='signupForm_errorMessage' style={{ ...globals.styles.error, ...{ paddingTop: 0 }}}></Text>
 
                     <View style={globals.styles.labelContainer}>
-                        <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>EMAIL</Text>
+                        <label htmlFor="signupForm_email" style={{ ...globals.styles.h5, ...globals.styles.label}}>EMAIL</label>
                         <Text ref={emailErrorMessageRef} id='email_errorMessage' style={globals.styles.error}></Text>
                     </View>
-                    <input tabIndex={1} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
+                    <input autoFocus tabIndex={0} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
 
                     <View style={globals.styles.labelContainer}>
-                        <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>USERNAME</Text>
+                        <label htmlFor="signupForm_user" style={{ ...globals.styles.h5, ...globals.styles.label}}>USERNAME</label>
                         <Text ref={userErrorMessageRef} id='username_errorMessage' style={globals.styles.error}></Text>
                     </View>
-                    <input tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
+                    <input tabIndex={0} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
 
                     <View style={{ ...globals.styles.labelContainer, ...{ justifyContent: 'flex-start' }}}>
 
-                        <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</Text>
+                            <label htmlFor="signupForm_password" style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</label>
                         <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1.25em' }} onClick={() => setShowPassword(!showPassword)}></Button>
                     </View>
-                    <input tabIndex={3} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' type={showPassword ? "text" : "password"} autoComplete="current-password" name="Password" onInput={onPasswordChange} />
+                    <input tabIndex={0} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' type={showPassword ? "text" : "password"} autoComplete="current-password" name="Password" onInput={onPasswordChange} />
 
                     <View style={globals.styles.labelContainer}>
-                        <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>VERIFY PASSWORD</Text>
+                                <label htmlFor="signupForm_verifyPassword" style={{ ...globals.styles.h5, ...globals.styles.label}}>VERIFY PASSWORD</label>
                         <Text ref={passwordErrorMessageRef} id='password_errorMessage' style={globals.styles.error}></Text>
                     </View>
-                    <input tabIndex={4} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password" onInput={onPasswordChange} />
+                    <input tabIndex={0} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password" onInput={onPasswordChange} />
 
-                    <Button disabled={emailDisabled || passwordDisabled || usernameDisabled} style={globals.styles.formButton} label='Submit' onClick={onSubmit} />
+                    <Button tabIndex={0} disabled={emailDisabled || passwordDisabled || usernameDisabled} style={globals.styles.formButton} label='Submit' onClick={onSubmit} />
 
                 </View>
             </View>

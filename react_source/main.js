@@ -52,7 +52,6 @@ const domNode = document.getElementById('app');
 const root = createRoot(domNode);
 root.render(<Main />);
 
-
 function Main() {
 
     return (

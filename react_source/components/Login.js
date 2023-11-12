@@ -54,27 +54,28 @@ export default function Login(props) {
             <Text ref={errorMessageRef} id='loginForm_errorMessage' style={globals.styles.error}></Text>
 
             <View style={globals.styles.labelContainer}>
-                <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>EMAIL OR USERNAME</Text>
+                <label htmlFor='loginForm_username' style={{ ...globals.styles.h5, ...globals.styles.label}}>EMAIL OR USERNAME</label>
             </View>
 
-            <input tabIndex={1} ref={userRef} placeholder=" Enter your email or username" style={globals.styles.input} id='loginForm_user' name="Username" />
+            <input autoFocus tabIndex={0} ref={userRef} placeholder=" Enter your email or username" style={globals.styles.input} id='loginForm_username' name="Username" />
 
             <View style={globals.styles.labelContainer}>
                 <View style={{flexDirection: 'row'} }>
-                    <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</Text>
+                    <label htmlFor='loginForm_password' style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</label>
                     <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, width: '1.25em' }} onClick={() => setShowPassword(!showPassword)}></Button>
                 </View>
                 
-                <Link to="/forgot" style={{ ...globals.styles.h5, ...styles.forgot}}>Forgot Password?</Link> 
+                <Link tabIndex={-1} to="/forgot" style={{ ...globals.styles.h5, ...styles.forgot}}>Forgot Password?</Link> 
             </View>
-            <input tabIndex={2} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='loginForm_password' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password" name="Password" />
+            
+            <input tabIndex={0} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='loginForm_password' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password" name="Password" />
 
             <View style={{ ...globals.styles.labelContainer, ...{ justifyContent: 'flex-start', paddingTop: 0, width: '78%' }}}>
-                <input tabIndex={3} ref={rememberRef} type="checkbox" style={styles.checkbox} id="loginForm_remember" />
-                <Text style={{ ...globals.styles.text, ...{ marginTop: '.6em' }}}> Remember Me?</Text>
+                <input tabIndex={0} ref={rememberRef} type="checkbox" style={styles.checkbox} id="loginForm_remember" />
+                <label htmlFor='loginForm_remember' style={{ ...globals.styles.text, ...{ marginTop: '.6em' }}}> Remember Me?</label>
             </View>
 
-            <Button tabIndex={4} style={globals.styles.formButton} label='Login' onClick={onSubmit} />
+            <Button tabIndex={0} style={globals.styles.formButton} label='Login' onClick={onSubmit} />
 
 
             <View style={{ flexDirection: 'row', justifyContent: 'flex-start', paddingTop: '2em' }}>

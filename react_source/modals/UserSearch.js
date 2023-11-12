@@ -46,11 +46,16 @@ export default function UserSearch(props) {
     function setErrorMsg(msg) {
         errorMessageRef.current.innerText = msg;
         errorMessageRef.current.classList.remove('hidden');
+        userRef.current.setAttribute("aria-invalid", true);
+        userRef.current.setAttribute("aria-errormessage", "userSearch_errorMessage");
+
     }
 
     function onSubmit() {
+
         props.onSubmit(userRef.current.value, setErrorMsg, setModal, reRender);
     }
+
 
     // DOM content to return
     return (
@@ -70,12 +75,12 @@ export default function UserSearch(props) {
                     <Text ref={errorMessageRef} id='userSearch_errorMessage' style={globals.styles.error}></Text>
 
                     <View style={globals.styles.labelContainer}>
-                        <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>USERNAME OR EMAIL</Text>
+                        <label htmlFor="userSearch_name" style={{ ...globals.styles.h5, ...globals.styles.label}}>USERNAME OR EMAIL</label>
                     </View>
 
-                    <input tabIndex={1} ref={userRef} placeholder=" Enter username or email" style={globals.styles.input} id='userSearch_name' name="user" onChangeText={() => onInput(userRef)} />
+                    <input autoFocus tabIndex={0} ref={userRef} placeholder=" Enter username or email" style={globals.styles.input} id='userSearch_name' name="user" onInput={() => onInput(userRef)} />
 
-                    <Button disabled={false} style={globals.styles.formButton} label={props.submitLabel} onClick={onSubmit} />
+                    <Button tabIndex={0} disabled={false} style={globals.styles.formButton} label={props.submitLabel} onClick={onSubmit} />
 
                 </View>
             </View>
@@ -84,8 +89,17 @@ export default function UserSearch(props) {
 }
 
 // Search for users given the username or email
-function onNameChange(userRef) {
+function onNameChange(userRef, errorRef) {
     // TODO search for users and populate drown-down
+    /*
+        // set error acessability features
+        userRef.current.setAttribute("aria-invalid", true);
+        userRef.current.setAttribute("aria-errormessage", errorRef.current.id);
+    
+        // remove error
+        userRef.current.removeAttribute("aria-invalid");
+        userRef.current.removeAttribute("aria-errormessage");
+    */
 }
 
 const styles = {

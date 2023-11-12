@@ -8,12 +8,12 @@ import { useState } from 'react';
 
 
 
-export default function Button({ label, style, hoverStyle, iconStyle, textStyle, icon, svg, onClick, disabled }) {
+export default function Button({ label, style, hoverStyle, iconStyle, textStyle, icon, svg, onClick, disabled, tabIndex, autoFocus }) {
     const [hover, setHover] = useState(false);
 
     return (
         
-        <button style={{ ...styles.button, ...style}} onClick={onClick} disabled={disabled} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+        <button autoFocus={autoFocus} id={label + "_button"} tabIndex={tabIndex >= 0 ? tabIndex : -1} style={{ ...styles.button, ...style}} onClick={onClick} disabled={disabled} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             <View style={{ ...styles.button, ...hoverStyle, ...(disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {}))}} >
             
                 <Icon svg={svg} style={iconStyle} icon={icon} />
@@ -50,7 +50,7 @@ function Icon(props) {
 function ButtonText(props) {
     if (props.label) {
         return (
-            <Text style={{ ...globals.styles.h4, ...{fontSize: '1.05em'}, ...(props.disabled ? styles.buttonLabelDisabled : styles.buttonLabel), ...props.style}} >{props.label}</Text>
+            <label htmlFor={props.label + "_button"} style={{ ...globals.styles.h4, ...{fontSize: '1.05em'}, ...(props.disabled ? styles.buttonLabelDisabled : styles.buttonLabel), ...props.style}} >{props.label}</label>
         );
     } else {
         return;
