@@ -296,7 +296,8 @@ function SplitExpense() {
     // Update form data to include participants list move on to name setting
     const onSubmit = () => {
         setPageNum(pageNum + 1);
-
+        
+        formData.group_id = groupID;
         formData.transaction_participants = [];
 
         for (let i = 0; i < splitList.length; i++) {

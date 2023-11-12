@@ -6,6 +6,7 @@ include_once('templates/constants.php');
 include_once("templates/jsonMessage.php");
 
 include_once('notifications.php');
+include_once('templates/groupHelpers.php');
 
 /*
 Transactions PHP Endpoint
@@ -36,7 +37,6 @@ Transactions PHP Endpoint
         The updateExistingTransactions function needs some attention. Not all
         mutable values have setters.
 
-        The Notes section provides some egregious flaws in data security.
 
     Structure:
 
@@ -44,6 +44,118 @@ Transactions PHP Endpoint
 
         Incoming request is triaged and dispatched to functions which exist
         at the bottom of the file.
+*/
+
+/*
+    Request Types
+
+    GET: Get ALL transactions associated with a given user
+
+        Ex: https://socialspendingapp.com/transactions.php?user_id={USER_ID}
+            Returns JSON Object of the following type:
+                [
+                    {
+                        "transaction_id":1,
+                        "transaction_name":"Halal Shack",
+                        "transaction_date":"2023-09-29",
+                        "transaction_description":"Bought you fools some food",
+                        "group_id": 2,
+                        "is_approved": 1,
+                        "transaction_participants":[ 
+                                                    {
+                                                    "user_id":1,
+                                                    "username":"Roasted715Jr",
+                                                    "has_approved":0,
+                                                    "amount":2000
+                                                    },
+                                                    {
+                                                    "user_id": 2,
+                                                    "username":"Soap_Ninja",
+                                                    "has_approved":0,
+                                                    "amount":-2000
+                                                    } 
+                                                    ]
+                    },
+                    {...}
+                ]
+
+    GET: Get single transaction, given by TRANSACTION_ID
+
+        Ex: https://socialspendingapp.com/transactions.php?transaction_id={TRANSACTION_ID}
+
+            Returns JSON Object of the following type:
+                {
+                    "transaction_id":1,
+                    "transaction_name":"Halal Shack",
+                    "transaction_date":"2023-09-29",
+                    "transaction_description":"Bought you fools some food",
+                    "group_id": 2,
+                    "is_approved": 1,
+                    "transaction_participants":[ 
+                                                {
+                                                "user_id":1,
+                                                "username":"Roasted715Jr",
+                                                "has_approved":0,
+                                                "amount":2000
+                                                },
+                                                {
+                                                "user_id": 2,
+                                                "username":"Soap_Ninja",
+                                                "has_approved":0,
+                                                "amount":-2000
+                                                } 
+                                                ]
+                }
+
+    POST: Add a new transaction to the transaction table 
+
+        Ex: https://socialspendingapp.com/transactions.php
+
+            Expects JSON Object of the following type:
+                {
+                    "transaction_name":"Halal Shack",
+                    "transaction_date":"2023-09-29",
+                    "transaction_description":"Bought you fools some food",
+                    "group_id":2
+                    "transaction_participants":[ 
+                                                {
+                                                    "user_id":1,
+                                                    "amount":20
+                                                    },
+                                                    {
+                                                    "user_id": 2,
+                                                    "amount":10
+                                                    } 
+                                                ]
+                }
+
+    PUT: Updates an existing transaction, given by TRANSACTION_ID
+
+        Ex:https://socialspendingapp.com/transactions.php?transaction_id={TRANSACTION_ID}
+
+            Expects JSON Object of the following type:
+                {
+                    "transaction_name":"Halal Shack",
+                    "transaction_date":"2023-09-29",
+                    "transaction_description":"Bought you fools some food",
+                    "group_id":2
+                    "transaction_participants":[ 
+                                                {
+                                                    "user_id":1,
+                                                    "amount":20
+                                                    },
+                                                    {
+                                                    "user_id": 2,
+                                                    "amount":10
+                                                    } 
+                                                ]
+                }
+
+    DELETE: Deletes a transaction, given by TRANSACTION_ID
+
+        Ex: https://socialspendingapp.com/transactions.php?transaction_id={TRANSACTION_ID}
+    
+        Expects no JSON Object, returns no JSON object
 */
 
 ###################
@@ -72,7 +184,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     // No other valid GET requests, fail out
     else {
         returnMessage("Incorrect parameters specified", HTTP_BAD_REQUEST);
-        return;
     }
 } 
 
@@ -125,16 +236,14 @@ elseif ($_SERVER["REQUEST_METHOD"] == "DELETE")
             deleteTransaction($json['transaction_id']);
             return;
 
-        }else{
+        } else{
             returnMessage("No transaction_id passed", HTTP_BAD_REQUEST);
-            return;
         }
         
        
     } else {
         // No user_id passed, bad request. Cannot retrieve all transactions for everyone
         returnMessage("Error while parsing JSON", HTTP_BAD_REQUEST);
-        return;
     }
 }
 
@@ -160,25 +269,23 @@ function getTransactions($user_id)
     {
         // User attempted to access resource they cannot access
         returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
-        return;
     }
 
     //Retrieves all information about transactions that $user_id particpated in
-    $sql = "SELECT  tp1.user_id AS user_id,
-                    transactions.transaction_id AS transaction_id,
+    $sql = "SELECT  transactions.transaction_id AS transaction_id,
                     transactions.name AS transaction_name,
                     transactions.date AS transaction_date,
                     transactions.description AS transaction_description,
-                    CASE WHEN COUNT(tp2.user_id) = SUM(tp2.has_approved)
+                    transactions.group_id AS group_id,
+                    CASE WHEN COUNT(tp.user_id) = SUM(tp.has_approved)
                         THEN 1
                         ELSE 0
                     END AS is_approved
-                    
-            FROM transaction_participants tp1
-            JOIN transactions ON transactions.transaction_id = tp1.transaction_id
-            JOIN transaction_participants tp2 ON tp2.transaction_id = transactions.transaction_id
-            WHERE tp1.user_id = ?
-            GROUP BY transaction_id";
+
+                FROM transactions
+                JOIN transaction_participants tp ON tp.transaction_id = transactions.transaction_id
+                WHERE tp.user_id = ?
+                GROUP BY transaction_id";
 
     $transactions = $mysqli->execute_query($sql, [$user_id]);
 
@@ -217,7 +324,6 @@ function getTransaction($transaction_id) {
     {
         // Unathorized, no user_id associated with cookie
         returnMessage("User not signed in", HTTP_UNAUTHORIZED);
-        return;
     }
 
     //Retrieves all information about transactions that $user_id particpated in
@@ -225,6 +331,7 @@ function getTransaction($transaction_id) {
                     transactions.name AS transaction_name,
                     transactions.date AS transaction_date,
                     transactions.description AS transaction_description,
+                    transactions.group_id as group_id,
                     CASE WHEN COUNT(tp.user_id) = SUM(tp.has_approved)
                         THEN 1
                         ELSE 0
@@ -244,7 +351,6 @@ function getTransaction($transaction_id) {
     if (!checkParticipantsForUser($response, $passed_user_id))
     {
         returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
-        return;
     }
 
 
@@ -314,6 +420,7 @@ function encapsulateTransactionData($row)
     $transaction['transaction_name'] = $row['transaction_name'];
     $transaction['transaction_date'] = $row['transaction_date'];
     $transaction['transaction_description'] = $row['transaction_description'];
+    $transaction['group_id'] = $row['group_id'];
     $transaction['is_approved'] = $row['is_approved'];
 
 
@@ -367,7 +474,6 @@ function addNewTransaction($data)
     // If invalid data, return HTTP_400 (Bad Request)
     if (!validateTransactionData($data)) {  
         returnMessage("Invalid request", HTTP_BAD_REQUEST);
-        return;
     }
 
     // At this point, we can assume that JSON data is valid
@@ -378,14 +484,12 @@ function addNewTransaction($data)
     if ($passed_user_id === 0)
     {
         returnMessage("User not signed in", HTTP_UNAUTHORIZED);
-        return;
     }
 
     // User attempted to access transaction they are not a part of
     if (!checkParticipantsForUser($data, $passed_user_id))
     {
         returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
-        return;
     }
 
     // check that sum of all participant amount is 0
@@ -394,27 +498,38 @@ function addNewTransaction($data)
         returnMessage("Sum of all amounts should be 0", HTTP_BAD_REQUEST);
     }
 
+    if (!is_null($data['group_id']) && !is_numeric($data['group_id'])) 
+    {
+        returnMessage("group_id must be NULL or INT", HTTP_BAD_REQUEST);
+    }
+
+    //Verify that the user belongs to the group they have passed
+    if (!is_null($data['group_id']))
+    {
+        verifyGroupAndUserIDs(validateSessionID(), $data['group_id']);
+    }
     
     //TODO this follows the same pattern as validation, room for improvement
 
-    $sql = "INSERT INTO transactions    
-                        (name, date, amount, description)
-                VALUES  (?, ?, 0, ?)";
+    $sql = "INSERT INTO transactions    (name, date, amount, description, group_id)
+                                VALUES  (?, ?, 0, ?, ?)";
 
-    $response = $mysqli->execute_query($sql, [  $data['transaction_name'],
-                                                $data['transaction_date'],
-                                                $data['transaction_description'] ]);
+    $response = $mysqli->execute_query($sql,    [   $data['transaction_name'],
+                                                    $data['transaction_date'],
+                                                    $data['transaction_description'],
+                                                    $data['group_id']
+                                                ]);
 
     //$response === true if insertion successful
     if ($response !== true) {
         //JSON was valid, clearly something internal (HTTP_500) occured
         returnMessage("Error creating transaction", HTTP_INTERNAL_SERVER_ERROR);
-        return;
     }
 
     //Get AUTO_INCREMENT ID for most recent insertion
     // The transaction_participant that created the transaction should already be approved
     $transaction_id = $mysqli->insert_id;
+
 
     foreach($data['transaction_participants'] as $participant) 
     {
@@ -431,7 +546,6 @@ function addNewTransaction($data)
         if ($response !== true) {
             //JSON was valid, clearly something internal (HTTP_500) occured
             returnMessage("Error creating transaction", HTTP_INTERNAL_SERVER_ERROR);
-            return;
         }
         
         //Send out notifications for approval
@@ -470,14 +584,12 @@ function updateExistingTransaction($data)
     if ($passed_user_id === 0)
     {
         returnMessage("User not signed in", HTTP_UNAUTHORIZED);
-        return;
     }
 
     // User attempted to access transaction they are not a part of
     if (!checkParticipantsForUser($data, $passed_user_id))
     {
         returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
-        return;
     }
 
     
@@ -498,7 +610,6 @@ function updateExistingTransaction($data)
     if ($response !== true) {
         //JSON was valid, clearly something internal (HTTP_500) occured
         returnMessage("Failed to update transaction", HTTP_INTERNAL_SERVER_ERROR);
-        return;
     }
 
     //$transaction_id = $data['transaction_id'];
@@ -564,8 +675,8 @@ function deleteTransaction($transaction_id)
 
     // Need to get participants for specified transaction for data security
     $sql = "SELECT  transaction_participants.user_id AS user_id
-            FROM transaction_participants
-            WHERE transaction_id = ?";
+            FROM    transaction_participants
+            WHERE   transaction_id = ?";
 
     $transaction_participants = $mysqli->execute_query($sql, [intval($transaction_id)]);
 
@@ -573,7 +684,6 @@ function deleteTransaction($transaction_id)
     if (mysqli_num_rows($transaction_participants) == 0)
     {
         returnMessage("Transaction not found", HTTP_NOT_FOUND);
-        return;
     }
 
     //Format in such a way that we can use checkParticipantsForUser helper function
@@ -587,14 +697,12 @@ function deleteTransaction($transaction_id)
     if ($passed_user_id === 0)
     {
         returnMessage("User not signed in", HTTP_UNAUTHORIZED);
-        return;
     }
 
     // User attempted to access transaction they are not a part of
     if (!checkParticipantsForUser($data, $passed_user_id))
     {
         returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
-        return;
     }
 
     //Let foreign key constraints handle the heavy-lifting here.
@@ -606,7 +714,6 @@ function deleteTransaction($transaction_id)
     //$response === true if delete successful
     if ($response !== true) {
         returnMessage("Failed delete", HTTP_INTERNAL_SERVER_ERROR);
-        return;
     }
 }
 
