@@ -21,7 +21,9 @@ create table transactions (
 	date date not null,
 	amount int not null,
 	description text not null,
-	primary key (transaction_id)
+	group_id int,
+	primary key (transaction_id),
+	foreign key (group_id) references groups(group_id) on delete cascade on update cascade
 );
 
 create table cookies (
@@ -65,14 +67,6 @@ create table group_members (
 	primary key (group_id, user_id),
 	foreign key (group_id) references groups(group_id) on delete cascade on update cascade,
 	foreign key (user_id) references users(user_id) on delete cascade on update cascade
-);
-
-create table group_transactions (
-	group_id int not null,
-	transaction_id int not null unique,
-	primary key (group_id, transaction_id),
-	foreign key (group_id) references groups(group_id) on delete cascade on update cascade,
-	foreign key (transaction_id) references transactions(transaction_id) on delete cascade on update cascade
 );
 
 create table notifications (
@@ -131,11 +125,6 @@ insert into group_members (group_id, user_id) values
 (2, 1),
 (2, 2);
 
-insert into group_transactions (group_id, transaction_id) values
-(1, 1),
-(2, 2),
-(1, 3);
-
 insert into debts (creditor, debtor, amount) values
 (1, 2, 500),
 (1, 3, 001),
@@ -153,4 +142,8 @@ INSERT INTO `notifications` (`notification_id`, `user_id`, `type`, `transaction_
 ('8', '4', 'approved_transaction', '3', NULL),
 ('9', '2', 'approved_transaction', '1', NULL),
 ('10', '3', 'approved_transaction', '1', NULL);
+
+UPDATE transactions SET group_id=1 WHERE transaction_id=1;
+UPDATE transactions SET group_id=2 WHERE transaction_id=2;
+UPDATE transactions SET group_id=1 WHERE transaction_id=3;
 

@@ -17,16 +17,13 @@ function verifyGroupAndUserIDs($userID, $groupID)
     {
         // query failed, internal server error
         handleDBError();
-        return false;
     }
     // check that group was found
     if ($result->num_rows == 0)
     {
         returnMessage('Group with group_id '.$groupID.' doesn\'t exist or user is not a member.', 404);
-        return false;
     }
 
-    return true;
 }
 
 ?>
