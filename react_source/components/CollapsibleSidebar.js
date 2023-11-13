@@ -8,6 +8,7 @@ import Button from './Button.js';
 
 import LeftChevron from '../assets/images/bx-chevrons-left.svg';
 import RightChevron from '../assets/images/bx-chevrons-right.svg';
+import SVGIcon from "./SVGIcon.js";
 
 export default function Sidebar(props) {
 
@@ -17,7 +18,9 @@ export default function Sidebar(props) {
         <View style={{ ...styles.sidebar, ...{ width: open ? '15em' : '2em' }}} >
             <View style={{ flexDirection: 'row', width: '100%'}}>
                 <Text style={{ ...globals.styles.h3, ...styles.title, ...open ? {} : { display: 'none' }}}>{props.title}</Text>
-                <Button style={styles.button} svg={LeftChevron} iconStyle={{ ...styles.buttonIcon, ...{ transform: open ? '' : 'rotate(180deg)' }}} onClick={() => setOpen(!open)} />
+                <Button style={styles.button} onClick={() => setOpen(!open)} >
+                    <SVGIcon src={LeftChevron} style={{ ...styles.buttonIcon, ...{ transform: open ? '' : 'rotate(180deg)' } }}/>
+                </Button>
             </View>
             <View style={{ ...{ width: '15em' }, ...{ display: open ? 'block' : 'none' }}}>
 

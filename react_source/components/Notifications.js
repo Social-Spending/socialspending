@@ -17,6 +17,7 @@ import VerifyAction from '../modals/VerifyAction.js';
 import WaitForAuth from './WaitForAuth.js';
 import { GlobalContext } from './GlobalContext.js';
 import { useNavigate } from 'react-router-dom/dist/index.js';
+import SVGIcon from './SVGIcon.js';
 
 const NotificationContext = createContext(null);
 
@@ -90,27 +91,26 @@ export default function Notifications(props) {
     return (
         <NotificationContext.Provider value={{removeNotif:removeNotif}}>
             <View style={{ ...styles.notifShelf, ...props.show ? { width: '20vw', minWidth: '16em', borderStyle: 'none none none solid' } : { width: '0vh' }}}>
-                <WaitForAuth requireLogin={true} >
-                    <View style={{ ...props.show ? { width: '18vw', minWidth: '14.4em', display: "block" } : { width: '0', display: "none" }}}>
-                        <Section name="Group Invites">
-                            {groupInvites}
-                        </Section>
+               
+                <View style={{ ...props.show ? { width: '18vw', minWidth: '14.4em', display: "block" } : { width: '0', display: "none" }}}>
+                    <Section name="Group Invites">
+                        {groupInvites}
+                    </Section>
 
-                        <Section name='Friend Requests'>
-                            {friendRequests}
-                        </Section>
+                    <Section name='Friend Requests'>
+                        {friendRequests}
+                    </Section>
                 
-                        <Section name='Pending Transactions'>
-                            {transactionApprovals}
-                        </Section>
+                    <Section name='Pending Transactions'>
+                        {transactionApprovals}
+                    </Section>
 
-                        <Section name="Completed Transactions">
-                            {completedTransactions}
-                        </Section>
+                    <Section name="Completed Transactions">
+                        {completedTransactions}
+                    </Section>
 
                         
-                    </View>
-                </WaitForAuth>
+                </View>
             
             </View>
         </NotificationContext.Provider>
@@ -125,7 +125,13 @@ function Section(props) {
         <>
             <View style={{ flexDirection: 'row' } }>
                 <Text style={{ ...globals.styles.h2, ...{ paddingLeft: 0, color: globals.COLOR_GRAY }}} onClick={() => setOpen(!open)}>{props.name}</Text>
-                {isNEmpty && (<Button style={{ ...styles.sectionButton, ...{transition: '500ms', transform: (open ? 'rotate(180deg)' : ''), backgroundColor: globals.COLOR_WHITE }}} svg={DownChevron} iconStyle={{ width : '100%', fill: globals.COLOR_GRAY }} hoverStyle={{ borderRadius: '50%' }} onClick={() => setOpen(!open)} />)}
+                {isNEmpty &&
+                    (
+                    <Button aria-label={open ? "Hide" : "Open"} style={{ ...styles.sectionButton, ...{ backgroundColor: globals.COLOR_WHITE }}} hoverStyle={{ borderRadius: '50%' }} onClick={() => setOpen(!open)}>
+                        <SVGIcon src={DownChevron} style={{ width: '100%', fill: globals.COLOR_GRAY, transition: '500ms', transform: (open ? 'rotate(180deg)' : '') }} />
+                    </Button>
+                    )
+                }
             </View>
             <View style={{ ...styles.notifSection, ...open ? { maxHeight: '75vh' } : { maxHeight: 0, overflowY: 'hidden' }}}>
                 {props.children}
@@ -157,9 +163,15 @@ function FriendRequest(props) {
                 
             </View>
             <View style={styles.buttonContainer}>
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY, width: '1.5em' }} onClick={() => navigate("/profile/" + props.user_id)} />
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approve(true)} />
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => navigate("/profile/" + props.user_id)} >
+                    <SVGIcon src={DetailsSvg} style={ {fill: globals.COLOR_GRAY, width: '1.5em' }}/>
+                </Button>
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(true)} >
+                    <SVGIcon src={ApproveSvg} style={{ fill: globals.COLOR_BLUE, width: '2em' }} />
+                </Button>
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(false)} >
+                    <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+                </Button>
             </View>
                       
         </View>
@@ -192,9 +204,17 @@ function ApproveTransaction(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY, width: '1.5em'}} onClick={viewTransaction} />
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '2em' }} onClick={() => approve(true)} />
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={viewTransaction} >
+                    <SVGIcon src={DetailsSvg} style={{ fill: globals.COLOR_GRAY, width: '1.5em' }} />
+                </Button>
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(true)} >
+                    <SVGIcon src={ApproveSvg} style={{ fill: globals.COLOR_BLUE, width: '2em' }} />
+                </Button>
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(false)} >
+                    <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+                </Button>
+
+                
             </View>
                       
         </View>
@@ -222,8 +242,14 @@ function CompletedTransaction(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} svg={DetailsSvg} iconStyle={{ fill: globals.COLOR_GRAY, width: '1.5em' }} onClick={viewTransaction} />
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => dismissCompletedTransaction(props.id, removeNotif)} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={viewTransaction} >
+                    <SVGIcon src={DetailsSvg} style={{ fill: globals.COLOR_GRAY, width: '1.5em' }} />
+                </Button>
+            
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => dismissCompletedTransaction(props.id, removeNotif)} >
+                    <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+                </Button>
+
             </View>
                       
         </View>
@@ -239,6 +265,7 @@ function GroupInvite(props) {
     const {removeNotif} = useContext(NotificationContext);
     const {reRender} = useContext(GlobalContext);
     const setModal = useContext(ModalContext);
+
 
     const approve = (accept) => {
         setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "join " : "ignore invite to ") + props.name + "?"} accept={() => { approveGroupInvite(props.id, accept, removeNotif, reRender); setModal(null); }} reject={() => setModal(null)} exit={() => setModal(null)} />);
@@ -256,8 +283,16 @@ function GroupInvite(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={ApproveSvg} iconStyle={{ fill: globals.COLOR_BLUE, width: '1.5em' }} onClick={() => approve(true)} />
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE }}} svg={DenySvg} iconStyle={{ fill: globals.COLOR_ORANGE, width: '2em' }} onClick={() => approve(false)} />
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => navigate("/groups/" + props.group_id)} >
+                    <SVGIcon src={DetailsSvg} style={{ fill: globals.COLOR_GRAY, width: '1.5em' }} />
+                </Button>
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(true)} >
+                    <SVGIcon src={ApproveSvg} style={{ fill: globals.COLOR_BLUE, width: '2em' }} />
+                </Button>
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(false)} >
+                    <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+                </Button>
+               
             </View>
 
         </View>

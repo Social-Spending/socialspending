@@ -222,8 +222,14 @@ export const styles = {
         justifyContent: 'center',
         marginTop: '1em',
         backgroundColor: COLOR_ORANGE,
-        borderRadius: 4,
         boxShadow: '3px 3px 3px #aaa',
+    },
+    buttonLabel: {
+        padding: '.5em',
+        fontWeight: 'bolder',
+        fontSize: '1.05em',
+        color: COLOR_WHITE,
+        cursor: 'inherit'
     },
     transparentButton: {
         width: '75%',
@@ -236,7 +242,7 @@ export const styles = {
         fontSize: '1.2em',
         height: '100%',
         width: 'auto',
-        paddingLeft: '.5em'
+        marginLeft: '.5em'
     },
     list: {
         flex: 1,

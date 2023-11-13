@@ -21,6 +21,7 @@ import { getUserInfo, removeFriend, addFriend, acceptRejectFriendRequest, cancel
 import { ModalContext } from '../modals/ModalContext.js';
 import { GlobalContext } from "./GlobalContext.js";
 import NewExpense from "../modals/NewExpense.js";
+import SVGIcon from "./SVGIcon.js";
 
 
 export default function Profile(props) {
@@ -144,7 +145,11 @@ export default function Profile(props) {
                                 <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
                                 <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(debt / 100).toFixed(2)}</Text>
                             </View>
-                            <Button style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' }}} label='+ NEW EXPENSE' onClick={addExpense} />
+                            <Button id="profile_newExpense" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={addExpense} >
+                                <label htmlFor="profile_newExpense" style={globals.styles.buttonLabel}>
+                                    + NEW EXPENSE
+                                </label>
+                            </Button>
                         </View>
                     </View>
                     
@@ -170,13 +175,20 @@ function FriendInteractionButtons({isFriend, isPendingFriend, friendRequestCanAp
     // this must be called after all other state variables have been set
     if (isFriend) {
         // users are friends, only option is to not be friends
-        return (<Button
-            style={{ ...globals.styles.formButton, ...{ width: '15em', margin: '.25em 0 0 0' }}}
-            svg={UnfriendIcon}
-            iconStyle={styles.icon}
-            label={'UNFRIEND'}
-            onClick={onUnfriend}
-        />);
+        return (
+            <Button
+                    id="friend_unfriend"
+                    style={{ ...globals.styles.formButton, ...{ width: '15em', margin: '.25em 0 0 0' }}}
+                    onClick={onUnfriend}>
+
+                    <SVGIcon src={UnfriendIcon} style={styles.icon} />
+                    <label htmlFor="friend_unfriend" style={globals.styles.buttonLabel}>
+                        UNFRIEND
+                    </label>
+
+            </Button>
+
+          );
     }
     else if (isPendingFriend) {
         // pending friend request
@@ -185,42 +197,60 @@ function FriendInteractionButtons({isFriend, isPendingFriend, friendRequestCanAp
             return (
                 <View>
                     <Button
+                        id="friend_rejectRequest"
                         style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
-                        svg={DenySvg}
-                        iconStyle={styles.icon}
-                        label={'REJECT FRIEND REQUEST'}
-                        onClick={() => unAcceptRejectFriend(false)}
-                    />
+                        onClick={() => unAcceptRejectFriend(false)}>
+
+                        <SVGIcon src={DenySvg} style={styles.icon} />
+                        <label htmlFor="friend_rejectRequest" style={globals.styles.buttonLabel}>
+                           REJECT FRIEND REQUEST
+                        </label>
+
+                    </Button>
                     <Button
+                        id="friend_acceptRequest"
                         style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
-                        svg={ApproveSvg}
-                        iconStyle={styles.icon}
-                        label={'ACCEPT FRIEND REQUEST'}
-                        onClick={() => unAcceptRejectFriend(true)}
-                    />
+                        onClick={() => unAcceptRejectFriend(true)}>
+
+                        <SVGIcon src={ApproveSvg} style={styles.icon} />
+                        <label htmlFor="friend_acceptRequest" style={globals.styles.buttonLabel}>
+                            ACCEPT FRIEND REQUEST
+                        </label>
+                    </Button>
                 </View>
             );
         }
         else {
             // friend request was sent by the current user, option is to cancel it
-            return (<Button
-                style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
-                svg={DenySvg}
-                iconStyle={styles.icon}
-                label={'CANCEL FRIEND REQUEST'}
-                onClick={onCancelFriend}
-            />);
+            return (
+                <Button
+                    id="friend_cancelRequest"
+                    style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
+                    onClick={onCancelFriend}>
+
+                    <SVGIcon src={DenySvg} style={styles.icon} />
+                    <label htmlFor="friend_cancelRequest" style={globals.styles.buttonLabel}>
+                        CANCEL FRIEND REQUEST
+                    </label>
+
+                </Button>
+            );
+               
         }
     }
     else {
         // no pending friend request, only option is to send friend request
-        return (<Button
-            style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
-            svg={AddFriendSvg}
-            iconStyle={styles.icon}
-            label={'ADD FRIEND'}
-            onClick={onAddFriend}
-        />);
+         return (
+            <Button
+                id="friend_add"
+                style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
+                onClick={onAddFriend}>
+                <SVGIcon src={AddFriendSvg} style={styles.icon} />
+                <label htmlFor="friend_add" style={globals.styles.buttonLabel}>
+                    ADD FRIEND
+                </label>
+            </Button>
+         );
     }
 }
 

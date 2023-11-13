@@ -23,6 +23,7 @@ import UserSearch from "../modals/UserSearch.js";
 import { useNavigate } from "react-router-dom/dist/index.js";
 import ChangeableIcon from "./ChangeableIcon.js"
 import NewExpense from "../modals/NewExpense.js";
+import SVGIcon from "./SVGIcon.js";
 
 
 export default function GroupInfo(props) {
@@ -90,13 +91,23 @@ export default function GroupInfo(props) {
                         <Text style={{ ...globals.styles.h1, ...styles.groupName}}>{groupName}</Text>
                     </View>
                     
-                    <Button style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' }}} svg={Leave} iconStyle={styles.icon} label='LEAVE GROUP' onClick={leave} />
+                    <Button id="groupPage_leaveGroup" style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' } }} onClick={leave}>
+                        <SVGIcon src={Leave} style={styles.icon} />
+                        <label htmlFor="groupPage_leaveGroup" style={globals.styles.buttonLabel }>
+                            LEAVE GROUP
+                        </label>
+                    </Button>
                     
                 </View>
                 <View style={styles.listContainer}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Members</Text>
-                        <Button style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' }}} svg={InviteIcon} iconStyle={styles.icon} label='ADD MEMBER' onClick={inviteMember} />
+                        <Button id="groupPage_addMember" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={inviteMember}>
+                            <SVGIcon src={InviteIcon} style={styles.icon} />
+                            <label htmlFor="groupPage_addMember" style={globals.styles.buttonLabel}>
+                                ADD MEMBER
+                            </label>
+                        </Button>
                     </View>
                     <View style={styles.listHeader} >
 
@@ -113,7 +124,12 @@ export default function GroupInfo(props) {
                 <View style={styles.listContainer}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <Text style={{ ...globals.styles.h3, ...styles.listTitle }}>Transactions</Text>
-                        <Button style={{...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' }}} label='+ NEW EXPENSE' onClick={addExpense} />
+                        <Button id="groupPage_newExpense" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={addExpense}>
+                            <label htmlFor="groupPage_newExpense" style={globals.styles.buttonLabel}>
+                                + NEW EXPENSE
+                            </label>
+                        </Button>
+                        
                     </View>
                     <View style={styles.listHeader} >
 
@@ -237,7 +253,13 @@ function MemberListItem({ id, name, owed, border, group_id, icon_path }) {
                         source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultUserIcon(name)}
                     />
                     <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}}}>{name}</Text>
-                    {currUserID != id ? <Button style={{ ...globals.styles.transparentButton, ...{ width: '1.75em', margin: 0, marginTop: '.25em' }}} svg={KickIcon} iconStyle={styles.kickButton} aria-label="Kick User" onClick={kickMember} /> : <></>}
+                    {currUserID != id ?
+                        
+                        <Button style={{ ...globals.styles.transparentButton, ...{ width: '1.75em', margin: 0, marginTop: '.25em' }}} aria-label="Kick User" onClick={kickMember}>
+                            <SVGIcon src={KickIcon} style={styles.kickButton} />
+                        </Button>
+                        : <></>
+                    }
                 </View>
                 <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
@@ -280,7 +302,9 @@ function PendingMemberListItem({ id, name, border, group_id, icon_path }) {
                         source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultUserIcon(name)}
                     />
                     <Text style={{ ...globals.styles.listText, ...{fontStyle: 'italic', paddingLeft: '.25em'}}}>{name}</Text>
-                    <Button style={{ ...globals.styles.transparentButton, ...{ width: '1.75em', margin: 0, marginTop: '.25em' }}} svg={KickIcon} iconStyle={styles.kickButton} aria-label="Revoke Invite" onClick={revokeInvite} />
+                    <Button style={{ ...globals.styles.transparentButton, ...{ width: '1.75em', margin: 0, marginTop: '.25em' }}} aria-label="Revoke Invite" onClick={revokeInvite}>
+                        <SVGIcon src={KickIcon} style={styles.kickButton} />
+                    </Button>
                 </View>
 
             </View>

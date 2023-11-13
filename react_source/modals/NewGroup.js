@@ -59,7 +59,11 @@ export default function NewGroup(props) {
 
                     <input autoFocus tabIndex={0} ref={groupRef} placeholder=" Enter name of new group" style={globals.styles.input} id='createGroup_name' name="Group Name" onInput={onNameChange} />
 
-                    <Button tabIndex={0} disabled={nameDisabled}  style={globals.styles.formButton} label='Create New Group' onClick={onSubmit} />
+                    <Button id="createGroup_submit" tabIndex={0} disabled={nameDisabled} style={globals.styles.formButton} onClick={onSubmit}>
+                        <label htmlFor="createGroup_submit" style={globals.styles.buttonLabel }>
+                            Create New Group
+                        </label>
+                    </Button>
 
                 </View>
             </View>

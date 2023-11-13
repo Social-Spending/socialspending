@@ -13,6 +13,7 @@ import Bell from '../assets/images/bxs-bell.svg';
 import {GlobalContext} from './GlobalContext.js';
 import { ModalContext } from '../modals/ModalContext.js';
 import NewExpense from '../modals/NewExpense.js';
+import SVGIcon from './SVGIcon.js';
 
 export default function Header({showNotif, isNotifShown, areNotifs }) {
     return (
@@ -57,9 +58,15 @@ function Account({ showNotif, isNotifShown, areNotifs }) {
     if (isLoggedIn) {
         return (
             <View style={styles.container}>
-                <Button style={styles.newExpense} hoverStyle={styles.newExpense} textStyle={{ ...globals.styles.h5, ...{ fontSize: '1em' }}} label="+ NEW EXPENSE" onClick={() => setModal(<NewExpense />)} />
-                <Button style={styles.notif} hoverStyle={styles.notif} svg={areNotifs ? RingingBell : Bell} iconStyle={styles.bell} onClick={showNotif} />
-                <HeaderLink href="/profile/" style={{marginLeft: '1em'}} >
+                <Button id="header_newExpense" style={styles.newExpense} hoverStyle={styles.newExpense} onClick={() => setModal(<NewExpense />)} >
+                    <label htmlFor="header_newExpense" style={globals.styles.buttonLabel }>
+                        + NEW EXPENSE
+                    </label>
+                </Button>
+                <Button aria-label="Show/Hide Notifications" style={styles.notif} hoverStyle={styles.notif} onClick={showNotif} >
+                    <SVGIcon src={areNotifs ? RingingBell : Bell} style={styles.bell }/>
+                </Button>
+                <HeaderLink aria-label="Profile" href="/profile/" style={{marginLeft: '1em'}} >
                     <View style={styles.headerIconAndUsernameContainer} >
                         <Image
                             style={styles.headerUserIcon}
@@ -68,8 +75,12 @@ function Account({ showNotif, isNotifShown, areNotifs }) {
                         <Text style={{ ...styles.text, ...{marginLeft: '.5em'}}} >{currUsername}</Text>
                     </View>
                 </HeaderLink>
-                <Text style={{ ...styles.text, ...{ paddingHorizontal: '0', color: globals.COLOR_BEIGE }}}>|</Text>
-                <HeaderText style={{ ...globals.styles.h3, ...styles.text, ...{cursor: 'pointer'}}} onClick={doSignout}>Signout</HeaderText>
+                <Text style={{ ...styles.text, ...{ padding: '0', color: globals.COLOR_BEIGE } }}>|</Text>
+                <Button id="header_signout" style={{ width: 'auto', padding: 0 }} hoverStyle={{...{ width: 'auto', padding:0}}} onClick={doSignout} >
+                    <label htmlFor="header_signout" style={{ ...globals.styles.buttonLabel, ...{ fontWeight: '600', fontSize: '1.05em' } }}>
+                        Signout
+                    </label>
+                </Button>
             </View>
         );
     } else {
@@ -87,7 +98,7 @@ function HeaderText(props) {
     const [hover, setHover] = useState(false);
 
     return (
-        <Text style={{ ...props.style, ...hover ? globals.styles.hover : {}}} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onClick={props.onClick}>{props.children}</Text>
+        <Text {...props} style={{ ...props.style, ...hover ? globals.styles.hover : {}}} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onClick={props.onClick}>{props.children}</Text>
     );
 }
 
@@ -95,7 +106,7 @@ function HeaderLink(props) {
     const [hover, setHover] = useState(false);
 
     return (
-        <Link style={{ ...props.style, ...hover ? globals.styles.hover : {}}} to={props.href} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+        <Link {...props} style={{ ...props.style, ...hover ? globals.styles.hover : {}}} to={props.href} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             {props.children}
         </Link>
     );

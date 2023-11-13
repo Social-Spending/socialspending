@@ -22,6 +22,7 @@ import Button from './Button.js'
 import { GlobalContext } from '../components/GlobalContext.js';
 
 import Logo from '../assets/images/logo/logo-name-64.png';
+import SVGIcon from './SVGIcon.js';
 
 export default function Login(props) {
     // when a login is completed, increment loginAttempts to trigger a re-render of GlobalContext
@@ -62,7 +63,9 @@ export default function Login(props) {
             <View style={globals.styles.labelContainer}>
                 <View style={{flexDirection: 'row'} }>
                     <label htmlFor='loginForm_password' style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</label>
-                    <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, width: '1.25em' }} onClick={() => setShowPassword(!showPassword)}></Button>
+                    <Button aria-label={(showPassword ? "Hide" : "Show") + " Password"} id="loginForm_showPassword" style={globals.styles.showPassword} onClick={() => setShowPassword(!showPassword)}>
+                        <SVGIcon src={showPassword ? HideSvg : ShowSvg} style={{ fill: globals.COLOR_GRAY, height: '1.25em' }} />
+                    </Button>
                 </View>
                 
                 <Link tabIndex={-1} to="/forgot" style={{ ...globals.styles.h5, ...styles.forgot}}>Forgot Password?</Link> 
@@ -75,7 +78,11 @@ export default function Login(props) {
                 <label htmlFor='loginForm_remember' style={{ ...globals.styles.text, ...{ marginTop: '.6em' }}}> Remember Me?</label>
             </View>
 
-            <Button tabIndex={0} style={globals.styles.formButton} label='Login' onClick={onSubmit} />
+            <Button id="loginForm_submit" tabIndex={0} style={globals.styles.formButton} onClick={onSubmit} >
+                <label htmlFor="loginForm_submit" style={globals.styles.buttonLabel}>
+                    Login
+                </label>
+            </Button>
 
 
             <View style={{ flexDirection: 'row', justifyContent: 'flex-start', paddingTop: '2em' }}>

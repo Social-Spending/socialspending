@@ -28,7 +28,11 @@ export default function GroupsList(props) {
 
             <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
                 <Text style={{ ...globals.styles.h2, ...globals.styles.summaryLabel}}>GROUPS</Text>
-                <Button style={{ ...globals.styles.formButton, ...globals.styles.newGroupOrFriendButton}} label='+ CREATE GROUP' onClick={addGroupModal} />
+                <Button id="groupsList_createGroup" style={{ ...globals.styles.formButton, ...globals.styles.newGroupOrFriendButton }} onClick={addGroupModal}>
+                    <label htmlFor="groupsList_createGroup" style={globals.styles.buttonLabel }>
+                        + CREATE GROUP
+                    </label>
+                </Button>
             </View>
 
             <View style={{ alignSelf: 'center', height: '1px', width: '92%', backgroundColor: globals.COLOR_GRAY, marginTop: '.5em' }} />

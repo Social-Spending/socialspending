@@ -80,7 +80,11 @@ export default function UserSearch(props) {
 
                     <input autoFocus tabIndex={0} ref={userRef} placeholder=" Enter username or email" style={globals.styles.input} id='userSearch_name' name="user" onInput={() => onInput(userRef)} />
 
-                    <Button tabIndex={0} disabled={false} style={globals.styles.formButton} label={props.submitLabel} onClick={onSubmit} />
+                    <Button id="userSearch_button" tabIndex={0} style={globals.styles.formButton} onClick={onSubmit}>
+                        <label htmlFor="userSearch_button" style={globals.styles.buttonLabel}>
+                            {props.submitLabel}
+                        </label>
+                    </Button>
 
                 </View>
             </View>

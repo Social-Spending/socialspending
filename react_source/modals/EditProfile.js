@@ -77,8 +77,10 @@ export default function EditProfile(props) {
 
                     <View style={{ ...globals.styles.labelContainer, ...{ justifyContent: 'flex-start' }}}>
 
-                            <label htmlFor="signupForm_password" style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</label>
-                        <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1.25em' }} onClick={() => setShowPassword(!showPassword)}></Button>
+                        <label htmlFor="signupForm_password" style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</label>
+                        <Button aria-label={(showPassword ? "Hide" : "Show") + " Password"} style={globals.styles.showPassword} onClick={() => setShowPassword(!showPassword)}>
+                            <SVGIcon src={showPassword ? HideSvg : ShowSvg} style={{ fill: globals.COLOR_GRAY, height: '1.25em' }} />
+                        </Button>
                     </View>
                     <input tabIndex={0} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' type={showPassword ? "text" : "password"} autoComplete="current-password" name="Password" onInput={onPasswordChange} />
 
@@ -88,7 +90,11 @@ export default function EditProfile(props) {
                     </View>
                     <input tabIndex={0} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password" onInput={onPasswordChange} />
 
-                    <Button tabIndex={0} disabled={emailDisabled || passwordDisabled || usernameDisabled} style={globals.styles.formButton} label='Submit' onClick={onSubmit} />
+                    <Button id="signupForm_submit" tabIndex={0} disabled={emailDisabled || passwordDisabled || usernameDisabled} style={globals.styles.formButton} onClick={onSubmit} >
+                        <label htmlFor="signupForm_submit" style={globals.styles.buttonLabel}>
+                            Submit
+                        </label>
+                    </Button>
 
                 </View>
             </View>

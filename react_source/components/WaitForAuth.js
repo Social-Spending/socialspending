@@ -1,5 +1,5 @@
 
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { GlobalContext } from './GlobalContext.js';
 import Loading from './Loading.js';
 import { useNavigate } from 'react-router-dom/dist/index.js';
@@ -13,29 +13,36 @@ import { useNavigate } from 'react-router-dom/dist/index.js';
 
 export default function WaitForAuth(props) {
     // get data from global context
+
     const { isLoading, isLoggedIn } = useContext(GlobalContext);
     let navigate = useNavigate();
 
     // waiting to get user info
-    if (isLoading) return (
-        <Loading/>
-    );
+    
 
     // we have user info, should we redirect?
-    if (isLoggedIn) {
-        if ('redirectOnLoggedIn' in props) {
-            navigate(props.redirectOnLoggedIn, { replace: true });
-            return;
+    useEffect(() => {
+        if (!isLoading) {
+            if (isLoggedIn) {
+                if ('redirectOnLoggedIn' in props) {
+                    navigate(props.redirectOnLoggedIn, { replace: true });
+                    return;
+                }
+            }
+            else {
+                if ('redirectOnNotLoggedIn' in props) {
+                    navigate(props.redirectOnNotLoggedIn, { replace: true });
+                    ;
+                    return;
+                }
+            }
         }
-    }
-    else {
-        if ('redirectOnNotLoggedIn' in props) {
-            navigate(props.redirectOnNotLoggedIn, { replace: true });
-;
-            return;
-        }
-    }
+        
+    }, [isLoading]);
 
+    if (isLoading) return (
+        <Loading />
+    );
     // check if logon required
     if ('requireLogin' in props && props.requireLogin) {
         if (isLoggedIn) {
