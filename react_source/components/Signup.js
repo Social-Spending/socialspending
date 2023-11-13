@@ -161,7 +161,15 @@ export function checkUsername(userRef, errorRef) {
  */
 export function checkPassword(passwordRef, verifyRef, errorRef) {
 
-    if (passwordRef.current.value != verifyRef.current.value) {
+    if (passwordRef.current.value.length < 8) {
+        errorRef.current.innerText = "Password must be at least 8 characters";
+        passwordRef.current.removeAttribute("aria-invalid");
+        passwordRef.current.removeAttribute("aria-errormessage");
+        verifyRef.current.removeAttribute("aria-invalid");
+        verifyRef.current.removeAttribute("aria-errormessage");
+        return true;
+
+    }else if (passwordRef.current.value != verifyRef.current.value) {
         errorRef.current.innerText = "Passwords do not match";
         passwordRef.current.removeAttribute("aria-invalid");
         passwordRef.current.removeAttribute("aria-errormessage");

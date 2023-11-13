@@ -3,7 +3,7 @@ import * as globals from "../utils/globals.js";
 import { Text, View, Image } from '../utils/globals.js';
 import { useState, useEffect, useContext } from 'react';
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import Button from "./Button.js";
 
@@ -39,6 +39,7 @@ export default function Profile(props) {
 
     const setModal = useContext(ModalContext);
     const { reRenderCount, currUserID } = useContext(GlobalContext);
+    const navigate = useNavigate();
 
 
     function unfriend() {
@@ -63,6 +64,7 @@ export default function Profile(props) {
 
             if (props.id != null && props.id != currUserID) {
                 json = await getUserInfo(props.id);
+                if (!json) navigate("/profile/error", { replace: true })
             }
 
             if (json != null) {

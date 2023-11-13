@@ -45,7 +45,7 @@ export async function getGroupInfo(id, navigate) {
         }
         else {
             console.log(response.json()['message']);
-            navigate("/groups", {replace: true});
+            navigate("/groups/error", {replace: true});
             return null;
         }
     }

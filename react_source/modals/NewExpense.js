@@ -537,19 +537,23 @@ function getFriendsList(json, currUserID, setPaidList, setRefList) {
 
 
 /**
-* Checks value of group name field and prevents user from submitting if too short
+* Checks value of expense name field and prevents user from submitting if too short
 * @param { React.MutableRefObject } groupRef reference to group name field
 * @param { React.MutableRefObject } errorRef reference to error text field to print error text to
 * @returns { boolean }                       validity of group name
 */
-function checkName(groupRef, errorRef) {
+function checkName(nameRef, errorRef) {
 
-    if (groupRef.current.value.length >= 4) {
+    if (nameRef.current.value.length >= 4) {
         errorRef.current.innerText = "";
+        nameRef.current.removeAttribute("aria-invalid");
+        nameRef.current.removeAttribute("aria-errormessage");
         return false;
 
     } else {
-        errorRef.current.innerText = "Group name must be at least 4 characters";
+        errorRef.current.innerText = "Expense name must be at least 4 characters";
+        nameRef.current.setAttribute("aria-invalid", true);
+        nameRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         return true;
     }
 }
