@@ -30,6 +30,8 @@ export default function EditProfile(props) {
     // Refs must be used in the same component they were declared in call any of these functions from a component executes them in said
     // components where the refs are null. This fixes that by rerouting the function to run in this component
 
+    //Only perform the verification tests if the field isn't empy
+    //If the field is empty, clear the error message and disable the field
     const onEmailChange     = () => { setEmailDisabled      (emailRef.current.value == "" ? () => {emailErrorMessageRef.current.innerText = ""; return true;} : checkEmail(emailRef, emailErrorMessageRef)); }
     const onPasswordChange  = () => { setPasswordDisabled   (passwordRef.current.value == "" ? () => {passwordErrorMessageRef.current.innerText = ""; return true;} : checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
     const onUsernameChange  = () => { setUsernameDisabled   (userRef.current.value == "" ? () => {userErrorMessageRef.current.innerText = ""; return true;} : checkUsername(userRef, userErrorMessageRef)); }
