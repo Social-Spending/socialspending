@@ -4,6 +4,7 @@ include_once('templates/connection.php');
 include_once('templates/cookies.php');
 include_once('templates/constants.php');
 include_once("templates/jsonMessage.php");
+include_once('templates/saveImage.php');
 
 include_once('notifications.php');
 
@@ -437,6 +438,15 @@ function addNewTransaction($data)
         //Send out notifications for approval
         addApprovalRequestNotification($transaction_id, $participant['user_id']);
     }
+
+    echo "Before image upload\n";
+    echo print_r($_POST);
+    // echo print_r($_FILES);
+    if (isset($_POST["receipt"])) {
+        echo "In if statement\n";
+        uploadReceipt($transaction_id);
+    }
+    echo "After image upload";
     
     return;
 }
@@ -610,5 +620,55 @@ function deleteTransaction($transaction_id)
     }
 }
 
+function uploadReceipt($transaction_id) {
+    global $mysqli, $_VALIDATE_IMAGE_FAILURE_MESSAGE;
+
+    echo "In image upload\n";
+
+    // // get data from POST
+    // // if (!isset($_POST['transaction_id']) || !isset($_FILES['receipt']))
+    // // {
+    // //     returnMessage('Missing form fields', 400);
+    // // }
+    // // $transactionID = $_POST['transaction_id'];
+
+    // // parse to image and save as gif to filesystem
+    // $serverFileName = validateAndSaveImage($_FILES['receipt'], int->max, 0, 0, TRANSACTION_RECEIPT_DIR);
+    // if (!$serverFileName)
+    // {
+    //     returnMessage($_VALIDATE_IMAGE_FAILURE_MESSAGE, 400);
+    // }
+
+    // // TODO get and remove old icon file if size becomes an issue
+
+    // // query to store image path with the transaction
+    // $sql =  'UPDATE transactions t '.
+    //         'INNER JOIN transaction_members tm ON tm.transaction_id = t.transaction_id '.
+    //         'SET g.receipt_path = ? '.
+    //         'WHERE t.transaction_id = ? AND tm.user_id = ?;';
+
+    // $result = $mysqli->execute_query($sql, ["/".$serverFileName, $transactionID, $userID]);
+    // // check for errors
+    // if (!$result)
+    // {
+    //     // query failed, internal server error
+    //     handleDBError();
+    // }
+    // // check that row was affected
+    // if ($mysqli->affected_rows == 0)
+    // {
+    //     // delete file
+    //     unlink($serverFileName);
+    //     returnMessage('Transaction not found or user is not a part of it', 404);
+    // }
+
+    // // success
+    // $returnArray = array();
+    // $returnArray['message'] = 'Success';
+    // $returnArray['icon_path'] = '/'.$serverFileName;
+    // header('Content-Type: application/json', true, 200);
+    // print(json_encode($returnArray));
+    // exit(0);
+}
 
 ?>

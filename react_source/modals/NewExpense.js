@@ -122,6 +122,7 @@ function ChooseName() {
     const nameRef = useRef(null);
     const dateRef = useRef(null);
     const descriptionRef = useRef(null);
+    const receiptRef = useRef(null);
 
     //Sets appropriate values of form data before updating the global version 
     //and then pushing the value to the web request
@@ -134,6 +135,9 @@ function ChooseName() {
             dateRef.current.valueAsDate = new Date();
         }
         formData.transaction_date = dateRef.current.value;
+
+        if (receiptRef.current.value != null)
+            formData.receipt = receiptRef.current.value;
 
         setFormData(formData);
 
@@ -167,6 +171,13 @@ function ChooseName() {
             </View>
 
             <textarea tabIndex={3} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
+
+            <View style={globals.styles.labelContainer}>
+                <Text style={[globals.styles.h5, globals.styles.label]}>UPLOAD RECEIPT</Text>
+            </View>
+
+            {/* <input ref={receiptRef} type="file" accept="image/*" onInput={updateImageSource} /> */}
+            <input ref={receiptRef} type="file" accept="image/*" />
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
                 <Button disabled={nameDisabled} style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Submit' onClick={onSubmit} />
