@@ -49,7 +49,11 @@ export default function SidebarFriendList(props) {
         return (
             <>
                 {friendItems}
-                <Button style={{ height: '2em' }} textStyle={{ ...globals.styles.h5, ...{ color: globals.COLOR_GRAY }}} label="+ Add Friend" onClick={addFriendModal} />
+                <Button id="sidebar_addFriend" style={{ height: '2em' }} onClick={addFriendModal} >
+                    <label htmlFor="sidebar_addFriend" style={{ ...globals.styles.h5, ...{ cursor: 'pointer', color: globals.COLOR_GRAY } }}>
+                        + Add Friend
+                    </label>
+                </Button>
             </>
 
         );
@@ -63,15 +67,16 @@ function SidebarFriendListItems(props) {
     let pendingItalic = props.isPending == 1 ? { fontStyle: 'italic' } : {};
 
     return (
-        <View style={{ ...props.border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{cursor: 'pointer'}}} onClick={() => props.setFriendID(props.id)} >
-            <View style={globals.styles.listIconAndTextContainer}>
+        <Button id={"sidebar_friend_" + props.name} style={{ ...props.border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{ padding: 0 } }} onClick={() => props.setFriendID(props.id) }>
+            <View style={{...globals.styles.listIconAndTextContainer, ...{padding: '.25em 1em'}} }>
                 <Image
                     style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em'}}}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultUserIcon(props.name)}
                 />
-                <Text style={{...globals.styles.listText, ...pendingItalic}}>{props.name}</Text>
+                <label htmlFor={ "sidebar_friend_" + props.name } style={{...globals.styles.listText, ...pendingItalic}}>{props.name}</label>
             </View>
-        </View>
+        </Button>
+        
     );
 }
 

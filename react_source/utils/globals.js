@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
-export const COLOR_BLUE = "#00B2C2";
+export const COLOR_BLUE             = "#00B2C2";
 export const COLOR_LIGHT_BLUE       = "#B5E2FA";
 export const COLOR_ORANGE           = "#FF9F6B";
 export const COLOR_LIGHT_ORANGE     = "#EDDEA4";
@@ -15,41 +15,68 @@ export const COLOR_RED              = "#F00";
 
 export const COLOR_DISABLED         = '#66666633';
 export const COLOR_HOVER            = '#cccccc55';
-export const COLOR_MODAL = '#33333399';
+export const COLOR_MODAL            = '#33333399';
+
 
 export const View = React.forwardRef((props, ref) => (
     
-    <div ref={ref} {...props} >
+    <div tabIndex={props.tabIndex ? props.tabIndex : -1} ref={ref} {...props} >
         {props.children}
     </div>
 ));
 
 
 export const Text = React.forwardRef((props, ref) => (
-    <div ref={ref} {...props} style={{ ...{fontSize: '.85em'}, ...props.style} }>
+    <div tabIndex={props.tabIndex ? props.tabIndex : -1} ref={ref} {...props} style={{ ...{fontSize: '.85em'}, ...props.style} }>
         {props.children}
     </div>
 ));
 
 export const Image = React.forwardRef(function ImageType(props, ref) {
     const [imgStyle, setImgStyle] = useState({ height: 'auto', maxHeight: '100%' });
+
+
     function onImgLoad({ target: img }) {
         setImgStyle(img.naturalWidth > img.naturalHeight ? { height: 'auto', maxHeight: '100%' } : { width: 'auto', maxWidth: '100%' });
     }
 
     return (
-        <div {...props} style={{ ...props.style, ...{ overflow: 'hidden', justifyContent: 'center', alignItems: 'center' } }} >
+        <div tabIndex={props.tabIndex ? props.tabIndex : -1} {...props} style={{ ...props.style, ...{ overflow: 'hidden', justifyContent: 'center', alignItems: 'center' } }} >
             <img ref={ref} src={props.source} onLoad={onImgLoad} style={imgStyle} />
         </div>
 
     );
 });
 
-export const Modal = React.forwardRef((props, ref) => (
-    <div ref={ref} {...props}>
-        {props.children}
-    </div>
-));
+var msg = document.getElementById('state-msg');
+
+
+
+export const Modal = React.forwardRef(function ModalType(props, ref) {
+
+    useEffect(() => {
+
+        const handleKeyDown = (e) => {
+
+            if (e.key == "Escape") {
+                props.onRequestClose();
+            }
+        };
+        document.body.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.body.removeEventListener('keydown', handleKeyDown);
+        }
+
+    }, []);
+    
+
+    return (
+        <div autoFocus tabIndex={props.tabIndex ? props.tabIndex : -1} ref={ref}>
+            {props.children}
+        </div>
+    )
+});
 
 
 export function getDefaultGroupIcon(groupName) {
@@ -195,8 +222,14 @@ export const styles = {
         justifyContent: 'center',
         marginTop: '1em',
         backgroundColor: COLOR_ORANGE,
-        borderRadius: 4,
         boxShadow: '3px 3px 3px #aaa',
+    },
+    buttonLabel: {
+        padding: '.5em',
+        fontWeight: 'bolder',
+        fontSize: '1.05em',
+        color: COLOR_WHITE,
+        cursor: 'inherit'
     },
     transparentButton: {
         width: '75%',
@@ -209,7 +242,7 @@ export const styles = {
         fontSize: '1.2em',
         height: '100%',
         width: 'auto',
-        paddingLeft: '.5em'
+        marginLeft: '.5em'
     },
     list: {
         flex: 1,

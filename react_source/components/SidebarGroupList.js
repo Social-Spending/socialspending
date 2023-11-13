@@ -53,7 +53,11 @@ export default function SidebarGroupList(props) {
         return (
             <>
                 {groupItems}
-                <Button style={{ height: '2em' }} textStyle={{ ...globals.styles.h5, ...{ color: globals.COLOR_GRAY }}} label="+ Create New Group" onClick={addGroupModal} />                
+                <Button id="sidebar_createGroup" style={{ height: '2em' }} onClick={addGroupModal} >
+                    <label htmlFor="sidebar_createGroup" style={{ ...globals.styles.h5, ...{ cursor: 'pointer', color: globals.COLOR_GRAY } }}>
+                        + Create New Group
+                    </label>
+                </Button>            
             </>
 
         );
@@ -65,16 +69,16 @@ function GroupListItem(props) {
 
     return (
 
-        <View style={{ ...props.border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{cursor: 'pointer'}}} onClick={() => props.setGroupID(props.id)} >
-            <View style={globals.styles.listIconAndTextContainer}>
+        <Button id={"sidebar_group_" + props.name} style={{ ...props.border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{ padding: 0 } }} onClick={() => props.setGroupID(props.id)} >
+            <View style={{...globals.styles.listIconAndTextContainer, ...{padding: '.25em 1em'}}}>
                 <Image
                     style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em'}}}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
                 />
-                <Text style={globals.styles.listText}>{props.name}</Text>
+                <label htmlFor={"sidebar_group_" + props.name} style={globals.styles.listText}>{props.name}</label>
             </View>
 
-        </View>
+        </Button>
     );
 }
 

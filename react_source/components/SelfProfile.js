@@ -11,6 +11,7 @@ import { ModalContext } from '../modals/ModalContext.js';
 import { GlobalContext } from "./GlobalContext.js";
 import EditProfile from "../modals/EditProfile.js";
 import ChangeableIcon from "./ChangeableIcon.js"
+import SVGIcon from "./SVGIcon.js";
 
 
 
@@ -72,7 +73,12 @@ export default function SelfProfile(props) {
                         <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>{email}</Text>
                     </View>
                     <View style={{ ...styles.listHeader, ...styles.listItemSeperator}}>
-                        <Button style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' }}} svg={null} iconStyle={styles.icon} label={'EDIT PROFILE'} onClick={editProfile} />
+                        <Button id="profile_editProfile" style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' } }}  onClick={editProfile} >
+                           
+                            <label htmlFor="profile_editProfile" style={globals.styles.buttonLabel }>
+                                EDIT PROFILE
+                            </label>
+                        </Button>
                     </View>
                 </View>
             </View>

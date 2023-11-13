@@ -12,6 +12,7 @@ import Logo from '../assets/images/logo/logo-name-64.png';
 import Accept from '../assets/images/bx-check.svg';
 import Reject from '../assets/images/bx-x.svg';
 import { GlobalContext } from '../components/GlobalContext.js';
+import SVGIcon from '../components/SVGIcon.js';
 
 /**
  *  Modal to upload an icon to user or group
@@ -51,10 +52,15 @@ export default function UploadIcon(props) {
     function setErrorMsg(msg) {
         errorMessageRef.current.innerText = msg;
         errorMessageRef.current.classList.remove('hidden');
+        imageRef.current.setAttribute("aria-invalid", true);
+        imageRef.current.setAttribute("aria-errormessage", "createGroup_errorMessage");
     }
 
     const updateImageSource = (e) => {
         setImage(e.target.files[0]);
+
+        imageRef.current.removeAttribute("aria-invalid");
+        imageRef.current.removeAttribute("aria-errormessage");
     }
 
     const onSubmit = () => { submitForm(image, props.groupID, setErrorMsg, reRender, setModal); }
@@ -70,17 +76,27 @@ export default function UploadIcon(props) {
 
                     <Image source={Logo} style={styles.logo} />
 
-                    <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>UPLOAD ICON</Text>
+                    <label htmlFor="createGroup_uploadImage" style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>UPLOAD ICON</label>
 
                     <Image style={styles.display} source={image == null ? null : URL.createObjectURL(image)}/>
 
                     <Text ref={errorMessageRef} id='createGroup_errorMessage' style={globals.styles.error}></Text>
 
-                    <input ref={imageRef} type="file" accept="image/*" onInput={updateImageSource} />
+                    <input autoFocus tabIndex={0} ref={imageRef} id="createGroup_uploadImage" type="file" accept="image/*" onInput={updateImageSource} />
 
                     <View style={{ flexDirection: 'row', justifyContent: 'center', width:'75%' }}>
-                        <Button disabled={image == null} style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_BLUE }}} svg={Accept} iconStyle={styles.icon} label='UPLOAD' onClick={onSubmit} />
-                        <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_ORANGE }}} svg={Reject} iconStyle={styles.icon} label='CANCEL' onClick={() => setModal(null)} />
+                        <Button id="uploadIcon_upload" tabIndex={0} disabled={image == null} style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_BLUE } }} hoverStyle={{ borderRadius: '.5em' }} onClick={onSubmit} >
+                            <SVGIcon src={Accept} style={styles.icon} />
+                            <label htmlFor="uploadIcon_upload" style={globals.styles.buttonLabel }>
+                                UPLOAD
+                            </label>
+                        </Button>
+                        <Button id="uploadIcon_cancel" tabIndex={0} style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_ORANGE } }} hoverStyle={{ borderRadius: '.5em' }} onClick={() => setModal(null)} >
+                            <SVGIcon src={Reject} style={styles.icon} />
+                            <label htmlFor="uploadIcon_cancel" style={globals.styles.buttonLabel}>
+                                CANCEL
+                            </label>
+                        </Button>
                     </View>
 
                 </View>

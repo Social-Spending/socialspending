@@ -28,7 +28,11 @@ export default function SummaryFriendsList(props) {
 
             <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
                 <Text style={{ ...globals.styles.h2, ...globals.styles.summaryLabel}}>FRIENDS</Text>
-                <Button style={{ ...globals.styles.formButton, ...globals.styles.newGroupOrFriendButton}} label='+ ADD FRIEND' onClick={addFriendModal} />
+                <Button id="friendsList_addFriend" style={{ ...globals.styles.formButton, ...globals.styles.newGroupOrFriendButton }} onClick={addFriendModal} >
+                    <label htmlFor="friendsList_addFriend" style={globals.styles.buttonLabel }>
+                        + ADD FRIEND 
+                    </label>
+                </Button>
             </View>
 
             <View style={{ alignSelf: 'center', height: '1px', width: '92%', backgroundColor: globals.COLOR_GRAY, marginTop: '.5em' }} />

@@ -1,23 +1,20 @@
 import * as globals from '../utils/globals.js'
 
-import { View, Text, Image } from '../utils/globals.js'
-
-import { ReactSVG } from 'react-svg';
+import { View } from '../utils/globals.js'
 
 import { useState } from 'react';
 
 
 
-export default function Button({ label, style, hoverStyle, iconStyle, textStyle, icon, svg, onClick, disabled }) {
+export default function Button(props) {
     const [hover, setHover] = useState(false);
 
     return (
         
-        <button style={{ ...styles.button, ...style}} onClick={onClick} disabled={disabled} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-            <View style={{ ...styles.button, ...hoverStyle, ...(disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {}))}} >
+        <button {...props} style={{...styles.button, ...props.style, ...{ cursor: props.disabled ? 'default' : 'pointer' }}} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+            <View style={{ ...styles.button, ...props.hoverStyle, ...{zIndex: 1}, ...(props.disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {}))}} >
             
-                <Icon svg={svg} style={iconStyle} icon={icon} />
-                <ButtonText disabled={disabled} label={label} style={textStyle} />
+                {props.children}
             </View>
            
         </button>
@@ -25,52 +22,17 @@ export default function Button({ label, style, hoverStyle, iconStyle, textStyle,
     );
 }
 
-function Icon(props) {
-    if (props.svg) {
-        return (
-            <ReactSVG
-                beforeInjection={(svg) => {
-                    svg.setAttribute('fill', 'current');
-                    svg.setAttribute('height', props.style.height ? props.style.height : '100%');
-                    svg.setAttribute('width', props.style.width ? props.style.width : '100%');
-                }}
-                src={props.svg}
-                style={{ ...{justifyContent: 'center', alignItems:'center'}, ...styles.icon, ...props.style }} />
-        );
-    }
-    else if (props.icon) {
-        return (
-            <Image source={props.icon} style={{ ...styles.icon, ...props.style}} />
-        );
-    } else {
-        return;
-    }
-}
-
-function ButtonText(props) {
-    if (props.label) {
-        return (
-            <Text style={{ ...globals.styles.h4, ...{fontSize: '1.05em'}, ...(props.disabled ? styles.buttonLabelDisabled : styles.buttonLabel), ...props.style}} >{props.label}</Text>
-        );
-    } else {
-        return;
-    }
-}
-
 const styles = {
     button: {
-        borderRadius: 1,
         width: '100%',
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
+        borderRadius: '.25em',
     },
     buttonIcon: {
         paddingRight: 8,
-    },
-    buttonLabel: {
-        color: globals.COLOR_WHITE,
     },
     buttonLabelDisabled: {
         color: '#dfdfdf',

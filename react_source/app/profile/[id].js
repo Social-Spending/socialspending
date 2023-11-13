@@ -1,7 +1,7 @@
 import * as globals from '../../utils/globals.js';
 
 
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 
 import Base from '../../components/Base.js';
 
@@ -18,10 +18,15 @@ export default function Page() {
 
     const navigate = useNavigate();
 
-    if (!isLoading && slug.id == currUserID) {
-        navigate('/profile', { replace: true });
-        return;
-    }
+    useEffect(() => {
+        if (!isLoading && slug.id == currUserID) {
+            navigate('/profile', { replace: true });
+            return;
+        }
+
+    }, [isLoading, slug.id]);
+
+    
 
     return (
         <Base style={{ ...globals.styles.container, ...{ justifyContent: 'flex-start', alignItems: 'flex-start' }}}>

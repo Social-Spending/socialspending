@@ -168,8 +168,17 @@ function ChooseName() {
             <textarea tabIndex={3} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
-                <Button disabled={nameDisabled} style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' }}} label='Submit' onClick={onSubmit} />
-                <Button style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' }}} label='Back' onClick={() => setPageNum(pageNum - 1)} />
+                <Button id="newExpense_submit" disabled={nameDisabled} style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={onSubmit}>
+                    <label htmlFor="newExpense_submit" style={globals.styles.formButton} >
+                        Submit
+                    </label>
+                </Button>
+                <Button id="newExpense_chooseName_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum - 1)} >
+                    <label htmlFor="newExpense_chooseName_back" style={globals.styles.formButton} >
+                        Back
+                    </label>
+                </Button>
+
             </View>
         </View>
     );
@@ -193,15 +202,24 @@ function SelectSplit() {
         }}}>
             <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Do you want to split between a group or friends?</Text>
 
-            <Button style={{ ...globals.styles.formButton, ...{ margin: '1.5em 0 .5em 0' }}} label='Group' onClick={() => setPageNum(PAGES.SELECT_GROUP)} />
+            <Button id="newExpense_splitGroup" style={{ ...globals.styles.formButton, ...{ margin: '1.5em 0 .5em 0' } }} onClick={() => setPageNum(PAGES.SELECT_GROUP)} >
+                <label htmlFor="newExpense_splitGroup" style={globals.styles.buttonLabel }>
+                    Group
+                </label>
 
-            <Button style={{ ...globals.styles.formButton, ...{ margin: '.5em 0' }}} label='Friends' onClick={
+            </Button>
+
+            <Button id="newExpense_splitFriends" style={{ ...globals.styles.formButton, ...{ margin: '.5em 0' }}} onClick={
                 () => {
                     setPageNum(PAGES.SPLIT_EXPENSE);
                     setGroupID(null);
                     }   
                 }
-            />
+            >
+                <label htmlFor="newExpense_splitFriends" style={globals.styles.buttonLabel}>
+                    Friends
+                </label>
+            </Button>
 
         </View>
     );
@@ -242,7 +260,11 @@ function SelectGroup() {
             </View>
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button  style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' }}} label='Back' onClick={() => setPageNum(pageNum - 1)} />
+                <Button id="newExpense_selectGroup_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum - 1)} >
+                    <label htmlFor="newExpense_selectGroup_back" style={globals.styles.buttonLabel} >
+                        Back
+                    </label>
+                </Button>
             </View>
         </View>
     );
@@ -339,15 +361,23 @@ function SplitExpense() {
 
             <View style={{width: '75%', justifyContent: 'space-between', flexDirection: 'row' }}>
                 <Button
+                    id="newExpense_splitExpense_splitPaid"
                     style={{ width: 'auto', height: 'auto', marginTop: '.25em' }}
-                    textStyle={{ fontSize: '.75em', fontWeight: '500', color: globals.COLOR_BLUE }}
-                    label="Split Paid Evenly"
-                    onClick={() => splitPaid(true)} />
+                    onClick={() => splitPaid(true)} >
+
+                    <label htmlFor="newExpense_splitExpense_splitPaid" style={{ padding: '.25em', cursor: 'pointer', fontSize: '.75em', fontWeight: '500', color: globals.COLOR_BLUE }}>
+                        Split Paid Evenly
+                    </label>
+                </Button>
                 <Button
+                    id="newExpense_splitExpense_splitBorrowed"
                     style={{ width: 'auto', height: 'auto', marginTop: '.25em' }}
-                    textStyle={{ fontSize: '.75em', fontWeight: '500', color: globals.COLOR_ORANGE }}
-                    label="Split Borrowed Evenly"
-                    onClick={() => splitPaid(false)} /> 
+                    onClick={() => splitPaid(false)} > 
+
+                    <label htmlFor="newExpense_splitExpense_splitBorrowed" style={{ padding: '.25em',  cursor: 'pointer', fontSize: '.75em', fontWeight: '500', color: globals.COLOR_ORANGE }}>
+                        Split Borrowed Evenly
+                    </label>
+                </Button>
             </View>
            
 
@@ -359,8 +389,17 @@ function SplitExpense() {
 
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} label='Back' onClick={() => setPageNum(PAGES.SELECT_SPLIT)} />
-                <Button style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' }}} label='Next' onClick={onSubmit} />
+                <Button id="newExpense_splitExpense_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(PAGES.SELECT_SPLIT)} >
+                    <label htmlFor="newExpense_splitExpense_back" style={globals.styles.buttonLabel} >
+                        Back
+                    </label>
+                </Button>
+                <Button id="newExpense_splitExpense_next" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={onSubmit} >
+                    <label htmlFor="newExpense_splitExpense_next" style={globals.styles.buttonLabel} >
+                        Next
+                    </label>
+                </Button>
+                
             </View>
         </View>
     );
@@ -378,9 +417,11 @@ function SplitListItem(props) {
         props.refList.push(inputRef);
         props.paidList.push(paid);
 
+
     }, []);
 
-    function updateButton() {
+    function updateButton(e) {
+        e.preventDefault();
         paid.current = !paid.current;
         setReRender(reRender + 1);
     }
@@ -393,11 +434,14 @@ function SplitListItem(props) {
 
             <Text style={{ ...globals.styles.listText, ...{ margin: 'auto 0' }}}>{props.name}</Text>
             <View style={{flexDirection: 'row', width: 'auto' }}>
-                <Button
+                <Button id={"newExpense_splitExpense" + props.name + "_paid"}
                     style={{ width: 'auto', marginTop: '.25em' }}
-                    textStyle={{ fontWeight: '500', color: paid.current ? globals.COLOR_BLUE : globals.COLOR_ORANGE }}
-                    label={paid.current ? "Paid" : "Borrowed"}
-                    onClick={updateButton} />
+                    onClick={updateButton} >
+                    <label htmlFor={"newExpense_splitExpense" + props.name + "_paid"} style={{ padding: '.25em', cursor: 'pointer', fontWeight: '500', color: paid.current ? globals.COLOR_BLUE : globals.COLOR_ORANGE }}>
+                        {paid.current ? "Paid" : "Borrowed"}
+                    </label>
+
+                </Button>
 
                 <View style={{ width: '6em' }}>
                     <input ref={inputRef} style={globals.styles.input} step={.01} type='number' placeholder={0} min={0}></input>
@@ -423,11 +467,18 @@ async function buildGroups(setID, setPage) {
     const groups = await getGroups();
 
     for (let i = 0; i < groups.length; i++) {
-        outputList.push(<Button style={{ ...globals.styles.formButton, ...{ margin: '.5em 0' }}} label={groups[i].group_name} onClick={
+        outputList.push(
+            <Button id={"newExpense_selectGroup_" + groups[i].group_name} style={{ ...globals.styles.formButton, ...{ margin: '.5em 0' } }} onClick={
             () => { 
                 setID(groups[i].group_id);
                 setPage(PAGES.SPLIT_EXPENSE);
-                }} />);
+                }} >
+                <label htmlFor={"newExpense_selectGroup_" + groups[i].group_name} style={globals.styles.buttonLabel}>
+                    {groups[i].group_name}
+                </label>
+            </Button>
+
+        );
     }
 
     return outputList;
@@ -486,19 +537,23 @@ function getFriendsList(json, currUserID, setPaidList, setRefList) {
 
 
 /**
-* Checks value of group name field and prevents user from submitting if too short
+* Checks value of expense name field and prevents user from submitting if too short
 * @param { React.MutableRefObject } groupRef reference to group name field
 * @param { React.MutableRefObject } errorRef reference to error text field to print error text to
 * @returns { boolean }                       validity of group name
 */
-function checkName(groupRef, errorRef) {
+function checkName(nameRef, errorRef) {
 
-    if (groupRef.current.value.length >= 4) {
+    if (nameRef.current.value.length >= 4) {
         errorRef.current.innerText = "";
+        nameRef.current.removeAttribute("aria-invalid");
+        nameRef.current.removeAttribute("aria-errormessage");
         return false;
 
     } else {
-        errorRef.current.innerText = "Group name must be at least 4 characters";
+        errorRef.current.innerText = "Expense name must be at least 4 characters";
+        nameRef.current.setAttribute("aria-invalid", true);
+        nameRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         return true;
     }
 }

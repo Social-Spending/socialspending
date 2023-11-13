@@ -8,7 +8,7 @@ import { ModalContext } from '../modals/ModalContext.js';
 import UploadIcon from "../modals/UploadIcon.js";
 
 import Upload from '../assets/images/bx-upload.svg';
-import { ReactSVG } from "react-svg";
+import SVGIcon from "./SVGIcon.js";
 export default function ChangeableIcon({ iconPath, name, groupID }) {
 
     const [hover, setHover] = useState(false);
@@ -26,13 +26,8 @@ export default function ChangeableIcon({ iconPath, name, groupID }) {
             />
             <View style={{ ...{ display: hover ? 'inherit' : 'none' }, ...styles.uploadContainer }}>
 
-                <ReactSVG
-                    beforeInjection={(svg) => {
-                        svg.setAttribute('fill', globals.COLOR_WHITE);
-                        svg.setAttribute('height', '2em');
-                        svg.setAttribute('width', '2em');
-                    }}
-                    src={Upload} />
+                <SVGIcon src={Upload} style={{ fill: globals.COLOR_WHITE, height: '2em', width: '2em' }} />
+                
             </View>
 
         </View>
