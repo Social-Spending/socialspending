@@ -8,11 +8,11 @@ import { useState } from 'react';
 
 export default function Button(props) {
     const [hover, setHover] = useState(false);
-
+    const { hoverStyle, ...otherProps } = props;
     return (
         
-        <button {...props} style={{...styles.button, ...props.style, ...{ cursor: props.disabled ? 'default' : 'pointer' }}} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-            <View style={{ ...styles.button, ...props.hoverStyle, ...{zIndex: 1}, ...(props.disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {}))}} >
+        <button {...otherProps} tabIndex={props.tabIndex ? props.tabIndex : -1} style={{...styles.button, ...props.style, ...{ cursor: props.disabled ? 'default' : 'pointer' }}} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+            <View style={{ ...styles.button, ...hoverStyle, ...{zIndex: 1}, ...(props.disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {}))}} >
             
                 {props.children}
             </View>

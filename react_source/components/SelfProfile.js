@@ -60,7 +60,7 @@ export default function SelfProfile(props) {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
                     <View style={globals.styles.listIconAndTextContainer} >
                         <ChangeableIcon iconPath={iconPath} name={username} />
-                        <Text style={{ ...globals.styles.h1, ...styles.groupName}}>Your Profile</Text>
+                        <Text style={{ ...globals.styles.h1, ...styles.groupName}}>MY PROFILE</Text>
                     </View>
                 </View>
                 <View style={styles.list}>

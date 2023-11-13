@@ -54,12 +54,14 @@ var msg = document.getElementById('state-msg');
 
 export const Modal = React.forwardRef(function ModalType(props, ref) {
 
+    const { onRequestClose, transparent, visible, ...otherProps } = props;
+
     useEffect(() => {
 
         const handleKeyDown = (e) => {
 
             if (e.key == "Escape") {
-                props.onRequestClose();
+                onRequestClose();
             }
         };
         document.body.addEventListener('keydown', handleKeyDown);
@@ -72,7 +74,7 @@ export const Modal = React.forwardRef(function ModalType(props, ref) {
     
 
     return (
-        <div autoFocus tabIndex={props.tabIndex ? props.tabIndex : -1} ref={ref}>
+        <div {...otherProps} tabIndex={props.tabIndex ? props.tabIndex : -1} ref={ref}>
             {props.children}
         </div>
     )
@@ -121,7 +123,7 @@ function _getDummyImage(initials)
             acronym = acronym + initials[i];
         }
     }
-    return "https://dummyimage.com/50x50/ffffff/000000.gif&text=" + encodeURIComponent(acronym);
+    return "https://dummyimage.com/50x50/ffffff/777777.gif&text=" + encodeURIComponent(acronym);
 }
 
 /** 
@@ -287,7 +289,8 @@ export const styles = {
     listIcon: {
         flex: '0 0 auto',
         aspectRatio: 1,
-        borderRadius: '50%'
+        borderRadius: '50%',
+        boxShadow: '0px 0px 2px 2px #eee',
     },
     listItemSeperator: {
         flex: 1,
@@ -343,7 +346,8 @@ export const styles = {
         fontWeight: 'bolder'
     },
     modalBackground: {
-        height: '100vh',
+        minHeight: '100vh',
+        height: 'auto',
         width: '100%',
         backgroundColor: COLOR_MODAL,
         justifyContent: 'center',

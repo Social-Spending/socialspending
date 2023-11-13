@@ -10,10 +10,12 @@ import { ModalContext } from './ModalContext.js';
 import { GlobalContext } from '../components/GlobalContext.js';
 import { styles, checkPassword, checkUsername, checkEmail } from '../components/Signup.js';
 
+
 import Logo from '../assets/images/logo/logo-name-64.png';
 
 import ShowSvg from '../assets/images/bx-show.svg';
 import HideSvg from '../assets/images/bx-hide.svg';
+import SVGIcon from '../components/SVGIcon.js';
 
 export default function EditProfile(props) {
     const setModal = useContext(ModalContext);

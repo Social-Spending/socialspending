@@ -48,7 +48,7 @@ export default function Base(props) {
                     <Footer />
 
                 </View>
-
+                
             </View>
             {modal}
         </ModalContext.Provider>
@@ -68,7 +68,7 @@ const styles = {
     container: {
         flex: 1,
         height: '100%',
-        minHeight: '45em',
+        minHeight: '100%',
         width: '100%',
         flexWrap: 'nowrap',
         flexDirection: 'inherit',
