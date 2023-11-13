@@ -14,7 +14,6 @@ import DownChevron from '../assets/images/bx-chevron-down.svg';
 import { ModalContext } from '../modals/ModalContext.js';
 import TransactionInfo from '../modals/TransactionInfo.js';
 import VerifyAction from '../modals/VerifyAction.js';
-import WaitForAuth from './WaitForAuth.js';
 import { GlobalContext } from './GlobalContext.js';
 import { useNavigate } from 'react-router-dom/dist/index.js';
 import SVGIcon from './SVGIcon.js';
@@ -123,7 +122,7 @@ function Section(props) {
 
     return (
         <>
-            <View style={{ flexDirection: 'row' } }>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={{ ...globals.styles.h2, ...{ paddingLeft: 0, color: globals.COLOR_GRAY }}} onClick={() => setOpen(!open)}>{props.name}</Text>
                 {isNEmpty &&
                     (

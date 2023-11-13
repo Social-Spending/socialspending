@@ -28,10 +28,13 @@
         state variables change (ie. setLoginAttempts(69) )
 */
 
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
+import { useNavigate } from '../node_modules/react-router-dom/dist/index';
 
 // global context provides information about currently logged in user too all child pages
 export const GlobalContext = createContext();
+
+let navigate = 0;
 
 export function GlobalContextProvider (props) {
     // state variables for information about the current user
@@ -46,7 +49,9 @@ export function GlobalContextProvider (props) {
     var cancelGetUserInfoController = null;
     // state var to re-render page
     const [reRenderCount, setReRenderCount] = useState(0);
-    const reRender = () => {setReRenderCount(reRenderCount + 1);};
+    const reRender = () => { setReRenderCount(reRenderCount + 1); };
+
+    navigate = useNavigate();
 
     useEffect(() => {
             // Check if user is logged in and if they are get their username
@@ -123,7 +128,7 @@ async function doSignout(setIsLoggedIn, setCurrUserID, setCurrUsername) {
             setCurrUserID(0);
             setCurrUsername('New User');
             // redirect to login page
-            //router.push("/login");
+            navigate("/login");
         }
         else {
             // failed, display error message returned by server
