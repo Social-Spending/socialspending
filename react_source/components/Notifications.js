@@ -5,6 +5,7 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import Button from './Button.js';
 
 import { acceptRejectFriendRequest } from '../utils/friends.js';
+import { approveRejectTransaction } from '../utils/transactions.js';
 
 import ApproveSvg   from '../assets/images/bx-check.svg';
 import DenySvg      from '../assets/images/bx-x.svg';
@@ -148,7 +149,7 @@ function FriendRequest(props) {
     const setModal = useContext(ModalContext);
 
     const approve = (accept) => {
-        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "accept " : "reject ") + props.name + "'s friend request?"} accept={() => { approveFriendRequest(props.id, accept, removeNotif, reRender); setModal(null); } } reject={() => setModal(null)} exit={() => setModal(null)} />);
+        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "accept " : "reject ") + props.name + "'s friend request?"} accept={() => { approveFriendRequest(props.id, accept, removeNotif, reRender); setModal(null); } } />);
     }
 
     return (
@@ -188,7 +189,7 @@ function ApproveTransaction(props) {
     }
 
     const approve = (accept) => {
-        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "approve " : "reject ") + props.name + "?"} accept={() => { approveTransaction(props.trans_id, props.id, accept, removeNotif, reRender); setModal(null); }} reject={() => setModal(null)} exit={() => setModal(null)} />);
+        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "approve " : "reject ") + props.name + "?"} accept={() => { approveTransaction(props.trans_id, props.id, accept, removeNotif, reRender); setModal(null); }} />);
     }
 
     return (
@@ -267,7 +268,7 @@ function GroupInvite(props) {
 
 
     const approve = (accept) => {
-        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "join " : "ignore invite to ") + props.name + "?"} accept={() => { approveGroupInvite(props.id, accept, removeNotif, reRender); setModal(null); }} reject={() => setModal(null)} exit={() => setModal(null)} />);
+        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "join " : "ignore invite to ") + props.name + "?"} accept={() => { approveGroupInvite(props.id, accept, removeNotif, reRender); setModal(null); }} />);
     }
 
     return (
@@ -316,43 +317,14 @@ async function approveFriendRequest(id, approved, removeNotif, reRender) {
 
 async function approveTransaction(trans_id, id, approved, removeNotif, reRender) {
 
-    let payload = `{
-        "transaction_id": ` + trans_id + `
-    }`;
 
-    if (approved) {
-        try {
-            let response = await fetch("/transaction_approval.php", { method: 'PUT', body: payload, credentials: 'same-origin' });
-
-            if (response.ok) {
-                removeNotif('transaction_approval', id);
-                // call function to refresh the Base component with new friend
-                reRender();
-            } else {
-
-            }
-        }
-        catch (error) {
-            console.error("error in PUT request to transaction_approval (/transaction_approval.php)");
-            console.error(error);
-        }
-    } else {
-        try {
-            let response = await fetch("/transactions.php", { method: 'DELETE', body: payload, credentials: 'same-origin' });
-
-            if (response.ok) {
-                removeNotif('transaction_approval', id);
-                // call function to refresh the Base component with new friend
-                reRender();
-            } else {
-
-            }
-        }
-        catch (error) {
-            console.error("error in DELETE request to transactions (/transactions.php)");
-            console.error(error);
-        }
+    if (approveRejectTransaction(trans_id, approved)){
+        removeNotif('transaction_approval', id);
+        // call function to refresh the Base component with new friend
+        reRender();
     }
+
+    
 }
 
 async function approveGroupInvite(notification_id, accept, removeNotif, reRender) {

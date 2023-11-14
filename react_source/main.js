@@ -56,8 +56,8 @@ function Main() {
 
     return (
         
-        <View style={{flex: 1}}>
-            <RouterProvider router={router}/>
+        <View style={{ flex: 1 }}>
+            <RouterProvider router={router} errorElement={<div>Howdy</div>} />
         </View>
         
     );

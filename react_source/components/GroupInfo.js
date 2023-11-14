@@ -34,7 +34,7 @@ export default function GroupInfo(props) {
     let [iconPath, setIconPath] = useState(null);
 
     const setModal = useContext(ModalContext);
-    const { currUserID, currUsername, currUserIconPath, reRenderCount } = useContext(GlobalContext);
+    const { currUserID, currUsername, currUserIconPath, reRenderCount, reRender } = useContext(GlobalContext);
 
     const navigate = useNavigate();
 
@@ -61,7 +61,7 @@ export default function GroupInfo(props) {
     }
 
     const leave = () => {
-        setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => leaveGroup(props.id, navigate)} />);
+        setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => { leaveGroup(props.id, navigate); setModal(null); navigate(0) }} />);
     }
 
 

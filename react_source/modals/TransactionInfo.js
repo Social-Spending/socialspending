@@ -19,6 +19,9 @@ import { useState, useEffect, useContext } from 'react';
 import { ModalContext } from "./ModalContext.js";
 import Loading from "../components/Loading.js";
 import { Link } from "react-router-dom/dist/index.js";
+import { GlobalContext } from "../components/GlobalContext.js";
+import Button from "../components/Button.js";
+import { approveRejectTransaction } from "../utils/transactions.js";
 
 
 export default function TransactionInfo(props) {
@@ -117,11 +120,87 @@ export default function TransactionInfo(props) {
                         <View style={{ ...globals.styles.list, ...{ width: '80%' }}}>
                             {getParticipants(transactionInfo['transaction_participants'])}
                         </View>
+                        <ApprovalButtons id={transactionInfo['transaction_id']} participants={transactionInfo['transaction_participants']} />
+                        
                     </View>
                 </View>
             </Modal>
 
         );
+    }
+}
+
+/**
+ *  Assembles DOM elements for a single list entry
+ *      @param {number} id           user_id of participant
+ *      @param {string} name         username of participant
+ *      @param {number} owed         how much the participant paid/owes
+ *      @return {React.JSX.Element}  DOM element  
+ */
+function ListItem({ id, name, owed, border, hasApproved }) {
+
+    let text = owed >= 0 ? "Borrowed" : "Paid";
+    let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
+    color = owed == 0 ? { color: globals.COLOR_GRAY } : color;
+
+    let pendingItalic = hasApproved == 0 ? { fontStyle: 'italic' } : {};
+
+    return (
+
+        <Link to={'/profile/' + id}>
+            <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
+
+                <Text style={{ ...globals.styles.listText, ...pendingItalic }}>{name}</Text>
+                <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
+                    <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
+                    <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(owed / 100).toFixed(2)}</Text>
+                </View>
+
+            </View>
+        </Link>
+
+    );
+}
+
+function ApprovalButtons({ id, participants }) {
+    const { currUserID, reRender} = useContext(GlobalContext);
+    const setModal = useContext(ModalContext);
+    
+    let approved = true;
+
+    for (let i = 0; i < participants.length; i++) {
+        if (currUserID == participants[i]['user_id']) {
+            approved = participants[i]['has_approved'];
+
+            break;
+        }
+    }
+
+    function approve(e, approved) {
+        e.preventDefault();
+        approveRejectTransaction(id, approved);
+        setModal(null);
+        reRender();
+    
+    }
+
+    if (!approved) {
+        return (
+            <View style={{width: '80%', paddingBottom: '.75em', flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Button id="transactionInfo_approve" style={{ ...globals.styles.formButton, ...{ width: '45%', backgroundColor: globals.COLOR_BLUE } }} onClick={(e) => approve(e, true)}>
+                    <label htmlFor="transactionInfo_approve" style={globals.styles.buttonLabel }>
+                        Approve
+                    </label>
+                </Button>
+                <Button id="transactionInfo_reject" style={{ ...globals.styles.formButton, ...{ width: '45%' } }} onClick={(e) => approve(e, false)} >
+                    <label htmlFor="transactionInfo_reject" style={globals.styles.buttonLabel}>
+                        Reject
+                    </label>
+                </Button>
+            </View>
+        );
+    } else {
+        return(<></>);
     }
 }
 
@@ -151,37 +230,7 @@ function getParticipants(participantList) {
 
 }
 
-/**
- *  Assembles DOM elements for a single list entry
- *      @param {number} id           user_id of participant
- *      @param {string} name         username of participant
- *      @param {number} owed         how much the participant paid/owes
- *      @return {React.JSX.Element}  DOM element  
- */
-function ListItem({ id, name, owed, border, hasApproved }) {
 
-    let text = owed >= 0 ? "Borrowed" : "Paid";
-    let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
-    color = owed == 0 ? { color: globals.COLOR_GRAY } : color;
-
-    let pendingItalic = hasApproved == 0 ? { fontStyle: 'italic' } : {};
-
-    return (
-
-        <Link to={'/profile/' + id}>
-            <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
-
-                <Text style={{ ...globals.styles.listText, ...pendingItalic}}>{name}</Text>
-                <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
-                    <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
-                    <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(owed / 100).toFixed(2)}</Text>
-                </View>
-
-            </View>
-        </Link>
-
-    );
-}
 
 /**
  * Gets transaction data from the server using transaction.php endpoint

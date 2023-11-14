@@ -43,16 +43,16 @@ export default function Profile(props) {
 
 
     function unfriend() {
-        setModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={() => {removeFriend(username); setIsFriend(false); setModal(null); }} />);
+        setModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={() => {removeFriend(username); setIsFriend(false); setModal(null); navigate(0) }} />);
     }
     function verifyAddFriend() {
-        setModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={() => { addFriend(username); setIsPendingFriend(true);  setModal(null);}} />);
+        setModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={() => { addFriend(username); setIsPendingFriend(true); setModal(null); navigate(0) }} />);
     }
     function verifyAcceptRejectFriend(acceptNReject) {
-        setModal(<VerifyAction label={"Are you sure you want to "+(acceptNReject ? "accept" : "reject")+" friend request from " + username + "?"} accept={() => {acceptRejectFriendRequest(friendRequestNotificationID, acceptNReject); setIsPendingFriend(false); setIsFriend(acceptNReject); setModal(null);}} />);
+        setModal(<VerifyAction label={"Are you sure you want to " + (acceptNReject ? "accept" : "reject") + " friend request from " + username + "?"} accept={() => { acceptRejectFriendRequest(friendRequestNotificationID, acceptNReject); setIsPendingFriend(false); setIsFriend(acceptNReject); setModal(null); navigate(0) }} />);
     }
     function verifyCancelFriendRequest() {
-        setModal(<VerifyAction label={"Are you sure you want to revoke your friend request to " + username + "?"} accept={() => {cancelFriendRequest(friendRequestNotificationID); setIsPendingFriend(false); setModal(null);}} />);
+        setModal(<VerifyAction label={"Are you sure you want to revoke your friend request to " + username + "?"} accept={() => { cancelFriendRequest(friendRequestNotificationID); setIsPendingFriend(false); setModal(null); navigate(0) }} />);
     }
 
 
@@ -64,7 +64,7 @@ export default function Profile(props) {
 
             if (props.id != null && props.id != currUserID) {
                 json = await getUserInfo(props.id);
-                if (!json) navigate("/profile/error", { replace: true })
+                if (!json) navigate("/profile_error", { replace: true })
             }
 
             if (json != null) {

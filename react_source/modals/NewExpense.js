@@ -169,12 +169,12 @@ function ChooseName() {
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
                 <Button id="newExpense_submit" disabled={nameDisabled} style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={onSubmit}>
-                    <label htmlFor="newExpense_submit" style={globals.styles.formButton} >
+                    <label htmlFor="newExpense_submit" style={globals.styles.buttonLabel} >
                         Submit
                     </label>
                 </Button>
                 <Button id="newExpense_chooseName_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum - 1)} >
-                    <label htmlFor="newExpense_chooseName_back" style={globals.styles.formButton} >
+                    <label htmlFor="newExpense_chooseName_back" style={globals.styles.buttonLabel} >
                         Back
                     </label>
                 </Button>
@@ -421,8 +421,7 @@ function SplitListItem(props) {
 
     }, []);
 
-    function updateButton(e) {
-        e.preventDefault();
+    function updateButton() {
         paid.current = !paid.current;
         setReRender(reRender + 1);
     }

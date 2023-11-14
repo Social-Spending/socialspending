@@ -21,7 +21,7 @@ let navigate = 0;
 
 export default function NewGroup(props) {
 
-    const onSubmit = () => { submitForm(groupRef, errorMessageRef); }
+    const onSubmit = () => { submitForm(groupRef, errorMessageRef); navigate(0); }
     const onNameChange = () => { setNameDisabled(checkName(groupRef, errorMessageRef)); }
 
     const [nameDisabled, setNameDisabled] = useState(true);
@@ -118,6 +118,7 @@ async function submitForm(groupRef, errorRef) {
         if (await response.ok) {
             // redirect
             navigate("/groups", {replace: true});
+
         }
         else {
             // failed, display error message returned by server
