@@ -30,7 +30,8 @@ async function onSubmit(user, setErrorMsg, setModal, reRender)
         if (responseMessage == 'Success')
         {
             setModal(null);
-            navigate("/friends", {replace: true});
+            navigate("/friends", { replace: true });
+            navigate(0);
         }
         else
         {

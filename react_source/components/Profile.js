@@ -43,16 +43,16 @@ export default function Profile(props) {
 
 
     function unfriend() {
-        setModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={() => {removeFriend(username); setIsFriend(false); setModal(null); navigate(0) }} />);
+        setModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={() => { removeFriend(username); setIsFriend(false); setModal(null); navigate("/friends");  navigate(0) }} />);
     }
     function verifyAddFriend() {
-        setModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={() => { addFriend(username); setIsPendingFriend(true); setModal(null); navigate(0) }} />);
+        setModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={() => { addFriend(username); setIsPendingFriend(true); setModal(null); navigate("/friends"); navigate(0) }} />);
     }
     function verifyAcceptRejectFriend(acceptNReject) {
-        setModal(<VerifyAction label={"Are you sure you want to " + (acceptNReject ? "accept" : "reject") + " friend request from " + username + "?"} accept={() => { acceptRejectFriendRequest(friendRequestNotificationID, acceptNReject); setIsPendingFriend(false); setIsFriend(acceptNReject); setModal(null); navigate(0) }} />);
+        setModal(<VerifyAction label={"Are you sure you want to " + (acceptNReject ? "accept" : "reject") + " friend request from " + username + "?"} accept={() => { acceptRejectFriendRequest(friendRequestNotificationID, acceptNReject); setIsPendingFriend(false); setIsFriend(acceptNReject); setModal(null); navigate("/friends"); navigate(0) }} />);
     }
     function verifyCancelFriendRequest() {
-        setModal(<VerifyAction label={"Are you sure you want to revoke your friend request to " + username + "?"} accept={() => { cancelFriendRequest(friendRequestNotificationID); setIsPendingFriend(false); setModal(null); navigate(0) }} />);
+        setModal(<VerifyAction label={"Are you sure you want to revoke your friend request to " + username + "?"} accept={() => { cancelFriendRequest(friendRequestNotificationID); setIsPendingFriend(false); setModal(null); navigate("/friends"); navigate(0) }} />);
     }
 
 

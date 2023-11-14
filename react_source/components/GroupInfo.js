@@ -61,7 +61,12 @@ export default function GroupInfo(props) {
     }
 
     const leave = () => {
-        setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => { leaveGroup(props.id, navigate); setModal(null); navigate(0) }} />);
+        setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => {
+            leaveGroup(props.id, navigate);
+            setModal(null);
+            navigate("/groups", { replace: true });
+            navigate(0); //fallback refresh page if already on groups
+        }} />);
     }
 
 

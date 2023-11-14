@@ -21,7 +21,11 @@ let navigate = 0;
 
 export default function NewGroup(props) {
 
-    const onSubmit = () => { submitForm(groupRef, errorMessageRef); navigate(0); }
+    const onSubmit = () => {
+        submitForm(groupRef, errorMessageRef);
+        setModal(null); navigate("/groups");
+        navigate(0); //Fallback refresh page if on groups
+    }
     const onNameChange = () => { setNameDisabled(checkName(groupRef, errorMessageRef)); }
 
     const [nameDisabled, setNameDisabled] = useState(true);
