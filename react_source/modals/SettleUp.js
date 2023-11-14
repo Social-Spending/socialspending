@@ -4,9 +4,7 @@ import { StyleSheet, Text, View, Image, Modal } from 'react-native';
 import { router } from "expo-router";
 import { useRef, useState, createContext, useContext, useEffect } from 'react';
 
-import { getGroups, getGroupInfo } from "../utils/groups.js";
-
-import { getFriends } from "../utils/friends.js";
+import { getSettleUpCandidatesList } from "../utils/settleUp.js";
 
 import Button from '../components/Button.js'
 import { ModalContext } from './ModalContext.js';
@@ -49,8 +47,10 @@ const PAGES = {
 export default function SettleUp(props) {
 
     //Variables to pass down to all children as a context so that they know and can edit the data of others
-    const [pageNum, setPageNum] = useState(SELECT_CANDIDATE);
+    const [pageNum, setPageNum] = useState(PAGES.SELECT_CANDIDATE);
     const [formData, setFormData] = useState({});
+    const [candidateID, setCandidateID] = useState(null);
+    const [targetID, setTargetID] = useState(props.targetID);
 
     const errorMessageRef = useRef(null);
 
@@ -65,6 +65,8 @@ export default function SettleUp(props) {
         <SettleUpContext.Provider
             value={{
                 pageNum: [pageNum, setPageNum],
+                candidateID: [candidateID, setCandidateID],
+                targetID: [targetID, setTargetID],
                 errorRef: errorMessageRef,
                 formData: [formData, setFormData]
             }}>
@@ -78,10 +80,10 @@ export default function SettleUp(props) {
 
                         <Image source={Logo} style={styles.logo} />
 
-                        <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>NEW EXPENSE</Text>
+                        <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>SETTLE UP</Text>
 
-                        <Text ref={errorMessageRef} id='createExpense_errorMessage' style={globals.styles.error}></Text>
-
+                        <Text ref={errorMessageRef} id='settleUp_errorMessage' style={globals.styles.error}></Text>
+                        
                         <SelectCandidate />
                         <ConfirmSettleUp />
 
@@ -102,17 +104,23 @@ export default function SettleUp(props) {
 function SelectCandidate() {
 
     const {
-        pageNum:    [pageNum    , setPageNum],
-        formData:   [formData   , setFormData]
-    } = useContext(ExpenseContext);
+        pageNum:        [pageNum    , setPageNum],
+        candidateID:    [candidateID, setCandidateID],
+        targetID:       [targetID   , setTargetID],
+        formData:       [formData   , setFormData]
+    } = useContext(SettleUpContext);
 
+    const [candidates, setCandidates] = useState([]);
+
+    const setModal = useContext(ModalContext);
 
     useEffect(() => {
-        async function getSettleUpCandidates() {
-
-            setCandidates(await buildCandidates(setCandidateID, setPageNum));
+        async function getSettleUpCandidates(targetID) {
+            setCandidates(await buildCandidates(targetID, setCandidateID, setPageNum));
         }
-    }, []);
+        if (pageNum == PAGES.SELECT_CANDIDATE) getSettleUpCandidates(targetID);
+    }, [pageNum]);
+
 
     return (
         <View style={[styles.pageContainer, {
@@ -121,11 +129,11 @@ function SelectCandidate() {
             <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Who would you like to pay?</Text>
 
             <View style={[globals.styles.list, { alignItems: 'center', justifyContent: 'center', width: '75%' }]} >
-                {settleUpCandidates}
+                {candidates}
             </View>
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button  style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 1)} />
+                <Button  style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Cancel' onClick={() => setModal(null)} />
             </View>
         </View>
     );
@@ -135,14 +143,14 @@ function SelectCandidate() {
  * 
  * @returns a page in which the user can select the amount each person owes/paid
  */
-function confirmSettleUp() {
+function ConfirmSettleUp() {
 
     let {
         pageNum: [pageNum, setPageNum],
         formData: [formData, setFormData]
-    } = useContext(ExpenseContext);
+    } = useContext(SettleUpContext);
 
-    const { currUserID } = useContext(GlobalContext);
+    //const { currUserID } = useContext(GlobalContext);
 
     const [settleUpDetails, setSettleUpDetails] = useState([]);
     const [refList, setRefList] = useState([]);
@@ -199,7 +207,7 @@ function confirmSettleUp() {
         <View style={[styles.pageContainer, {
             display: pageNum != PAGES.CONFIRM_SETTLE_UP ? 'none' : 'inherit'
         }]}>
-            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Verify Transaction Parameters</Text>
+            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Verify Transaction Details</Text>
 
             <View style={{width: '75%', justifyContent: 'space-between', flexDirection: 'row' }}>
                 <Button
@@ -231,10 +239,14 @@ function confirmSettleUp() {
  * @param {Function} setPage function to set pageNum variable
  * @returns a list of Button elements
  */
-async function buildCandidates(setID, setPage) {
+async function buildCandidates(targetID, setID, setPage) {
     let outputList = [];
 
-    const candidates = await getSettleUpCandidates();
+    const candidates = await getSettleUpCandidatesList(targetID);
+
+    if (!candidates){
+        return outputList;
+    }
 
     for (let i = 0; i < candidates.length; i++) {
         outputList.push(<Button style={[globals.styles.formButton, { width: '100%', margin: 0, marginVertical: '.5em' }]} label={candidates[i].username} onClick={
@@ -317,5 +329,4 @@ const styles = StyleSheet.create({
         borderRadius: 1,
         marginTop: '1em'
     }
-
 });
