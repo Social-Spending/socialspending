@@ -75,7 +75,7 @@ function GroupListItem(props) {
                     style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em'}}}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
                 />
-                <label htmlFor={"sidebar_group_" + props.name} style={globals.styles.listText}>{props.name}</label>
+                <label htmlFor={"sidebar_group_" + props.name} style={{ ...globals.styles.listText, ...{ paddingLeft: '.25em' }}}>{props.name}</label>
             </View>
 
         </Button>

@@ -38,13 +38,13 @@ export default function VerifyAction(props) {
                     <View style={{flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', width: 'auto', maxWidth: '100%'} }>
                         <Button id="verify_continue" autoFocus tabIndex={0} style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_BLUE } }} onClick={props.accept}>
                             <SVGIcon src={Accept} style={styles.icon} />
-                            <label htmlFor="verify_continue">
+                            <label htmlFor="verify_continue" style={globals.styles.buttonLabel}>
                                 CONTINUE
                             </label>
                         </Button>
                         <Button id="verify_cancel" tabIndex={0} style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_ORANGE } }} onClick={(props.reject != undefined ? props.reject : () => setModal(null))} >
                             <SVGIcon src={Reject} style={styles.icon} />
-                            <label htmlFor="verify_cancel">
+                            <label htmlFor="verify_cancel" style={globals.styles.buttonLabel}>
                                 CANCEL
                             </label>
                         </Button>

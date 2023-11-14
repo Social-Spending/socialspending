@@ -1,4 +1,5 @@
 # Front End Rework Changes
+Built bundle is now about 1/5th the size and uses a custom file based routing system
 With the smaller bundle size comes a few changes and improvements
 
 

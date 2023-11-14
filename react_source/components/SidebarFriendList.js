@@ -73,7 +73,7 @@ function SidebarFriendListItems(props) {
                     style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em'}}}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultUserIcon(props.name)}
                 />
-                <label htmlFor={ "sidebar_friend_" + props.name } style={{...globals.styles.listText, ...pendingItalic}}>{props.name}</label>
+                <label htmlFor={"sidebar_friend_" + props.name} style={{ ...globals.styles.listText, ...pendingItalic, ...{ paddingLeft: '.25em' }}}>{props.name}</label>
             </View>
         </Button>
         
