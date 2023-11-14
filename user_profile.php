@@ -303,121 +303,71 @@ function handlePOST()
         handleDBError();
     }
 
-    $newUsername = '';
-    if (isset($_POST['username']))
-    {
-        $newUsername = $_POST['username'];
-    }
-    $newEmail = '';
-    if (isset($_POST['email']))
-    {
-        $newEmail = $_POST['email'];
-    }
-    $newPassword = '';
-    if (isset($_POST['password']))
-    {
-        $newPassword = $_POST['password'];
-    }
+    if (isset($_POST["username"]) && $_POST["username"] != "") {
+        $newUsername = $_POST["username"];
 
-    if ($newUsername != '' && $newEmail != '')
-    {
-        // lookup user by username or by email to check if one already exists
-        $query = 'SELECT * FROM `users` WHERE `username`= ? OR `email`= ?;';
-        $result = $mysqli->execute_query($query, [$newUsername, $newEmail]);
-        // check that query was successful
+        $sql = "SELECT * FROM users WHERE username = ?";
+        $result = $mysqli->execute_query($sql, [$newUsername]);
+
         if (!$result)
-        {
-            // query failed, internal server error
             handleDBError();
-        }
-        if ($result->num_rows > 0)
-        {
-            returnMessage('An account with that username and/or email already exists', 400);
-        }
-    }
-    elseif ($newUsername != '')
-    {
-        // lookup user by username or by email to check if one already exists
-        $query = 'SELECT * FROM `users` WHERE `username`= ?;';
-        $result = $mysqli->execute_query($query, [$newUsername]);
-        // check that query was successful
-        if (!$result)
-        {
-            // query failed, internal server error
-            handleDBError();
-        }
-        if ($result->num_rows > 0)
-        {
-            returnMessage('An account with that username already exists', 400);
-        }
-    }
-    elseif ($newEmail != '')
-    {
-        // lookup user by username or by email to check if one already exists
-        $query = 'SELECT * FROM `users` WHERE `email`= ?;';
-        $result = $mysqli->execute_query($query, [$newEmail]);
-        // check that query was successful
-        if (!$result)
-        {
-            // query failed, internal server error
-            handleDBError();
-        }
-        if ($result->num_rows > 0)
-        {
-            returnMessage('An account with that email already exists', 400);
+
+        //Check to see if a user with this username exists
+        if ($result->num_rows > 0) {
+            $result = $result->fetch_assoc();
+
+            //If someone else has the username, return with an error.
+            //Otherwise, we don't need to do anything
+            if ($result["user_id"] != $currUserID) {
+                returnMessage("An account with that username already exists", 400);
+            }
+        } else {
+            $sql = "UPDATE users SET username = ? WHERE user_id = ?;";
+            $result = $mysqli->execute_query($sql, [$newUsername, $currUserID]);
+
+            if (!$result)
+                handleDBError();
         }
     }
 
-    // username and email are confirmed unique
-    // hash password if present
-    if ($newPassword != '')
-    {
+    if (isset($_POST["email"]) && $_POST["email"] != "") {
+        $newEmail = $_POST["email"];
+
+        $sql = "SELECT * FROM users WHERE email = ?";
+        $result = $mysqli->execute_query($sql, [$newEmail]);
+
+        if (!$result)
+            handleDBError();
+
+        //Check to see if a user with this email exists
+        if ($result->num_rows > 0) {
+            $result = $result->fetch_assoc();
+
+            //If someone else has the email, return with an error.
+            //Otherwise, we don't need to do anything
+            if ($result["user_id"] != $currUserID) {
+                returnMessage("An account with that email already exists", 400);
+            }
+        } else {
+            $sql = "UPDATE users SET email = ? WHERE user_id = ?;";
+            $result = $mysqli->execute_query($sql, [$newEmail, $currUserID]);
+
+            if (!$result)
+                handleDBError();
+        }
+    }
+
+    if (isset($_POST["password"]) && $_POST["password"] != "") {
+        $newPassword = $_POST["password"];
         $newPasswordHash = password_hash($newPassword, PASSWORD_BCRYPT);
-    }
-    // update entries
-    $result = false;
-    if ($newUsername != '' && $newEmail != '' && $newPassword != '')
-    {
-        $sql = "UPDATE users SET username = ?, email = ?, pass_hash = ? WHERE user_id = ?;";
-        $result = $mysqli->execute_query($sql, [$newUsername, $newEmail, $newPasswordHash, $currUserID]);
-    }
-    elseif ($newUsername != '' && $newEmail != '')
-    {
-        $sql = "UPDATE users SET username = ?, email = ? WHERE user_id = ?;";
-        $result = $mysqli->execute_query($sql, [$newUsername, $newEmail, $currUserID]);
-    }
-    elseif ($newUsername != '' && $newPassword != '')
-    {
-        $sql = "UPDATE users SET username = ?, pass_hash = ? WHERE user_id = ?;";
-        $result = $mysqli->execute_query($sql, [$newUsername, $newPasswordHash, $currUserID]);
-    }
-    elseif ($newEmail != '' && $newPassword != '')
-    {
-        $sql = "UPDATE users SET email = ?, pass_hash = ? WHERE user_id = ?;";
-        $result = $mysqli->execute_query($sql, [$newEmail, $newPasswordHash, $currUserID]);
-    }
-    elseif ($newUsername != '')
-    {
-        $sql = "UPDATE users SET username = ? WHERE user_id = ?;";
-        $result = $mysqli->execute_query($sql, [$newUsername, $currUserID]);
-    }
-    elseif ($newEmail != '')
-    {
-        $sql = "UPDATE users SET email = ? WHERE user_id = ?;";
-        $result = $mysqli->execute_query($sql, [$newEmail, $currUserID]);
-    }
-    elseif ($newPassword != '')
-    {
+
         $sql = "UPDATE users SET pass_hash = ? WHERE user_id = ?;";
         $result = $mysqli->execute_query($sql, [$newPasswordHash, $currUserID]);
+
+        if (!$result)
+            handleDBError();
     }
-    // check that query was successful
-    if (!$result)
-    {
-        // query failed, internal server error
-        handleDBError();
-    }
-    //if ($mysqli->affected_rows > 0)
+
     returnMessage('Success', 200);
 
 }
