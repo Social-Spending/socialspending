@@ -18,7 +18,7 @@ import HideSvg from '../assets/images/bx-hide.svg';
 import SVGIcon from '../components/SVGIcon.js';
 
 export default function EditProfile(props) {
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
     // when a signup is completed, increment loginAttempts to trigger a re-render of GlobalContext
     const {loginAttempts} = useContext(GlobalContext);
     const [loginAttemptsState, setLoginAttemptsState] = loginAttempts;
@@ -34,7 +34,7 @@ export default function EditProfile(props) {
     const onEmailChange     = () => { setEmailDisabled      (checkEmail(emailRef, emailErrorMessageRef)); }
     const onPasswordChange  = () => { setPasswordDisabled   (checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
     const onUsernameChange  = () => { setUsernameDisabled   (checkUsername(userRef, userErrorMessageRef)); }
-    const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, errorMessageRef, loginAttemptsState, setLoginAttemptsState, setModal); }
+    const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, errorMessageRef, loginAttemptsState, setLoginAttemptsState, popModal); }
 
     const errorMessageRef           = useRef(null);
     const emailErrorMessageRef      = useRef(null);
@@ -53,9 +53,9 @@ export default function EditProfile(props) {
         <Modal
             transparent={true}
             visible={true}
-            onRequestClose={() => setModal(null)}>
+            onRequestClose={() => popModal()}>
 
-            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                 <View style={{ ...styles.signup, ...{ boxShadow: 0 }}} onClick={handleChildClick}>
 
                     <Image source={Logo} style={styles.logo} />
@@ -105,7 +105,7 @@ export default function EditProfile(props) {
     );
 }
 
-async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempts, setLoginAttempts, setModal) {
+async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempts, setLoginAttempts, popModal) {
 
     // pul username and password in form data for a POST request
     let payload = new URLSearchParams();
@@ -121,7 +121,7 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempt
             // force GlobalContext to re-try getting user info
             setLoginAttempts(loginAttempts + 1);
             // success, exit out of modal
-            setModal(null);
+            popModal();
         }
         else {
             // failed, display error message returned by server

@@ -22,12 +22,13 @@ import { Link } from "react-router-dom/dist/index.js";
 import { GlobalContext } from "../components/GlobalContext.js";
 import Button from "../components/Button.js";
 import { approveRejectTransaction } from "../utils/transactions.js";
+import VerifyAction from "./VerifyAction.js";
 
 
 export default function TransactionInfo(props) {
 
     let [transactionInfo, setTransactionInfo] = useState(null);
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     useEffect(() => {
 
@@ -54,9 +55,9 @@ export default function TransactionInfo(props) {
             <Modal
             transparent={true}
             visible={true}
-            onRequestClose={() => setModal(null)}>
+            onRequestClose={() => popModal()}>
 
-                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                     <View style={styles.info} onClick={handleChildClick}>
                         <Loading />
                     </View>
@@ -73,9 +74,9 @@ export default function TransactionInfo(props) {
            <Modal
                 transparent={true}
                 visible={true}
-                onRequestClose={() => setModal(null)}>
+                onRequestClose={() => popModal()}>
 
-                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={{ ...globals.styles.modalBackground, ...props.style }} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                     <View style={styles.info} onClick={handleChildClick}>
                     <Text style={globals.styles.error}> {text} </Text>
                     </View>
@@ -90,9 +91,9 @@ export default function TransactionInfo(props) {
            <Modal
                 transparent={true}
                 visible={true}
-                onRequestClose={() => setModal(null)}>
+                onRequestClose={() => popModal()}>
 
-                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={{ ...globals.styles.modalBackground, ...props.style }} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                     <View style={styles.info} onClick={handleChildClick}>
 
                         <View style={styles.detailsContainer}>
@@ -164,7 +165,7 @@ function ListItem({ id, name, owed, border, hasApproved }) {
 
 function ApprovalButtons({ id, participants }) {
     const { currUserID, reRender} = useContext(GlobalContext);
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
     
     let approved = true;
 
@@ -177,10 +178,14 @@ function ApprovalButtons({ id, participants }) {
     }
 
     function approve(e, approved) {
-        e.preventDefault();
-        approveRejectTransaction(id, approved);
-        setModal(null);
-        reRender();
+        pushModal(<VerifyAction label={"Are you sure you want to " + (approved ? "approve " : "reject ") + "this transaction?"} accept={() => {
+            approveRejectTransaction(id, approved);
+            popModal(2);
+            reRender();
+        }} />);
+
+       
+       
     
     }
 

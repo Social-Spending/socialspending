@@ -15,11 +15,11 @@ import { Link } from "react-router-dom/dist/index.js";
 
 export default function GroupsList(props) {
 
-    let setModal = useContext(ModalContext);
+    let { pushModal, popModal } = useContext(ModalContext);
 
 
     const addGroupModal = () => {
-        setModal(<NewGroup />);
+        pushModal(<NewGroup />);
     }
 
     return (

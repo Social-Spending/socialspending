@@ -18,7 +18,7 @@ import SVGIcon from "./SVGIcon.js";
 
 export default function SelfProfile(props) {
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
     const {
         reRenderCount,
         currUserID,
@@ -51,7 +51,7 @@ export default function SelfProfile(props) {
     }, [isLoading, reRenderCount]);
 
     function editProfile() {
-        setModal(<EditProfile/>);
+        pushModal(<EditProfile/>);
     }
 
     return (

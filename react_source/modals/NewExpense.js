@@ -57,7 +57,7 @@ export default function NewExpense(props) {
 
     const errorMessageRef = useRef(null);
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     function handleChildClick(e) {
         e.stopPropagation();
@@ -75,9 +75,9 @@ export default function NewExpense(props) {
             <Modal
                 transparent={true}
                 visible={true}
-                onRequestClose={() => setModal(null)}>
+                onRequestClose={() => popModal()}>
 
-                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                     <View style={styles.create} onClick={handleChildClick}>
 
                         <Image source={Logo} style={styles.logo} />
@@ -105,7 +105,7 @@ export default function NewExpense(props) {
  */
 function ChooseName() {
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
     const {reRender} = useContext(GlobalContext);
 
     let {
@@ -137,7 +137,7 @@ function ChooseName() {
         setFormData(formData);
 
         if (await submitForm(formData, errorRef)) {
-            setModal(null);
+            popModal();
             reRender();
         }
     }

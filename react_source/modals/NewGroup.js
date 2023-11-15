@@ -23,14 +23,15 @@ export default function NewGroup(props) {
 
     const onSubmit = () => {
         submitForm(groupRef, errorMessageRef);
-        setModal(null); navigate("/groups");
+        popModal();
+        navigate("/groups");
         navigate(0); //Fallback refresh page if on groups
     }
     const onNameChange = () => { setNameDisabled(checkName(groupRef, errorMessageRef)); }
 
     const [nameDisabled, setNameDisabled] = useState(true);
     
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
     const errorMessageRef = useRef(null);
     const groupRef = useRef(null);
 
@@ -45,9 +46,9 @@ export default function NewGroup(props) {
         <Modal
             transparent={true}
             visible={true}
-            onRequestClose={() => setModal(null)}>
+            onRequestClose={() => popModal()}>
 
-            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                 <View style={styles.create} onClick={handleChildClick}>
 
                     <Image source={Logo} style={styles.logo} />

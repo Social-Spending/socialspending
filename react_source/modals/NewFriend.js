@@ -22,14 +22,14 @@ export default function NewFriend(props) {
 }
 
 
-async function onSubmit(user, setErrorMsg, setModal, reRender)
+async function onSubmit(user, setErrorMsg, popModal, reRender)
 {
     let responseMessage = await addFriend(user);
     if (responseMessage !== null)
     {
         if (responseMessage == 'Success')
         {
-            setModal(null);
+            popModal();
             navigate("/friends", { replace: true });
             navigate(0);
         }

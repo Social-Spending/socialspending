@@ -71,7 +71,7 @@ function TransactionList() {
 }
 
 function SummaryTransactionItem(props) {
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     let text = props.debt < 0 ? "Paid" : "Borrowed";
     let color = props.debt < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
@@ -80,7 +80,7 @@ function SummaryTransactionItem(props) {
     let pendingItalic = props.isApproved == 0 ? { fontStyle: 'italic' } : {};
 
     function viewTransaction() {
-        setModal(<TransactionInfo id={props.id} />);
+        pushModal(<TransactionInfo id={props.id} />);
     }
 
     return (

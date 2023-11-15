@@ -22,17 +22,17 @@ import Logo from '../assets/images/logo/logo-name-64.png';
  *      @param {JSON Object} style    Styles to use
  *      @param {Function} exit               function to call when exiting if you dont want to exit the modal for some reason
  *      @param {number} onSubmit     function handle for what to do with the username/email when user presses submit
- *                                   onSubmit takes args (user, setErrorMsg, setModal, reRender)...
+ *                                   onSubmit takes args (user, setErrorMsg, popModal, reRender)...
  *                                   where  'user' is a string of the username/email entered
  *                                          'setErrorMsg' is a function handle that takes 1 argument of a string error message to present on this modal
- *                                          'setModal' is a function handle from ModalContext that takes 1 argument of a DOM model to set as the current modal
+ *                                          'popModal' is a function handle from ModalContext that takes 0 or 1 arguments and removes one (or more) modals from the stack
  *                                          'reRender' is a function handle from GlobalContext that, when called, re-renders the screen
  *      @return {React.JSX.Element}  DOM element
  */
 export default function UserSearch(props) {
     // context vars/functions
     const {reRender} = useContext(GlobalContext);
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     // refs to DOM content
     const errorMessageRef = useRef(null);
@@ -53,7 +53,7 @@ export default function UserSearch(props) {
 
     function onSubmit() {
 
-        props.onSubmit(userRef.current.value, setErrorMsg, setModal, reRender);
+        props.onSubmit(userRef.current.value, setErrorMsg, popModal, reRender);
     }
 
 
@@ -62,9 +62,9 @@ export default function UserSearch(props) {
         <Modal
             transparent={true}
             visible={true}
-            onRequestClose={() => setModal(null)}>
+            onRequestClose={() => popModal()}>
 
-            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+            <View style={{ ...globals.styles.modalBackground, ...props.style }} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                 <View style={styles.create} onClick={handleChildClick}>
 
                     <Image source={Logo} style={styles.logo} />

@@ -54,11 +54,11 @@ function Links(props) {
 
 function Account({ showNotif, isNotifShown, areNotifs }) {
     const { isLoggedIn, currUsername, currUserIconPath, doSignout } = useContext(GlobalContext);
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
     if (isLoggedIn) {
         return (
             <View style={styles.container}>
-                <Button id="header_newExpense" style={styles.newExpense} hoverStyle={styles.newExpense} onClick={() => setModal(<NewExpense />)} >
+                <Button id="header_newExpense" style={styles.newExpense} hoverStyle={styles.newExpense} onClick={() => pushModal(<NewExpense />)} >
                     <label htmlFor="header_newExpense" style={globals.styles.buttonLabel }>
                         + NEW EXPENSE
                     </label>

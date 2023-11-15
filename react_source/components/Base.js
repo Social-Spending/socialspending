@@ -9,6 +9,7 @@ import Notifications from './Notifications.js';
 
 import { ModalContext } from '../modals/ModalContext.js';
 import WaitForAuth from './WaitForAuth.js';
+import VerifyAction from '../modals/VerifyAction.js';
 
 export default function Base(props) {
 
@@ -16,19 +17,31 @@ export default function Base(props) {
     // bool indicate if there are notifications present
     const [areNotifs, setAreNotifs] = useState(false);
 
-    const [modal, setModal] = useState(null);
+    let [modals, setModals] = useState([]);
 
     // bool whether to display notification bar by default if there are notifications
-    let defaultDisplayNotif = props.defaultDisplayNotif == true;
-    if (defaultDisplayNotif)
-    {
-        useEffect(() => {
+    useEffect(() => {
+        let defaultDisplayNotif = props.defaultDisplayNotif == true;
+        if (defaultDisplayNotif) {
             if (areNotifs) setShowShelf(areNotifs);
-        }, [areNotifs]);
+        }
+    }, [areNotifs]);
+    
+
+    function pushModal(modal) {
+        modals.push(<React.Fragment key={modals.length}>{modal}</React.Fragment>);
+        setModals(modals.concat([])); //This is so dumb but it wont work with just setModals(modals) it only works with a function that returns an array
+    }
+    function popModal(num = 1) {
+        for (let i = 0; i < num; i++) {
+            if (modals.length) modals.pop();
+        }
+        setModals(modals.concat([])); 
+        
     }
 
     return (
-        <ModalContext.Provider value={setModal}>
+        <ModalContext.Provider value={{ pushModal: pushModal, popModal: popModal }}>
             <View style={styles.base}>
                 <Header showNotif={() => setShowShelf(!showShelf)} isNotifShown={showShelf} areNotifs={areNotifs} />
 
@@ -50,7 +63,7 @@ export default function Base(props) {
                 </View>
                 
             </View>
-            {modal}
+            {modals}
         </ModalContext.Provider>
     );
 }

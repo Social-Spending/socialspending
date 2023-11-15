@@ -29,7 +29,7 @@ export default function UploadIcon(props) {
 
     const [image, setImage] = useState(null);
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
     // if uploading a group icon, reloading the page will suffice
     if (props.groupNUser) {
         var {reRender} = useContext(GlobalContext);
@@ -63,15 +63,15 @@ export default function UploadIcon(props) {
         imageRef.current.removeAttribute("aria-errormessage");
     }
 
-    const onSubmit = () => { submitForm(image, props.groupID, setErrorMsg, reRender, setModal); }
+    const onSubmit = () => { submitForm(image, props.groupID, setErrorMsg, reRender, popModal); }
 
     return (
         <Modal
             transparent={true}
             visible={true}
-            onRequestClose={() => setModal(null)}>
+            onRequestClose={() => popModal()}>
 
-            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+            <View style={{ ...globals.styles.modalBackground, ...props.style }} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                 <View style={styles.create} onClick={handleChildClick}>
 
                     <Image source={Logo} style={styles.logo} />
@@ -91,7 +91,7 @@ export default function UploadIcon(props) {
                                 UPLOAD
                             </label>
                         </Button>
-                        <Button id="uploadIcon_cancel" tabIndex={0} style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_ORANGE } }} hoverStyle={{ borderRadius: '.5em' }} onClick={() => setModal(null)} >
+                        <Button id="uploadIcon_cancel" tabIndex={0} style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_ORANGE } }} hoverStyle={{ borderRadius: '.5em' }} onClick={() => popModal()} >
                             <SVGIcon src={Reject} style={styles.icon} />
                             <label htmlFor="uploadIcon_cancel" style={globals.styles.buttonLabel}>
                                 CANCEL
@@ -107,7 +107,7 @@ export default function UploadIcon(props) {
 }
 
 // groupID will be undefined when groupNUser==false
-async function submitForm(image, groupID, setErrorMsg, reRender, setModal) {
+async function submitForm(image, groupID, setErrorMsg, reRender, popModal) {
 
     // append image
     var formData = new FormData();
@@ -135,7 +135,7 @@ async function submitForm(image, groupID, setErrorMsg, reRender, setModal) {
 
         if (await response.ok) {
             // close modal and re-render page
-            setModal(null);
+            popModal();
             reRender();
         }
         else {

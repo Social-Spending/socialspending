@@ -24,7 +24,7 @@ import { GlobalContext } from './GlobalContext.js';
 export default function SidebarGroupList(props) {
 
     let [groupItems, setGroupItems] = useState(null);
-    let setModal = useContext(ModalContext);
+    let { pushModal, popModal } = useContext(ModalContext);
     const {reRenderCount} = useContext(GlobalContext);
 
     useEffect(() => {
@@ -39,7 +39,7 @@ export default function SidebarGroupList(props) {
     }, [reRenderCount]);
 
     const addGroupModal = () => {
-        setModal(<NewGroup />);
+        pushModal(<NewGroup />);
     }
 
     if (groupItems === null) {
