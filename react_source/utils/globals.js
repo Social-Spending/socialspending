@@ -308,6 +308,6 @@ export const styles = StyleSheet.create({
         margin: 0,
         marginRight: '1em',
         borderRadius: '2em',
-        color: COLOR_ORANGE
+        color: COLOR_ORANGE,
     }
 });

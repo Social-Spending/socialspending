@@ -105,7 +105,13 @@ function SummaryFriendItem(props) {
                 <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
                     <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
-                    <Button style={[globals.styles.settleUp, color]} hoverStyle={globals.styles.settleUp} textStyle={globals.styles.h4} label="Settle Up" onClick={(e) => {e.preventDefault(); setModal(<SettleUp targetID={props.id}/>)}} />
+
+                    
+                    {
+                        props.owed > 0 &&
+                        <Button style={[globals.styles.formButton]} textStyle={globals.styles.h4} label="Settle Up" onClick={(e) => {e.preventDefault(); setModal(<SettleUp targetID={props.id}/>)}} />
+                    }
+                    
                 </View>
 
             </View>

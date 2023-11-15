@@ -49,7 +49,9 @@ export default function SettleUp(props) {
     //Variables to pass down to all children as a context so that they know and can edit the data of others
     const [pageNum, setPageNum] = useState(PAGES.SELECT_CANDIDATE);
     const [formData, setFormData] = useState({});
-    const [candidateID, setCandidateID] = useState(null);
+    const [candidates, setCandidates] = useState([]);
+    const [candidateJSON, setJSON] = useState([{'user_id':null, 'username':"", 'amount':0}]);
+    const [candidateIndex, setCandidateIndex] = useState(0);
     const [targetID, setTargetID] = useState(props.targetID);
 
     const errorMessageRef = useRef(null);
@@ -65,7 +67,9 @@ export default function SettleUp(props) {
         <SettleUpContext.Provider
             value={{
                 pageNum: [pageNum, setPageNum],
-                candidateID: [candidateID, setCandidateID],
+                candidates: [candidates, setCandidates],
+                candidateJSON: [candidateJSON, setJSON],
+                candidateIndex: [candidateIndex, setCandidateIndex],
                 targetID: [targetID, setTargetID],
                 errorRef: errorMessageRef,
                 formData: [formData, setFormData]
@@ -105,18 +109,18 @@ function SelectCandidate() {
 
     const {
         pageNum:        [pageNum    , setPageNum],
-        candidateID:    [candidateID, setCandidateID],
+        candidates:     [candidates , setCandidates],
+        candidateJSON:  [candidateJSON, setCandidateJSON],
+        candidateIndex:    [candidateIndex, setCandidateIndex],
         targetID:       [targetID   , setTargetID],
         formData:       [formData   , setFormData]
     } = useContext(SettleUpContext);
-
-    const [candidates, setCandidates] = useState([]);
 
     const setModal = useContext(ModalContext);
 
     useEffect(() => {
         async function getSettleUpCandidates(targetID) {
-            setCandidates(await buildCandidates(targetID, setCandidateID, setPageNum));
+            setCandidates(await buildCandidates(targetID, setCandidateJSON, setCandidateIndex, setPageNum));
         }
         if (pageNum == PAGES.SELECT_CANDIDATE) getSettleUpCandidates(targetID);
     }, [pageNum]);
@@ -145,61 +149,31 @@ function SelectCandidate() {
  */
 function ConfirmSettleUp() {
 
+    const setModal = useContext(ModalContext);
+    const {reRender} = useContext(GlobalContext);
+
     let {
         pageNum: [pageNum, setPageNum],
-        formData: [formData, setFormData]
+        candidateJSON: [candidateJSON, setCandidateJSON],
+        candidateIndex: [candidateIndex, setCandidateIndex],
+        formData: [formData, setFormData],
+        errorRef: errorRef,
     } = useContext(SettleUpContext);
 
-    //const { currUserID } = useContext(GlobalContext);
-
-    const [settleUpDetails, setSettleUpDetails] = useState([]);
-    const [refList, setRefList] = useState([]);
-
-    // If users selected a group, groupID will be set and so we get the member list for that group
-    // Otherwise get the users friends
-    // Pass a setRefList variable so that the unknown number of inputs can be accessed 
-    useEffect(() => {
-        async function getSettleUpDetails() {
-
-        }
-        if (pageNum == PAGES.CONFIRM_SETTLE_UP) getSettleUpDetails();
-
-    }, [pageNum]);
-
     // Update form data to include participants list move on to name setting
-    const onSubmit = () => {
+    async function onSubmit() {
         setPageNum(pageNum + 1);
         
-        formData.transaction_participants = [];
+        formData.user_id = candidateJSON[candidateIndex].user_id;
+        formData.amount = candidateJSON[candidateIndex].amount;
 
-        for (let i = 0; i < splitList.length; i++) {
-
-            //Dont add users with 0 values
-            if (refList[i].current.value == "" || refList[i].current.value == "0") continue;
-
-            formData.transaction_participants.push({
-                user_id: splitList[i].props.id,
-                amount: parseInt(parseFloat(refList[i].current.value).toFixed(2) * (paidList[i].current ? -100 : 100))
-            })
-        }
         setFormData(formData);
 
-    }
-
-    const splitPaid = (paid) => {
-        let total = 0;
-        let count = 0;
-        for (let i = 0; i < refList.length; i++) {
-            if (paidList[i].current == paid) {
-                total += refList[i].current.value == "" ? 0 : parseInt(parseFloat(refList[i].current.value).toFixed(2) * 100);
-                count++;
-            }
-            
+        if (await submitForm(formData, errorRef)) {
+            setModal(null);
+            reRender();
         }
-        for (let i = 0; i < refList.length; i++) {
-            if (paidList[i].current == paid) refList[i].current.value = (total / count / 100).toFixed(2);
 
-        }
     }
     
 
@@ -208,25 +182,17 @@ function ConfirmSettleUp() {
             display: pageNum != PAGES.CONFIRM_SETTLE_UP ? 'none' : 'inherit'
         }]}>
             <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Verify Transaction Details</Text>
-
+                
             <View style={{width: '75%', justifyContent: 'space-between', flexDirection: 'row' }}>
-                <Button
-                    style={{ width: 'auto', height: 'auto', marginTop: '.25em' }}
-                    textStyle={{ fontSize: '.75em', fontWeight: '500', color: globals.COLOR_BLUE }}
-                    label="Split Paid Evenly"
-                    onClick={() => splitPaid(true)} />
-                <Button
-                    style={{ width: 'auto', height: 'auto', marginTop: '.25em' }}
-                    textStyle={{ fontSize: '.75em', fontWeight: '500', color: globals.COLOR_ORANGE }}
-                    label="Split Borrowed Evenly"
-                    onClick={() => splitPaid(false)} /> 
+                <Text style={[globals.styles.label, globals.styles.h4, { padding: 0 }]}>You Owe {candidateJSON[candidateIndex].username} </Text>
+                <Text style={[globals.styles.label, globals.styles.h4, { padding: 0 }]}>${(candidateJSON[candidateIndex].amount / 100).toFixed(2)}</Text>
             </View>
            
 
       
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(PAGES.SELECT_CANDIDATES)} />
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Next' onClick={onSubmit} />
+                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(PAGES.SELECT_CANDIDATE)} />
+                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Confirm' onClick={onSubmit} />
             </View>
         </View>
     );
@@ -239,7 +205,7 @@ function ConfirmSettleUp() {
  * @param {Function} setPage function to set pageNum variable
  * @returns a list of Button elements
  */
-async function buildCandidates(targetID, setID, setPage) {
+async function buildCandidates(targetID, setJSON, setID, setPage) {
     let outputList = [];
 
     const candidates = await getSettleUpCandidatesList(targetID);
@@ -247,11 +213,13 @@ async function buildCandidates(targetID, setID, setPage) {
     if (!candidates){
         return outputList;
     }
+    
+    setJSON(candidates);
 
     for (let i = 0; i < candidates.length; i++) {
         outputList.push(<Button style={[globals.styles.formButton, { width: '100%', margin: 0, marginVertical: '.5em' }]} label={candidates[i].username} onClick={
             () => { 
-                setID(candidates[i].user_id);
+                setID(i);
                 setPage(PAGES.CONFIRM_SETTLE_UP);
                 }} />);
     }
@@ -269,7 +237,7 @@ async function buildCandidates(targetID, setID, setPage) {
 async function submitForm(formData, errorRef) {
 
     try {
-        let response = await fetch("/transactions.php", {
+        let response = await fetch("/settle_up.php", {
             method: 'POST',
             body: JSON.stringify(formData),
             credentials: 'same-origin',
@@ -289,7 +257,7 @@ async function submitForm(formData, errorRef) {
         }
     }
     catch (error) {
-        console.log("error in POST request to transactions (/transactions.php)");
+        console.log("error in POST request to settle_up (/settle_up.php)");
         console.log(error);
     }
    return false;
