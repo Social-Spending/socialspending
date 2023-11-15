@@ -52,14 +52,15 @@ function handlePOST()
     }
 
     // get data from POST
-    if (!isset($_POST['transaction_id']) || !isset($_FILES['icon']))
+    echo print_r($_POST);
+    if (!isset($_POST['transaction_id']) || !isset($_FILES['receipt']))
     {
         returnMessage('Missing form fields', 400);
     }
     $transactionID = $_POST['transaction_id'];
 
     // parse to image and save as gif to filesystem
-    $serverFileName = validateAndSaveImage($_FILES['icon'], int->max, 0, 0, TRANSACTION_RECEIPT_DIR);
+    $serverFileName = validateAndSaveImage($_FILES['receipt'], PHP_INT_MAX, 0, 0, TRANSACTION_RECEIPT_DIR);
     if (!$serverFileName)
     {
         returnMessage($_VALIDATE_IMAGE_FAILURE_MESSAGE, 400);
@@ -100,6 +101,7 @@ function handlePOST()
 // handle different request types
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
 {
+    $_POST = file_get_contents("php://input");
     handlePOST();
 }
 returnMessage('Request method not supported', 400);

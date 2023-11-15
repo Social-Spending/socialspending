@@ -439,14 +439,15 @@ function addNewTransaction($data)
         addApprovalRequestNotification($transaction_id, $participant['user_id']);
     }
 
-    echo "Before image upload\n";
-    echo print_r($_POST);
+    // echo "Before image upload\n";
+    // echo print_r($_POST);
     // echo print_r($_FILES);
-    if (isset($_POST["receipt"])) {
-        echo "In if statement\n";
-        uploadReceipt($transaction_id);
-    }
-    echo "After image upload";
+    // if (isset($_POST["receipt"])) {
+    // // if (isset($_POST["receipt"]) && $_POST["receipt"] != "") {
+    //     echo "In if statement\n";
+    //     uploadReceipt($transaction_id);
+    // }
+    // echo "After image upload";
     
     return;
 }

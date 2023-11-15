@@ -51,6 +51,11 @@ function handlePOST()
         handleDBError();
     }
 
+
+    /**********************Remove after done testing************************/
+    echo print_r($_POST);
+
+
     // get data from POST
     if (!isset($_POST['group_id']) || !isset($_FILES['icon']))
     {

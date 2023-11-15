@@ -123,6 +123,14 @@ function ChooseName() {
     const dateRef = useRef(null);
     const descriptionRef = useRef(null);
     const receiptRef = useRef(null);
+    const [image, setImage] = useState(null);
+
+    const updateImageSource = (e) => {
+        setImage(e.target.files[0]);
+        console.log("Set image");
+        console.log(e.target.files[0]);
+        console.log(image)
+    }
 
     //Sets appropriate values of form data before updating the global version 
     //and then pushing the value to the web request
@@ -136,12 +144,16 @@ function ChooseName() {
         }
         formData.transaction_date = dateRef.current.value;
 
-        if (receiptRef.current.value != null)
-            formData.receipt = receiptRef.current.value;
+        // if (receiptRef.current.value != null)
+        //     formData.receipt = receiptRef.current.Image;
+
+        // formData.receipt = image; //Stays null
+        // formData.append("receipt", image); //Errors out
 
         setFormData(formData);
 
         if (await submitForm(formData, errorRef)) {
+            await uploadReceipt(image);
             setModal(null);
             reRender();
         }
@@ -176,8 +188,7 @@ function ChooseName() {
                 <Text style={[globals.styles.h5, globals.styles.label]}>UPLOAD RECEIPT</Text>
             </View>
 
-            {/* <input ref={receiptRef} type="file" accept="image/*" onInput={updateImageSource} /> */}
-            <input ref={receiptRef} type="file" accept="image/*" />
+            <input ref={receiptRef} type="file" accept="image/*" onInput={updateImageSource} />
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
                 <Button disabled={nameDisabled} style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Submit' onClick={onSubmit} />
@@ -478,7 +489,41 @@ async function submitForm(formData, errorRef) {
         console.log("error in POST request to transactions (/transactions.php)");
         console.log(error);
     }
-   return false;
+
+    return false;
+}
+
+async function uploadReceipt(image) {
+    let imageData = new FormData();
+    imageData.append("receipt", image);
+    imageData.append("transaction_id", 1);
+
+    try {
+        let response = await fetch("/receipt_upload.php", {
+            method: 'POST',
+            body: imageData,
+            credentials: 'same-origin',
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+
+        if (await response.ok) {
+            return true;
+
+        }
+        else {
+            let responseJSON = await await response.json();
+            errorRef.current.innerText = responseJSON.message;
+            return false;
+        }
+    }
+    catch (error) {
+        console.log("Error in POST request to receipt upload (/receipt_upload.php)");
+        console.log(error);
+    }
+
+    return false;
 }
 
 const styles = StyleSheet.create({
