@@ -52,7 +52,7 @@ function handlePOST()
     }
 
     // get data from POST
-    echo print_r($_POST);
+    // echo print_r($_POST);
     if (!isset($_POST['transaction_id']) || !isset($_FILES['receipt']))
     {
         returnMessage('Missing form fields', 400);
@@ -70,9 +70,9 @@ function handlePOST()
 
     // query to store image path with the transaction
     $sql =  'UPDATE transactions t '.
-            'INNER JOIN transaction_members tm ON tm.transaction_id = t.transaction_id '.
-            'SET g.receipt_path = ? '.
-            'WHERE t.transaction_id = ? AND tm.user_id = ?;';
+            'INNER JOIN transaction_participants tp ON tp.transaction_id = t.transaction_id '.
+            'SET t.receipt_path = ? '.
+            'WHERE t.transaction_id = ? AND tp.user_id = ?;';
 
     $result = $mysqli->execute_query($sql, ["/".$serverFileName, $transactionID, $userID]);
     // check for errors
@@ -101,7 +101,7 @@ function handlePOST()
 // handle different request types
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
 {
-    $_POST = file_get_contents("php://input");
+    // $_POST = file_get_contents("php://input");
     handlePOST();
 }
 returnMessage('Request method not supported', 400);

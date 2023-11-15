@@ -127,9 +127,6 @@ function ChooseName() {
 
     const updateImageSource = (e) => {
         setImage(e.target.files[0]);
-        console.log("Set image");
-        console.log(e.target.files[0]);
-        console.log(image)
     }
 
     //Sets appropriate values of form data before updating the global version 
@@ -143,12 +140,6 @@ function ChooseName() {
             dateRef.current.valueAsDate = new Date();
         }
         formData.transaction_date = dateRef.current.value;
-
-        // if (receiptRef.current.value != null)
-        //     formData.receipt = receiptRef.current.Image;
-
-        // formData.receipt = image; //Stays null
-        // formData.append("receipt", image); //Errors out
 
         setFormData(formData);
 
@@ -503,9 +494,6 @@ async function uploadReceipt(image) {
             method: 'POST',
             body: imageData,
             credentials: 'same-origin',
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
         });
 
         if (await response.ok) {

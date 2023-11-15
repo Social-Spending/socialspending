@@ -64,7 +64,7 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
 
     $image = imagecrop($image, ['x' => $actualWidth / 2 - $xSize / 2, 'y' => $actualHeight / 2 - $ySize / 2, 'width' => $xSize, 'height' => $ySize]);
 
-    imagecopyresized($image, $image, 0, 0, 0, 0, $allowedWidth, $allowedHeight, $actualWidth, $actualHeight);
+    imagecopyresized($image, $image, 0, 0, 0, 0, $xSize, $ySize, $actualWidth, $actualHeight);
 
     // make sure this destination folder exists
     if (!file_exists($dir)) {
