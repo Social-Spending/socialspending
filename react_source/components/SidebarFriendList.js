@@ -20,7 +20,7 @@ import { getFriends } from '../utils/friends.js';
  */
 export default function SidebarFriendList(props) {
     let [friendItems, setFriendItems] = useState(null);
-    let setModal = useContext(ModalContext);
+    let { pushModal, popModal } = useContext(ModalContext);
     const {reRenderCount} = useContext(GlobalContext);
 
     useEffect(() => {
@@ -35,7 +35,7 @@ export default function SidebarFriendList(props) {
     }, [reRenderCount]);
 
     const addFriendModal = () => {
-        setModal(<NewFriend />);
+        pushModal(<NewFriend />);
     }
 
     if (friendItems === null) {

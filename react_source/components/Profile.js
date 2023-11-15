@@ -37,22 +37,47 @@ export default function Profile(props) {
     let [friendRequestNotificationID, setFriendRequestNotificationID] = useState(null);
     let [friendRequestCanApprove, setFriendRequestCanApprove] = useState(null);
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
     const { reRenderCount, currUserID } = useContext(GlobalContext);
     const navigate = useNavigate();
 
 
     function unfriend() {
-        setModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={() => { removeFriend(username); setIsFriend(false); setModal(null); navigate("/friends");  navigate(0) }} />);
+        pushModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={() => {
+            removeFriend(username);
+            setIsFriend(false);
+            popModal();
+            navigate("/friends");
+            navigate(0)
+        }} />);
     }
     function verifyAddFriend() {
-        setModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={() => { addFriend(username); setIsPendingFriend(true); setModal(null); navigate("/friends"); navigate(0) }} />);
+        pushModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={() => {
+            addFriend(username);
+            setIsPendingFriend(true);
+            popModal();
+            navigate("/friends");
+            navigate(0)
+        }} />);
     }
     function verifyAcceptRejectFriend(acceptNReject) {
-        setModal(<VerifyAction label={"Are you sure you want to " + (acceptNReject ? "accept" : "reject") + " friend request from " + username + "?"} accept={() => { acceptRejectFriendRequest(friendRequestNotificationID, acceptNReject); setIsPendingFriend(false); setIsFriend(acceptNReject); setModal(null); navigate("/friends"); navigate(0) }} />);
+        pushModal(<VerifyAction label={"Are you sure you want to " + (acceptNReject ? "accept" : "reject") + " friend request from " + username + "?"} accept={() => {
+            acceptRejectFriendRequest(friendRequestNotificationID, acceptNReject);
+            setIsPendingFriend(false);
+            setIsFriend(acceptNReject);
+            popModal();
+            navigate("/friends");
+            navigate(0)
+        }} />);
     }
     function verifyCancelFriendRequest() {
-        setModal(<VerifyAction label={"Are you sure you want to revoke your friend request to " + username + "?"} accept={() => { cancelFriendRequest(friendRequestNotificationID); setIsPendingFriend(false); setModal(null); navigate("/friends"); navigate(0) }} />);
+        pushModal(<VerifyAction label={"Are you sure you want to revoke your friend request to " + username + "?"} accept={() => {
+            cancelFriendRequest(friendRequestNotificationID);
+            setIsPendingFriend(false);
+            popModal();
+            navigate("/friends");
+            navigate(0)
+        }} />);
     }
 
 
@@ -89,7 +114,7 @@ export default function Profile(props) {
 
 
     const addExpense = () => {
-        setModal(<NewExpense profile={true} />);
+        pushModal(<NewExpense profile={true} />);
     }
 
     let text = debt < 0 ? "Owes You" : "You Owe";
@@ -307,14 +332,14 @@ function GroupListItem({ id, name, icon_path, border }) {
 
 function TransactionListItem({ id, name, date, user_debt, border, isApproved }) {
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     // let text = user_debt >= 0 ? "Borrowed" : "Paid";
     // let color = user_debt >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
     let pendingItalic = isApproved == 0 ? { fontStyle: 'italic' } : {};
 
     const viewTransaction = () => {
-        setModal(<TransactionInfo id={id} />);
+        pushModal(<TransactionInfo id={id} />);
     }
 
     return (

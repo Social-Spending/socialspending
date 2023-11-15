@@ -33,7 +33,7 @@ export default function GroupInfo(props) {
     let [groupName, setGroupName] = useState(null);
     let [iconPath, setIconPath] = useState(null);
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
     const { currUserID, currUsername, currUserIconPath, reRenderCount, reRender } = useContext(GlobalContext);
 
     const navigate = useNavigate();
@@ -61,9 +61,9 @@ export default function GroupInfo(props) {
     }
 
     const leave = () => {
-        setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => {
+        pushModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => {
             leaveGroup(props.id, navigate);
-            setModal(null);
+            popModal();
             navigate("/groups", { replace: true });
             navigate(0); //fallback refresh page if already on groups
         }} />);
@@ -71,16 +71,16 @@ export default function GroupInfo(props) {
 
 
     const addExpense = () => {
-        setModal(<NewExpense groupID={props.id} />);
+        pushModal(<NewExpense groupID={props.id} />);
 
     }
 
     function inviteMember() {
-        setModal(
+        pushModal(
             <UserSearch
                 title="INVITE USER TO GROUP"
                 label="Enter the username or email to send a group invite"
-                onSubmit={(user, setErrorMsg, setModal, reRender) => {sendGroupInvitation(user, props.id, setModal, reRender, setErrorMsg);}}
+                onSubmit={(user, setErrorMsg, popModal, reRender) => {sendGroupInvitation(user, props.id, popModal, reRender, setErrorMsg);}}
                 submitLabel="Send Invite"
             />);
 
@@ -241,11 +241,11 @@ function MemberListItem({ id, name, owed, border, group_id, icon_path }) {
     // get currUserID to remove the 'kick' button next to the member list item for the current user
     // get reRender to re-load the page after a user has been removed
     const { currUserID, reRender } = useContext(GlobalContext);
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     function kickMember(event) {
         event.preventDefault();
-        setModal(<VerifyAction label={'Are you sure you want to remove '+name+' from the group?'} accept={() => kickMemberFromGroup(id, group_id, setModal, reRender)} />);
+        pushModal(<VerifyAction label={'Are you sure you want to remove '+name+' from the group?'} accept={() => kickMemberFromGroup(id, group_id, popModal, reRender)} />);
     }
 
     return (
@@ -289,11 +289,11 @@ function PendingMemberListItem({ id, name, border, group_id, icon_path }) {
     // get currUserID to remove the 'kick' button next to the member list item for the current user
     // get reRender to re-load the page after a user has been removed
     const { currUserID, reRender} = useContext(GlobalContext);
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     function revokeInvite(event) {
         event.preventDefault();
-        setModal(<VerifyAction label={'Are you sure you want to revoke the group invitation for '+name+'?'} accept={() => revokeInvitation(id, group_id, setModal, reRender)} />);
+        pushModal(<VerifyAction label={'Are you sure you want to revoke the group invitation for '+name+'?'} accept={() => revokeInvitation(id, group_id, popModal, reRender)} />);
     }
 
     return (
@@ -327,7 +327,7 @@ function PendingMemberListItem({ id, name, border, group_id, icon_path }) {
  */
 function TransactionListItem({ id, name, owed, border, isApproved }) {
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     let text = owed >= 0 ? "Borrowed" : "Paid";
     let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
@@ -336,7 +336,7 @@ function TransactionListItem({ id, name, owed, border, isApproved }) {
     let pendingItalic = isApproved == 0 ? { fontStyle: 'italic' } : {};
 
     const viewTransaction = () => {
-        setModal(<TransactionInfo id={id} />);
+        pushModal(<TransactionInfo id={id} />);
     }
 
     return (

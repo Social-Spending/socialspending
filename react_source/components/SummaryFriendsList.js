@@ -15,11 +15,11 @@ import { Link } from "react-router-dom/dist/index.js";
 
 export default function SummaryFriendsList(props) {
 
-    let setModal = useContext(ModalContext);
+    let { pushModal, popModal } = useContext(ModalContext);
 
 
     const addFriendModal = () => {
-        setModal(<NewFriend />);
+        pushModal(<NewFriend />);
     }
 
     return (

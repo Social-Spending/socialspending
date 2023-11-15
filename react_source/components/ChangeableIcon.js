@@ -12,10 +12,10 @@ import SVGIcon from "./SVGIcon.js";
 export default function ChangeableIcon({ iconPath, name, groupID }) {
 
     const [hover, setHover] = useState(false);
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     const upload = () => {
-        setModal(<UploadIcon groupID={groupID} />);
+        pushModal(<UploadIcon groupID={groupID} />);
     }
 
     return (

@@ -16,7 +16,7 @@ import { ModalContext } from './ModalContext.js';
 import SVGIcon from '../components/SVGIcon.js';
 
 export default function VerifyAction(props) {
-    const setModal = useContext(ModalContext);
+    const { popModal } = useContext(ModalContext);
 
     function handleChildClick(e) {
         e.stopPropagation();
@@ -26,9 +26,9 @@ export default function VerifyAction(props) {
         <Modal
             transparent={true}
             visible={true}
-            onRequestClose={() => setModal(null)}>
+            onRequestClose={() => popModal()}>
 
-            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+            <View style={{ ...globals.styles.modalBackground, ...props.style }} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                 <View style={styles.verify} onClick={handleChildClick}>
 
                     <Image source={Logo} style={styles.logo} />
@@ -42,7 +42,7 @@ export default function VerifyAction(props) {
                                 CONTINUE
                             </label>
                         </Button>
-                        <Button id="verify_cancel" tabIndex={0} style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_ORANGE } }} onClick={(props.reject != undefined ? props.reject : () => setModal(null))} >
+                        <Button id="verify_cancel" tabIndex={0} style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_ORANGE } }} onClick={(props.reject != undefined ? props.reject : () => popModal())} >
                             <SVGIcon src={Reject} style={styles.icon} />
                             <label htmlFor="verify_cancel" style={globals.styles.buttonLabel}>
                                 CANCEL

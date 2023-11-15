@@ -146,10 +146,10 @@ function FriendRequest(props) {
 
     const {removeNotif} = useContext(NotificationContext);
     const {reRender} = useContext(GlobalContext);
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     const approve = (accept) => {
-        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "accept " : "reject ") + props.name + "'s friend request?"} accept={() => { approveFriendRequest(props.id, accept, removeNotif, reRender); setModal(null); } } />);
+        pushModal(<VerifyAction label={"Are you sure you want to " + (accept ? "accept " : "reject ") + props.name + "'s friend request?"} accept={() => { approveFriendRequest(props.id, accept, removeNotif, reRender); popModal(); } } />);
     }
 
     return (
@@ -182,14 +182,14 @@ function FriendRequest(props) {
 function ApproveTransaction(props) {
     const {removeNotif} = useContext(NotificationContext);
     const {reRender} = useContext(GlobalContext);
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     const viewTransaction = () => {
-        setModal(<TransactionInfo id={props.trans_id} exit={() => setModal(null)} />);
+        pushModal(<TransactionInfo id={props.trans_id} exit={() => popModal()} />);
     }
 
     const approve = (accept) => {
-        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "approve " : "reject ") + props.name + "?"} accept={() => { approveTransaction(props.trans_id, props.id, accept, removeNotif, reRender); setModal(null); }} />);
+        pushModal(<VerifyAction label={"Are you sure you want to " + (accept ? "approve " : "reject ") + props.name + "?"} accept={() => { approveTransaction(props.trans_id, props.id, accept, removeNotif, reRender); popModal(); }} />);
     }
 
     return (
@@ -224,10 +224,10 @@ function ApproveTransaction(props) {
 
 function CompletedTransaction(props) {
     const {removeNotif} = useContext(NotificationContext);
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     const viewTransaction = () => {
-        setModal(<TransactionInfo id={props.trans_id} exit={() => setModal(null)} />);
+        pushModal(<TransactionInfo id={props.trans_id} exit={() => popModal()} />);
     }
 
     return (
@@ -264,11 +264,11 @@ function CompletedTransaction(props) {
 function GroupInvite(props) {
     const {removeNotif} = useContext(NotificationContext);
     const {reRender} = useContext(GlobalContext);
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
 
     const approve = (accept) => {
-        setModal(<VerifyAction label={"Are you sure you want to " + (accept ? "join " : "ignore invite to ") + props.name + "?"} accept={() => { approveGroupInvite(props.id, accept, removeNotif, reRender); setModal(null); }} />);
+        pushModal(<VerifyAction label={"Are you sure you want to " + (accept ? "join " : "ignore invite to ") + props.name + "?"} accept={() => { approveGroupInvite(props.id, accept, removeNotif, reRender); popModal(); }} />);
     }
 
     return (
