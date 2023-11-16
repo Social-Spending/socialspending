@@ -11,6 +11,7 @@ import { ModalContext } from './ModalContext.js';
 import { GlobalContext } from '../components/GlobalContext.js';
 
 import Logo from '../assets/images/logo/logo-name-64.png';
+import { debounce, userSearch } from '../utils/userSearch.js';
 
 
 /**
@@ -38,6 +39,9 @@ export default function UserSearch(props) {
     const errorMessageRef = useRef(null);
     const userRef = useRef(null);
 
+    const [foundUsers, setFoundUsers] = useState([]);
+    const [showDropDown, setShowDropDown] = useState(false);
+
     // functions
     function handleChildClick(e) {
         e.stopPropagation();
@@ -55,6 +59,8 @@ export default function UserSearch(props) {
 
         props.onSubmit(userRef.current.value, setErrorMsg, popModal, reRender);
     }
+
+    let onNameChange = debounce(() => searchUser(userRef, errorMessageRef, setFoundUsers), 500);
 
 
     // DOM content to return
@@ -78,7 +84,26 @@ export default function UserSearch(props) {
                         <label htmlFor="userSearch_name" style={{ ...globals.styles.h5, ...globals.styles.label}}>USERNAME OR EMAIL</label>
                     </View>
 
-                    <input autoFocus tabIndex={0} ref={userRef} placeholder=" Enter username or email" style={globals.styles.input} id='userSearch_name' name="user" onInput={() => onInput(userRef)} />
+                    <input autoFocus
+                        tabIndex={0}
+                        ref={userRef}
+                        placeholder=" Enter username or email"
+                        style={globals.styles.input}
+                        id='userSearch_name'
+                        name="user"
+                        onInput={onNameChange}
+                        onBlur={() => setShowDropDown(false)} 
+                        onFocus={() => setShowDropDown(true)}
+                    />
+                    { showDropDown && 
+                        <View style={{ width: '100%', height: 'auto', alignItems: 'center', zIndex: 10 }} >
+                       
+                            <View style={styles.dropDown}>
+                                {foundUsers}
+                            </View>
+                        </View>
+                    }
+                   
 
                     <Button id="userSearch_button" tabIndex={0} style={globals.styles.formButton} onClick={onSubmit}>
                         <label htmlFor="userSearch_button" style={globals.styles.buttonLabel}>
@@ -92,18 +117,52 @@ export default function UserSearch(props) {
     );
 }
 
+function FoundUser(props) {
+    function pickUser() {
+        props.userRef.current.value = props.username;
+        props.setFound([]);
+    }
+
+    return (
+        <Button tabIndex={0} id={"foundUser_" + props.username} onMouseDown={pickUser}>
+            <View style={{ width: '100%', alignItems: 'center', flexDirection: 'row'}}>
+                <Image source={props.icon ? props.icon : globals.getDefaultUserIcon(props.username)} style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em', marginLeft: '.5em' } }} />
+                <label htmlFor={"foundUser_" + props.username} style={{ fontSize: '1.25em', color: globals.COLOR_GRAY, paddingLeft: '.25em', cursor: 'pointer' }}>
+                    {props.username}
+                </label>
+            </View>     
+        </Button>
+    
+    );
+}
+
 // Search for users given the username or email
-function onNameChange(userRef, errorRef) {
-    // TODO search for users and populate drown-down
-    /*
+async function searchUser(userRef, errorRef, setFoundUsers) {
+
+    if (userRef.current.value.length < 4) {
         // set error acessability features
+        setFoundUsers([]);
+        errorRef.current.innerText = "Cannot search for a username less than 4 characters";
         userRef.current.setAttribute("aria-invalid", true);
         userRef.current.setAttribute("aria-errormessage", errorRef.current.id);
-    
+    } else {
         // remove error
+        errorRef.current.innerText = "";
         userRef.current.removeAttribute("aria-invalid");
         userRef.current.removeAttribute("aria-errormessage");
-    */
+
+        let output = [];
+        let users = await userSearch(userRef.current.value);
+
+        
+        for (let i = 0; i < users.length; i++) {
+            output.push(
+                <FoundUser key={i} username={users[i].username} userRef={userRef} icon={users[i].icon_path} setFound={setFoundUsers} />
+
+            );               
+        }
+        setFoundUsers(output);
+    }    
 }
 
 const styles = {
@@ -122,6 +181,15 @@ const styles = {
         width: '9em',
         minWidth: '2em',
         borderRadius: 1,
+    },
+    dropDown: {
+        width: '75%',
+        height: 'auto',
+        maxHeight: '13.5em',
+        backgroundColor: globals.COLOR_WHITE,
+        position: 'absolute',
+        overflowY: 'auto',
+        scrollbarWidth: 'thin'
     }
 
 };

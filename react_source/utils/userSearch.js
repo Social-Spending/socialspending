@@ -1,4 +1,14 @@
 
+export function debounce(func, timeout = 300) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            func.apply(this, args);
+        }, timeout);
+    };
+}
+
 // given a partial string of username or email, return a list of user objects, ...
 //  where each user object has keys 'user_id' and 'username'
 // if no matches were found or an error occurred, return an empty array
