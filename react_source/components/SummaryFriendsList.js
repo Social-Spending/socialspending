@@ -10,8 +10,10 @@ import Button from "./Button.js";
 import { ModalContext } from "../modals/ModalContext.js";
 import WaitForAuth from "./WaitForAuth.js";
 import Loading from "./Loading.js";
-import NewFriend from "../modals/NewFriend.js";
+import NewFriend from "../modals/NewFriend.js"
+import SettleUp from "../modals/SettleUp.js";;
 import { GlobalContext } from "./GlobalContext.js";
+
 
 export default function SummaryFriendsList(props) {
 
@@ -88,8 +90,9 @@ function SummaryFriendItem(props) {
     let color = props.owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
     color = props.owed == 0 ? { color: globals.COLOR_GRAY } : color;
 
-    return (
+    const setModal = useContext(ModalContext);
 
+    return (
         <Link href={'/profile/' + props.id} asChild>
             <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem} >
                 <View style={globals.styles.listIconAndTextContainer}>
@@ -102,11 +105,17 @@ function SummaryFriendItem(props) {
                 <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
                     <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
                     <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
+
+                    
+                    {
+                        props.owed > 0 &&
+                        <Button style={[globals.styles.formButton]} textStyle={globals.styles.h4} label="Settle Up" onClick={(e) => {e.preventDefault(); setModal(<SettleUp targetID={props.id}/>)}} />
+                    }
+                    
                 </View>
 
             </View>
         </Link>
-
     );
 }
 
