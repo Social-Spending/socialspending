@@ -77,12 +77,12 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
         $serverFileName = $dir.$imageID.'.gif';
     }
     while (file_exists($serverFileName));
-    if (!imagegif($image, $serverFileName))
+    if (!imagegif($resizedImage, $serverFileName))
     {
         $_VALIDATE_IMAGE_FAILURE_MESSAGE = 'Failed to save image';
         return false;
     }
-    imagedestroy($image);
+    imagedestroy($resizedImage);
 
     // result is path to image file on server
     return $serverFileName;

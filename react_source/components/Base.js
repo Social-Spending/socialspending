@@ -1,7 +1,7 @@
 import * as globals from '../utils/globals.js'
 
 import { StyleSheet, View } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Header from './Header.js';
 import Footer from './Footer.js';
@@ -13,13 +13,24 @@ import WaitForAuth from './WaitForAuth.js';
 export default function Base(props) {
 
     const [showShelf, setShowShelf] = useState(false);
+    // bool indicate if there are notifications present
+    const [areNotifs, setAreNotifs] = useState(false);
 
     const [modal, setModal] = useState(null);
+
+    // bool whether to display notification bar by default if there are notifications
+    let defaultDisplayNotif = props.defaultDisplayNotif == true;
+    if (defaultDisplayNotif)
+    {
+        useEffect(() => {
+            if (areNotifs) setShowShelf(areNotifs);
+        }, [areNotifs]);
+    }
 
     return (
         <ModalContext.Provider value={setModal}>
             <View style={styles.base}>
-                <Header showNotif={() => setShowShelf(!showShelf)} />
+                <Header showNotif={() => setShowShelf(!showShelf)} isNotifShown={showShelf} areNotifs={areNotifs} />
 
                 <View style={[{ width: 'auto', minWidth:'100%', flexDirection: 'column', flex: 1 }]}>
 
@@ -29,7 +40,7 @@ export default function Base(props) {
                             
                         </View>
 
-                        <Notifications show={showShelf} />
+                        <Notifications show={showShelf} setAreNotifs={setAreNotifs}/>
 
                     </View>
 

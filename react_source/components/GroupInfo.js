@@ -10,6 +10,7 @@ import Button from "./Button.js";
 import TransactionInfo from "../modals/TransactionInfo.js";
 import VerifyAction from "../modals/VerifyAction.js";
 import UploadIcon from "../modals/UploadIcon.js";
+import NewExpense from "../modals/NewExpense.js";
 
 
 import Leave from '../assets/images/bx-log-out.svg';
@@ -60,6 +61,12 @@ export default function GroupInfo(props) {
         setModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => leaveGroup(props.id)} />);
     }
 
+
+    const addExpense = () => {
+        setModal(<NewExpense groupID={props.id} />);
+
+    }
+
     function inviteMember() {
         setModal(
             <UserSearch
@@ -68,6 +75,7 @@ export default function GroupInfo(props) {
                 onSubmit={(user, setErrorMsg, setModal, reRender) => {sendGroupInvitation(user, props.id, setModal, reRender, setErrorMsg);}}
                 submitLabel="Send Invite"
             />);
+
     }
 
     return (
@@ -101,7 +109,10 @@ export default function GroupInfo(props) {
                 </View>
 
                 <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, styles.listTitle]}>Transactions</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Text style={[globals.styles.h3, styles.listTitle]}>Transactions</Text>
+                        <Button style={[globals.styles.formButton, { width: '10em', margin: 0, marginTop: '.45em', marginRight: '.75em' }]} label='+ NEW EXPENSE' onClick={addExpense} />
+                    </View>
                     <View style={styles.listHeader} >
 
                         <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>TRANSACTION</Text>

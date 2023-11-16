@@ -178,8 +178,7 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempt
             // force GlobalContext to re-try getting user info
             setLoginAttempts(loginAttempts + 1);
             // success, redirect user
-            // check if this url specifies a url to which to redirect
-            router.push("/summary");
+            
 
         }
         else {

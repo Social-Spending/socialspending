@@ -67,7 +67,8 @@ export default function Notifications(props) {
         }
     }
 
-    
+    // if the page requested that we show notification bar by default, do so only if there are also notifications present
+    props.setAreNotifs(friendRequests.length || transactionApprovals.length || completedTransactions.length || groupInvites.length);
 
 
     return (
@@ -340,7 +341,35 @@ async function approveGroupInvite(notification_id, accept, removeNotif, reRender
 }
 
 async function dismissCompletedTransaction(id, removeNotif) {
-    removeNotif("complete_transaction", id)
+    let payload = {
+        'notification_id': id,
+        'operation': 'dismiss'
+    };
+
+    // do the POST request
+    try {
+        let response = await fetch("/notifications.php", {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            credentials: 'same-origin',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (await response.ok) {
+            // remove notification and re-render the group page
+            removeNotif("complete_transaction", id)
+        }
+        else {
+            // failed, display error message returned by server
+            console.log("Error while dismissing completed transaction");
+        }
+    }
+    catch (error) {
+        console.log("error in POST request to /notifications.php");
+        console.log(error);
+    }
 }
 
 async function getNotifications(type){
