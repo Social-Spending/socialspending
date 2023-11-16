@@ -75,7 +75,8 @@ function handlePOST()
     $sql =  'SELECT user_id, username, icon_path '.
             'FROM users '.
             'WHERE MATCH(username, email) '.
-            'AGAINST (? IN BOOLEAN MODE);';
+            'AGAINST (? IN BOOLEAN MODE) '.
+            'LIMIT 10;';
     $result = $mysqli->execute_query($sql, [$searchTerm.'*']);
 
     // check that query was successful
