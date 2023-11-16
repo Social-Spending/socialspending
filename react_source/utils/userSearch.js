@@ -1,4 +1,12 @@
 
+/**
+ * Debounces a function for a set period of time i.e. ignores rapid multiple calls and only activates the last after a waiting period
+ * Use as such let newFunc = debounce(oldFunc, 500); newFunc();
+ * 
+ * @param {Function} func   function to debounce
+ * @param {Number} timeout  period in ms to debounce the function for
+ * @returns {Function}      returns a debounced variant of the passed function
+ */
 export function debounce(func, timeout = 300) {
     let timer;
     return (...args) => {

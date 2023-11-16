@@ -12,6 +12,7 @@ import { GlobalContext } from '../components/GlobalContext.js';
 
 import Logo from '../assets/images/logo/logo-name-64.png';
 import { debounce, userSearch } from '../utils/userSearch.js';
+import * as React from 'react';
 
 
 /**
@@ -19,9 +20,9 @@ import { debounce, userSearch } from '../utils/userSearch.js';
  *      ie. to search for a user to add as a friend or to invite to a group
  *      @param {string} title        title of the modal to be displayed
  *      @param {string} label        question presented to the user
- *      @param {string} submitLabel        text to put on the 'submit' button
- *      @param {JSON Object} style    Styles to use
- *      @param {Function} exit               function to call when exiting if you dont want to exit the modal for some reason
+ *      @param {string} submitLabel  text to put on the 'submit' button
+ *      @param {JSON Object} style   Styles to use
+ *      @param {Function} exit       function to call when exiting if you dont want to exit the modal for some reason
  *      @param {number} onSubmit     function handle for what to do with the username/email when user presses submit
  *                                   onSubmit takes args (user, setErrorMsg, popModal, reRender)...
  *                                   where  'user' is a string of the username/email entered
@@ -60,6 +61,7 @@ export default function UserSearch(props) {
         props.onSubmit(userRef.current.value, setErrorMsg, popModal, reRender);
     }
 
+    //Create debounced function for searching users
     let onNameChange = debounce(() => searchUser(userRef, errorMessageRef, setFoundUsers), 500);
 
 
@@ -116,7 +118,15 @@ export default function UserSearch(props) {
         </Modal>
     );
 }
-
+/**
+ * An entry to display on the found users drop down menu
+ * Clicking will set the input value and clear the drop down
+ * 
+ * @param {string} username     username of the person to display
+ * @param {string} icon         path to the users icon
+ * @param {function} setFound   function to change the contents of the drop down
+ * @returns {React.JSX.Element}
+ */
 function FoundUser(props) {
     function pickUser() {
         props.userRef.current.value = props.username;
@@ -136,7 +146,12 @@ function FoundUser(props) {
     );
 }
 
-// Search for users given the username or email
+/**
+ * Search for users given the username or email and populate the drop down display of found users
+ * @param {React.MutableRefObject} userRef  A reference to the username input
+ * @param {React.MutableRefObject} errorRef A reference to the error display element
+ * @param {Function} setFoundUsers          A function to change the entries of the found users drop down menu
+ */
 async function searchUser(userRef, errorRef, setFoundUsers) {
 
     if (userRef.current.value.length < 4) {
@@ -154,7 +169,6 @@ async function searchUser(userRef, errorRef, setFoundUsers) {
         let output = [];
         let users = await userSearch(userRef.current.value);
 
-        
         for (let i = 0; i < users.length; i++) {
             output.push(
                 <FoundUser key={i} username={users[i].username} userRef={userRef} icon={users[i].icon_path} setFound={setFoundUsers} />
