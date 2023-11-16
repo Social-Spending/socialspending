@@ -143,8 +143,9 @@ function ChooseName() {
 
         setFormData(formData);
 
-        if (await submitForm(formData, errorRef)) {
-            await uploadReceipt(image);
+        transaction_id = await submitForm(formData, errorRef);
+        if (transaction_id != -1) {
+            await uploadReceipt(image, transaction_id, errorRef);
             setModal(null);
             reRender();
         }
@@ -452,7 +453,7 @@ function checkName(groupRef, errorRef) {
 /**
  * Sends a post request to transactions.php in order to create a new transaction
  * @param {Object} formData object contianing all the details for the new transaction
- * @returns {Boolean} whether or not a new transaction was created
+ * @returns {int} transaction ID of the created transaction, -1 if failed
  */
 async function submitForm(formData, errorRef) {
 
@@ -466,14 +467,15 @@ async function submitForm(formData, errorRef) {
             }
         });
 
+        let responseJSON = await await response.json();
+
         if (await response.ok) {
-            return true;
+            return responseJSON.transaction_id;
 
         }
         else {
-            let responseJSON = await await response.json();
             errorRef.current.innerText = responseJSON.message;
-            return false;
+            return -1;
         }
     }
     catch (error) {
@@ -481,13 +483,13 @@ async function submitForm(formData, errorRef) {
         console.log(error);
     }
 
-    return false;
+    return -1;
 }
 
-async function uploadReceipt(image) {
+async function uploadReceipt(image, transaction_id, errorRef) {
     let imageData = new FormData();
     imageData.append("receipt", image);
-    imageData.append("transaction_id", 1);
+    imageData.append("transaction_id", transaction_id);
 
     try {
         let response = await fetch("/receipt_upload.php", {
@@ -502,6 +504,7 @@ async function uploadReceipt(image) {
         }
         else {
             let responseJSON = await await response.json();
+            //This errorRef doesn't get updated since the wnidow closes anyways
             errorRef.current.innerText = responseJSON.message;
             return false;
         }
