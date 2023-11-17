@@ -57,12 +57,15 @@ function TransactionList() {
     } else {
         // List has been parsed into SummaryFriendItem components, render it
         return (
-            <View style={globals.styles.list}>
-                <View style={globals.styles.listLabel} >
-                    <Text style={{ ...globals.styles.h3, ...globals.styles.listText, ...{flexShrink:0}}}>TRANSACTION NAME</Text>
-                    <Text style={{ ...globals.styles.h5, ...globals.styles.listText, ...{flexShrink:0}}}>DATE</Text>
-                    <Text style={{ ...globals.styles.h5, ...globals.styles.listText, ...{flexShrink:0}}}>YOUR CONTRIBUTION</Text>
-                </View>
+            <View style={{
+                ...globals.styles.list,
+                ...{ gridTemplateColumns: '50% 30% 20%', }
+            }} >
+
+                <Text style={globals.styles.listHeader}>NAME</Text>
+                <Text style={globals.styles.listHeader}>DATE</Text>
+                <Text style={{ ...globals.styles.listHeader, ...{ alignItems: 'center' } }}>AMOUNT</Text>
+               
                 {summaryTransactionItems}
 
             </View>
@@ -84,20 +87,29 @@ function SummaryTransactionItem(props) {
     }
 
     return (
+        <>
+            
 
-        <View
-            style={{ ...props.border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{flex: 'initial', cursor:'pointer'}}}
-            onClick={viewTransaction}
-        >
-
-            <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}, ...pendingItalic}}>{props.name}</Text>
-            <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}}}>{props.date}</Text>
-            <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
-                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
-                <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(props.debt / 100).toFixed(2)}</Text>
+            <Text
+                style={{ ...globals.styles.listText, ...globals.styles.listItemRow, ...pendingItalic, ...{ cursor: 'pointer' } }}
+                onClick={viewTransaction}>
+                {props.name}
+            </Text>
+            <Text
+                style={{ ...globals.styles.listText, ...globals.styles.listItemRow, ...{ cursor: 'pointer' } }}
+                onClick={viewTransaction}>
+                {props.date}
+            </Text>
+            <View
+                style={{ ...globals.styles.listItemColumn, ...{ cursor: 'pointer' } }}
+                onClick={viewTransaction}>
+                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
+                <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(props.debt / 100).toFixed(2)}</Text>
             </View>
 
-        </View>
+            
+        </>
+        
 
     );
 }
@@ -116,10 +128,11 @@ async function buildTransactions(currUserID) {
         {
             continue;
         }
+
+        
         transactionList.push(
             <SummaryTransactionItem
                 key={i}
-                border={i > 0}
                 name={transactions[i].transaction_name}
                 id={transactions[i].transaction_id}
                 date={transactions[i].transaction_date}

@@ -261,14 +261,14 @@ export const styles = {
         overflowY: 'auto',
         scrollbarWidth: 'thin',
     },
-    listItem: {
-        flex: 1,
+    sidebarListItem: {
+        flex: 'auto',
         height: 'auto',
         padding: '.5em 1em',
-        justifyContent: 'space-between',
+
+        justifyContent: 'flex-start',
         alignItems: 'center',
         flexDirection: 'row',
-        backgroundColor: COLOR_WHITE,
 
     },
     listItemRow: {
@@ -331,6 +331,18 @@ export const styles = {
         fontWeight: 'bolder',
         color: COLOR_GRAY,
         backgroundColor: COLOR_WHITE,  
+    },
+    smallListHeader: {
+        position: 'sticky',
+        zIndex: 1,
+        top: 0,
+        height: 'auto',
+        minHeight: '1em',
+        padding: '0 1em .5em',
+
+        fontSize: '.85em',
+        color: COLOR_GRAY,
+        backgroundColor: COLOR_WHITE,
     },
     listIcon: {
         flex: '0 0 auto',

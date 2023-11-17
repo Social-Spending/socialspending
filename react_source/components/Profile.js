@@ -154,12 +154,9 @@ export default function Profile(props) {
 
                 <View style={styles.listContainer}>
                     <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Groups in Common</Text>
-                    <View style={styles.listHeader} >
-
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>GROUP NAME</Text>
-
-                    </View>
-                    <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' }}}>
+                   
+                    <View style={{ ...globals.styles.list, ...{ gridTemplateColumns : '100%', marginTop: '.25em', width: '100%', marginBottom: '1em' } }}>
+                        <Text style={globals.styles.smallListHeader}>GROUP NAME</Text>
                         {groups}
                     </View>
                 </View>
@@ -180,13 +177,9 @@ export default function Profile(props) {
                         </View>
                     </View>
                     
-                    <View style={styles.listHeader} >
-
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>TRANSACTION</Text>
-                        <Text style={{ color: globals.COLOR_GRAY, paddingRight: '2em' }}>DATE</Text>
-
-                    </View>
-                    <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' }}}>
+                    <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' } }}>
+                        <Text style={globals.styles.smallListHeader}>TRANSACTION</Text>
+                        <Text style={{ ...globals.styles.smallListHeader, ...{ alignItems: 'flex-end' } }}>DATE</Text>
                         {transactions}
                     </View>
 
@@ -299,7 +292,6 @@ function getTransactionList(transactionsJSON) {
         outputList.push(
             <TransactionListItem
                 key={i}
-                border={i > 0}
                 name={transactionsJSON[i].name}
                 id={transactionsJSON[i].transaction_id}
                 date={transactionsJSON[i].date}
@@ -312,25 +304,23 @@ function getTransactionList(transactionsJSON) {
     return outputList;
 }
 
-function GroupListItem({ id, name, icon_path, border }) {
+function GroupListItem({ id, name, icon_path }) {
     return (
 
         <Link to={'/groups/' + id}>
-            <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
-                <View style={globals.styles.listIconAndTextContainer}>
-                    <Image
-                        style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em'}}}
-                        source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultGroupIcon(name)}
-                    />
-                    <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}}}>{name}</Text>
-                </View>
+            <View style={globals.styles.listItemRow}>
+                <Image
+                    style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em'}}}
+                    source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultGroupIcon(name)}
+                />
+                <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}}}>{name}</Text>
             </View>
         </Link>
 
     );
 }
 
-function TransactionListItem({ id, name, date, user_debt, border, isApproved }) {
+function TransactionListItem({ id, name, date, user_debt, isApproved }) {
 
     const { pushModal, popModal } = useContext(ModalContext);
 
@@ -344,12 +334,19 @@ function TransactionListItem({ id, name, date, user_debt, border, isApproved }) 
 
     return (
 
-        <View style={{ ...border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{cursor:'pointer'}}} onClick={viewTransaction} >
-
-            <Text style={{ ...globals.styles.listText, ...pendingItalic}}>{name}</Text>
-            <Text style={globals.styles.listText}>{date}</Text>
-
-        </View>
+      <>
+            <Text
+                style={{ ...globals.styles.listItemRow, ...globals.styles.listText, ...pendingItalic, ...{ cursor: 'pointer', minHeight: '2.5em' } }}
+                onClick={viewTransaction}>
+                {name}
+            </Text>
+            <Text
+                style={{ ...globals.styles.listItemRow, ...globals.styles.listText, ...{ cursor: 'pointer', justifyContent: 'flex-end' } }}
+                onClick={viewTransaction}>
+                {date}
+            </Text>
+      
+      </>
 
     );
 }

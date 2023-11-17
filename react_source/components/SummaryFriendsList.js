@@ -126,7 +126,6 @@ async function buildFriends() {
         {
             friendList.push(<SummaryFriendItem
                 key={i}
-                border={i > 0}
                 name={friends[i].username}
                 id={friends[i].user_id}
                 icon_path={friends[i].icon_path}

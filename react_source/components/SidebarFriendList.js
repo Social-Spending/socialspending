@@ -67,8 +67,8 @@ function SidebarFriendListItems(props) {
     let pendingItalic = props.isPending == 1 ? { fontStyle: 'italic' } : {};
 
     return (
-        <Button id={"sidebar_friend_" + props.name} style={{ ...props.border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{ padding: 0 } }} onClick={() => props.setFriendID(props.id) }>
-            <View style={{...globals.styles.listIconAndTextContainer, ...{padding: '.25em 1em'}} }>
+        <Button id={"sidebar_friend_" + props.name} style={{ ...globals.styles.sidebarListItem, ...{ padding: 0 } }} onClick={() => props.setFriendID(props.id) }>
+            <View style={{...globals.styles.sidebarListItem, ...{padding: '.25em 1em'}} }>
                 <Image
                     style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em'}}}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultUserIcon(props.name)}
@@ -94,7 +94,6 @@ async function buildSidebarFriendListItems(friendID, setFriendID)
 
         friendList.push(<SidebarFriendListItems
             key={i}
-            border={i > 0}
             name={friendJSON[i].username}
             id={friendJSON[i].user_id}
             icon_path={friendJSON[i].icon_path}

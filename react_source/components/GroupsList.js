@@ -126,8 +126,7 @@ async function buildGroups() {
     if (groups === null) return groupList;
 
     for (let i = 0; i < groups.length; i++) {
-        for (let j = 0; j < 10; j++)   
-            groupList.push(<GroupItem key={i} border={j > 0} name={groups[i].group_name} id={groups[i].group_id} owed={groups[i].debt} icon_path={groups[i].icon_path} />);
+        groupList.push(<GroupItem key={i} name={groups[i].group_name} id={groups[i].group_id} owed={groups[i].debt} icon_path={groups[i].icon_path} />);
     }
            
     return groupList;
