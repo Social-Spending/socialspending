@@ -8,6 +8,7 @@ include_once("templates/jsonMessage.php");
 include_once('notifications.php');
 
 include_once('templates/debtHelpers.php');
+include_once('templates/debtReductionRunner.php');
 
 /*
 Transaction Approval PHP Endpoint
@@ -235,6 +236,12 @@ function submitTransaction($transaction_id)
         }
 
 	}
+
+    // Run debt reduction algorithm
+    if (!runDebtReduction($transaction_id))
+    {
+        returnMessage('Failed to start debt reduction algorithm', HTTP_INTERNAL_SERVER_ERROR);
+    }
 
 	return true;	
 }

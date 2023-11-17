@@ -8,3 +8,5 @@
 cookiefile
 /*.log
 /group_icons
+/.vscode
+/executables/bin/

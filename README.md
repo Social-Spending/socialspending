@@ -4,7 +4,11 @@ An application to easily manage and track split expenses between a group of frie
 
 ## Dependencies
 
-The only dependency is XAMPP v8.2.4
+* XAMPP v8.2.4
+* g++
+* make
+* Also must fulfill dependencies described in `react_source/README.md`
+
 
 ## Linux Setup
 
