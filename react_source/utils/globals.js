@@ -11,6 +11,7 @@ export const COLOR_WHITE            = "#FFF";
 export const COLOR_BLACK            = "#000";
 export const COLOR_GRAY             = "#777";
 export const COLOR_LIGHT_GRAY       = "#CCC";
+export const COLOR_OFF_WHITE        = "#EEE";
 export const COLOR_RED              = "#F00";
 
 export const COLOR_DISABLED         = '#66666633';
@@ -248,21 +249,17 @@ export const styles = {
     },
     list: {
         flex: 1,
-        width: '92%',
+        height: 'auto',
+        display: 'grid',
+        width: '90%',
+        gridTemplateColumns: '80% 20%',
+        gridAutoRows: 'min-content',
 
-        marginTop: '1em',
-        marginBottom: '1em',
-
-        justifyContent: 'flex-start',
-        alignItems: 'left',
         alignSelf: 'center',
-
-        backgroundColor: COLOR_WHITE,
+        margin: '.25em 0',
 
         overflowY: 'auto',
         scrollbarWidth: 'thin',
-
-
     },
     listItem: {
         flex: 1,
@@ -270,7 +267,41 @@ export const styles = {
         padding: '.5em 1em',
         justifyContent: 'space-between',
         alignItems: 'center',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        backgroundColor: COLOR_WHITE,
+
+    },
+    listItemRow: {
+        flex: 'auto',
+        height: 'auto',
+        padding: '.5em 1em',
+
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        flexDirection: 'row',
+
+        backgroundColor: COLOR_WHITE,
+
+        borderStyle: 'solid none none',
+        borderColor: COLOR_OFF_WHITE,
+        borderWidth: '1px'
+
+    },
+    listItemColumn: {
+        flex: 'auto',
+        height: 'auto',
+        width: 'auto',
+        padding: '.5em 1em',
+
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexDirection: 'column',
+
+        backgroundColor: COLOR_WHITE,
+
+        borderStyle: 'solid none none',
+        borderColor: COLOR_OFF_WHITE,
+        borderWidth: '1px'
 
     },
     listIconAndTextContainer: {
@@ -285,6 +316,21 @@ export const styles = {
         paddingBottom: 0,
         color: COLOR_GRAY,
         height:'auto',
+    },
+    listHeader: {
+        position: 'sticky',
+        zIndex: 1,
+        top: 0,
+        height: 'auto',
+        minHeight: '1.25em',
+
+        margin: '-1px 0',
+        padding: '0 .566em',
+
+        fontSize: '1.17em',
+        fontWeight: 'bolder',
+        color: COLOR_GRAY,
+        backgroundColor: COLOR_WHITE,  
     },
     listIcon: {
         flex: '0 0 auto',

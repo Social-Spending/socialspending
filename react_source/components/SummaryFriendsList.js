@@ -73,12 +73,9 @@ function FriendList() {
         // List has been parsed into SummaryFriendItem components, render it
         return (
             <View style={globals.styles.list}>
-                <View style={globals.styles.listLabel} >
-                    <Text style={{ ...globals.styles.h3, ...globals.styles.listText}}>USERNAME</Text>
-                    <View style={{ width: 'auto', paddingRight: '.5em', minWidth: '5em', alignItems: 'flex-end' }}>
-                        <Text style={{ ...globals.styles.h3, ...globals.styles.listText}}>BALANCE</Text>
-                    </View>
-                </View>
+                <Text style={globals.styles.listHeader}>USERNAME</Text>
+                <Text style={{ ...globals.styles.listHeader, ...{ alignItems: 'center' }}}>BALANCE</Text>
+               
                 {summaryFriendItems}
 
             </View>
@@ -93,23 +90,24 @@ function SummaryFriendItem(props) {
     color = props.owed == 0 ? { color: globals.COLOR_GRAY } : color;
 
     return (
-
-        <Link to={'/profile/' + props.id}>
-            <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem} >
-                <View style={globals.styles.listIconAndTextContainer}>
+        <>
+            <Link to={'/profile/' + props.id}>
+                <View style={globals.styles.listItemRow}>
                     <Image
-                        style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em'}}}
+                        style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em' } }}
                         source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultUserIcon(props.name)}
                     />
-                    <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}}}>{props.name}</Text>
+                    <Text style={{ ...globals.styles.listText, ...{ paddingLeft: '.25em' } }}>{props.name}</Text>
                 </View>
-                <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
-                    <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
-                    <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
+            </Link>
+            <Link to={'/profile/' + props.id}>
+                <View style={globals.styles.listItemColumn}>
+                    <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
+                    <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
                 </View>
-
-            </View>
-        </Link>
+            </Link>
+        </>
+        
 
     );
 }

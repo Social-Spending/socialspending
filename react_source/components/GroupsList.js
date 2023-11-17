@@ -72,15 +72,14 @@ function GroupList() {
         //List has been returned, render it
         return (
             <View style={globals.styles.list}>
-                <View style={globals.styles.listLabel} >
-                    <Text style={{ ...globals.styles.h3, ...globals.styles.listText}}>GROUP NAME</Text>
-                    <View style={{ width: 'auto', paddingRight: '.5em', minWidth: '5em', alignItems: 'flex-end' }}>
-                        <Text style={{ ...globals.styles.h3, ...globals.styles.listText}}>BALANCE</Text>
-                    </View>
-                </View>
+
+                <Text style={globals.styles.listHeader}>GROUP NAME</Text>
+                <Text style={{ ...globals.styles.listHeader, ...{ alignItems: 'center' } }}>BALANCE</Text>
+
                 {groupItems}
 
             </View>
+            
         );
     }
 }
@@ -92,24 +91,28 @@ function GroupItem(props) {
     color = props.owed == 0 ? { color: globals.COLOR_GRAY } : color;
 
     return (
+        <>
+            <Link to={'/groups/' + props.id}>
 
-        <Link to={'/groups/' + props.id}>
-            <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem} >
-
-                <View style={globals.styles.listIconAndTextContainer}>
+                <View style={globals.styles.listItemRow }>
                     <Image
-                        style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em'}}}
+                        style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em' } }}
                         source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
                     />
-                    <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}}}>{props.name}</Text>
+                    <Text style={{ ...globals.styles.listText, ...{ paddingLeft: '.25em' } }}>{props.name}</Text>
                 </View>
-                <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
-                    <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
-                    <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
-                </View>
+                
+            </Link>
+            <Link to={'/groups/' + props.id} >
 
-            </View>
-        </Link>
+                <View style={globals.styles.listItemColumn}>
+                        <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
+                        <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
+                    </View>
+
+            </Link>
+        </>
+        
 
     );
 }
@@ -123,8 +126,8 @@ async function buildGroups() {
     if (groups === null) return groupList;
 
     for (let i = 0; i < groups.length; i++) {
-                    
-        groupList.push(<GroupItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} owed={groups[i].debt} icon_path={groups[i].icon_path} />);
+        for (let j = 0; j < 10; j++)   
+            groupList.push(<GroupItem key={i} border={j > 0} name={groups[i].group_name} id={groups[i].group_id} owed={groups[i].debt} icon_path={groups[i].icon_path} />);
     }
            
     return groupList;
