@@ -261,6 +261,13 @@ export const styles = {
         overflowY: 'auto',
         scrollbarWidth: 'thin',
     },
+    listContainer: {
+        height: 'auto',
+        marginTop: '2em',
+        boxShadow: '0px 0px 5px 5px #eee',
+        borderRadius: '1em',
+        backgroundColor: COLOR_WHITE,
+    },
     sidebarListItem: {
         flex: 'auto',
         height: 'auto',
@@ -304,18 +311,21 @@ export const styles = {
         borderWidth: '1px'
 
     },
-    listIconAndTextContainer: {
-        flex: 'auto',
-        flexDirection: 'row',
-        justifyContent: 'start',
-        alignItems: 'center'
-    },
+
     listText: {
         fontSize: '1.17em',
         paddingTop: 0,
         paddingBottom: 0,
         color: COLOR_GRAY,
         height:'auto',
+    },
+    listTitle: {
+        color: COLOR_GRAY,
+        fontWeight: 600,
+        padding: '.566em',
+        paddingLeft: '1em',
+        paddingBottom: '1.5em',
+        fontSize: '1.17em',
     },
     listHeader: {
         position: 'sticky',
@@ -349,29 +359,6 @@ export const styles = {
         aspectRatio: 1,
         borderRadius: '50%',
         boxShadow: '0px 0px 2px 2px #eee',
-    },
-    listItemSeperator: {
-        flex: 1,
-        height: 'auto',
-        padding: '.5em 1em',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexDirection: 'row',
-        borderStyle: 'none',
-        borderTopStyle: 'solid',
-        borderWidth: '1px',
-        borderColor: '#eee'
-
-    },
-    listLabel: {
-        minHeight: 'auto',
-        padding: 0,
-        position: 'sticky',
-        top: 0,
-        zIndex: 1,
-        backgroundColor: COLOR_WHITE,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
     },
     h1: {
         padding: '1em',

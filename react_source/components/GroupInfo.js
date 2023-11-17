@@ -91,7 +91,7 @@ export default function GroupInfo(props) {
             
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
-                    <View style={globals.styles.listIconAndTextContainer }>
+                    <View style={{ flexDirection: 'row' } }>
                         <ChangeableIcon iconPath={iconPath} name={groupName} groupID={props.id} />
                         <Text style={{ ...globals.styles.h1, ...styles.groupName}}>{groupName}</Text>
                     </View>
@@ -104,9 +104,9 @@ export default function GroupInfo(props) {
                     </Button>
                     
                 </View>
-                <View style={styles.listContainer}>
+                <View style={globals.styles.listContainer}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Members</Text>
+                        <Text style={globals.styles.listTitle}>Members</Text>
                         <Button id="groupPage_addMember" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={inviteMember}>
                             <SVGIcon src={InviteIcon} style={styles.icon} />
                             <label htmlFor="groupPage_addMember" style={globals.styles.buttonLabel}>
@@ -124,9 +124,9 @@ export default function GroupInfo(props) {
 
                 </View>
 
-                <View style={styles.listContainer}>
+                <View style={globals.styles.listContainer}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={{ ...globals.styles.h3, ...styles.listTitle }}>Transactions</Text>
+                        <Text style={globals.styles.listTitle }>Transactions</Text>
                         <Button id="groupPage_newExpense" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={addExpense}>
                             <label htmlFor="groupPage_newExpense" style={globals.styles.buttonLabel}>
                                 + NEW EXPENSE
@@ -247,36 +247,33 @@ function MemberListItem({ id, name, owed, pending, group_id, icon_path }) {
 
     return (
         <>
-            <Link to={'/profile/' + id}>
+            <Link to={'/profile/' + id} style={globals.styles.listItemRow}>
                 
-                <View style={globals.styles.listItemRow}>
-                    <Image
-                        style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em' } }}
-                        source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultUserIcon(name)}
-                    />
-                    <Text style={{ ...globals.styles.listText, ...{ fontStyle: pending ? 'italic' : "inherit", paddingLeft: '.25em' } }}>{name}</Text>
-                    {currUserID != id &&
+                <Image
+                    style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em' } }}
+                    source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultUserIcon(name)}
+                />
+                <Text style={{ ...globals.styles.listText, ...{ fontStyle: pending ? 'italic' : "inherit", paddingLeft: '.25em' } }}>{name}</Text>
+                {currUserID != id &&
 
-                        <Button style={{ ...globals.styles.transparentButton, ...{ width: '1.75em', margin: 0, marginTop: '.25em' } }} aria-label="Kick User" onClick={kickMember}>
-                            <SVGIcon src={KickIcon} style={styles.kickButton} />
-                        </Button>
-                    }
-                </View>
-               
-            </Link>
-            <Link to={'/profile/' + id}>
+                    <Button style={{ ...globals.styles.transparentButton, ...{ width: '1.75em', margin: 0, marginTop: '.25em' } }} aria-label="Kick User" onClick={kickMember}>
+                        <SVGIcon src={KickIcon} style={styles.kickButton} />
+                    </Button>
+                }
                 
-                <View style={{
-                    ...globals.styles.listItemColumn,
-                    ...{ alignItems: 'flex-end' }
-                    }}>
-                    {!pending &&
-                        <>
-                            <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
-                            <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(owed / 100).toFixed(2)}</Text>
-                        </>
-                    }
-                </View> 
+            </Link>
+            <Link to={'/profile/' + id} style={{
+                ...globals.styles.listItemColumn,
+                ...{ alignItems: 'flex-end' }
+            }}>
+                
+                {!pending &&
+                    <>
+                        <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
+                        <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(owed / 100).toFixed(2)}</Text>
+                    </>
+                }
+               
             </Link>
         
         </>
@@ -348,27 +345,6 @@ const styles = {
         marginTop: '1em',
         margin: `1em min(5em, 5vw)`,
         padding: `2.5em min(2.5em, 2.5vw)`
-    },
-    listContainer: {
-        height: 'auto',
-        marginTop: '2em',
-        boxShadow: '0px 0px 5px 5px #eee',
-        borderRadius: '1em',
-        backgroundColor: globals.COLOR_WHITE,
-    },
-    listHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        borderStyle: 'none none solid',
-        borderWidth: '1px',
-        borderColor: globals.COLOR_OFF_WHITE,
-        paddingBottom: '.5em'
-    },
-    listTitle: {
-        color: globals.COLOR_GRAY,
-        fontWeight: 600,
-        paddingLeft: '1em',
-        paddingBottom: '1.5em' 
     },
     icon: {
         fill: globals.COLOR_WHITE,

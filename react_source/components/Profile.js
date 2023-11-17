@@ -125,7 +125,7 @@ export default function Profile(props) {
         <View style={{ flexDirection: 'row', height: '100%', flex: 1}}>
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
-                    <View style={globals.styles.listIconAndTextContainer}>
+                    <View style={{ flexDirection: 'row' }}>
                         <Image
                             style={{ ...globals.styles.listIcon, ...{ width: '3em', height: '3em' }}}
                             source={iconPath !== null ? decodeURI(iconPath) : globals.getDefaultUserIcon(username)}
@@ -143,17 +143,13 @@ export default function Profile(props) {
                         onAddFriend={verifyAddFriend}
                     />
                 </View>
-                <View style={styles.listContainer}>
-                    <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Email</Text>
-                    <View style={styles.listHeader} >
-
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600', paddingBottom: '1.5em' }}>{email}</Text>
-
-                    </View>
+                <View style={globals.styles.listContainer}>
+                    <Text style={globals.styles.listTitle}>Email</Text>
+                    <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600', paddingBottom: '1.5em' }}>{email}</Text>                    
                 </View>
 
-                <View style={styles.listContainer}>
-                    <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Groups in Common</Text>
+                <View style={globals.styles.listContainer}>
+                    <Text style={globals.styles.listTitle}>Groups in Common</Text>
                    
                     <View style={{ ...globals.styles.list, ...{ gridTemplateColumns : '100%', marginTop: '.25em', width: '100%', marginBottom: '1em' } }}>
                         <Text style={globals.styles.smallListHeader}>GROUP NAME</Text>
@@ -161,9 +157,9 @@ export default function Profile(props) {
                     </View>
                 </View>
 
-                <View style={styles.listContainer}>
+                <View style={globals.styles.listContainer}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <Text style={{ ...globals.styles.h3, ...styles.listTitle }}>Transactions in Common</Text>
+                        <Text style={globals.styles.listTitle}>Transactions in Common</Text>
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ width: 'auto', paddingRight: '.5em', margin: 'auto 0', minWidth: '5em', alignItems: 'center' }}>
                                 <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
@@ -215,7 +211,7 @@ function FriendInteractionButtons({isFriend, isPendingFriend, friendRequestCanAp
         if (friendRequestCanApprove) {
             // friend request has been sent to this user, options are to accept to reject request
             return (
-                <View>
+                <>
                     <Button
                         id="friend_rejectRequest"
                         style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
@@ -237,7 +233,7 @@ function FriendInteractionButtons({isFriend, isPendingFriend, friendRequestCanAp
                             ACCEPT FRIEND REQUEST
                         </label>
                     </Button>
-                </View>
+                </>
             );
         }
         else {
@@ -307,14 +303,14 @@ function getTransactionList(transactionsJSON) {
 function GroupListItem({ id, name, icon_path }) {
     return (
 
-        <Link to={'/groups/' + id}>
-            <View style={globals.styles.listItemRow}>
-                <Image
-                    style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em'}}}
-                    source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultGroupIcon(name)}
-                />
-                <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}}}>{name}</Text>
-            </View>
+        <Link to={'/groups/' + id} style={globals.styles.listItemRow}>
+            
+            <Image
+                style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em'}}}
+                source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultGroupIcon(name)}
+            />
+            <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}}}>{name}</Text>
+            
         </Link>
 
     );
@@ -366,27 +362,6 @@ const styles = {
         width: 'auto',
         margin: `1em min(5em, 5vw)`,
         padding: '2.5em min(2.5em, 2.5vw)',
-    },
-    listContainer: {
-        height: 'auto',
-        marginTop: '2em',
-        boxShadow: '0px 0px 5px 5px #eee',
-        borderRadius: '1em',
-        backgroundColor: globals.COLOR_WHITE
-    },
-    listTitle: {
-        color: globals.COLOR_GRAY,
-        fontWeight: 600,
-        paddingLeft: '1em',
-        paddingBottom: '1.5em'
-    },
-    listHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        borderStyle: 'none none solid',
-        borderWidth: '1px',
-        borderColor: '#eee',
-        paddingBottom: '.5em'
     },
     icon: {
         fill: globals.COLOR_WHITE,

@@ -55,9 +55,7 @@ export default function SidebarFriendList(props) {
                     </label>
                 </Button>
             </>
-
         );
-
     }
 }
 

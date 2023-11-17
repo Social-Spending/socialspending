@@ -77,7 +77,6 @@ function GroupListItem(props) {
                 />
                 <label htmlFor={"sidebar_group_" + props.name} style={{ ...globals.styles.listText, ...{ paddingLeft: '.25em' }}}>{props.name}</label>
             </View>
-
         </Button>
     );
 }

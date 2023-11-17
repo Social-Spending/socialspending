@@ -92,24 +92,20 @@ function GroupItem(props) {
 
     return (
         <>
-            <Link to={'/groups/' + props.id}>
+            <Link to={'/groups/' + props.id} style={globals.styles.listItemRow}>
 
-                <View style={globals.styles.listItemRow }>
-                    <Image
-                        style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em' } }}
-                        source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
-                    />
-                    <Text style={{ ...globals.styles.listText, ...{ paddingLeft: '.25em' } }}>{props.name}</Text>
-                </View>
+                <Image
+                    style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em' } }}
+                    source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
+                />
+                <Text style={{ ...globals.styles.listText, ...{ paddingLeft: '.25em' } }}>{props.name}</Text>
                 
             </Link>
-            <Link to={'/groups/' + props.id} >
-
-                <View style={globals.styles.listItemColumn}>
-                        <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
-                        <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
-                    </View>
-
+            <Link to={'/groups/' + props.id} style={globals.styles.listItemColumn}>
+                
+                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
+                <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
+                    
             </Link>
         </>
         
