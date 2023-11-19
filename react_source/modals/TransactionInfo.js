@@ -147,18 +147,20 @@ function ListItem({ id, name, owed, border, hasApproved }) {
     let pendingItalic = hasApproved == 0 ? { fontStyle: 'italic' } : {};
 
     return (
-
-        <Link to={'/profile/' + id}>
-            <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
-
-                <Text style={{ ...globals.styles.listText, ...pendingItalic }}>{name}</Text>
-                <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
-                    <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
-                    <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(owed / 100).toFixed(2)}</Text>
-                </View>
-
-            </View>
-        </Link>
+        <>
+            <Link to={'/profile/' + id} style={{ ...globals.styles.listItemRow, ...globals.styles.listText, ...pendingItalic }}>
+               {name}
+            </Link>
+            <Link to={'/profile/' + id} style={{
+                ...globals.styles.listItemColumn,
+                ...{ alignItems: 'flex-end' }
+            }}>
+                
+                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
+                <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(owed / 100).toFixed(2)}</Text>                
+            </Link>
+        </>
+        
 
     );
 }

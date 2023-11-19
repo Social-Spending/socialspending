@@ -69,15 +69,14 @@ function GroupListItem(props) {
 
     return (
 
-        <Button id={"sidebar_group_" + props.name} style={{ ...props.border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{ padding: 0 } }} onClick={() => props.setGroupID(props.id)} >
-            <View style={{...globals.styles.listIconAndTextContainer, ...{padding: '.25em 1em'}}}>
+        <Button id={"sidebar_group_" + props.name} style={{ ...globals.styles.sidebarListItem, ...{ padding: 0 } }} onClick={() => props.setGroupID(props.id)} >
+            <View style={{ ...globals.styles.sidebarListItem, ...{padding: '.25em 1em'}}}>
                 <Image
                     style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em'}}}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
                 />
                 <label htmlFor={"sidebar_group_" + props.name} style={{ ...globals.styles.listText, ...{ paddingLeft: '.25em' }}}>{props.name}</label>
             </View>
-
         </Button>
     );
 }
@@ -94,7 +93,7 @@ async function buildGroups(groupID, setGroupID) {
         // update the currently selected group to display, if one is not already selected
         if (i == 0 && groupID == null) setGroupID(groups[i].group_id);
 
-        groupList.push(<GroupListItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} icon_path={groups[i].icon_path} setGroupID={setGroupID} />);
+        groupList.push(<GroupListItem key={i} name={groups[i].group_name} id={groups[i].group_id} icon_path={groups[i].icon_path} setGroupID={setGroupID} />);
     }
 
     return groupList;

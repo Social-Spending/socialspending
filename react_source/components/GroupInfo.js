@@ -91,7 +91,7 @@ export default function GroupInfo(props) {
             
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
-                    <View style={globals.styles.listIconAndTextContainer }>
+                    <View style={{ flexDirection: 'row' } }>
                         <ChangeableIcon iconPath={iconPath} name={groupName} groupID={props.id} />
                         <Text style={{ ...globals.styles.h1, ...styles.groupName}}>{groupName}</Text>
                     </View>
@@ -104,9 +104,9 @@ export default function GroupInfo(props) {
                     </Button>
                     
                 </View>
-                <View style={styles.listContainer}>
+                <View style={globals.styles.listContainer}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={{ ...globals.styles.h3, ...styles.listTitle}}>Members</Text>
+                        <Text style={globals.styles.listTitle}>Members</Text>
                         <Button id="groupPage_addMember" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={inviteMember}>
                             <SVGIcon src={InviteIcon} style={styles.icon} />
                             <label htmlFor="groupPage_addMember" style={globals.styles.buttonLabel}>
@@ -114,21 +114,19 @@ export default function GroupInfo(props) {
                             </label>
                         </Button>
                     </View>
-                    <View style={styles.listHeader} >
+                    
 
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>USERNAME</Text>
-                        <Text style={{ color: globals.COLOR_GRAY, paddingRight: '2em' }}>STANDING</Text>
-
-                    </View>
-                    <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' }}}>
+                    <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' } }}>
+                        <Text style={globals.styles.smallListHeader}>USERNAME</Text>
+                        <Text style={{ ...globals.styles.smallListHeader, ...{ alignItems: 'flex-end' } }}>STANDING</Text>
                         {groupMembers}
                     </View>
 
                 </View>
 
-                <View style={styles.listContainer}>
+                <View style={globals.styles.listContainer}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={{ ...globals.styles.h3, ...styles.listTitle }}>Transactions</Text>
+                        <Text style={globals.styles.listTitle }>Transactions</Text>
                         <Button id="groupPage_newExpense" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={addExpense}>
                             <label htmlFor="groupPage_newExpense" style={globals.styles.buttonLabel}>
                                 + NEW EXPENSE
@@ -136,13 +134,9 @@ export default function GroupInfo(props) {
                         </Button>
                         
                     </View>
-                    <View style={styles.listHeader} >
-
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>TRANSACTION</Text>
-                        <Text style={{ color: globals.COLOR_GRAY, paddingRight: '2em' }}>YOUR CONTRIBUTION</Text>
-
-                    </View>
-                    <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' }}}>
+                    <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' } }}>
+                        <Text style={globals.styles.smallListHeader}>TRANSACTION</Text>
+                        <Text style={{ ...globals.styles.smallListHeader, ...{ alignItems: 'flex-end' } } }>YOUR CONTRIBUTION</Text>
                         {transactions}
                     </View>
 
@@ -164,7 +158,6 @@ function getGroupMembers(currUserID, currUsername, currUserIconPath, json) {
     }
     outputList.push(<MemberListItem
         key={-1}
-        border={false}
         name="You"
         id={currUserID}
         owed={json.debt}
@@ -177,7 +170,6 @@ function getGroupMembers(currUserID, currUsername, currUserIconPath, json) {
 
         outputList.push(<MemberListItem
             key={i}
-            border={true}
             name={json['members'][i].username}
             id={json['members'][i].user_id}
             owed={json['members'][i].debt}
@@ -189,9 +181,9 @@ function getGroupMembers(currUserID, currUsername, currUserIconPath, json) {
     // add members with pending invites
     for (let i = 0; i < json['pending_invites'].length; i++) {
 
-        outputList.push(<PendingMemberListItem
+        outputList.push(<MemberListItem
             key={i + json['members'].length}
-            border={true}
+            pending={true}
             name={json['pending_invites'][i].username}
             id={json['pending_invites'][i].user_id}
             icon_path={json['pending_invites'][i].icon_path}
@@ -228,11 +220,12 @@ function getTransactions(json) {
  *      @param {number} id           user_id of participant
  *      @param {string} name         username of participant
  *      @param {number} owed         how much the participant paid/owes
+ *      @param {boolean} pending        if the user is a pending invite or not
  *      @param {number} group_id     group_id for the page being displayed
  *      @param {string} icon_path    relative link to icon resource
  *      @return {React.JSX.Element}  DOM element  
  */
-function MemberListItem({ id, name, owed, border, group_id, icon_path }) {
+function MemberListItem({ id, name, owed, pending, group_id, icon_path }) {
 
     let text = owed < 0 ? "Is Owed" : "Owes";
     let color = owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
@@ -243,77 +236,48 @@ function MemberListItem({ id, name, owed, border, group_id, icon_path }) {
     const { currUserID, reRender } = useContext(GlobalContext);
     const { pushModal, popModal } = useContext(ModalContext);
 
-    function kickMember(event) {
-        event.preventDefault();
-        pushModal(<VerifyAction label={'Are you sure you want to remove '+name+' from the group?'} accept={() => kickMemberFromGroup(id, group_id, popModal, reRender)} />);
+    function kickMember() {
+        if (pending) {
+            pushModal(<VerifyAction label={'Are you sure you want to revoke the group invitation for ' + name + '?'} accept={() => revokeInvitation(id, group_id, popModal, reRender)} />);
+        }else{
+            pushModal(<VerifyAction label={'Are you sure you want to remove ' + name + ' from the group?'} accept={() => kickMemberFromGroup(id, group_id, popModal, reRender)} />);
+        }
+        
     }
 
     return (
+        <>
+            <Link to={'/profile/' + id} style={globals.styles.listItemRow}>
+                
+                <Image
+                    style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em' } }}
+                    source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultUserIcon(name)}
+                />
+                <Text style={{ ...globals.styles.listText, ...{ fontStyle: pending ? 'italic' : "inherit", paddingLeft: '.25em' } }}>{name}</Text>
+                {currUserID != id &&
 
-        <Link to={'/profile/' + id}>
-            <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
-                <View style={globals.styles.listIconAndTextContainer}>
-                    <Image
-                        style={{ ...globals.styles.listIcon, ...{marginLeft: '.75em', width: '2.5em', height: '2.5em'}}}
-                        source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultUserIcon(name)}
-                    />
-                    <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}}}>{name}</Text>
-                    {currUserID != id ?
-                        
-                        <Button style={{ ...globals.styles.transparentButton, ...{ width: '1.75em', margin: 0, marginTop: '.25em' }}} aria-label="Kick User" onClick={kickMember}>
-                            <SVGIcon src={KickIcon} style={styles.kickButton} />
-                        </Button>
-                        : <></>
-                    }
-                </View>
-                <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
-                    <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
-                    <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(owed / 100).toFixed(2)}</Text>
-                </View>
-
-            </View>
-        </Link>
-
-    );
-}
-
-/**
- *  Assembles DOM elements for a single list entry
- *      @param {number} id           user_id of participant
- *      @param {string} name         username of participant
- *      @param {number} group_id     group_id for the page being displayed
- *      @param {string} icon_path    relative link to this user's profile icon
- *      @return {React.JSX.Element}  DOM element  
- */
-function PendingMemberListItem({ id, name, border, group_id, icon_path }) {
-    // get currUserID to remove the 'kick' button next to the member list item for the current user
-    // get reRender to re-load the page after a user has been removed
-    const { currUserID, reRender} = useContext(GlobalContext);
-    const { pushModal, popModal } = useContext(ModalContext);
-
-    function revokeInvite(event) {
-        event.preventDefault();
-        pushModal(<VerifyAction label={'Are you sure you want to revoke the group invitation for '+name+'?'} accept={() => revokeInvitation(id, group_id, popModal, reRender)} />);
-    }
-
-    return (
-
-        <Link to={'/profile/' + id}>
-            <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
-
-                <View style={globals.styles.listIconAndTextContainer}>
-                    <Image
-                        style={{ ...globals.styles.listIcon, ...{marginLeft: '.75em', width: '2.5em', height: '2.5em'}}}
-                        source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultUserIcon(name)}
-                    />
-                    <Text style={{ ...globals.styles.listText, ...{fontStyle: 'italic', paddingLeft: '.25em'}}}>{name}</Text>
-                    <Button style={{ ...globals.styles.transparentButton, ...{ width: '1.75em', margin: 0, marginTop: '.25em' }}} aria-label="Revoke Invite" onClick={revokeInvite}>
+                    <Button style={{ ...globals.styles.transparentButton, ...{ width: '1.75em', margin: 0, marginTop: '.25em' } }} aria-label="Kick User" onClick={kickMember}>
                         <SVGIcon src={KickIcon} style={styles.kickButton} />
                     </Button>
-                </View>
-
-            </View>
-        </Link>
+                }
+                
+            </Link>
+            <Link to={'/profile/' + id} style={{
+                ...globals.styles.listItemColumn,
+                ...{ alignItems: 'flex-end' }
+            }}>
+                
+                {!pending &&
+                    <>
+                        <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
+                        <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(owed / 100).toFixed(2)}</Text>
+                    </>
+                }
+               
+            </Link>
+        
+        </>
+        
 
     );
 }
@@ -341,15 +305,26 @@ function TransactionListItem({ id, name, owed, border, isApproved }) {
 
     return (
 
-        <View style={{ ...border ? globals.styles.listItemSeperator : globals.styles.listItem, ...{cursor:'pointer'}}} onClick={viewTransaction} >
-
-            <Text style={{ ...globals.styles.listText, ...pendingItalic}}>{name}</Text>
-            <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
-                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
-                <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(owed / 100).toFixed(2)}</Text>
+        <>
+            <Text
+                style={{ ...globals.styles.listText, ...globals.styles.listItemRow, ...pendingItalic, ...{ cursor: 'pointer' }}}
+                onClick={viewTransaction}>
+                {name}
+            </Text>
+            <View
+                style={{
+                ...globals.styles.listItemColumn,
+                ...{alignItems: 'flex-end', cursor: 'pointer'}
+                 }}
+                onClick={viewTransaction}>
+                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
+                <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(owed / 100).toFixed(2)}</Text>
             </View>
+        </>
 
-        </View>
+            
+
+        
         
 
     );
@@ -370,27 +345,6 @@ const styles = {
         marginTop: '1em',
         margin: `1em min(5em, 5vw)`,
         padding: `2.5em min(2.5em, 2.5vw)`
-    },
-    listContainer: {
-        height: 'auto',
-        marginTop: '2em',
-        boxShadow: '0px 0px 5px 5px #eee',
-        borderRadius: '1em',
-        backgroundColor: globals.COLOR_WHITE,
-    },
-    listHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        borderStyle: 'none none solid',
-        borderWidth: '1px',
-        borderColor: '#eee',
-        paddingBottom: '.5em'
-    },
-    listTitle: {
-        color: globals.COLOR_GRAY,
-        fontWeight: 600,
-        paddingLeft: '1em',
-        paddingBottom: '1.5em' 
     },
     icon: {
         fill: globals.COLOR_WHITE,

@@ -11,6 +11,7 @@ export const COLOR_WHITE            = "#FFF";
 export const COLOR_BLACK            = "#000";
 export const COLOR_GRAY             = "#777";
 export const COLOR_LIGHT_GRAY       = "#CCC";
+export const COLOR_OFF_WHITE        = "#EEE";
 export const COLOR_RED              = "#F00";
 
 export const COLOR_DISABLED         = '#66666633';
@@ -248,37 +249,69 @@ export const styles = {
     },
     list: {
         flex: 1,
-        width: '92%',
+        height: 'auto',
+        display: 'grid',
+        width: '90%',
+        gridTemplateColumns: '80% 20%',
+        gridAutoRows: 'min-content',
 
-        marginTop: '1em',
-        marginBottom: '1em',
-
-        justifyContent: 'flex-start',
-        alignItems: 'left',
         alignSelf: 'center',
-
-        backgroundColor: COLOR_WHITE,
+        margin: '.25em 0',
 
         overflowY: 'auto',
         scrollbarWidth: 'thin',
-
-
     },
-    listItem: {
-        flex: 1,
+    listContainer: {
+        height: 'auto',
+        marginTop: '2em',
+        boxShadow: '0px 0px 5px 5px #eee',
+        borderRadius: '1em',
+        backgroundColor: COLOR_WHITE,
+    },
+    sidebarListItem: {
+        flex: 'auto',
         height: 'auto',
         padding: '.5em 1em',
-        justifyContent: 'space-between',
+
+        justifyContent: 'flex-start',
         alignItems: 'center',
-        flexDirection: 'row'
+        flexDirection: 'row',
 
     },
-    listIconAndTextContainer: {
+    listItemRow: {
         flex: 'auto',
+        height: 'auto',
+        padding: '.5em 1em',
+
+        justifyContent: 'flex-start',
+        alignItems: 'center',
         flexDirection: 'row',
-        justifyContent: 'start',
-        alignItems: 'center'
+
+        backgroundColor: COLOR_WHITE,
+
+        borderStyle: 'solid none none',
+        borderColor: COLOR_OFF_WHITE,
+        borderWidth: '1px'
+
     },
+    listItemColumn: {
+        flex: 'auto',
+        height: 'auto',
+        width: 'auto',
+        padding: '.5em 1em',
+
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexDirection: 'column',
+
+        backgroundColor: COLOR_WHITE,
+
+        borderStyle: 'solid none none',
+        borderColor: COLOR_OFF_WHITE,
+        borderWidth: '1px'
+
+    },
+
     listText: {
         fontSize: '1.17em',
         paddingTop: 0,
@@ -286,34 +319,46 @@ export const styles = {
         color: COLOR_GRAY,
         height:'auto',
     },
+    listTitle: {
+        color: COLOR_GRAY,
+        fontWeight: 600,
+        padding: '.566em',
+        paddingLeft: '1em',
+        paddingBottom: '1.5em',
+        fontSize: '1.17em',
+    },
+    listHeader: {
+        position: 'sticky',
+        zIndex: 1,
+        top: 0,
+        height: 'auto',
+        minHeight: '1.25em',
+
+        margin: '-1px 0',
+        padding: '0 .566em',
+
+        fontSize: '1.17em',
+        fontWeight: 'bolder',
+        color: COLOR_GRAY,
+        backgroundColor: COLOR_WHITE,  
+    },
+    smallListHeader: {
+        position: 'sticky',
+        zIndex: 1,
+        top: 0,
+        height: 'auto',
+        minHeight: '1em',
+        padding: '0 1em .5em',
+
+        fontSize: '.85em',
+        color: COLOR_GRAY,
+        backgroundColor: COLOR_WHITE,
+    },
     listIcon: {
         flex: '0 0 auto',
         aspectRatio: 1,
         borderRadius: '50%',
         boxShadow: '0px 0px 2px 2px #eee',
-    },
-    listItemSeperator: {
-        flex: 1,
-        height: 'auto',
-        padding: '.5em 1em',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexDirection: 'row',
-        borderStyle: 'none',
-        borderTopStyle: 'solid',
-        borderWidth: '1px',
-        borderColor: '#eee'
-
-    },
-    listLabel: {
-        minHeight: 'auto',
-        padding: 0,
-        position: 'sticky',
-        top: 0,
-        zIndex: 1,
-        backgroundColor: COLOR_WHITE,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
     },
     h1: {
         padding: '1em',

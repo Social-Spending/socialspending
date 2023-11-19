@@ -13,9 +13,6 @@ import EditProfile from "../modals/EditProfile.js";
 import ChangeableIcon from "./ChangeableIcon.js"
 import SVGIcon from "./SVGIcon.js";
 
-
-
-
 export default function SelfProfile(props) {
 
     const { pushModal, popModal } = useContext(ModalContext);
@@ -58,29 +55,29 @@ export default function SelfProfile(props) {
         <View style={{ flexDirection: 'row', height: '100%', flex: 1}}>
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
-                    <View style={globals.styles.listIconAndTextContainer} >
+                    <View style={{ flexDirection: 'row' }} >
                         <ChangeableIcon iconPath={iconPath} name={username} />
                         <Text style={{ ...globals.styles.h1, ...styles.groupName}}>MY PROFILE</Text>
                     </View>
                 </View>
-                <View style={styles.list}>
-                    <View style={{ ...styles.listHeader, ...styles.listItem}}>
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>USERNAME</Text>
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>{username}</Text>
-                    </View>
-                    <View style={{ ...styles.listHeader, ...styles.listItemSeperator}}>
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>EMAIL</Text>
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>{email}</Text>
-                    </View>
-                    <View style={{ ...styles.listHeader, ...styles.listItemSeperator}}>
-                        <Button id="profile_editProfile" style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' } }}  onClick={editProfile} >
-                           
-                            <label htmlFor="profile_editProfile" style={globals.styles.buttonLabel }>
-                                EDIT PROFILE
-                            </label>
-                        </Button>
-                    </View>
+                
+                <View style={styles.listHeader}>
+                    <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>USERNAME</Text>
+                    <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>{username}</Text>
                 </View>
+                <View style={styles.listHeader}>
+                    <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>EMAIL</Text>
+                    <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>{email}</Text>
+                </View>
+                <View style={{ ...styles.listHeader, ...{ borderWidth: 0 } }}>
+                    <Button id="profile_editProfile" style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' } }}  onClick={editProfile} >
+                           
+                        <label htmlFor="profile_editProfile" style={globals.styles.buttonLabel }>
+                            EDIT PROFILE
+                        </label>
+                    </Button>
+                </View>
+                
             </View>
         </View>
     );
@@ -101,42 +98,13 @@ const styles = {
         margin: `1em min(5em, 5vw)`,
         padding: `2.5em min(2.5em, 2.5vw)`
     },
-    listItem: {
-        justifyContent: 'space-between',
-        alignItems: 'left',
-        flexDirection: 'row',
-        marginTop: '.5em',
-        paddingBottom: '.5em',
-        paddingLeft: '1em'
-
-    },
-    listItemSeperator: {
-        justifyContent: 'space-between',
-        alignItems: 'left',
-        flexDirection: 'row',
-        borderStyle: 'none',
-        borderTopStyle: 'solid',
-        borderWidth: '1px',
-        borderColor: '#eee',
-        paddingTop: '.5em',
-        paddingBottom: '.5em',
-        paddingLeft: '1em'
-
-    },
-    listContainer: {
-        flex:1,
-        marginTop: '2em',
-        boxShadow: '0px 0px 5px 5px #eee',
-        borderRadius: '1em',
-        backgroundColor: globals.COLOR_WHITE
-    },
     listHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        borderStyle: 'none none solid',
-        borderWidth: '1px',
-        borderColor: '#eee',
-        paddingBottom: '.5em'
+        borderStyle: 'none none solid none',
+        borderWidth: '2px',
+        borderColor: globals.COLOR_OFF_WHITE,
+        padding: '.75em'
     },
     icon: {
         fill: globals.COLOR_WHITE,

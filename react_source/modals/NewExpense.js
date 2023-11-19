@@ -255,7 +255,7 @@ function SelectGroup() {
         }}}>
             <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Which group is this transaction for?</Text>
 
-            <View style={{ ...globals.styles.list, ...{ alignItems: 'center', justifyContent: 'center', width: '100%' } }} >
+            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '100%' } }} >
                 {groups}
             </View>
 
@@ -382,12 +382,10 @@ function SplitExpense() {
             </View>
            
 
-            <View style={{ ...globals.styles.list, ...{ width: '75%', alignItems: 'center' } }} >
+            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '60% 40%', width: '75%' } }} >
                 {splitList}
             </View>
             
-            
-
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
                 <Button id="newExpense_splitExpense_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(PAGES.SELECT_SPLIT)} >
@@ -426,14 +424,11 @@ function SplitListItem(props) {
         setReRender(reRender + 1);
     }
     
-   
-
     return (
-        
-        <View style={{ ...styles.listItem, ...{width: '100%'}}} >
 
-            <Text style={{ ...globals.styles.listText, ...{ margin: 'auto 0' }}}>{props.name}</Text>
-            <View style={{flexDirection: 'row', width: 'auto' }}>
+        <>
+            <Text style={{ ...globals.styles.listText, ...{ margin: 'auto 0' } }}>{props.name}</Text>
+            <View style={{ flexDirection: 'row', width: 'auto', justifySelf: 'flex-end' }}>
                 <Button id={"newExpense_splitExpense" + props.name + "_paid"}
                     style={{ width: 'auto', marginTop: '.25em' }}
                     onClick={updateButton} >
@@ -443,14 +438,12 @@ function SplitListItem(props) {
 
                 </Button>
 
-                <View style={{ width: '6em' }}>
-                    <input ref={inputRef} style={globals.styles.input} step={.01} type='number' placeholder={0} min={0}></input>
+                <View style={{ width: '5em' }}>
+                    <input ref={inputRef} style={{ ...globals.styles.input, ...{ width: '90%' }}} step={.01} type='number' placeholder={0} min={0}></input>
 
                 </View>
             </View>
-           
-           
-        </View>
+        </> 
         
     );
 }
@@ -468,7 +461,7 @@ async function buildGroups(setID, setPage) {
 
     for (let i = 0; i < groups.length; i++) {
         outputList.push(
-            <Button id={"newExpense_selectGroup_" + groups[i].group_name} style={{ ...globals.styles.formButton, ...{ margin: '.5em 0' } }} onClick={
+            <Button id={"newExpense_selectGroup_" + groups[i].group_name} style={{ ...globals.styles.formButton, ...{ justifySelf: 'center', margin: '.5em 0' } }} onClick={
             () => { 
                 setID(groups[i].group_id);
                 setPage(PAGES.SPLIT_EXPENSE);
