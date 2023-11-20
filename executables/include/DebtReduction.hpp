@@ -124,7 +124,7 @@ class DebtNetwork
         // minimum number of users that can participate in a chain
         static const DebtNetwork::DebtChain::chain_t::size_type MIN_CHAIN_LINKS = 3u;
 
-        DebtChain() = default;
+        DebtChain() { this->chain_id = this->CHAIN_ID_GENERATOR++; };
         DebtChain(const DebtNetwork::DebtChain &chain) = default;
 
         // the least debt in the chain
@@ -136,6 +136,9 @@ class DebtNetwork
 
         // get the sum of amounts by which debts will be reduced is this chain is reduced
         int getTotalDebtReduced() const;
+
+        // get unique id for this chain
+        unsigned int getChainID() const { return this->chain_id; }
 
         // turn this debt chain into a generic debt chain
         ::DebtChain getGeneric() const;
@@ -180,6 +183,8 @@ class DebtNetwork
         mutable bool dirty = false, dirtyMinBalance = false;
         // cached results for minimum balance and total debt reduced
         mutable int minBalance = 0, numBalancesCancelled = 0, totalDebtReduced = 0;
+        unsigned int chain_id;
+        static unsigned int CHAIN_ID_GENERATOR;
     };
 
     using completeChainVector_t = std::vector<DebtNetwork::DebtChain>;
@@ -208,7 +213,7 @@ class DebtNetwork
     const Reduction selectBestReduction() const;
 
     // helper function for selectBestReduction, return iterator to optimal debt chain
-    DebtNetwork::completeChainVector_t::iterator selectBestChain(
+    DebtNetwork::DebtChain selectBestChain(
         const DebtNetwork::completeChainVector_t &completeChains) const;
 
     // helper function for selectBestReduction...

@@ -10,3 +10,6 @@ cookiefile
 /group_icons
 /.vscode
 /executables/bin/
+/executables/lib/wt
+/executables/include/Wt
+/executables/wt-*/build

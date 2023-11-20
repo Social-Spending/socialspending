@@ -42,6 +42,8 @@ Balance DebtNetwork::Balance::getGeneric() const
 
 /* ----------############### BEGIN DebtNetwork::DebtChain Implementations ###############---------- */
 
+unsigned int DebtNetwork::DebtChain::CHAIN_ID_GENERATOR = 0;
+
 bool DebtNetwork::DebtChain::addLink(const std::shared_ptr<User> creditor, const std::shared_ptr<User> debtor, const int amount)
 {
     // cannot add link to already completed chain
@@ -292,17 +294,22 @@ void DebtNetwork::computeDebtChains()
         // add all of the last creditor's creditors to the chain
         for (const auto &debt : lastCreditor->getDebts())
         {
-            // addLink returns true if this inserted link completed the chain
-            if (partialChain.addLink(debt.getCreditor(), lastCreditor, debt.getAmount()))
+            // call isInChain to prevent infinite loop
+            // root user will appear in the chain, so make an exception if the user is the root user
+            if (!partialChain.isInChain(debt.getCreditor()) || debt.getCreditor()->userID == this->rootUser->userID)
             {
-                // store complete chain in class var
-                this->completeChains.push_back(partialChain);
-            }
+                // addLink returns true if this inserted link completed the chain
+                if (partialChain.addLink(debt.getCreditor(), lastCreditor, debt.getAmount()))
+                {
+                    // store complete chain in class var
+                    this->completeChains.push_back(partialChain);
+                }
 
-            // only continue searching this chain if it's not already the maximum size
-            if (partialChain.numLinks() < DebtNetwork::DebtChain::MAX_CHAIN_LINKS)
-            {
-                partialChains.push(partialChain);
+                // only continue searching this chain if it's not already the maximum size
+                if (partialChain.numLinks() < DebtNetwork::DebtChain::MAX_CHAIN_LINKS)
+                {
+                    partialChains.push(partialChain);
+                }
             }
         }
     }
@@ -320,17 +327,25 @@ const Reduction DebtNetwork::selectBestReduction() const
     {
         auto optimalChain = selectBestChain(completeChains);
         // store the reduced debts
-        reduction.mergeDebtChain(optimalChain->getGeneric());
+        reduction.mergeDebtChain(optimalChain.getGeneric());
         // remove optimal reduction
-        completeChains.erase(optimalChain);
+        auto foundChain_it = std::find_if(completeChains.begin(), completeChains.end(),
+            [&optimalChain] (const DebtNetwork::DebtChain &chain)
+            {
+                return chain.getChainID() == optimalChain.getChainID();
+            });
+        if (foundChain_it != completeChains.end())
+        {
+            completeChains.erase(foundChain_it);
+        }
         // update list of chains with those not broken after the optimal chain was calculated
-        completeChains = calcChainsNotBroken(completeChains, *optimalChain);
+        completeChains = calcChainsNotBroken(completeChains, optimalChain);
     }
 
     return reduction;
 }
 
-DebtNetwork::completeChainVector_t::iterator DebtNetwork::selectBestChain(
+DebtNetwork::DebtChain DebtNetwork::selectBestChain(
     const DebtNetwork::completeChainVector_t &completeChains) const
 {
     // FIRST, choose the "best" to be the one that cancels the most debts
@@ -353,7 +368,7 @@ DebtNetwork::completeChainVector_t::iterator DebtNetwork::selectBestChain(
     if (reductionsWithMaxCancelled.size() == 1)
     {
         // we've found the optimal debt by the first criteria
-        return reductionsWithMaxCancelled.begin();
+        return *(reductionsWithMaxCancelled.begin());
     }
 
 
@@ -378,7 +393,7 @@ DebtNetwork::completeChainVector_t::iterator DebtNetwork::selectBestChain(
     if (reductionsWithFewestParticipants.size() == 1)
     {
         // we've found the optimal debt by the second criteria
-        return reductionsWithFewestParticipants.begin();
+        return *(reductionsWithFewestParticipants.begin());
     }
 
 
@@ -392,7 +407,7 @@ DebtNetwork::completeChainVector_t::iterator DebtNetwork::selectBestChain(
             return a.getMinBalance() < b.getMinBalance();
         });
     // no other option, just take the first match
-    return maxDebtReduced;
+    return *maxDebtReduced;
 }
 
 DebtNetwork::completeChainVector_t DebtNetwork::calcChainsNotBroken(
