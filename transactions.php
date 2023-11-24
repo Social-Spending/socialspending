@@ -333,6 +333,7 @@ function getTransaction($transaction_id) {
                     transactions.date AS transaction_date,
                     transactions.description AS transaction_description,
                     transactions.group_id as group_id,
+                    transactions.receipt_path as receipt_path,
                     CASE WHEN COUNT(tp.user_id) = SUM(tp.has_approved)
                         THEN 1
                         ELSE 0
@@ -423,6 +424,9 @@ function encapsulateTransactionData($row)
     $transaction['transaction_description'] = $row['transaction_description'];
     $transaction['group_id'] = $row['group_id'];
     $transaction['is_approved'] = $row['is_approved'];
+    //Check for receipt_path just to eliminate warnings
+    if (isset($row['receipt_path']))
+        $transaction['receipt_path'] = $row['receipt_path'];
 
 
     // Fetch data about participants *in* that given transaction

@@ -33,5 +33,7 @@ const USER_ICON_HEIGHT = 64;
 //Directory where transaction receipts will be placed
 const TRANSACTION_RECEIPT_DIR = 'transaction_receipts/';
 //Allowed size for receipts, in pixels
+const TRANSACTION_RECEIPT_HEIGHT = 1080;
+const TRANSACTION_RECEIPT_WIDTH = 1920;
 
 ?>

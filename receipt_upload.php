@@ -59,8 +59,11 @@ function handlePOST()
     }
     $transactionID = $_POST['transaction_id'];
 
+    // echo print_r($_FILES["receipt"]);
+    // exit(0);
+
     // parse to image and save as gif to filesystem
-    $serverFileName = validateAndSaveImage($_FILES['receipt'], PHP_INT_MAX, 0, 0, TRANSACTION_RECEIPT_DIR);
+    $serverFileName = validateAndSaveImage($_FILES['receipt'], PHP_INT_MAX, TRANSACTION_RECEIPT_WIDTH, TRANSACTION_RECEIPT_HEIGHT, TRANSACTION_RECEIPT_DIR);
     if (!$serverFileName)
     {
         returnMessage($_VALIDATE_IMAGE_FAILURE_MESSAGE, 400);

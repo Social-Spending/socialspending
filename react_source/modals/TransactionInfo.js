@@ -117,6 +117,10 @@ export default function TransactionInfo(props) {
                         <View style={[globals.styles.list, { width: '80%' }, transactionInfo['transaction_participants'].length < 5 ? { scrollbarWidth: 'none' } : {}]}>
                             {getParticipants(transactionInfo['transaction_participants'])}
                         </View>
+
+                        <View>
+                            {/* <Image source={transactionInfo["receipt_path"] != null ? decodeURI(transactionInfo["receipt_path"]) : ""} style={{width: '224px', height: '126px'}}/> */}
+                        </View>
                     </View>
                 </View>
             </Modal>
