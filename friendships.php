@@ -64,6 +64,9 @@ function sendFriendRequest($username) {
 
     $other_user_id = $result->fetch_assoc()["user_id"];
 
+    if ($user_id == $other_user_id) {
+        returnMessage("Not allowed to add yourself as a friend", HTTP_FORBIDDEN);
+    }
 
     // query to check if users are already friends
     $sql = "SELECT user_id_1, user_id_2
