@@ -4,6 +4,7 @@ include_once('templates/connection.php');
 include_once('templates/cookies.php');
 include_once('templates/constants.php');
 include_once("templates/jsonMessage.php");
+include_once('templates/saveImage.php');
 
 include_once('notifications.php');
 include_once('templates/groupHelpers.php');
@@ -332,6 +333,7 @@ function getTransaction($transaction_id) {
                     transactions.date AS transaction_date,
                     transactions.description AS transaction_description,
                     transactions.group_id as group_id,
+                    transactions.receipt_path as receipt_path,
                     CASE WHEN COUNT(tp.user_id) = SUM(tp.has_approved)
                         THEN 1
                         ELSE 0
@@ -422,6 +424,9 @@ function encapsulateTransactionData($row)
     $transaction['transaction_description'] = $row['transaction_description'];
     $transaction['group_id'] = $row['group_id'];
     $transaction['is_approved'] = $row['is_approved'];
+    //Check for receipt_path just to eliminate warnings
+    if (isset($row['receipt_path']))
+        $transaction['receipt_path'] = $row['receipt_path'];
 
 
     // Fetch data about participants *in* that given transaction
@@ -551,8 +556,13 @@ function addNewTransaction($data)
         //Send out notifications for approval
         addApprovalRequestNotification($transaction_id, $participant['user_id']);
     }
-    
-    return;
+
+    $resultJSON = array();
+    $resultJSON["transaction_id"] = $transaction_id;
+    header('Content-Type: application/json');
+    http_response_code(HTTP_OK);
+    print(json_encode($resultJSON));
+    exit(0);
 }
 
 
@@ -717,5 +727,55 @@ function deleteTransaction($transaction_id)
     }
 }
 
+function uploadReceipt($transaction_id) {
+    global $mysqli, $_VALIDATE_IMAGE_FAILURE_MESSAGE;
+
+    echo "In image upload\n";
+
+    // // get data from POST
+    // // if (!isset($_POST['transaction_id']) || !isset($_FILES['receipt']))
+    // // {
+    // //     returnMessage('Missing form fields', 400);
+    // // }
+    // // $transactionID = $_POST['transaction_id'];
+
+    // // parse to image and save as gif to filesystem
+    // $serverFileName = validateAndSaveImage($_FILES['receipt'], int->max, 0, 0, TRANSACTION_RECEIPT_DIR);
+    // if (!$serverFileName)
+    // {
+    //     returnMessage($_VALIDATE_IMAGE_FAILURE_MESSAGE, 400);
+    // }
+
+    // // TODO get and remove old icon file if size becomes an issue
+
+    // // query to store image path with the transaction
+    // $sql =  'UPDATE transactions t '.
+    //         'INNER JOIN transaction_members tm ON tm.transaction_id = t.transaction_id '.
+    //         'SET g.receipt_path = ? '.
+    //         'WHERE t.transaction_id = ? AND tm.user_id = ?;';
+
+    // $result = $mysqli->execute_query($sql, ["/".$serverFileName, $transactionID, $userID]);
+    // // check for errors
+    // if (!$result)
+    // {
+    //     // query failed, internal server error
+    //     handleDBError();
+    // }
+    // // check that row was affected
+    // if ($mysqli->affected_rows == 0)
+    // {
+    //     // delete file
+    //     unlink($serverFileName);
+    //     returnMessage('Transaction not found or user is not a part of it', 404);
+    // }
+
+    // // success
+    // $returnArray = array();
+    // $returnArray['message'] = 'Success';
+    // $returnArray['icon_path'] = '/'.$serverFileName;
+    // header('Content-Type: application/json', true, 200);
+    // print(json_encode($returnArray));
+    // exit(0);
+}
 
 ?>

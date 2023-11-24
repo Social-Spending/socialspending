@@ -122,6 +122,12 @@ function ChooseName() {
     const nameRef = useRef(null);
     const dateRef = useRef(null);
     const descriptionRef = useRef(null);
+    const receiptRef = useRef(null);
+    const [image, setImage] = useState(null);
+
+    const updateImageSource = (e) => {
+        setImage(e.target.files[0]);
+    }
 
     //Sets appropriate values of form data before updating the global version 
     //and then pushing the value to the web request
@@ -137,7 +143,9 @@ function ChooseName() {
 
         setFormData(formData);
 
-        if (await submitForm(formData, errorRef)) {
+        transaction_id = await submitForm(formData, errorRef);
+        if (transaction_id != -1) {
+            await uploadReceipt(image, transaction_id, errorRef);
             setModal(null);
             reRender();
         }
@@ -167,6 +175,12 @@ function ChooseName() {
             </View>
 
             <textarea tabIndex={3} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
+
+            <View style={globals.styles.labelContainer}>
+                <Text style={[globals.styles.h5, globals.styles.label]}>UPLOAD RECEIPT</Text>
+            </View>
+
+            <input ref={receiptRef} type="file" accept="image/*" onInput={updateImageSource} />
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
                 <Button disabled={nameDisabled} style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Submit' onClick={onSubmit} />
@@ -505,7 +519,7 @@ function checkName(groupRef, errorRef) {
 /**
  * Sends a post request to transactions.php in order to create a new transaction
  * @param {Object} formData object contianing all the details for the new transaction
- * @returns {Boolean} whether or not a new transaction was created
+ * @returns {int} transaction ID of the created transaction, -1 if failed
  */
 async function submitForm(formData, errorRef) {
 
@@ -519,21 +533,54 @@ async function submitForm(formData, errorRef) {
             }
         });
 
+        let responseJSON = await await response.json();
+
         if (await response.ok) {
-            return true;
+            return responseJSON.transaction_id;
 
         }
         else {
-            let responseJSON = await await response.json();
             errorRef.current.innerText = responseJSON.message;
-            return false;
+            return -1;
         }
     }
     catch (error) {
         console.log("error in POST request to transactions (/transactions.php)");
         console.log(error);
     }
-   return false;
+
+    return -1;
+}
+
+async function uploadReceipt(image, transaction_id, errorRef) {
+    let imageData = new FormData();
+    imageData.append("receipt", image);
+    imageData.append("transaction_id", transaction_id);
+
+    try {
+        let response = await fetch("/receipt_upload.php", {
+            method: 'POST',
+            body: imageData,
+            credentials: 'same-origin',
+        });
+
+        if (await response.ok) {
+            return true;
+
+        }
+        else {
+            let responseJSON = await await response.json();
+            //This errorRef doesn't get updated since the wnidow closes anyways
+            errorRef.current.innerText = responseJSON.message;
+            return false;
+        }
+    }
+    catch (error) {
+        console.log("Error in POST request to receipt upload (/receipt_upload.php)");
+        console.log(error);
+    }
+
+    return false;
 }
 
 const styles = StyleSheet.create({
