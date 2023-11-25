@@ -1192,6 +1192,17 @@ function deleteGroup($groupID)
 {
     global $mysqli;
 
+    //Check to see if the group has an icon
+    $sql = "SELECT icon_path
+            FROM groups g
+            WHERE g.group_id = ?";
+    $result = $mysqli->execute_query($sql, [$groupID]);
+
+    //Delete the existing icon if one exists
+    if ($result->num_rows != 0) {
+        unlink("." . $result->fetch_assoc()['icon_path']);
+    }
+
     // delete group
     $sql = 'DELETE FROM groups WHERE group_id = ?;';
     $result = $mysqli->execute_query($sql, [$groupID]);
