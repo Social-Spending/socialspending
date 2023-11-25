@@ -19,7 +19,7 @@ const { globSync } = require('glob');
         ...
     ]
 */
-function generateRoutes(routePath, path, keys, json, useLayout = "_layout.js" in keys) {
+function generateRoutes(routePath, path, keys, json, useLayout = keys.includes("_layout.js")) {
     let routerJson = [];
     for (let i = 0; i < keys.length; i++) {
 
@@ -148,12 +148,25 @@ function generateRouter() {
     }
     //Gets generated json containing all routes
     let routes = generateRoutes("", "", Object.keys(routeJson.app), routeJson.app);
+    console.log(JSON.stringify(routes));
 
     //Gets string of inports
     let parsedImports = generateImports(imports);
 
     //Converts json to a string removing quotes to turn it into "code" prepends imports
     return parsedImports + 'var router = createBrowserRouter(' + JSON.stringify(routes).replaceAll("\"", "").replaceAll("path:", "path:\'").replaceAll(",element", "\',element") + ');'
+}
+
+function stringifyRoutes(routes) {
+    strRoutes = [];
+    for (let i = 0; i < routes.length; i++) {
+        strRouteObject = {};
+        strRouteObject.path = String(routes[i].path);
+        strRouteObject.element = String(routes[i].element);
+        strRouteObject.children = stringifyRoutes(routes[i].children);
+        strRoutes.push(strRouteObject);
+    }
+    return strRoutes;
 }
 
 
