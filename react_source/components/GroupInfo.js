@@ -136,7 +136,7 @@ export default function GroupInfo(props) {
                     </View>
                     <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' } }}>
                         <Text style={globals.styles.smallListHeader}>TRANSACTION</Text>
-                        <Text style={{ ...globals.styles.smallListHeader, ...{ alignItems: 'flex-end' } } }>YOUR CONTRIBUTION</Text>
+                        <Text style={{ ...globals.styles.smallListHeader, ...{ alignItems: 'flex-end' } } }>MY CONTRIBUTION</Text>
                         {transactions}
                     </View>
 
@@ -158,7 +158,7 @@ function getGroupMembers(currUserID, currUsername, currUserIconPath, json) {
     }
     outputList.push(<MemberListItem
         key={-1}
-        name="You"
+        name="Me"
         id={currUserID}
         owed={json.debt}
         group_id={json.group_id}
