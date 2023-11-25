@@ -31,9 +31,11 @@ export default function EditProfile(props) {
     // Refs must be used in the same component they were declared in call any of these functions from a component executes them in said
     // components where the refs are null. This fixes that by rerouting the function to run in this component
 
-    const onEmailChange     = () => { setEmailDisabled      (checkEmail(emailRef, emailErrorMessageRef)); }
-    const onPasswordChange  = () => { setPasswordDisabled   (checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
-    const onUsernameChange  = () => { setUsernameDisabled   (checkUsername(userRef, userErrorMessageRef)); }
+    //Only perform the verification tests if the field isn't empy
+    //If the field is empty, clear the error message and disable the field
+    const onEmailChange     = () => { setEmailDisabled      (emailRef.current.value == "" ? () => {emailErrorMessageRef.current.innerText = ""; return true;} : checkEmail(emailRef, emailErrorMessageRef)); }
+    const onPasswordChange  = () => { setPasswordDisabled   (passwordRef.current.value == "" ? () => {passwordErrorMessageRef.current.innerText = ""; return true;} : checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
+    const onUsernameChange  = () => { setUsernameDisabled   (userRef.current.value == "" ? () => {userErrorMessageRef.current.innerText = ""; return true;} : checkUsername(userRef, userErrorMessageRef)); }
     const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, errorMessageRef, loginAttemptsState, setLoginAttemptsState, popModal); }
 
     const errorMessageRef           = useRef(null);
@@ -92,7 +94,7 @@ export default function EditProfile(props) {
                     </View>
                     <input tabIndex={0} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password" onInput={onPasswordChange} />
 
-                    <Button id="signupForm_submit" tabIndex={0} disabled={emailDisabled || passwordDisabled || usernameDisabled} style={globals.styles.formButton} onClick={onSubmit} >
+                    <Button id="signupForm_submit" tabIndex={0} disabled={emailDisabled && passwordDisabled && usernameDisabled} style={globals.styles.formButton} onClick={onSubmit} >
                         <label htmlFor="signupForm_submit" style={globals.styles.buttonLabel}>
                             Submit
                         </label>

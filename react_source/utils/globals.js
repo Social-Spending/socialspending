@@ -426,6 +426,13 @@ export const styles = {
         color: COLOR_ORANGE,
         alignSelf: 'flex-end',
         width: '10em'
+    },
+    settleUp: {
+        height: '2em',
+        width: '10em',
+        margin: 0,
+        marginRight: '1em',
+        borderRadius: '2em',
+        color: COLOR_ORANGE,
     }
-
 };

@@ -9,7 +9,8 @@ import Button from "./Button.js";
 import { ModalContext } from "../modals/ModalContext.js";
 import WaitForAuth from "./WaitForAuth.js";
 import Loading from "./Loading.js";
-import NewFriend from "../modals/NewFriend.js";
+import NewFriend from "../modals/NewFriend.js"
+import SettleUp from "../modals/SettleUp.js";;
 import { GlobalContext } from "./GlobalContext.js";
 import { Link } from "react-router-dom/dist/index.js";
 
@@ -89,6 +90,8 @@ function SummaryFriendItem(props) {
     let color = props.owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
     color = props.owed == 0 ? { color: globals.COLOR_GRAY } : color;
 
+    const { pushModal, popModal } = useContext(ModalContext);
+
     return (
         <>
             <Link to={'/profile/' + props.id} style={globals.styles.listItemRow}>
@@ -103,6 +106,14 @@ function SummaryFriendItem(props) {
             <Link to={'/profile/' + props.id} style={globals.styles.listItemColumn}>
                 <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
                 <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
+                {
+                    props.owed > 0 &&
+                    <Button id="friendsList_addFriend" style={globals.styles.formButton} textstyle={globals.styles.h4} onClick={() => {pushModal(<SettleUp targetID={props.id}/>)}}>
+                        <label htmlFor="friendsList_addFriend" style={globals.styles.buttonLabel }>
+                            Settle Up
+                        </label>
+                    </Button>
+                }
             </Link>
         </>
         

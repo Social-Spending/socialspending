@@ -90,7 +90,9 @@ function handlePOST()
     $usersArray = array();
     while($row = $result->fetch_assoc())
     {
-        $usersArray[] = $row;
+        if ($row['user_id'] != $userID) {
+            $usersArray[] = $row;
+        }
     }
 
     // return the returnArray as JSON
