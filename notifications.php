@@ -38,11 +38,11 @@ function handleGET() {
         returnMessage("Valid session not found for user", HTTP_UNAUTHORIZED);
     }
 
-    $response = [];
-    array_push($response, ["friend_requests" => getFriendRequests($user_id)]);
-    array_push($response, ["transaction_approvals" => getApprovalRequests($user_id)]);
-    array_push($response, ["completed_transactions" => getApprovedTransactions($user_id)]);
-    array_push($response, ["group_invites" => getGroupInvites($user_id)]);
+    $response = ["friend_requests" => getFriendRequests($user_id),
+                "transaction_approvals" => getApprovalRequests($user_id),
+                "completed_transactions" => getApprovedTransactions($user_id),
+                "group_invites" => getGroupInvites($user_id)
+                ];
 
     $json_data = json_encode($response);
     header('Content-Type: application/json');

@@ -34,11 +34,33 @@ export default function Notifications(props) {
         // React advises to declare the async function directly inside useEffect
         // On load asynchronously request groups and construct the list
         async function getItems() {
+            notifications = await getNotifications();
 
-            setFriendRequests(await getNotifications("friend_request"));
-            setTransactionApprovals(await getNotifications("transaction_approval"));
-            setCompletedTransactions(await getNotifications("complete_transaction"));
-            setGroupInvites(await getNotifications("group_invite"));
+            if (notifications != null) {
+                friend_requests = [];
+                notifications.friend_requests.forEach(fr => {
+                    friend_requests.push(<FriendRequest name={fr.username} id={fr.notification_id} user_id={fr.friend_id} />)
+                });
+                setFriendRequests(friend_requests);
+
+                transaction_approvals = [];
+                notifications.transaction_approvals.forEach(ta => {
+                    transaction_approvals.push(<ApproveTransaction name={ta.name} id={ta.notification_id} trans_id={ta.transaction_id} />)
+                });
+                setTransactionApprovals(transaction_approvals);
+
+                completed_transactions = [];
+                notifications.completed_transactions.forEach(ct => {
+                    completed_transactions.push(<CompletedTransaction name={ct.name} id={ct.notification_id} trans_id={ct.transaction_id} />)
+                });
+                setCompletedTransactions(completed_transactions);
+
+                group_invites = [];
+                notifications.group_invites.forEach(gi => {
+                    group_invites.push(<GroupInvite name={gi.group_name} id={gi.notification_id} group_id={gi.group_id} />)
+                });
+                setGroupInvites(group_invites);
+            }
         }
         getItems();
 
@@ -372,52 +394,18 @@ async function dismissCompletedTransaction(id, removeNotif) {
     }
 }
 
-async function getNotifications(type){
-
-    let notifications = [];
-
-    let payload = new URLSearchParams();
-    payload.append('type', type);
-
+// async function getNotifications(type){
+async function getNotifications(){
     // do the POST request
     try {
-        let response = await fetch("/notifications.php?" + payload, { method: 'GET', credentials: 'same-origin' });
+        // let response = await fetch("/notifications.php?" + payload, { method: 'GET', credentials: 'same-origin' });
+        let response = await fetch("/notifications.php?", { method: 'GET', credentials: 'same-origin' });
 
         if (response.ok) {
             try {
                 let json = await response.json();
-                if (json !== null) {
-                    switch (type) {
-                        case "friend_request":
-                            for (let i = 0; i < json.length; i++) {
-                                notifications.push(<FriendRequest name={json[i].username} id={json[i].notification_id} user_id={json[i].friend_id} />)
-                            }
-                            break;
-                        case "transaction_approval":
-                            for (let i = 0; i < json.length; i++) {
-                                notifications.push(<ApproveTransaction name={json[i].name} id={json[i].notification_id} trans_id={json[i].transaction_id} />)
-                            }
-                            break;
-                        case "complete_transaction":
 
-                            for (let i = 0; i < json.length; i++) {
-                                notifications.push(<CompletedTransaction name={json[i].name} id={json[i].notification_id} trans_id={json[i].transaction_id} />)
-                            }
-                            break;
-                        case "group_invite":
-
-                            for (let i = 0; i < json.length; i++) {
-                                notifications.push(<GroupInvite name={json[i].group_name} id={json[i].notification_id} group_id={json[i].group_id} />)
-                            }
-
-                            break;
-                        default:
-                            console.error("error in GET request to notifications (/notifications.php)");
-                            console.error("Unrecognized notification type");
-                            break;
-                    }
-                }
-                
+                return json;
             } catch (error) {
 				console.error("error in GET request to notifications (/notifications.php)");
 				console.error("No JSON returned");
@@ -428,7 +416,7 @@ async function getNotifications(type){
         console.error("error in GET request to notifications (/notifications.php)");
         console.error(error);
     }
-    return notifications;
+    return null;
 }
 
 
