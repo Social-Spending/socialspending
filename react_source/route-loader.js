@@ -95,7 +95,7 @@ function generateRoutes(routePath, path, keys, json, useLayout = "_layout.js" in
 function generateImports(imports) {
     let out = "";
     for (let i = 0; i < imports.length; i++) {
-        let splits = imports[i].split('\\');
+        let splits = imports[i].split(/\\|\//);
         let component = "";
 
         //build a unique component name starting in the format _{toplevelfolder}_[subfolder]_name
@@ -135,7 +135,7 @@ function generateRouter() {
                 }
             }
         }*/
-        let splits = imports[i].split('\\');
+        let splits = imports[i].split(/\\|\//);
         for (let j = 0; j < splits.length; j++) {
             if (temp[splits[j]]) {
                 temp = temp[splits[j]];
@@ -145,7 +145,6 @@ function generateRouter() {
                 temp = temp[splits[j]];
             }
         }
-
     }
     //Gets generated json containing all routes
     let routes = generateRoutes("", "", Object.keys(routeJson.app), routeJson.app);
