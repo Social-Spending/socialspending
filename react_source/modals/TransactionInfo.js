@@ -76,10 +76,6 @@ export default function ViewTransaction(props) {
 }
 
 function TransactionInfo() {
-
-    // let [transactionInfo, setTransactionInfo] = useState(null);
-    // const setModal = useContext(ModalContext);
-
     const {
         transactionInfo: [transactionInfo, setTransactionInfo],
         pageNum: [pageNum, setPageNum]
@@ -88,20 +84,12 @@ function TransactionInfo() {
     if (transactionInfo === null) {
         //Transaction info hasnt loaded - show loading
         return (
-            // <Modal
-            // transparent={true}
-            // visible={true}
-            // onRequestClose={() => setModal(null)}>
-
-            //     <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
-                <View style={[
-                        styles.detailsContainer, {
-                        display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
-                }]} >
-                        <Loading />
-                </View>
-            // </Modal>
-
+            <View style={[
+                    styles.detailsContainer, {
+                    display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
+            }]} >
+                    <Loading />
+            </View>
         );
 
     } else if (transactionInfo === undefined || transactionInfo['message'] != undefined) {
@@ -109,69 +97,52 @@ function TransactionInfo() {
         let text = transactionInfo === undefined ? "Error While Contacting Server" : transactionInfo['message'];
 
         return (
-        //    <Modal
-        //         transparent={true}
-        //         visible={true}
-        //         onRequestClose={() => setModal(null)}>
-
-        //         <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
-                <View style={[
-                        styles.detailsContainer, {
-                        display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
-                }]} >
-                    <Text style={globals.styles.error}> {text} </Text>
-                </View>
-            // </Modal>
+            <View style={[
+                    styles.detailsContainer, {
+                    display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
+            }]} >
+                <Text style={globals.styles.error}> {text} </Text>
+            </View>
         );
     } else {
         //Transaction info has been returned, render it
         let pendingItalic = transactionInfo['is_approved'] == 0 ? { fontStyle: 'italic' } : {};
 
         return (
-        //    <Modal
-        //         transparent={true}
-        //         visible={true}
-        //         onRequestClose={() => setModal(null)}>
-
-        //         <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
-                <View style={[
-                        styles.info, {
-                        display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
-                }]} >
-                {/* <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
-                    <View style={styles.info} onClick={handleChildClick}> */}
-                    <View style={styles.detailsContainer}>
-                        <Text style={[globals.styles.h2, styles.name, pendingItalic]}>{transactionInfo['transaction_name']}</Text>
-                    </View>
-
-                    <View style={[styles.detailsContainer, { paddingBottom: '2.5em' }]}>
-                        <Text style={styles.details}>Transaction #{transactionInfo['transaction_id']}</Text>
-                        <Text style={styles.details}>{transactionInfo['transaction_date']}</Text>
-                    </View>
-
-                    <View style={styles.detailsContainer}>
-                        <Text style={[globals.styles.h4, styles.details]}>Description:</Text>
-                    </View>
-                    <View style={styles.detailsContainer}>
-                        <Text style={styles.description}>{transactionInfo['transaction_description']}</Text>
-                    </View>
-
-                    <View style={{ alignSelf: 'center', height: '1px', width: '80%', backgroundColor: globals.COLOR_GRAY }} />
-
-                    <View style={styles.detailsContainer}>
-                        <Text style={[globals.styles.h4, styles.participants]}>Participants:</Text>
-                    </View>
-
-                    <View style={[globals.styles.list, { width: '80%' }, transactionInfo['transaction_participants'].length < 5 ? { scrollbarWidth: 'none' } : {}]}>
-                        {getParticipants(transactionInfo['transaction_participants'])}
-                    </View>
-
-                    <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                        <Button  style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '50%' }]} label='View Receipt' onClick={() => setPageNum(PAGES.RECEIPT)} />
-                    </View>
+            <View style={[
+                    styles.info, {
+                    display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
+            }]} >
+                <View style={styles.detailsContainer}>
+                    <Text style={[globals.styles.h2, styles.name, pendingItalic]}>{transactionInfo['transaction_name']}</Text>
                 </View>
-            // </Modal>
 
+                <View style={[styles.detailsContainer, { paddingBottom: '2.5em' }]}>
+                    <Text style={styles.details}>Transaction #{transactionInfo['transaction_id']}</Text>
+                    <Text style={styles.details}>{transactionInfo['transaction_date']}</Text>
+                </View>
+
+                <View style={styles.detailsContainer}>
+                    <Text style={[globals.styles.h4, styles.details]}>Description:</Text>
+                </View>
+                <View style={styles.detailsContainer}>
+                    <Text style={styles.description}>{transactionInfo['transaction_description']}</Text>
+                </View>
+
+                <View style={{ alignSelf: 'center', height: '1px', width: '80%', backgroundColor: globals.COLOR_GRAY }} />
+
+                <View style={styles.detailsContainer}>
+                    <Text style={[globals.styles.h4, styles.participants]}>Participants:</Text>
+                </View>
+
+                <View style={[globals.styles.list, { width: '80%' }, transactionInfo['transaction_participants'].length < 5 ? { scrollbarWidth: 'none' } : {}]}>
+                    {getParticipants(transactionInfo['transaction_participants'])}
+                </View>
+
+                <View style={{ justifyContent: 'center', width: '75%', flexDirection: 'row' }}>
+                    {transactionInfo['receipt_path'] != null ? <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '50%' }]} label='View Receipt' onClick={() => setPageNum(PAGES.RECEIPT)} /> : <br/>}
+                </View>
+            </View>
         );
     }
 }
@@ -185,10 +156,7 @@ function ViewReceipt() {
     if (transactionInfo === null) {
         //Transaction info hasnt loaded - show loading
         return (
-            <View style={[
-                    styles.detailsContainer, {
-                    display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'
-            }]} >
+            <View style={[{display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'}]}>
                     <Loading />
             </View>
 
@@ -196,23 +164,15 @@ function ViewReceipt() {
 
         } else {
             return (
-            //    <Modal
-            //         transparent={true}
-            //         visible={true}
-            //         onRequestClose={() => setModal(null)}>
-
-            //         <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
-                    <View style={[
-                            styles.detailsContainer, {
-                            display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'
-                    }]} >
-                        <Image source={transactionInfo["receipt_path"] != null ? decodeURI(transactionInfo["receipt_path"]) : ""} style={{transform: 'rotate(90deg)', width: '200px', height: '450px', overflow: 'visible'}}/>
-
-                        <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                            <Button  style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '50%' }]} label='Go Back' onClick={() => setPageNum(PAGES.TRANSACTION_INFO)} />
-                        </View>
+                <View style={[{display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'}]}>
+                    <View style={{padding: '.75em'}}>
+                        <Image source={transactionInfo["receipt_path"] != null ? decodeURI(transactionInfo["receipt_path"]) : ""} style={{width: '225px', height: '400px', justifyContent: 'center', alignItems: 'center'}}/>
                     </View>
-                // </Modal>
+
+                    <View style={{justifyContent: 'center', flexDirection: 'row'}}>
+                        <Button style={[globals.styles.formButton, {marginTop: '0em', marginBottom: '.75em', width: '100%'}]} label='Go Back' onClick={() => setPageNum(PAGES.TRANSACTION_INFO)} />
+                    </View>
+                </View>
         );
     }
 }
