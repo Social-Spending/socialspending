@@ -62,7 +62,16 @@ function handlePOST()
         returnMessage($_VALIDATE_IMAGE_FAILURE_MESSAGE, 400);
     }
 
-    // TODO get and remove old icon file if size becomes an issue
+    //Check to see if the user has an icon
+    $sql = "SELECT icon_path
+            FROM users u
+            WHERE u.user_id = ?";
+    $result = $mysqli->execute_query($sql, [$userID]);
+
+    //Delete the existing icon if one exists
+    if ($result->num_rows != 0) {
+        unlink("." . $result->fetch_assoc()['icon_path']);
+    }
 
     // query to store image path with the group
     $sql =  'UPDATE users u '.
