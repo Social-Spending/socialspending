@@ -156,10 +156,7 @@ function ViewReceipt() {
     if (transactionInfo === null) {
         //Transaction info hasnt loaded - show loading
         return (
-            <View style={[
-                    styles.detailsContainer, {
-                    display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'
-            }]} >
+            <View style={[{display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'}]}>
                     <Loading />
             </View>
 
@@ -167,14 +164,13 @@ function ViewReceipt() {
 
         } else {
             return (
-                <View style={[
-                        styles.detailsContainer, {
-                        display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'
-                }]} >
-                    <Image source={transactionInfo["receipt_path"] != null ? decodeURI(transactionInfo["receipt_path"]) : ""} style={{width: '200px', height: '450px', overflow: 'visible'}}/>
+                <View style={[{display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'}]}>
+                    <View style={{padding: '.75em'}}>
+                        <Image source={transactionInfo["receipt_path"] != null ? decodeURI(transactionInfo["receipt_path"]) : ""} style={{width: '225px', height: '400px', justifyContent: 'center', alignItems: 'center'}}/>
+                    </View>
 
-                    <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
-                        <Button style={[globals.styles.formButton, {margin: 0, marginVertical: '1em', width: '100%'}]} label='Go Back' onClick={() => setPageNum(PAGES.TRANSACTION_INFO)} />
+                    <View style={{justifyContent: 'center', flexDirection: 'row'}}>
+                        <Button style={[globals.styles.formButton, {marginTop: '0em', marginBottom: '.75em', width: '100%'}]} label='Go Back' onClick={() => setPageNum(PAGES.TRANSACTION_INFO)} />
                     </View>
                 </View>
         );
