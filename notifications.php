@@ -62,7 +62,8 @@ function getFriendRequests($user_id) {
                     users.user_id AS friend_id
             FROM notifications
             LEFT JOIN users ON users.user_id = notifications.friend_request_user_id
-            WHERE notifications.user_id=? AND notifications.type=\"friend_request\"";
+            WHERE notifications.user_id=? AND notifications.type=\"friend_request\"
+            ORDER BY notifications.notification_timestamp DESC";
 
     $friend_requests = $mysqli->execute_query($sql, [$user_id]);
 
@@ -87,7 +88,8 @@ function getApprovalRequests($user_id) {
                     transactions.transaction_id AS transaction_id
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
-            WHERE notifications.user_id=? AND notifications.type=\"approval_request\"";
+            WHERE notifications.user_id=? AND notifications.type=\"approval_request\"
+            ORDER BY notifications.notification_timestamp DESC";
 
     $approval_requests = $mysqli->execute_query($sql, [$user_id]);
 
@@ -111,7 +113,8 @@ function getApprovedTransactions($user_id) {
                     transactions.transaction_id AS transaction_id
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
-            WHERE notifications.user_id=? AND notifications.type=\"approved_transaction\"";
+            WHERE notifications.user_id=? AND notifications.type=\"approved_transaction\"
+            ORDER BY notifications.notification_timestamp DESC";
 
     $approved_transactions = $mysqli->execute_query($sql, [$user_id]);
 
@@ -135,7 +138,8 @@ function getGroupInvites($user_id) {
                     n.group_id AS group_id
             FROM notifications n
             JOIN groups g ON g.group_id = n.group_id
-            WHERE n.user_id = ? AND n.type = 'group_invite';";
+            WHERE n.user_id = ? AND n.type = 'group_invite'
+            ORDER BY n.notification_timestamp DESC";
 
     $results = $mysqli->execute_query($sql, [$user_id]);
     // check if failure
