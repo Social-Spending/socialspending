@@ -51,29 +51,9 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
     $actualWidth = imagesx($image);
     $actualHeight = imagesy($image);
 
-    // echo $actualWidth . " x " . $actualHeight . "\n";
-
-    //Determine the new size for the image
-    $xSize = $allowedWidth;
-    $ySize = $allowedHeight;
-    // echo $xSize . " x " . $ySize . "\n";
-
-    // $xSize = min($actualWidth, $actualHeight);
-    // $ySize = $xSize;
-
-    // //Determine if we want to keep origina dimensions
-    // if ($allowedWidth <= 0)
-    //     $xSize = $actualWidth;
-
-    // if ($allowedHeight <= 0)
-    //     $ySize = $actualHeight;
-
-    // $image = imagecrop($image, ['x' => $actualWidth / 2 - $xSize / 2, 'y' => $actualHeight / 2 - $ySize / 2, 'width' => $xSize, 'height' => $ySize]);
-
-    $resizedImage = imagecreate($xSize, $ySize);
-    imagecopyresized($resizedImage, $image, 0, 0, 0, 0, $xSize, $ySize, $actualWidth, $actualHeight);
-    // imagerotate($resizedImage, 90, 0xffffff);
-    // imagecopyresized($resizedImage, $image, 0, 0, 0, 0, $ySize, $xSize, $actualWidth, $actualHeight);
+    $resizedImage = imagecreate($allowedWidth, $allowedHeight);
+    imagecopyresized($resizedImage, $image, 0, 0, 0, 0, $allowedWidth, $allowedHeight, $actualWidth, $actualHeight);
+    $resizedImage = imagerotate($resizedImage, 270, 0);
 
     // make sure this destination folder exists
     if (!file_exists($dir)) {
@@ -91,6 +71,9 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
         $_VALIDATE_IMAGE_FAILURE_MESSAGE = 'Failed to save image';
         return false;
     }
+    
+    //Cleanup images from memory
+    imagedestroy($image);
     imagedestroy($resizedImage);
 
     // result is path to image file on server
