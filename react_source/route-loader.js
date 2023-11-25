@@ -148,9 +148,8 @@ function generateRouter() {
     }
     //Gets generated json containing all routes
     let routes = generateRoutes("", "", Object.keys(routeJson.app), routeJson.app);
-    console.log(JSON.stringify(routes));
 
-    //Gets string of inports
+    //Gets string of imports
     let parsedImports = generateImports(imports);
 
     //Converts json to a string removing quotes to turn it into "code" prepends imports
