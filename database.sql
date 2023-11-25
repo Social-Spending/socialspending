@@ -77,6 +77,7 @@ create table notifications (
 	transaction_id int null default null,
 	friend_request_user_id int null default null,
 	group_id int null default null,
+	notification_timestamp timestamp null default CURRENT_TIMESTAMP,
 	primary key (notification_id),
 	foreign key (user_id) references users(user_id) on delete cascade on update cascade,
 	foreign key (transaction_id) references transactions(transaction_id) on delete cascade on update cascade,
