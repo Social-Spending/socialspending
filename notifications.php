@@ -15,14 +15,7 @@ POST Request
 */
 if (str_contains($_SERVER["REQUEST_URI"], "notifications.php")) {
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
-        //Check if user_id and a notification type were passed
-        if (isset($_GET["type"])) {
-            getNotifications($_GET["type"]);
-        }
-        //No other valid GET requests, fail out
-        else {
-            returnMessage("Notification type not given", HTTP_BAD_REQUEST);
-        }
+        handleGET();
     }
     elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
         $body = file_get_contents("php://input");
@@ -34,39 +27,27 @@ if (str_contains($_SERVER["REQUEST_URI"], "notifications.php")) {
         }
         //No other valid POST requests, fail out
         else {
-            returnMessage("Operation and/or notification_id not not given or invalid", HTTP_BAD_REQUEST);
+            returnMessage("Operation and/or notification_id not given or invalid", HTTP_BAD_REQUEST);
         }
     }
 } 
 
-/*
-Selects the proper notifications to be returned
-    - type = "friend_request", "approval_request", or "approved_transaction"
-*/
-function getNotifications($type) {
-    //Get the user ID from the cookie
+function handleGET() {
     $user_id = intval(validateSessionID());
     if ($user_id === 0) {
         returnMessage("Valid session not found for user", HTTP_UNAUTHORIZED);
     }
 
-	switch ($type) {
-		case "friend_request":
-			getFriendRequests($user_id);
-			break;
-		case "transaction_approval":
-			getApprovalRequests($user_id);
-			break;
-		case "complete_transaction":
-			getApprovedTransactions($user_id);
-			break;
-        case "group_invite":
-            getGroupInvites($user_id);
-            break;
-		default:
-            returnMessage($type . " is not a valid notification type", HTTP_BAD_REQUEST);
-			break;
-	}
+    $response = [];
+    array_push($response, ["friend_requests" => getFriendRequests($user_id)]);
+    array_push($response, ["transaction_approvals" => getApprovalRequests($user_id)]);
+    array_push($response, ["completed_transactions" => getApprovedTransactions($user_id)]);
+    array_push($response, ["group_invites" => getGroupInvites($user_id)]);
+
+    $json_data = json_encode($response);
+    header('Content-Type: application/json');
+    echo $json_data;
+    http_response_code(HTTP_OK);
 }
 
 /*
@@ -91,11 +72,7 @@ function getFriendRequests($user_id) {
         array_push($friend_requests_array, $friend_requests->fetch_assoc());
     }
 
-    //Send response
-    $json_data = json_encode($friend_requests_array);
-    header('Content-Type: application/json');
-    echo $json_data;
-    http_response_code(HTTP_OK);
+    return $friend_requests_array;
 }
 
 /*
@@ -119,10 +96,7 @@ function getApprovalRequests($user_id) {
         array_push($approval_requests_array, $approval_requests->fetch_assoc());
     }
 
-    $json_data = json_encode($approval_requests_array);
-    header('Content-Type: application/json');
-    echo $json_data;
-    http_response_code(HTTP_OK);
+    return $approval_requests_array;
 }
 
 /*
@@ -146,10 +120,7 @@ function getApprovedTransactions($user_id) {
         array_push($approved_transactions_array, $approved_transactions->fetch_assoc());
     }
 
-    $json_data = json_encode($approved_transactions_array);
-    header('Content-Type: application/json');
-    echo $json_data;
-    http_response_code(HTTP_OK);
+    return $approved_transactions_array;
 }
 
 /*
@@ -179,10 +150,7 @@ function getGroupInvites($user_id) {
         array_push($group_invites_array, $row);
     }
 
-    $json_data = json_encode($group_invites_array);
-    header('Content-Type: application/json');
-    echo $json_data;
-    http_response_code(HTTP_OK);
+    return $group_invites_array;    
 }
 
 /*
