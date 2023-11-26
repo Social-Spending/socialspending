@@ -64,38 +64,38 @@ export default function NewExpense(props) {
     }
 
     // TODO refactor this modal
-    // return (
-    //     <ExpenseContext.Provider
-    //         value={{
-    //             pageNum: [pageNum, setPageNum],
-    //             groupID: [groupID, setGroupID],
-    //             errorRef: errorMessageRef,
-    //             formData: [formData, setFormData]
-    //         }}>
-    //         <Modal
-    //             transparent={true}
-    //             visible={true}
-    //             onRequestClose={() => popModal()}>
+    return (
+        <ExpenseContext.Provider
+            value={{
+                pageNum: [pageNum, setPageNum],
+                groupID: [groupID, setGroupID],
+                errorRef: errorMessageRef,
+                formData: [formData, setFormData]
+            }}>
+            <Modal
+                transparent={true}
+                visible={true}
+                onRequestClose={() => popModal()}>
 
-    //             <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
-    //                 <View style={styles.create} onClick={handleChildClick}>
+                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
+                    <View style={styles.create} onClick={handleChildClick}>
 
-    //                     <Image source={Logo} style={styles.logo} />
+                        <Image source={Logo} style={styles.logo} />
 
-    //                     <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>NEW EXPENSE</Text>
+                        <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>NEW EXPENSE</Text>
 
-    //                     <Text ref={errorMessageRef} id='createExpense_errorMessage' style={globals.styles.error}></Text>
+                        <Text ref={errorMessageRef} id='createExpense_errorMessage' style={globals.styles.error}></Text>
 
-    //                     <Text>
-    //                         Under Construction!
-    //                     </Text>
+                        <Text>
+                            Under Construction!
+                        </Text>
 
-    //                 </View>
-    //             </View>
-    //         </Modal>
-    //     </ExpenseContext.Provider>
+                    </View>
+                </View>
+            </Modal>
+        </ExpenseContext.Provider>
 
-    // );
+    );
 
     //Provide the context including pageNum, groupId, errorRef, and formData
     return (
