@@ -12,6 +12,9 @@ import * as globals from '../utils/globals.js'
 import { Text, View, Image } from '../utils/globals.js';
 import { useState, useRef, useContext } from 'react';
 import { Link } from "react-router-dom/dist/index.js";
+import { useNavigate } from 'react-router-dom';
+
+import { checkEmail, checkPassword, checkUsername, styles } from '../utils/validateUserInfo.js';
 
 import Button from './Button.js'
 
@@ -104,90 +107,6 @@ export default function Signup() {
 }
 
 /**
- * Checks value of email field and prevents user from submitting if not a valid email
- * @param {React.MutableRefObject} emailRef reference to email field
- * @param {React.MutableRefObject} errorRef reference to error text field to output error text
- * @returns {boolean}                       validity of email
- */
-export function checkEmail(emailRef, errorRef) {
-
-
-    // Standard RFC 5322 Compliant email regex obtained from here https://emailregex.com/
-    const regex = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
-    const match = emailRef.current.value.match(regex);
-
-    if (match) {
-        errorRef.current.innerText = "";
-        emailRef.current.removeAttribute("aria-invalid");
-        emailRef.current.removeAttribute("aria-errormessage");
-        return false;
-
-    } else {
-        errorRef.current.innerText = "Please enter a valid email address";
-        emailRef.current.setAttribute("aria-invalid", true);
-        emailRef.current.setAttribute("aria-errormessage", errorRef.current.id);
-        return true;
-    }
-}
-
-/**
- * Checks value of username field and prevents user from submitting if too short
- * @param {React.MutableRefObject} userRef  reference to username field
- * @param {React.MutableRefObject} errorRef reference to error text field to print error text to
- * @returns {boolean}                       validity of username
- */
-export function checkUsername(userRef, errorRef) {
-
-    if (userRef.current.value.length >= 4) {
-        errorRef.current.innerText = "";
-        userRef.current.removeAttribute("aria-invalid");
-        userRef.current.removeAttribute("aria-errormessage");
-        return false;
-
-    } else {
-        errorRef.current.innerText = "Username must be at least 4 characters";
-        userRef.current.setAttribute("aria-invalid", true);
-        userRef.current.setAttribute("aria-errormessage", errorRef.current.id);
-        return true;
-    }
-}
-
-/**
- * Checks value of password field and prevents user from submitting if not equal to verify password field
- * @param {React.MutableRefObject} passwordRef  reference to password field
- * @param {React.MutableRefObject} verifyRef    reference to verify password field
- * @param {React.MutableRefObject} errorRef     reference to error text field to output error text
- * @returns {boolean}                           validity of password
- */
-export function checkPassword(passwordRef, verifyRef, errorRef) {
-
-    if (passwordRef.current.value.length < 8) {
-        errorRef.current.innerText = "Password must be at least 8 characters";
-        passwordRef.current.removeAttribute("aria-invalid");
-        passwordRef.current.removeAttribute("aria-errormessage");
-        verifyRef.current.removeAttribute("aria-invalid");
-        verifyRef.current.removeAttribute("aria-errormessage");
-        return true;
-
-    }else if (passwordRef.current.value != verifyRef.current.value) {
-        errorRef.current.innerText = "Passwords do not match";
-        passwordRef.current.removeAttribute("aria-invalid");
-        passwordRef.current.removeAttribute("aria-errormessage");
-        verifyRef.current.removeAttribute("aria-invalid");
-        verifyRef.current.removeAttribute("aria-errormessage");
-        return true;
-
-    } else {
-        errorRef.current.innerText = "";
-        passwordRef.current.setAttribute("aria-invalid", true);
-        passwordRef.current.setAttribute("aria-errormessage", errorRef.current.id);
-        verifyRef.current.setAttribute("aria-invalid", true);
-        verifyRef.current.setAttribute("aria-errormessage", errorRef.current.id);
-        return false;
-    }
-}
-
-/**
  * @param {React.MutableRefObject} userRef          reference to username field
  * @param {React.MutableRefObject} emailRef         reference to email field
  * @param {React.MutableRefObject} passwordRef      reference to password field
@@ -209,8 +128,8 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempt
             // force GlobalContext to re-try getting user info
             setLoginAttempts(loginAttempts + 1);
             // success, redirect user
-            
-            router.push("/summary");
+            const navigate = useNavigate();
+            navigate('/summary', { replace: true });
 
         }
         else {
@@ -225,26 +144,3 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempt
         console.log(error);
     }
 }
-
-export const styles = {
-    signup: {
-        width: '50vh',
-        minWidth: '27em',
-        height: '70vh',
-        minHeight: '39em',
-        backgroundColor: globals.COLOR_WHITE,
-        boxShadow: '0px 0px 5px 5px #eee',
-        borderRadius: 18,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    logo: {
-        height: '3em',
-        width: '9em',
-        minWidth: '2em',
-        borderRadius: 1,
-    },
-    
-    
-
-};
