@@ -39,44 +39,46 @@ export default function Notifications(props) {
         // React advises to declare the async function directly inside useEffect
         // On load asynchronously request groups and construct the list
 
-        function addNotifCount(amount) {
-            notifCount = notifCount + amount
-            setNotifCount(notifCount);
-        }
         async function getItems() {
             let notifications = await getNotifications();
             // integer used as a unique key in the lists of each notification type
             let keyIndex = 0;
 
             if (notifications != null) {
+                let newNotifCount = 0;
+
                 let friend_requests = [];
                 notifications.friend_requests.forEach(fr => {
                     friend_requests.push(<FriendRequest name={fr.username} id={fr.notification_id} user_id={fr.friend_id} key={keyIndex++}/>)
                 });
                 setFriendRequests(friend_requests);
+                newNotifCount += friend_requests.length;
 
                 let transaction_approvals = [];
                 notifications.transaction_approvals.forEach(ta => {
                     transaction_approvals.push(<ApproveTransaction name={ta.name} id={ta.notification_id} trans_id={ta.transaction_id} key={keyIndex++}/>)
                 });
                 setTransactionApprovals(transaction_approvals);
+                newNotifCount += transaction_approvals.length;
 
                 let completed_transactions = [];
                 notifications.completed_transactions.forEach(ct => {
                     completed_transactions.push(<CompletedTransaction name={ct.name} id={ct.notification_id} trans_id={ct.transaction_id} key={keyIndex++}/>)
                 });
                 setCompletedTransactions(completed_transactions);
+                newNotifCount += completed_transactions.length;
 
                 let group_invites = [];
                 notifications.group_invites.forEach(gi => {
                     group_invites.push(<GroupInvite name={gi.group_name} id={gi.notification_id} group_id={gi.group_id} key={keyIndex++}/>)
                 });
                 setGroupInvites(group_invites);
+                newNotifCount += group_invites.length;
 
-                notifCount = notifications.length;
+                setNotifCount(newNotifCount);
+                // if the page requested that we show notification bar by default, do so only if there are also notifications present
+                props.setAreNotifs(newNotifCount);
             }
-            // if the page requested that we show notification bar by default, do so only if there are also notifications present
-            props.setAreNotifs(notifCount);
         }
         getItems(); 
 
