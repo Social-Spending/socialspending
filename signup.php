@@ -22,6 +22,7 @@
 include_once('templates/connection.php');
 include_once('templates/cookies.php');
 include_once('templates/jsonMessage.php');
+include_once('templates/userValidation.php');
 
 // if the user's current cookie corresponds to an account
 if (validateSessionID())
@@ -50,6 +51,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     $user 			= $_POST['user'];
     $email 			= $_POST['email'];
     $password 	= $_POST['password'];
+
+    // check that user params are valid
+    if (checkUsername($user))
+    {
+        returnMessage('Username is invalid', 400);
+    }
+    if (checkEmail($email))
+    {
+        returnMessage('Email is invalid', 400);
+    }
+    if (checkPassword($password))
+    {
+        returnMessage('Password is invalid', 400);
+    }
 
     // lookup user by username or by email to check if one already exists
     // SQL warns for this but can be mitigated by turning off index warnings or indexing the table which likely wont lead to any performance improvements

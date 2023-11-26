@@ -8,7 +8,7 @@ import { useRef, useState, useContext } from 'react';
 import Button from '../components/Button.js'
 import { ModalContext } from './ModalContext.js';
 import { GlobalContext } from '../components/GlobalContext.js';
-import { styles, checkPassword, checkUsername, checkEmail } from '../components/Signup.js';
+import { styles, checkPassword, checkUsername, checkEmail } from '../utils/validateUserInfo.js';
 
 
 import Logo from '../assets/images/logo/logo-name-64.png';

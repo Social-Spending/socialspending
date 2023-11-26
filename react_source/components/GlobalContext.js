@@ -16,7 +16,8 @@
                 function MyComponent () {
                     const globalContext = useContext(GlobalContext);
                     if (globalContext.isLoggedIn) {
-                        router.push('/summary');
+                        const navigate = useNavigate();
+                        navigate('/summary');
                     }
                 }
             Or like this:
