@@ -64,7 +64,7 @@ export default function NewExpense(props) {
     }
 
     // TODO refactor this modal
-    return (
+    /*return (
         <ExpenseContext.Provider
             value={{
                 pageNum: [pageNum, setPageNum],
@@ -95,7 +95,7 @@ export default function NewExpense(props) {
             </Modal>
         </ExpenseContext.Provider>
 
-    );
+    );*/
 
     //Provide the context including pageNum, groupId, errorRef, and formData
     return (
@@ -461,7 +461,8 @@ function SplitExpense() {
 function SplitListItem(props) {
 
     const inputRef = useRef(null);
-    const [paid, setPaid] = useState(true);
+    const paid = useRef(true);
+    const [reRender, setReRender] = useState(0);
 
     useEffect(() => {
         props.refList.push(inputRef);
@@ -471,7 +472,8 @@ function SplitListItem(props) {
     }, []);
 
     function updateButton() {
-        setPaid(!paid);
+        paid.current = !paid.current;
+        setReRender(reRender + 1);
     }
     
     return (
@@ -482,8 +484,8 @@ function SplitListItem(props) {
                 <Button id={"newExpense_splitExpense" + props.name + "_paid"}
                     style={{ width: 'auto', marginTop: '.25em' }}
                     onClick={updateButton} >
-                    <label htmlFor={"newExpense_splitExpense" + props.name + "_paid"} style={{ padding: '.25em', cursor: 'pointer', fontWeight: '500', color: paid ? globals.COLOR_BLUE : globals.COLOR_ORANGE }}>
-                        {paid ? "Paid" : "Borrowed"}
+                    <label htmlFor={"newExpense_splitExpense" + props.name + "_paid"} style={{ padding: '.25em', cursor: 'pointer', fontWeight: '500', color: paid.current ? globals.COLOR_BLUE : globals.COLOR_ORANGE }}>
+                        {paid.current ? "Paid" : "Borrowed"}
                     </label>
 
                 </Button>
