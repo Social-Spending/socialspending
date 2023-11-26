@@ -1,7 +1,6 @@
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image, Modal } from 'react-native';
-import { router } from "expo-router";
+import { Text, View, Image, Modal } from '../utils/globals.js';
 import { useRef, useState, createContext, useContext, useEffect } from 'react';
 
 import { getGroups, getGroupInfo } from "../utils/groups.js";
@@ -58,11 +57,45 @@ export default function NewExpense(props) {
 
     const errorMessageRef = useRef(null);
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     function handleChildClick(e) {
         e.stopPropagation();
     }
+
+    // TODO refactor this modal
+    /*return (
+        <ExpenseContext.Provider
+            value={{
+                pageNum: [pageNum, setPageNum],
+                groupID: [groupID, setGroupID],
+                errorRef: errorMessageRef,
+                formData: [formData, setFormData]
+            }}>
+            <Modal
+                transparent={true}
+                visible={true}
+                onRequestClose={() => popModal()}>
+
+                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
+                    <View style={styles.create} onClick={handleChildClick}>
+
+                        <Image source={Logo} style={styles.logo} />
+
+                        <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>NEW EXPENSE</Text>
+
+                        <Text ref={errorMessageRef} id='createExpense_errorMessage' style={globals.styles.error}></Text>
+
+                        <Text>
+                            Under Construction!
+                        </Text>
+
+                    </View>
+                </View>
+            </Modal>
+        </ExpenseContext.Provider>
+
+    );*/
 
     //Provide the context including pageNum, groupId, errorRef, and formData
     return (
@@ -76,14 +109,14 @@ export default function NewExpense(props) {
             <Modal
                 transparent={true}
                 visible={true}
-                onRequestClose={() => setModal(null)}>
+                onRequestClose={() => popModal()}>
 
-                <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                     <View style={styles.create} onClick={handleChildClick}>
 
                         <Image source={Logo} style={styles.logo} />
 
-                        <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>NEW EXPENSE</Text>
+                        <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>NEW EXPENSE</Text>
 
                         <Text ref={errorMessageRef} id='createExpense_errorMessage' style={globals.styles.error}></Text>
 
@@ -106,7 +139,7 @@ export default function NewExpense(props) {
  */
 function ChooseName() {
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
     const {reRender} = useContext(GlobalContext);
 
     let {
@@ -143,48 +176,57 @@ function ChooseName() {
 
         setFormData(formData);
 
-        transaction_id = await submitForm(formData, errorRef);
+        let transaction_id = await submitForm(formData, errorRef);
         if (transaction_id != -1) {
             await uploadReceipt(image, transaction_id, errorRef);
-            setModal(null);
+            popModal();
             reRender();
         }
     }
 
     return (
-        <View style={[
-                styles.pageContainer, {
+        <View style={{
+            ...styles.pageContainer, ...{
                 display: pageNum != PAGES.CHOOSE_NAME ? 'none' : 'inherit'
-        }]} >
-            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Enter transaction name and description to get started</Text>
+        }}} >
+            <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Enter transaction name and description to get started</Text>
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>EXPENSE NAME *</Text>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>EXPENSE NAME *</Text>
             </View>
 
             <input tabIndex={1} ref={nameRef} placeholder=" Enter name of new expense" style={globals.styles.input} id='createExpense_name' name="Expense Name" onInput={onNameChange} />
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>EXPENSE DATE</Text>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>EXPENSE DATE</Text>
             </View>
 
             <input tabIndex={2} ref={dateRef} type="date" style={globals.styles.input} id='createExpense_date' name="Expense date" />
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>DESCRIPTION</Text>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>DESCRIPTION</Text>
             </View>
 
             <textarea tabIndex={3} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>UPLOAD RECEIPT</Text>
+                <Text style={{...globals.styles.h5, ...globals.styles.label}}>UPLOAD RECEIPT</Text>
             </View>
 
             <input ref={receiptRef} type="file" accept="image/*" onInput={updateImageSource} />
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
-                <Button disabled={nameDisabled} style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Submit' onClick={onSubmit} />
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 1)} />
+                <Button id="newExpense_submit" disabled={nameDisabled} style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={onSubmit}>
+                    <label htmlFor="newExpense_submit" style={globals.styles.buttonLabel} >
+                        Submit
+                    </label>
+                </Button>
+                <Button id="newExpense_chooseName_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum - 1)} >
+                    <label htmlFor="newExpense_chooseName_back" style={globals.styles.buttonLabel} >
+                        Back
+                    </label>
+                </Button>
+
             </View>
         </View>
     );
@@ -202,20 +244,30 @@ function SelectSplit() {
     } = useContext(ExpenseContext);
 
     return (
-        <View style={[styles.pageContainer, {
+        <View style={{
+            ...styles.pageContainer, ...{
             display: pageNum != PAGES.SELECT_SPLIT ? 'none' : 'inherit'
-        }]}>
-            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Do you want to split between a group or friends?</Text>
+        }}}>
+            <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Do you want to split between a group or friends?</Text>
 
-            <Button style={[globals.styles.formButton, { margin: 0, marginBottom: '.5em', marginTop: '1.5em' }]} label='Group' onClick={() => setPageNum(PAGES.SELECT_GROUP)} />
+            <Button id="newExpense_splitGroup" style={{ ...globals.styles.formButton, ...{ margin: '1.5em 0 .5em 0' } }} onClick={() => setPageNum(PAGES.SELECT_GROUP)} >
+                <label htmlFor="newExpense_splitGroup" style={globals.styles.buttonLabel }>
+                    Group
+                </label>
 
-            <Button style={[globals.styles.formButton, { margin: 0, marginTop: '.5em', marginBottom: '2em' }]} label='Friends' onClick={
+            </Button>
+
+            <Button id="newExpense_splitFriends" style={{ ...globals.styles.formButton, ...{ margin: '.5em 0' }}} onClick={
                 () => {
                     setPageNum(PAGES.SPLIT_EXPENSE);
                     setGroupID(null);
                     }   
                 }
-            />
+            >
+                <label htmlFor="newExpense_splitFriends" style={globals.styles.buttonLabel}>
+                    Friends
+                </label>
+            </Button>
 
         </View>
     );
@@ -245,17 +297,22 @@ function SelectGroup() {
     }, [pageNum]);
 
     return (
-        <View style={[styles.pageContainer, {
+        <View style={{
+            ...styles.pageContainer, ...{
             display: pageNum != PAGES.SELECT_GROUP ? 'none' : 'inherit'
-        }]}>
-            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Which group is this transaction for?</Text>
+        }}}>
+            <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Which group is this transaction for?</Text>
 
-            <View style={[globals.styles.list, { alignItems: 'center', justifyContent: 'center', width: '75%' }]} >
+            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '100%' } }} >
                 {groups}
             </View>
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button  style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(pageNum - 1)} />
+                <Button id="newExpense_selectGroup_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum - 1)} >
+                    <label htmlFor="newExpense_selectGroup_back" style={globals.styles.buttonLabel} >
+                        Back
+                    </label>
+                </Button>
             </View>
         </View>
     );
@@ -275,6 +332,10 @@ function SplitExpense() {
 
     const { currUserID } = useContext(GlobalContext);
 
+    // I didn't write this code, but...
+    //  refList is an ordered list of ref's to the input fields containing the amount paid/borrowed (?)
+    //  splitList is the list of the SplitListItems elements with each participant and how much they paid/borrowed (?)
+    //  paidList is (?)
     const [splitList, setSplitList] = useState([]);
     const [refList, setRefList] = useState([]);
     const [paidList, setPaidList] = useState([]);
@@ -345,35 +406,51 @@ function SplitExpense() {
     
 
     return (
-        <View style={[styles.pageContainer, {
+        <View style={{
+            ...styles.pageContainer, ...{
             display: pageNum != PAGES.SPLIT_EXPENSE ? 'none' : 'inherit'
-        }]}>
-            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>How much did each person contribute?</Text>
+        }}}>
+            <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>How much did each person contribute?</Text>
 
             <View style={{width: '75%', justifyContent: 'space-between', flexDirection: 'row' }}>
                 <Button
+                    id="newExpense_splitExpense_splitPaid"
                     style={{ width: 'auto', height: 'auto', marginTop: '.25em' }}
-                    textStyle={{ fontSize: '.75em', fontWeight: '500', color: globals.COLOR_BLUE }}
-                    label="Split Paid Evenly"
-                    onClick={() => splitPaid(true)} />
+                    onClick={() => splitPaid(true)} >
+
+                    <label htmlFor="newExpense_splitExpense_splitPaid" style={{ padding: '.25em', cursor: 'pointer', fontSize: '.75em', fontWeight: '500', color: globals.COLOR_BLUE }}>
+                        Split Paid Evenly
+                    </label>
+                </Button>
                 <Button
+                    id="newExpense_splitExpense_splitBorrowed"
                     style={{ width: 'auto', height: 'auto', marginTop: '.25em' }}
-                    textStyle={{ fontSize: '.75em', fontWeight: '500', color: globals.COLOR_ORANGE }}
-                    label="Split Borrowed Evenly"
-                    onClick={() => splitPaid(false)} /> 
+                    onClick={() => splitPaid(false)} > 
+
+                    <label htmlFor="newExpense_splitExpense_splitBorrowed" style={{ padding: '.25em',  cursor: 'pointer', fontSize: '.75em', fontWeight: '500', color: globals.COLOR_ORANGE }}>
+                        Split Borrowed Evenly
+                    </label>
+                </Button>
             </View>
            
 
-            <View style={[globals.styles.list, { width: '80%' }]} >
+            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '60% 40%', width: '75%' } }} >
                 {splitList}
             </View>
             
-            
-
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(PAGES.SELECT_SPLIT)} />
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Next' onClick={onSubmit} />
+                <Button id="newExpense_splitExpense_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(PAGES.SELECT_SPLIT)} >
+                    <label htmlFor="newExpense_splitExpense_back" style={globals.styles.buttonLabel} >
+                        Back
+                    </label>
+                </Button>
+                <Button id="newExpense_splitExpense_next" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={onSubmit} >
+                    <label htmlFor="newExpense_splitExpense_next" style={globals.styles.buttonLabel} >
+                        Next
+                    </label>
+                </Button>
+                
             </View>
         </View>
     );
@@ -391,6 +468,7 @@ function SplitListItem(props) {
         props.refList.push(inputRef);
         props.paidList.push(paid);
 
+
     }, []);
 
     function updateButton() {
@@ -398,28 +476,26 @@ function SplitListItem(props) {
         setReRender(reRender + 1);
     }
     
-   
-
     return (
-        
-        <View style={[styles.listItem, {width: '100%'}]} >
 
-            <Text style={[globals.styles.listText, { marginVertical: 'auto' }]}>{props.name}</Text>
-            <View style={{flexDirection: 'row', width: 'auto' }}>
-                <Button
+        <>
+            <Text style={{ ...globals.styles.listText, ...{ margin: 'auto 0' } }}>{props.name}</Text>
+            <View style={{ flexDirection: 'row', width: 'auto', justifySelf: 'flex-end' }}>
+                <Button id={"newExpense_splitExpense" + props.name + "_paid"}
                     style={{ width: 'auto', marginTop: '.25em' }}
-                    textStyle={{ fontWeight: '500', color: paid.current ? globals.COLOR_BLUE : globals.COLOR_ORANGE }}
-                    label={paid.current ? "Paid" : "Borrowed"}
-                    onClick={updateButton} />
+                    onClick={updateButton} >
+                    <label htmlFor={"newExpense_splitExpense" + props.name + "_paid"} style={{ padding: '.25em', cursor: 'pointer', fontWeight: '500', color: paid.current ? globals.COLOR_BLUE : globals.COLOR_ORANGE }}>
+                        {paid.current ? "Paid" : "Borrowed"}
+                    </label>
 
-                <View style={{ width: '6em' }}>
-                    <input ref={inputRef} style={globals.styles.input} step={.01} type='number' placeholder={0} min={0}></input>
+                </Button>
+
+                <View style={{ width: '5em' }}>
+                    <input ref={inputRef} style={{ ...globals.styles.input, ...{ width: '90%' }}} step={.01} type='number' placeholder={0} min={0}></input>
 
                 </View>
             </View>
-           
-           
-        </View>
+        </> 
         
     );
 }
@@ -436,11 +512,18 @@ async function buildGroups(setID, setPage) {
     const groups = await getGroups();
 
     for (let i = 0; i < groups.length; i++) {
-        outputList.push(<Button style={[globals.styles.formButton, { width: '100%', margin: 0, marginVertical: '.5em' }]} label={groups[i].group_name} onClick={
+        outputList.push(
+            <Button id={"newExpense_selectGroup_" + groups[i].group_name} style={{ ...globals.styles.formButton, ...{ justifySelf: 'center', margin: '.5em 0' } }} key={i} onClick={
             () => { 
                 setID(groups[i].group_id);
                 setPage(PAGES.SPLIT_EXPENSE);
-                }} />);
+                }} >
+                <label htmlFor={"newExpense_selectGroup_" + groups[i].group_name} style={globals.styles.buttonLabel}>
+                    {groups[i].group_name}
+                </label>
+            </Button>
+
+        );
     }
 
     return outputList;
@@ -459,7 +542,7 @@ function getGroupMembers(json, currUserID, setPaidList, setRefList) {
     let outputList = [];
     let paidList = [];
 
-    outputList.push(<SplitListItem paidList={paidList} refList={refList} key={-1} name='You' id={currUserID} />);
+    outputList.push(<SplitListItem paidList={paidList} refList={refList} key={-1} name='Me' id={currUserID} />);
 
     for (let i = 0; i < json['members'].length; i++) {
 
@@ -484,7 +567,7 @@ function getFriendsList(json, currUserID, setPaidList, setRefList) {
     let outputList = [];
     let paidList = [];
 
-    outputList.push(<SplitListItem paidList={paidList} refList={refList} key={-1} name='You' id={currUserID} />);
+    outputList.push(<SplitListItem paidList={paidList} refList={refList} key={-1} name='Me' id={currUserID} />);
 
     for (let i = 0; i < json.length; i++) {
 
@@ -499,19 +582,23 @@ function getFriendsList(json, currUserID, setPaidList, setRefList) {
 
 
 /**
-* Checks value of group name field and prevents user from submitting if too short
+* Checks value of expense name field and prevents user from submitting if too short
 * @param { React.MutableRefObject } groupRef reference to group name field
 * @param { React.MutableRefObject } errorRef reference to error text field to print error text to
 * @returns { boolean }                       validity of group name
 */
-function checkName(groupRef, errorRef) {
+function checkName(nameRef, errorRef) {
 
-    if (groupRef.current.value.length >= 4) {
+    if (nameRef.current.value.length >= 4) {
         errorRef.current.innerText = "";
+        nameRef.current.removeAttribute("aria-invalid");
+        nameRef.current.removeAttribute("aria-errormessage");
         return false;
 
     } else {
-        errorRef.current.innerText = "Group name must be at least 4 characters";
+        errorRef.current.innerText = "Expense name must be at least 4 characters";
+        nameRef.current.setAttribute("aria-invalid", true);
+        nameRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         return true;
     }
 }
@@ -583,7 +670,7 @@ async function uploadReceipt(image, transaction_id, errorRef) {
     return false;
 }
 
-const styles = StyleSheet.create({
+const styles = {
     create: {
         minHeight: '25em',
         height: 'auto',
@@ -596,7 +683,6 @@ const styles = StyleSheet.create({
         opacity: 1
     },
     pageContainer: {
-        flex: 1,
         height: 'auto', 
         width: '100%',
         justifyContent: 'center',
@@ -618,4 +704,4 @@ const styles = StyleSheet.create({
         marginTop: '1em'
     }
 
-});
+};

@@ -12,7 +12,7 @@ export default function Page() {
     let [friendID, setFriendID] = useState(null);
 
     return (
-        <Base style={[globals.styles.container, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
+        <Base style={{ ...globals.styles.container, ...{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' } }}>
 
         <Sidebar title={'Friends'}>
             <WaitForAuth redirectOnNotLoggedIn={'/login?origin=friends'}>

@@ -9,18 +9,19 @@
 
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image, TextInput } from 'react-native';
+import { Text, View, Image } from '../utils/globals.js';
 import { useState, useRef, useContext } from 'react';
-import { Link, router } from "expo-router";
+import { Link } from "react-router-dom/dist/index.js";
 
 import Button from './Button.js'
 
 import { GlobalContext } from '../components/GlobalContext.js';
 
-const Logo = require('../assets/images/logo/logo-name-64.png');
+import Logo from '../assets/images/logo/logo-name-64.png';
 
 import ShowSvg from '../assets/images/bx-show.svg';
 import HideSvg from '../assets/images/bx-hide.svg';
+import SVGIcon from './SVGIcon.js';
 
 export default function Signup() {
     // when a signup is completed, increment loginAttempts to trigger a re-render of GlobalContext
@@ -55,41 +56,47 @@ export default function Signup() {
 
             <Image source={Logo} style={styles.logo} />
 
-            <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>Create your Account</Text>
-            <Text style={[globals.styles.text, { paddingTop: '1em'}]}>Create an account to get started with Social Spending</Text>
+            <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>Create your Account</Text>
+            <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em'}}}>Create an account to get started with Social Spending</Text>
 
-            <Text ref={errorMessageRef} id='signupForm_errorMessage' style={[globals.styles.error, { paddingTop: 0 }]}></Text>
+            <Text ref={errorMessageRef} id='signupForm_errorMessage' style={{ ...globals.styles.error, ...{ paddingTop: 0 }}}></Text>
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>EMAIL</Text>
+                <label htmlFor="signupForm_email" style={{ ...globals.styles.h5, ...globals.styles.label}}>EMAIL</label>
                 <Text ref={emailErrorMessageRef} id='email_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <TextInput tabIndex={1} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onChangeText={onEmailChange} />
+            <input autoFocus tabIndex={0} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>USERNAME</Text>
+                <label htmlFor="signupForm_user" style={{ ...globals.styles.h5, ...globals.styles.label}}>USERNAME</label>
                 <Text ref={userErrorMessageRef} id='username_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <TextInput tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onChangeText={onUsernameChange} />
+            <input tabIndex={0} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
 
-            <View style={[globals.styles.labelContainer, { justifyContent: 'flex-start' }]}>
+            <View style={{ ...globals.styles.labelContainer, ...{ justifyContent: 'flex-start' }}}>
 
-                <Text style={[globals.styles.h5, globals.styles.label]}>PASSWORD</Text>
-                <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1em' }} onClick={() => setShowPassword(!showPassword)}></Button>
+                <label htmlFor="signupForm_password" style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</label>
+                <Button aria-label={(showPassword ? "Hide" : "Show") + " Password"} style={globals.styles.showPassword} onClick={() => setShowPassword(!showPassword)}>
+                    <SVGIcon src={showPassword ? HideSvg : ShowSvg} style={{ fill: globals.COLOR_GRAY, height: '1.25em' }}/>
+                </Button>
             </View>
-            <TextInput tabIndex={3} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' secureTextEntry={!showPassword} autoComplete="current-password" name="Password" onChangeText={onPasswordChange} />
+            <input tabIndex={0} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' type={showPassword ? "text" : "password"} autoComplete="current-password" name="Password" onInput={onPasswordChange} />
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>VERIFY PASSWORD</Text>
+                <label htmlFor="signupForm_verifyPassword" style={{ ...globals.styles.h5, ...globals.styles.label}}>VERIFY PASSWORD</label>
                 <Text ref={passwordErrorMessageRef} id='password_errorMessage' style={globals.styles.error}></Text>
             </View>
-            <TextInput tabIndex={4} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' secureTextEntry={!showPassword} autoComplete='current-password' name="Password" onChangeText={onPasswordChange} />
+            <input tabIndex={0} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password" onInput={onPasswordChange} />
 
-            <Button disabled={emailDisabled || passwordDisabled || usernameDisabled} style={globals.styles.formButton} label='Create Account' onClick={onSubmit} />
+            <Button id="signupForm_submit" tabIndex={0} disabled={emailDisabled || passwordDisabled || usernameDisabled} style={globals.styles.formButton} onClick={onSubmit} >
+                <label htmlFor="signupForm_submit" style={globals.styles.buttonLabel}>
+                    Create Account
+                </label>
+            </Button>
 
             <View style={{ flexDirection: 'row', paddingTop: '2em' }}>
-                <Text style={globals.styles.text}>Already have an account? </Text>
-                <Link href="/login" style={[globals.styles.text, { color: globals.COLOR_ORANGE }]}>Login</Link>
+                <Text style={{ ...globals.styles.text, ...{ paddingRight: '.5em' }}}>Already have an account? </Text>
+                <Link to="/login" style={{ ...globals.styles.text, ...{ color: globals.COLOR_ORANGE }}}>Login</Link>
             </View>
 
         </View>
@@ -111,10 +118,14 @@ export function checkEmail(emailRef, errorRef) {
 
     if (match) {
         errorRef.current.innerText = "";
+        emailRef.current.removeAttribute("aria-invalid");
+        emailRef.current.removeAttribute("aria-errormessage");
         return false;
 
     } else {
         errorRef.current.innerText = "Please enter a valid email address";
+        emailRef.current.setAttribute("aria-invalid", true);
+        emailRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         return true;
     }
 }
@@ -129,10 +140,14 @@ export function checkUsername(userRef, errorRef) {
 
     if (userRef.current.value.length >= 4) {
         errorRef.current.innerText = "";
+        userRef.current.removeAttribute("aria-invalid");
+        userRef.current.removeAttribute("aria-errormessage");
         return false;
 
     } else {
         errorRef.current.innerText = "Username must be at least 4 characters";
+        userRef.current.setAttribute("aria-invalid", true);
+        userRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         return true;
     }
 }
@@ -146,12 +161,28 @@ export function checkUsername(userRef, errorRef) {
  */
 export function checkPassword(passwordRef, verifyRef, errorRef) {
 
-    if (passwordRef.current.value != verifyRef.current.value) {
+    if (passwordRef.current.value.length < 8) {
+        errorRef.current.innerText = "Password must be at least 8 characters";
+        passwordRef.current.removeAttribute("aria-invalid");
+        passwordRef.current.removeAttribute("aria-errormessage");
+        verifyRef.current.removeAttribute("aria-invalid");
+        verifyRef.current.removeAttribute("aria-errormessage");
+        return true;
+
+    }else if (passwordRef.current.value != verifyRef.current.value) {
         errorRef.current.innerText = "Passwords do not match";
+        passwordRef.current.removeAttribute("aria-invalid");
+        passwordRef.current.removeAttribute("aria-errormessage");
+        verifyRef.current.removeAttribute("aria-invalid");
+        verifyRef.current.removeAttribute("aria-errormessage");
         return true;
 
     } else {
         errorRef.current.innerText = "";
+        passwordRef.current.setAttribute("aria-invalid", true);
+        passwordRef.current.setAttribute("aria-errormessage", errorRef.current.id);
+        verifyRef.current.setAttribute("aria-invalid", true);
+        verifyRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         return false;
     }
 }
@@ -179,6 +210,7 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempt
             setLoginAttempts(loginAttempts + 1);
             // success, redirect user
             
+            router.push("/summary");
 
         }
         else {
@@ -194,7 +226,7 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempt
     }
 }
 
-export const styles = StyleSheet.create({
+export const styles = {
     signup: {
         width: '50vh',
         minWidth: '27em',
@@ -215,4 +247,4 @@ export const styles = StyleSheet.create({
     
     
 
-});
+};

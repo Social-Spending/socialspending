@@ -1,12 +1,14 @@
 import * as globals from '../utils/globals.js'
 
 import { useContext } from 'react';
-import { Redirect } from "expo-router";
+import { Navigate } from "react-router-dom";
 
 import { GlobalContext } from '../components/GlobalContext.js';
 
 import "../utils/global.css"
 import Loading from '../components/Loading.js';
+
+
 
 export default function Page() {
     // get data from global context
@@ -16,10 +18,10 @@ export default function Page() {
     if (!isLoading) {
         // we have user info, should we redirect?
         if (isLoggedIn) {
-            return (<Redirect href={'/summary'} />);
+            return (<Navigate to={'/summary'} replace={true} />);
         }
         else {
-            return (<Redirect href={'/login'} />);
+            return (<Navigate to={'/login'} replace={true} />);
 
         }
     }

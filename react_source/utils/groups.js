@@ -1,5 +1,3 @@
-import { router } from 'expo-router';
-
 
 export async function getGroups() {
 
@@ -27,7 +25,7 @@ export async function getGroups() {
     return null;
 
 }
-export async function getGroupInfo(id) {
+export async function getGroupInfo(id, navigate) {
 
 
     // pul username and password in form data for a POST request
@@ -47,7 +45,7 @@ export async function getGroupInfo(id) {
         }
         else {
             console.log(response.json()['message']);
-            router.replace("/groups");
+            navigate("/groups_error", {replace: true});
             return null;
         }
     }
@@ -60,7 +58,7 @@ export async function getGroupInfo(id) {
 
 }
 
-export async function leaveGroup(id) {
+export async function leaveGroup(id, navigate) {
     let payload = `{
                         "operation": "leave",
                         "group_id": ` + id + `
@@ -79,7 +77,7 @@ export async function leaveGroup(id) {
 
         if (await response.ok) {
             // redirect
-            router.replace("/groups");
+            navigate("/groups", { replace: true });
         }
         else {
             // failed, display error message returned by server
@@ -93,7 +91,7 @@ export async function leaveGroup(id) {
     }
 }
 
-export async function kickMemberFromGroup(user_id, group_id, setModal, reRender) {
+export async function kickMemberFromGroup(user_id, group_id, popModal, reRender) {
     let payload = {
         'operation': 'kick_user',
         'group_id': group_id,
@@ -113,7 +111,7 @@ export async function kickMemberFromGroup(user_id, group_id, setModal, reRender)
 
         if (await response.ok) {
             // close modal and re-render the group page
-            setModal(null);
+            popModal();
             reRender();
         }
         else {
@@ -128,7 +126,7 @@ export async function kickMemberFromGroup(user_id, group_id, setModal, reRender)
     }
 }
 
-export async function revokeInvitation(user_id, group_id, setModal, reRender) {
+export async function revokeInvitation(user_id, group_id, popModal, reRender) {
     let payload = {
         'operation': 'cancel_invite',
         'group_id': group_id,
@@ -148,7 +146,7 @@ export async function revokeInvitation(user_id, group_id, setModal, reRender) {
 
         if (await response.ok) {
             // close modal and re-render the group page
-            setModal(null);
+            popModal();
             reRender();
         }
         else {
@@ -163,7 +161,7 @@ export async function revokeInvitation(user_id, group_id, setModal, reRender) {
     }
 }
 
-export async function sendGroupInvitation(username, group_id, setModal, reRender, setErrorMsg) {
+export async function sendGroupInvitation(username, group_id, popModal, reRender, setErrorMsg) {
     let payload = {
         'operation': 'invite_user',
         'group_id': group_id,
@@ -183,7 +181,7 @@ export async function sendGroupInvitation(username, group_id, setModal, reRender
 
         if (await response.ok) {
             // close modal and re-render the group page
-            setModal(null);
+            popModal();
             reRender();
         }
         else {

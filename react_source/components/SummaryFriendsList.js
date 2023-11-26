@@ -1,9 +1,8 @@
 import * as globals from "../utils/globals.js";
 
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { Text, View, Image } from '../utils/globals.js';
 import { useState, useEffect, useContext } from 'react';
 
-import { Link } from "expo-router";
 
 import { getFriends } from '../utils/friends.js'
 import Button from "./Button.js";
@@ -13,24 +12,28 @@ import Loading from "./Loading.js";
 import NewFriend from "../modals/NewFriend.js"
 import SettleUp from "../modals/SettleUp.js";;
 import { GlobalContext } from "./GlobalContext.js";
-
+import { Link } from "react-router-dom/dist/index.js";
 
 export default function SummaryFriendsList(props) {
 
-    let setModal = useContext(ModalContext);
+    let { pushModal, popModal } = useContext(ModalContext);
 
 
     const addFriendModal = () => {
-        setModal(<NewFriend />);
+        pushModal(<NewFriend />);
     }
 
     return (
 
-        <View style={[globals.styles.summaryList, props.style]}>
+        <View style={{ ...globals.styles.summaryList, ...props.style}}>
 
             <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
-                <Text style={[globals.styles.h2, globals.styles.summaryLabel]}>FRIENDS</Text>
-                <Button style={[globals.styles.formButton, globals.styles.newGroupOrFriendButton]} label='+ ADD FRIEND' onClick={addFriendModal} />
+                <Text style={{ ...globals.styles.h2, ...globals.styles.summaryLabel}}>FRIENDS</Text>
+                <Button id="friendsList_addFriend" style={{ ...globals.styles.formButton, ...globals.styles.newGroupOrFriendButton }} onClick={addFriendModal} >
+                    <label htmlFor="friendsList_addFriend" style={globals.styles.buttonLabel }>
+                        + ADD FRIEND 
+                    </label>
+                </Button>
             </View>
 
             <View style={{ alignSelf: 'center', height: '1px', width: '92%', backgroundColor: globals.COLOR_GRAY, marginTop: '.5em' }} />
@@ -71,12 +74,9 @@ function FriendList() {
         // List has been parsed into SummaryFriendItem components, render it
         return (
             <View style={globals.styles.list}>
-                <View style={[globals.styles.listItem, { padding: 0, position: 'sticky', top: 0, zIndex: 1, backgroundColor: globals.COLOR_WHITE }]} >
-                    <Text style={[globals.styles.h3, globals.styles.listText]}>USERNAME</Text>
-                    <View style={{ width: 'auto', paddingRight: '.5em', minWidth: '5em', alignItems: 'flex-end' }}>
-                        <Text style={[globals.styles.h3, globals.styles.listText]}>BALANCE</Text>
-                    </View>
-                </View>
+                <Text style={globals.styles.listHeader}>USERNAME</Text>
+                <Text style={{ ...globals.styles.listHeader, ...{ alignItems: 'center' }}}>BALANCE</Text>
+               
                 {summaryFriendItems}
 
             </View>
@@ -90,32 +90,34 @@ function SummaryFriendItem(props) {
     let color = props.owed < 0 ? { color: globals.COLOR_BLUE } : { color: globals.COLOR_ORANGE };
     color = props.owed == 0 ? { color: globals.COLOR_GRAY } : color;
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     return (
-        <Link href={'/profile/' + props.id} asChild>
-            <View style={props.border ? globals.styles.listItemSeperator : globals.styles.listItem} >
-                <View style={globals.styles.listIconAndTextContainer}>
-                    <Image
-                        style={[globals.styles.listIcon, { marginLeft: '.75em', width: '2.5em', height: '2.5em'}]}
-                        source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultUserIcon(props.name)}
-                    />
-                    <Text style={[globals.styles.listText, {paddingLeft: '.25em'}]}>{props.name}</Text>
-                </View>
-                <View style={{ width: 'auto', paddingRight: '.5em', marginVertical: 'auto', minWidth: '5em', alignItems: 'center' }}>
-                    <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                    <Text style={[globals.styles.listText, color]}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
+        <>
+            <Link to={'/profile/' + props.id} style={globals.styles.listItemRow}>
+                
+                <Image
+                    style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em' } }}
+                    source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultUserIcon(props.name)}
+                />
+                <Text style={{ ...globals.styles.listText, ...{ paddingLeft: '.25em' } }}>{props.name}</Text>
+                
+            </Link>
+            <Link to={'/profile/' + props.id} style={globals.styles.listItemColumn}>
+                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
+                <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
+                {
+                    props.owed > 0 &&
+                    <Button id="friendsList_addFriend" style={globals.styles.formButton} textstyle={globals.styles.h4} onClick={() => {pushModal(<SettleUp targetID={props.id}/>)}}>
+                        <label htmlFor="friendsList_addFriend" style={globals.styles.buttonLabel }>
+                            Settle Up
+                        </label>
+                    </Button>
+                }
+            </Link>
+        </>
+        
 
-                    
-                    {
-                        props.owed > 0 &&
-                        <Button style={[globals.styles.formButton]} textStyle={globals.styles.h4} label="Settle Up" onClick={(e) => {e.preventDefault(); setModal(<SettleUp targetID={props.id}/>)}} />
-                    }
-                    
-                </View>
-
-            </View>
-        </Link>
     );
 }
 
@@ -133,7 +135,6 @@ async function buildFriends() {
         {
             friendList.push(<SummaryFriendItem
                 key={i}
-                border={i > 0}
                 name={friends[i].username}
                 id={friends[i].user_id}
                 icon_path={friends[i].icon_path}

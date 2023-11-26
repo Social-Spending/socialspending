@@ -1,6 +1,6 @@
 import * as globals from '../utils/globals.js'
 
-import { Text, View, Image } from 'react-native';
+import { Text, View, Image } from '../utils/globals.js';
 import { useState, useEffect, useContext } from 'react';
 
 import NewGroup from '../modals/NewGroup.js'
@@ -24,7 +24,7 @@ import { GlobalContext } from './GlobalContext.js';
 export default function SidebarGroupList(props) {
 
     let [groupItems, setGroupItems] = useState(null);
-    let setModal = useContext(ModalContext);
+    let { pushModal, popModal } = useContext(ModalContext);
     const {reRenderCount} = useContext(GlobalContext);
 
     useEffect(() => {
@@ -39,7 +39,7 @@ export default function SidebarGroupList(props) {
     }, [reRenderCount]);
 
     const addGroupModal = () => {
-        setModal(<NewGroup />);
+        pushModal(<NewGroup />);
     }
 
     if (groupItems === null) {
@@ -53,7 +53,11 @@ export default function SidebarGroupList(props) {
         return (
             <>
                 {groupItems}
-                <Button style={{ height: '2em' }} textStyle={{ color: globals.COLOR_GRAY }} label="+ Create New Group" onClick={addGroupModal} />                
+                <Button id="sidebar_createGroup" style={{ height: '2em' }} onClick={addGroupModal} >
+                    <label htmlFor="sidebar_createGroup" style={{ ...globals.styles.h5, ...{ cursor: 'pointer', color: globals.COLOR_GRAY } }}>
+                        + Create New Group
+                    </label>
+                </Button>            
             </>
 
         );
@@ -65,16 +69,15 @@ function GroupListItem(props) {
 
     return (
 
-        <View style={[props.border ? globals.styles.listItemSeperator : globals.styles.listItem, {cursor: 'pointer'}]} onClick={() => props.setGroupID(props.id)} >
-            <View style={globals.styles.listIconAndTextContainer}>
+        <Button id={"sidebar_group_" + props.name} style={{ ...globals.styles.sidebarListItem, ...{ padding: 0 } }} onClick={() => props.setGroupID(props.id)} >
+            <View style={{ ...globals.styles.sidebarListItem, ...{padding: '.25em 1em'}}}>
                 <Image
-                    style={[globals.styles.listIcon, { width: '1.25em', height: '1.25em'}]}
+                    style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em'}}}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultGroupIcon(props.name)}
                 />
-                <Text style={globals.styles.listText}>{props.name}</Text>
+                <label htmlFor={"sidebar_group_" + props.name} style={{ ...globals.styles.listText, ...{ paddingLeft: '.25em' }}}>{props.name}</label>
             </View>
-
-        </View>
+        </Button>
     );
 }
 
@@ -90,7 +93,7 @@ async function buildGroups(groupID, setGroupID) {
         // update the currently selected group to display, if one is not already selected
         if (i == 0 && groupID == null) setGroupID(groups[i].group_id);
 
-        groupList.push(<GroupListItem key={i} border={i > 0} name={groups[i].group_name} id={groups[i].group_id} icon_path={groups[i].icon_path} setGroupID={setGroupID} />);
+        groupList.push(<GroupListItem key={i} name={groups[i].group_name} id={groups[i].group_id} icon_path={groups[i].icon_path} setGroupID={setGroupID} />);
     }
 
     return groupList;

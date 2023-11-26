@@ -14,12 +14,15 @@
 
 import * as globals from "../utils/globals.js";
 
-import { StyleSheet, Text, View, Image, Modal } from 'react-native';
-import { Link } from "expo-router";
+import { Text, View, Modal, Image } from '../utils/globals.js';
 import { useState, useEffect, useContext, createContext } from 'react';
 import { ModalContext } from "./ModalContext.js";
 import Button from '../components/Button.js'
 import Loading from "../components/Loading.js";
+import { Link } from "react-router-dom/dist/index.js";
+import { GlobalContext } from "../components/GlobalContext.js";
+import { approveRejectTransaction } from "../utils/transactions.js";
+import VerifyAction from "./VerifyAction.js";
 
 const TransactionInfoContext = createContext(0);
 
@@ -28,11 +31,12 @@ const PAGES = {
     RECEIPT: 2
 };
 
+
 export default function ViewTransaction(props) {
     const [transactionInfo, setTransactionInfo] = useState(null);
     const [pageNum, setPageNum] = useState(PAGES.TRANSACTION_INFO);
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     function handleChildClick(e) {
         e.stopPropagation();
@@ -62,9 +66,9 @@ export default function ViewTransaction(props) {
             <Modal
                 transparent={true}
                 visible={true}
-                onRequestClose={() => setModal(null)}>
+                onRequestClose={() => popModal()}>
 
-                <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                     <View style={styles.info} onClick={handleChildClick}>
                         <TransactionInfo/>
                         <ViewReceipt/>
@@ -84,10 +88,10 @@ function TransactionInfo() {
     if (transactionInfo === null) {
         //Transaction info hasnt loaded - show loading
         return (
-            <View style={[
-                    styles.detailsContainer, {
+            <View style={{
+                    ...styles.detailsContainer, ...{
                     display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
-            }]} >
+            }}} >
                     <Loading />
             </View>
         );
@@ -97,10 +101,10 @@ function TransactionInfo() {
         let text = transactionInfo === undefined ? "Error While Contacting Server" : transactionInfo['message'];
 
         return (
-            <View style={[
-                    styles.detailsContainer, {
+            <View style={{
+                    ...styles.detailsContainer, ...{
                     display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
-            }]} >
+            }}} >
                 <Text style={globals.styles.error}> {text} </Text>
             </View>
         );
@@ -109,21 +113,21 @@ function TransactionInfo() {
         let pendingItalic = transactionInfo['is_approved'] == 0 ? { fontStyle: 'italic' } : {};
 
         return (
-            <View style={[
-                    styles.info, {
+            <View style={{
+                    ...styles.info, ...{
                     display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
-            }]} >
+            }}} >
                 <View style={styles.detailsContainer}>
-                    <Text style={[globals.styles.h2, styles.name, pendingItalic]}>{transactionInfo['transaction_name']}</Text>
+                    <Text style={{...globals.styles.h2, ...styles.name, ...pendingItalic}}>{transactionInfo['transaction_name']}</Text>
                 </View>
 
-                <View style={[styles.detailsContainer, { paddingBottom: '2.5em' }]}>
+                <View style={{ ...styles.detailsContainer, ...{ paddingBottom: '2.5em' }}}>
                     <Text style={styles.details}>Transaction #{transactionInfo['transaction_id']}</Text>
                     <Text style={styles.details}>{transactionInfo['transaction_date']}</Text>
                 </View>
 
                 <View style={styles.detailsContainer}>
-                    <Text style={[globals.styles.h4, styles.details]}>Description:</Text>
+                    <Text style={{ ...globals.styles.h4, ...styles.details}}>Description:</Text>
                 </View>
                 <View style={styles.detailsContainer}>
                     <Text style={styles.description}>{transactionInfo['transaction_description']}</Text>
@@ -132,16 +136,22 @@ function TransactionInfo() {
                 <View style={{ alignSelf: 'center', height: '1px', width: '80%', backgroundColor: globals.COLOR_GRAY }} />
 
                 <View style={styles.detailsContainer}>
-                    <Text style={[globals.styles.h4, styles.participants]}>Participants:</Text>
+                    <Text style={{ ...globals.styles.h4, ...styles.participants}}>Participants:</Text>
                 </View>
 
-                <View style={[globals.styles.list, { width: '80%' }, transactionInfo['transaction_participants'].length < 5 ? { scrollbarWidth: 'none' } : {}]}>
+                <View style={{...globals.styles.list, ...{ width: '80%' }, ...(transactionInfo['transaction_participants'].length < 5 ? { scrollbarWidth: 'none' } : {})}}>
                     {getParticipants(transactionInfo['transaction_participants'])}
                 </View>
-
                 <View style={{ justifyContent: 'center', width: '75%', flexDirection: 'row' }}>
-                    {transactionInfo['receipt_path'] != null ? <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '50%' }]} label='View Receipt' onClick={() => setPageNum(PAGES.RECEIPT)} /> : <br/>}
+                    {transactionInfo['receipt_path'] != null ?
+                        <Button style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '50%' }}} id='transactionInfo_viewReceipt' onClick={() => setPageNum(PAGES.RECEIPT)}>
+                            <label htmlFor="transactionInfo_viewReceipt" style={globals.styles.buttonLabel}>
+                                View Receipt
+                            </label>
+                        </Button> :
+                        <br/>}
                 </View>
+                <ApprovalButtons id={transactionInfo['transaction_id']} participants={transactionInfo['transaction_participants']} />
             </View>
         );
     }
@@ -156,7 +166,7 @@ function ViewReceipt() {
     if (transactionInfo === null) {
         //Transaction info hasnt loaded - show loading
         return (
-            <View style={[{display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'}]}>
+            <View style={{display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'}}>
                     <Loading />
             </View>
 
@@ -164,16 +174,96 @@ function ViewReceipt() {
 
         } else {
             return (
-                <View style={[{display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'}]}>
+                <View style={{display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'}}>
                     <View style={{padding: '.75em'}}>
                         <Image source={transactionInfo["receipt_path"] != null ? decodeURI(transactionInfo["receipt_path"]) : ""} style={{width: '225px', height: '400px', justifyContent: 'center', alignItems: 'center'}}/>
                     </View>
 
                     <View style={{justifyContent: 'center', flexDirection: 'row'}}>
-                        <Button style={[globals.styles.formButton, {marginTop: '0em', marginBottom: '.75em', width: '100%'}]} label='Go Back' onClick={() => setPageNum(PAGES.TRANSACTION_INFO)} />
+                        <Button style={{...globals.styles.formButton, ...{marginTop: '0em', marginBottom: '.75em', width: '100%'}}} id='transactionViewReceipt_close' onClick={() => setPageNum(PAGES.TRANSACTION_INFO)}>
+                            <label htmlFor="transactionViewReceipt_close" style={globals.styles.buttonLabel}>
+                                Go Back
+                            </label>
+                        </Button>
                     </View>
                 </View>
         );
+    }
+}
+
+/**
+ *  Assembles DOM elements for a single list entry
+ *      @param {number} id           user_id of participant
+ *      @param {string} name         username of participant
+ *      @param {number} owed         how much the participant paid/owes
+ *      @return {React.JSX.Element}  DOM element  
+ */
+function ListItem({ id, name, owed, border, hasApproved }) {
+
+    let text = owed >= 0 ? "Borrowed" : "Paid";
+    let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
+    color = owed == 0 ? { color: globals.COLOR_GRAY } : color;
+
+    let pendingItalic = hasApproved == 0 ? { fontStyle: 'italic' } : {};
+
+    return (
+        <>
+            <Link to={'/profile/' + id} style={{ ...globals.styles.listItemRow, ...globals.styles.listText, ...pendingItalic }}>
+               {name}
+            </Link>
+            <Link to={'/profile/' + id} style={{
+                ...globals.styles.listItemColumn,
+                ...{ alignItems: 'flex-end' }
+            }}>
+                
+                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
+                <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(owed / 100).toFixed(2)}</Text>                
+            </Link>
+        </>
+        
+
+    );
+}
+
+function ApprovalButtons({ id, participants }) {
+    const { currUserID, reRender} = useContext(GlobalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
+
+    let approved = true;
+
+    for (let i = 0; i < participants.length; i++) {
+        if (currUserID == participants[i]['user_id']) {
+            approved = participants[i]['has_approved'];
+
+            break;
+        }
+    }
+
+    function approve(e, approved) {
+        pushModal(<VerifyAction label={"Are you sure you want to " + (approved ? "approve " : "reject ") + "this transaction?"} accept={() => {
+            approveRejectTransaction(id, approved);
+            popModal(2);
+            reRender();
+        }} />);
+    }
+
+    if (!approved) {
+        return (
+            <View style={{width: '80%', paddingBottom: '.75em', flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Button id="transactionInfo_approve" style={{ ...globals.styles.formButton, ...{ width: '45%', backgroundColor: globals.COLOR_BLUE } }} onClick={(e) => approve(e, true)}>
+                    <label htmlFor="transactionInfo_approve" style={globals.styles.buttonLabel }>
+                        Approve
+                    </label>
+                </Button>
+                <Button id="transactionInfo_reject" style={{ ...globals.styles.formButton, ...{ width: '45%' } }} onClick={(e) => approve(e, false)} >
+                    <label htmlFor="transactionInfo_reject" style={globals.styles.buttonLabel}>
+                        Reject
+                    </label>
+                </Button>
+            </View>
+        );
+    } else {
+        return(<></>);
     }
 }
 
@@ -196,43 +286,14 @@ function getParticipants(participantList) {
             owed={participantList[i]['amount']}
             hasApproved={participantList[i]['has_approved']}
         />);
+        
     }
 
     return outputList;
 
 }
 
-/**
- *  Assembles DOM elements for a single list entry
- *      @param {number} id           user_id of participant
- *      @param {string} name         username of participant
- *      @param {number} owed         how much the participant paid/owes
- *      @return {React.JSX.Element}  DOM element  
- */
-function ListItem({ id, name, owed, border, hasApproved }) {
 
-    let text = owed >= 0 ? "Borrowed" : "Paid";
-    let color = owed >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
-    color = owed == 0 ? { color: globals.COLOR_GRAY } : color;
-
-    let pendingItalic = hasApproved == 0 ? { fontStyle: 'italic' } : {};
-
-    return (
-
-        <Link href={'/profile/' + id} asChild>
-            <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
-
-                <Text style={[globals.styles.listText, pendingItalic]}>{name}</Text>
-                <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '-.5em', marginBottom: '-.5em', minWidth: '5em', alignItems: 'center' }}>
-                    <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                    <Text style={[globals.styles.listText, color]}>${Math.abs(owed / 100).toFixed(2)}</Text>
-                </View>
-
-            </View>
-        </Link>
-
-    );
-}
 
 /**
  * Gets transaction data from the server using transaction.php endpoint
@@ -254,7 +315,7 @@ async function getTransaction(transactionId) {
     }
 }
 
-const styles = StyleSheet.create({
+const styles = {
     info: {
         width: '25em',
         minHeight: '30em',
@@ -299,4 +360,4 @@ const styles = StyleSheet.create({
     }
 
 
-});
+};

@@ -1,4 +1,5 @@
-import { StyleSheet } from 'react-native';
+import { useEffect, useState } from "react";
+
 
 export const COLOR_BLUE             = "#00B2C2";
 export const COLOR_LIGHT_BLUE       = "#B5E2FA";
@@ -10,11 +11,76 @@ export const COLOR_WHITE            = "#FFF";
 export const COLOR_BLACK            = "#000";
 export const COLOR_GRAY             = "#777";
 export const COLOR_LIGHT_GRAY       = "#CCC";
+export const COLOR_OFF_WHITE        = "#EEE";
 export const COLOR_RED              = "#F00";
 
 export const COLOR_DISABLED         = '#66666633';
 export const COLOR_HOVER            = '#cccccc55';
 export const COLOR_MODAL            = '#33333399';
+
+
+export const View = React.forwardRef((props, ref) => (
+    
+    <div tabIndex={props.tabIndex ? props.tabIndex : -1} ref={ref} {...props} >
+        {props.children}
+    </div>
+));
+
+
+export const Text = React.forwardRef((props, ref) => (
+    <div tabIndex={props.tabIndex ? props.tabIndex : -1} ref={ref} {...props} style={{ ...{fontSize: '.85em'}, ...props.style} }>
+        {props.children}
+    </div>
+));
+
+export const Image = React.forwardRef(function ImageType(props, ref) {
+    const [imgStyle, setImgStyle] = useState({ height: 'auto', maxHeight: '100%' });
+
+
+    function onImgLoad({ target: img }) {
+        setImgStyle(img.naturalWidth > img.naturalHeight ? { height: 'auto', maxHeight: '100%' } : { width: 'auto', maxWidth: '100%' });
+    }
+
+    return (
+        <div tabIndex={props.tabIndex ? props.tabIndex : -1} {...props} style={{ ...props.style, ...{ overflow: 'hidden', justifyContent: 'center', alignItems: 'center' } }} >
+            <img ref={ref} src={props.source} onLoad={onImgLoad} style={imgStyle} />
+        </div>
+
+    );
+});
+
+var msg = document.getElementById('state-msg');
+
+
+
+export const Modal = React.forwardRef(function ModalType(props, ref) {
+
+    const { onRequestClose, transparent, visible, ...otherProps } = props;
+
+    useEffect(() => {
+
+        const handleKeyDown = (e) => {
+
+            if (e.key == "Escape") {
+                onRequestClose();
+            }
+        };
+        document.body.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.body.removeEventListener('keydown', handleKeyDown);
+        }
+
+    }, []);
+    
+
+    return (
+        <div {...otherProps} tabIndex={props.tabIndex ? props.tabIndex : -1} ref={ref}>
+            {props.children}
+        </div>
+    )
+});
+
 
 export function getDefaultGroupIcon(groupName) {
     // get array of first letter of each word in the group name
@@ -58,7 +124,7 @@ function _getDummyImage(initials)
             acronym = acronym + initials[i];
         }
     }
-    return "https://dummyimage.com/50x50/ffffff/000000.gif&text=" + encodeURIComponent(acronym);
+    return "https://dummyimage.com/50x50/ffffff/777777.gif&text=" + encodeURIComponent(acronym);
 }
 
 /** 
@@ -75,7 +141,7 @@ export function getCookieValue(name) {
     return "";
 }
 
-export const styles = StyleSheet.create({
+export const styles = {
     container: {
         width: '100%',
         flex: 1,
@@ -159,8 +225,14 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: '1em',
         backgroundColor: COLOR_ORANGE,
-        borderRadius: 4,
         boxShadow: '3px 3px 3px #aaa',
+    },
+    buttonLabel: {
+        padding: '.5em',
+        fontWeight: 'bolder',
+        fontSize: '1.05em',
+        color: COLOR_WHITE,
+        cursor: 'inherit'
     },
     transparentButton: {
         width: '75%',
@@ -173,68 +245,120 @@ export const styles = StyleSheet.create({
         fontSize: '1.2em',
         height: '100%',
         width: 'auto',
-        paddingLeft: '.5em'
+        marginLeft: '.5em'
     },
     list: {
         flex: 1,
-        width: '92%',
+        height: 'auto',
+        display: 'grid',
+        width: '90%',
+        gridTemplateColumns: '80% 20%',
+        gridAutoRows: 'min-content',
 
-        marginTop: '1em',
-        marginBottom: '1em',
-
-        justifyContent: 'flex-start',
-        alignItems: 'left',
         alignSelf: 'center',
-
-        backgroundColor: COLOR_WHITE,
+        margin: '.25em 0',
 
         overflowY: 'auto',
         scrollbarWidth: 'thin',
+    },
+    listContainer: {
+        height: 'auto',
+        marginTop: '2em',
+        boxShadow: '0px 0px 5px 5px #eee',
+        borderRadius: '1em',
+        backgroundColor: COLOR_WHITE,
+    },
+    sidebarListItem: {
+        flex: 'auto',
+        height: 'auto',
+        padding: '.5em 1em',
 
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        flexDirection: 'row',
 
     },
-    listItem: {
-        paddingTop: '.5em',
-        paddingBottom: '.5em',
-        paddingLeft: '1em',
+    listItemRow: {
+        flex: 'auto',
+        height: 'auto',
+        padding: '.5em 1em',
+
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        flexDirection: 'row',
+
+        backgroundColor: COLOR_WHITE,
+
+        borderStyle: 'solid none none',
+        borderColor: COLOR_OFF_WHITE,
+        borderWidth: '1px'
+
+    },
+    listItemColumn: {
+        flex: 'auto',
+        height: 'auto',
+        width: 'auto',
+        padding: '.5em 1em',
+
         justifyContent: 'space-between',
         alignItems: 'center',
-        flexDirection: 'row'
+        flexDirection: 'column',
+
+        backgroundColor: COLOR_WHITE,
+
+        borderStyle: 'solid none none',
+        borderColor: COLOR_OFF_WHITE,
+        borderWidth: '1px'
 
     },
-    listIconAndTextContainer: {
-        flexDirection: 'row',
-        justifyContent: 'start',
-        alignItems: 'center'
-    },
+
     listText: {
         fontSize: '1.17em',
         paddingTop: 0,
-        paddingLeft: '2%',
-        paddingRight: '2%',
         paddingBottom: 0,
         color: COLOR_GRAY,
-        flexShrink: 0
+        height:'auto',
+    },
+    listTitle: {
+        color: COLOR_GRAY,
+        fontWeight: 600,
+        padding: '.566em',
+        paddingLeft: '1em',
+        paddingBottom: '1.5em',
+        fontSize: '1.17em',
+    },
+    listHeader: {
+        position: 'sticky',
+        zIndex: 1,
+        top: 0,
+        height: 'auto',
+        minHeight: '1.25em',
+
+        margin: '-1px 0',
+        padding: '0 .566em',
+
+        fontSize: '1.17em',
+        fontWeight: 'bolder',
+        color: COLOR_GRAY,
+        backgroundColor: COLOR_WHITE,  
+    },
+    smallListHeader: {
+        position: 'sticky',
+        zIndex: 1,
+        top: 0,
+        height: 'auto',
+        minHeight: '1em',
+        padding: '0 1em .5em',
+
+        fontSize: '.85em',
+        color: COLOR_GRAY,
+        backgroundColor: COLOR_WHITE,
     },
     listIcon: {
-        paddingTop: 0,
-        paddingLeft: '2%',
-        paddingRight: '2%',
-        paddingBottom: 0,
-        borderRadius: '50%'
-    },
-    listItemSeperator: {
-        paddingTop: '.5em',
-        paddingBottom: '.5em',
-        paddingLeft: '1em',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexDirection: 'row',
-        borderStyle: 'none',
-        borderTopStyle: 'solid',
-        borderWidth: '1px',
-        borderColor: '#eee'
-
+        flex: '0 0 auto',
+        aspectRatio: 1,
+        borderRadius: '50%',
+        boxShadow: '0px 0px 2px 2px #eee',
     },
     h1: {
         padding: '1em',
@@ -267,7 +391,8 @@ export const styles = StyleSheet.create({
         fontWeight: 'bolder'
     },
     modalBackground: {
-        height: '100vh',
+        minHeight: '100vh',
+        height: 'auto',
         width: '100%',
         backgroundColor: COLOR_MODAL,
         justifyContent: 'center',
@@ -310,4 +435,4 @@ export const styles = StyleSheet.create({
         borderRadius: '2em',
         color: COLOR_ORANGE,
     }
-});
+};
