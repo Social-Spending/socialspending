@@ -20,6 +20,7 @@ create table transactions (
 	name varchar(100) not null,
 	date date not null,
 	amount int not null,
+	receipt_path text null,
 	description text not null,
 	group_id int,
 	primary key (transaction_id),
@@ -76,6 +77,7 @@ create table notifications (
 	transaction_id int null default null,
 	friend_request_user_id int null default null,
 	group_id int null default null,
+	notification_timestamp timestamp null default CURRENT_TIMESTAMP,
 	primary key (notification_id),
 	foreign key (user_id) references users(user_id) on delete cascade on update cascade,
 	foreign key (transaction_id) references transactions(transaction_id) on delete cascade on update cascade,
@@ -113,7 +115,7 @@ insert into transaction_participants (transaction_id, user_id, has_approved, amo
 
 
 insert into groups (group_id, group_name, icon_path) values
-(1, 'CMSC447 Bros', '/group_icons/4171f2bc82fa8a491c5734259ff9799e1e08b4ee.gif'),
+(1, 'CMSC447 Bros', NULL),
 (2, 'Matts', NULL);
 
 insert into group_members (group_id, user_id) values

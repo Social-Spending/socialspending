@@ -63,6 +63,40 @@ export default function NewExpense(props) {
         e.stopPropagation();
     }
 
+    // TODO refactor this modal
+    // return (
+    //     <ExpenseContext.Provider
+    //         value={{
+    //             pageNum: [pageNum, setPageNum],
+    //             groupID: [groupID, setGroupID],
+    //             errorRef: errorMessageRef,
+    //             formData: [formData, setFormData]
+    //         }}>
+    //         <Modal
+    //             transparent={true}
+    //             visible={true}
+    //             onRequestClose={() => popModal()}>
+
+    //             <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
+    //                 <View style={styles.create} onClick={handleChildClick}>
+
+    //                     <Image source={Logo} style={styles.logo} />
+
+    //                     <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>NEW EXPENSE</Text>
+
+    //                     <Text ref={errorMessageRef} id='createExpense_errorMessage' style={globals.styles.error}></Text>
+
+    //                     <Text>
+    //                         Under Construction!
+    //                     </Text>
+
+    //                 </View>
+    //             </View>
+    //         </Modal>
+    //     </ExpenseContext.Provider>
+
+    // );
+
     //Provide the context including pageNum, groupId, errorRef, and formData
     return (
         <ExpenseContext.Provider
@@ -121,6 +155,12 @@ function ChooseName() {
     const nameRef = useRef(null);
     const dateRef = useRef(null);
     const descriptionRef = useRef(null);
+    const receiptRef = useRef(null);
+    const [image, setImage] = useState(null);
+
+    const updateImageSource = (e) => {
+        setImage(e.target.files[0]);
+    }
 
     //Sets appropriate values of form data before updating the global version 
     //and then pushing the value to the web request
@@ -136,7 +176,9 @@ function ChooseName() {
 
         setFormData(formData);
 
-        if (await submitForm(formData, errorRef)) {
+        let transaction_id = await submitForm(formData, errorRef);
+        if (transaction_id != -1) {
+            await uploadReceipt(image, transaction_id, errorRef);
             popModal();
             reRender();
         }
@@ -166,6 +208,12 @@ function ChooseName() {
             </View>
 
             <textarea tabIndex={3} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
+
+            <View style={globals.styles.labelContainer}>
+                <Text style={{...globals.styles.h5, ...globals.styles.label}}>UPLOAD RECEIPT</Text>
+            </View>
+
+            <input ref={receiptRef} type="file" accept="image/*" onInput={updateImageSource} />
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
                 <Button id="newExpense_submit" disabled={nameDisabled} style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={onSubmit}>
@@ -284,6 +332,10 @@ function SplitExpense() {
 
     const { currUserID } = useContext(GlobalContext);
 
+    // I didn't write this code, but...
+    //  refList is an ordered list of ref's to the input fields containing the amount paid/borrowed (?)
+    //  splitList is the list of the SplitListItems elements with each participant and how much they paid/borrowed (?)
+    //  paidList is (?)
     const [splitList, setSplitList] = useState([]);
     const [refList, setRefList] = useState([]);
     const [paidList, setPaidList] = useState([]);
@@ -409,8 +461,7 @@ function SplitExpense() {
 function SplitListItem(props) {
 
     const inputRef = useRef(null);
-    const paid = useRef(true);
-    const [reRender, setReRender] = useState(0);
+    const [paid, setPaid] = useState(true);
 
     useEffect(() => {
         props.refList.push(inputRef);
@@ -420,8 +471,7 @@ function SplitListItem(props) {
     }, []);
 
     function updateButton() {
-        paid.current = !paid.current;
-        setReRender(reRender + 1);
+        setPaid(!paid);
     }
     
     return (
@@ -432,8 +482,8 @@ function SplitListItem(props) {
                 <Button id={"newExpense_splitExpense" + props.name + "_paid"}
                     style={{ width: 'auto', marginTop: '.25em' }}
                     onClick={updateButton} >
-                    <label htmlFor={"newExpense_splitExpense" + props.name + "_paid"} style={{ padding: '.25em', cursor: 'pointer', fontWeight: '500', color: paid.current ? globals.COLOR_BLUE : globals.COLOR_ORANGE }}>
-                        {paid.current ? "Paid" : "Borrowed"}
+                    <label htmlFor={"newExpense_splitExpense" + props.name + "_paid"} style={{ padding: '.25em', cursor: 'pointer', fontWeight: '500', color: paid ? globals.COLOR_BLUE : globals.COLOR_ORANGE }}>
+                        {paid ? "Paid" : "Borrowed"}
                     </label>
 
                 </Button>
@@ -461,7 +511,7 @@ async function buildGroups(setID, setPage) {
 
     for (let i = 0; i < groups.length; i++) {
         outputList.push(
-            <Button id={"newExpense_selectGroup_" + groups[i].group_name} style={{ ...globals.styles.formButton, ...{ justifySelf: 'center', margin: '.5em 0' } }} onClick={
+            <Button id={"newExpense_selectGroup_" + groups[i].group_name} style={{ ...globals.styles.formButton, ...{ justifySelf: 'center', margin: '.5em 0' } }} key={i} onClick={
             () => { 
                 setID(groups[i].group_id);
                 setPage(PAGES.SPLIT_EXPENSE);
@@ -490,7 +540,7 @@ function getGroupMembers(json, currUserID, setPaidList, setRefList) {
     let outputList = [];
     let paidList = [];
 
-    outputList.push(<SplitListItem paidList={paidList} refList={refList} key={-1} name='You' id={currUserID} />);
+    outputList.push(<SplitListItem paidList={paidList} refList={refList} key={-1} name='Me' id={currUserID} />);
 
     for (let i = 0; i < json['members'].length; i++) {
 
@@ -515,7 +565,7 @@ function getFriendsList(json, currUserID, setPaidList, setRefList) {
     let outputList = [];
     let paidList = [];
 
-    outputList.push(<SplitListItem paidList={paidList} refList={refList} key={-1} name='You' id={currUserID} />);
+    outputList.push(<SplitListItem paidList={paidList} refList={refList} key={-1} name='Me' id={currUserID} />);
 
     for (let i = 0; i < json.length; i++) {
 
@@ -554,7 +604,7 @@ function checkName(nameRef, errorRef) {
 /**
  * Sends a post request to transactions.php in order to create a new transaction
  * @param {Object} formData object contianing all the details for the new transaction
- * @returns {Boolean} whether or not a new transaction was created
+ * @returns {int} transaction ID of the created transaction, -1 if failed
  */
 async function submitForm(formData, errorRef) {
 
@@ -568,21 +618,54 @@ async function submitForm(formData, errorRef) {
             }
         });
 
+        let responseJSON = await await response.json();
+
         if (await response.ok) {
-            return true;
+            return responseJSON.transaction_id;
 
         }
         else {
-            let responseJSON = await await response.json();
             errorRef.current.innerText = responseJSON.message;
-            return false;
+            return -1;
         }
     }
     catch (error) {
         console.log("error in POST request to transactions (/transactions.php)");
         console.log(error);
     }
-   return false;
+
+    return -1;
+}
+
+async function uploadReceipt(image, transaction_id, errorRef) {
+    let imageData = new FormData();
+    imageData.append("receipt", image);
+    imageData.append("transaction_id", transaction_id);
+
+    try {
+        let response = await fetch("/receipt_upload.php", {
+            method: 'POST',
+            body: imageData,
+            credentials: 'same-origin',
+        });
+
+        if (await response.ok) {
+            return true;
+
+        }
+        else {
+            let responseJSON = await await response.json();
+            //This errorRef doesn't get updated since the wnidow closes anyways
+            errorRef.current.innerText = responseJSON.message;
+            return false;
+        }
+    }
+    catch (error) {
+        console.log("Error in POST request to receipt upload (/receipt_upload.php)");
+        console.log(error);
+    }
+
+    return false;
 }
 
 const styles = {

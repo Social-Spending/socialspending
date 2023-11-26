@@ -58,14 +58,23 @@ function handlePOST()
     }
     $groupID = $_POST['group_id'];
 
+    //Check to see if an image already exists
+    $sql = "SELECT icon_path
+            FROM groups g
+            WHERE g.group_id = ?";
+    $result = $mysqli->execute_query($sql, [$groupID]);
+
+    //Delete the existing icon if one exists
+    if ($result->num_rows != 0) {
+        unlink("." . $result->fetch_assoc()['icon_path']);
+    }
+
     // parse to image and save as gif to filesystem
     $serverFileName = validateAndSaveImage($_FILES['icon'], MAX_ICON_SIZE, GROUP_ICON_WIDTH, GROUP_ICON_HEIGHT, GROUP_ICON_DIR);
     if (!$serverFileName)
     {
         returnMessage($_VALIDATE_IMAGE_FAILURE_MESSAGE, 400);
     }
-
-    // TODO get and remove old icon file if size becomes an issue
 
     // query to store image path with the group
     $sql =  'UPDATE groups g '.

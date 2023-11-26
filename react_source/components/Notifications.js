@@ -44,12 +44,37 @@ export default function Notifications(props) {
             setNotifCount(notifCount);
         }
         async function getItems() {
-            
-            setFriendRequests(await getNotifications("friend_request", addNotifCount));
-            setTransactionApprovals(await getNotifications("transaction_approval", addNotifCount));
-            setCompletedTransactions(await getNotifications("complete_transaction", addNotifCount));
-            setGroupInvites(await getNotifications("group_invite", addNotifCount));
+            let notifications = await getNotifications();
+            // integer used as a unique key in the lists of each notification type
+            let keyIndex = 0;
 
+            if (notifications != null) {
+                let friend_requests = [];
+                notifications.friend_requests.forEach(fr => {
+                    friend_requests.push(<FriendRequest name={fr.username} id={fr.notification_id} user_id={fr.friend_id} key={keyIndex++}/>)
+                });
+                setFriendRequests(friend_requests);
+
+                let transaction_approvals = [];
+                notifications.transaction_approvals.forEach(ta => {
+                    transaction_approvals.push(<ApproveTransaction name={ta.name} id={ta.notification_id} trans_id={ta.transaction_id} key={keyIndex++}/>)
+                });
+                setTransactionApprovals(transaction_approvals);
+
+                let completed_transactions = [];
+                notifications.completed_transactions.forEach(ct => {
+                    completed_transactions.push(<CompletedTransaction name={ct.name} id={ct.notification_id} trans_id={ct.transaction_id} key={keyIndex++}/>)
+                });
+                setCompletedTransactions(completed_transactions);
+
+                let group_invites = [];
+                notifications.group_invites.forEach(gi => {
+                    group_invites.push(<GroupInvite name={gi.group_name} id={gi.notification_id} group_id={gi.group_id} key={keyIndex++}/>)
+                });
+                setGroupInvites(group_invites);
+
+                notifCount = notifications.length;
+            }
             // if the page requested that we show notification bar by default, do so only if there are also notifications present
             props.setAreNotifs(notifCount);
         }
@@ -394,54 +419,17 @@ async function dismissCompletedTransaction(id, removeNotif) {
     }
 }
 
-async function getNotifications(type, addNotifCount){
-
-    let notifications = [];
-
-    let payload = new URLSearchParams();
-    payload.append('type', type);
-
+// async function getNotifications(type){
+async function getNotifications(){
     // do the POST request
     try {
-        let response = await fetch("/notifications.php?" + payload, { method: 'GET', credentials: 'same-origin' });
+        // let response = await fetch("/notifications.php?" + payload, { method: 'GET', credentials: 'same-origin' });
+        let response = await fetch("/notifications.php?", { method: 'GET', credentials: 'same-origin' });
 
         if (response.ok) {
             try {
                 let json = await response.json();
-                if (json !== null) {
-
-                    addNotifCount(json.length);
-                    switch (type) {
-                        case "friend_request":
-                            for (let i = 0; i < json.length; i++) {
-                                notifications.push(<FriendRequest key={i} name={json[i].username} id={json[i].notification_id} user_id={json[i].friend_id} />)
-                            }
-                            break;
-                        case "transaction_approval":
-                            for (let i = 0; i < json.length; i++) {
-                                notifications.push(<ApproveTransaction key={i} name={json[i].name} id={json[i].notification_id} trans_id={json[i].transaction_id} />)
-                            }
-                            break;
-                        case "complete_transaction":
-
-                            for (let i = 0; i < json.length; i++) {
-                                notifications.push(<CompletedTransaction key={i} name={json[i].name} id={json[i].notification_id} trans_id={json[i].transaction_id} />)
-                            }
-                            break;
-                        case "group_invite":
-
-                            for (let i = 0; i < json.length; i++) {
-                                notifications.push(<GroupInvite key={i} name={json[i].group_name} id={json[i].notification_id} group_id={json[i].group_id} />)
-                            }
-
-                            break;
-                        default:
-                            console.error("error in GET request to notifications (/notifications.php)");
-                            console.error("Unrecognized notification type");
-                            break;
-                    }
-                }
-                
+                return json;
             } catch (error) {
 				console.error("error in GET request to notifications (/notifications.php)");
 				console.error("No JSON returned");
@@ -452,7 +440,7 @@ async function getNotifications(type, addNotifCount){
         console.error("error in GET request to notifications (/notifications.php)");
         console.error(error);
     }
-    return notifications;
+    return null;
 }
 
 

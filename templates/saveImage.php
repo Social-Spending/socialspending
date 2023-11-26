@@ -3,8 +3,8 @@
 // Helper function for importing images, then saving them on the filesystem
 // $file            is object returned from indexing the super global $_FILES
 // $maxSize         is the maximum allowed image size, in bytes
-// $allowedWidth    is the allowed width, in pixels
-// $allowedHeight   is the allowed height, in pixels
+// $allowedWidth    is the allowed width, in pixels. If 0 or negative, then the original width will be kept
+// $allowedHeight   is the allowed height, in pixels. If 0 or negative, then the original height will be kept
 // $dir             is a path on the filesystem where the image will be saved
 // on success, returns the relative directory (in the filesystem) of the saved image
 //      ie. 'directory/image.gif' (note there is no leading backslash)
@@ -51,11 +51,9 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
     $actualWidth = imagesx($image);
     $actualHeight = imagesy($image);
 
-    $size = min($actualWidth, $actualHeight);
-
     $resizedImage = imagecreate($allowedWidth, $allowedHeight);
-
-    imagecopyresized($resizedImage, $image, 0, 0, $actualWidth / 2 - $size / 2, $actualHeight / 2 - $size / 2, $allowedWidth, $allowedHeight, $size, $size);
+    imagecopyresized($resizedImage, $image, 0, 0, 0, 0, $allowedWidth, $allowedHeight, $actualWidth, $actualHeight);
+    $resizedImage = imagerotate($resizedImage, 270, 0);
 
     // make sure this destination folder exists
     if (!file_exists($dir)) {
@@ -73,6 +71,9 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
         $_VALIDATE_IMAGE_FAILURE_MESSAGE = 'Failed to save image';
         return false;
     }
+    
+    //Cleanup images from memory
+    imagedestroy($image);
     imagedestroy($resizedImage);
 
     // result is path to image file on server

@@ -2,18 +2,20 @@
 
 /*
     Request Types:
-    - POST: Used to upload an image to be the group icon
+    - POST: Used to upload an image to be the transaction receipt
         - Request:
             - Headers:
                 - cookies: session_id=***
                 - Content-Type: multipart/form-data
-            - body: form data with icon file
-                "icon":<ICON_FILE>
+            - body: form data with text transaction ID and receipt file
+                "transaction_id":<TRANSACTION_ID>,
+                "receipt":<RECEIPT_FILE>
         - Response:
             - Status Codes:
                 - 200 if image was uploaded successfully
-                - 400 if image size or format was invalid
+                - 400 if request body is invalid, or the image size or format was invalid
                 - 401 if session_id cookie is not present or invalid
+                - 404 if the specified transaction doesn't exist or current user is not a part of it
                 - 500 if the database could not be reached, or file could not be saved
             - Headers:
                 - Content-Type: application/json
@@ -50,35 +52,32 @@ function handlePOST()
     }
 
     // get data from POST
-    if (!isset($_FILES['icon']))
+    // echo print_r($_POST);
+    if (!isset($_POST['transaction_id']) || !isset($_FILES['receipt']))
     {
-        returnMessage('Missing \'icon\' form field', 400);
+        returnMessage('Missing form fields', 400);
     }
+    $transactionID = $_POST['transaction_id'];
+
+    // echo print_r($_FILES["receipt"]);
+    // exit(0);
 
     // parse to image and save as gif to filesystem
-    $serverFileName = validateAndSaveImage($_FILES['icon'], MAX_ICON_SIZE, USER_ICON_WIDTH, USER_ICON_HEIGHT, USER_ICON_DIR);
+    $serverFileName = validateAndSaveImage($_FILES['receipt'], PHP_INT_MAX, TRANSACTION_RECEIPT_WIDTH, TRANSACTION_RECEIPT_HEIGHT, TRANSACTION_RECEIPT_DIR);
     if (!$serverFileName)
     {
         returnMessage($_VALIDATE_IMAGE_FAILURE_MESSAGE, 400);
     }
 
-    //Check to see if the user has an icon
-    $sql = "SELECT icon_path
-            FROM users u
-            WHERE u.user_id = ?";
-    $result = $mysqli->execute_query($sql, [$userID]);
+    // TODO get and remove old icon file if size becomes an issue
 
-    //Delete the existing icon if one exists
-    if ($result->num_rows != 0) {
-        unlink("." . $result->fetch_assoc()['icon_path']);
-    }
+    // query to store image path with the transaction
+    $sql =  'UPDATE transactions t '.
+            'INNER JOIN transaction_participants tp ON tp.transaction_id = t.transaction_id '.
+            'SET t.receipt_path = ? '.
+            'WHERE t.transaction_id = ? AND tp.user_id = ?;';
 
-    // query to store image path with the group
-    $sql =  'UPDATE users u '.
-            'SET u.icon_path = ? '.
-            'WHERE u.user_id = ?;';
-
-    $result = $mysqli->execute_query($sql, ["/".$serverFileName, $userID]);
+    $result = $mysqli->execute_query($sql, ["/".$serverFileName, $transactionID, $userID]);
     // check for errors
     if (!$result)
     {
@@ -90,7 +89,7 @@ function handlePOST()
     {
         // delete file
         unlink($serverFileName);
-        returnMessage('Failed to update user profile with icon path', 500);
+        returnMessage('Transaction not found or user is not a part of it', 404);
     }
 
     // success
@@ -105,6 +104,7 @@ function handlePOST()
 // handle different request types
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
 {
+    // $_POST = file_get_contents("php://input");
     handlePOST();
 }
 returnMessage('Request method not supported', 400);

@@ -14,21 +14,33 @@
 
 import * as globals from "../utils/globals.js";
 
-import { Text, View, Modal } from '../utils/globals.js';
-import { useState, useEffect, useContext } from 'react';
+import { Text, View, Modal, Image } from '../utils/globals.js';
+import { useState, useEffect, useContext, createContext } from 'react';
 import { ModalContext } from "./ModalContext.js";
+import Button from '../components/Button.js'
 import Loading from "../components/Loading.js";
 import { Link } from "react-router-dom/dist/index.js";
 import { GlobalContext } from "../components/GlobalContext.js";
-import Button from "../components/Button.js";
 import { approveRejectTransaction } from "../utils/transactions.js";
 import VerifyAction from "./VerifyAction.js";
 
+const TransactionInfoContext = createContext(0);
 
-export default function TransactionInfo(props) {
+const PAGES = {
+    TRANSACTION_INFO: 1,
+    RECEIPT: 2
+};
 
-    let [transactionInfo, setTransactionInfo] = useState(null);
+
+export default function ViewTransaction(props) {
+    const [transactionInfo, setTransactionInfo] = useState(null);
+    const [pageNum, setPageNum] = useState(PAGES.TRANSACTION_INFO);
+
     const { pushModal, popModal } = useContext(ModalContext);
+
+    function handleChildClick(e) {
+        e.stopPropagation();
+    }
 
     useEffect(() => {
 
@@ -45,25 +57,43 @@ export default function TransactionInfo(props) {
         }
     }, []);
 
-    function handleChildClick(e) {
-        e.stopPropagation();
-    }
-    
-    if (transactionInfo === null) {
-        //Transaction info hasnt loaded - show loading
-        return (
+    return (
+        <TransactionInfoContext.Provider
+            value={{
+                transactionInfo: [transactionInfo, setTransactionInfo],
+                pageNum: [pageNum, setPageNum]
+            }}>
             <Modal
-            transparent={true}
-            visible={true}
-            onRequestClose={() => popModal()}>
+                transparent={true}
+                visible={true}
+                onRequestClose={() => popModal()}>
 
                 <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                     <View style={styles.info} onClick={handleChildClick}>
-                        <Loading />
+                        <TransactionInfo/>
+                        <ViewReceipt/>
                     </View>
                 </View>
             </Modal>
+        </TransactionInfoContext.Provider>
+    );
+}
 
+function TransactionInfo() {
+    const {
+        transactionInfo: [transactionInfo, setTransactionInfo],
+        pageNum: [pageNum, setPageNum]
+    } = useContext(TransactionInfoContext);
+
+    if (transactionInfo === null) {
+        //Transaction info hasnt loaded - show loading
+        return (
+            <View style={{
+                    ...styles.detailsContainer, ...{
+                    display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
+            }}} >
+                    <Loading />
+            </View>
         );
 
     } else if (transactionInfo === undefined || transactionInfo['message'] != undefined) {
@@ -71,62 +101,92 @@ export default function TransactionInfo(props) {
         let text = transactionInfo === undefined ? "Error While Contacting Server" : transactionInfo['message'];
 
         return (
-           <Modal
-                transparent={true}
-                visible={true}
-                onRequestClose={() => popModal()}>
-
-                <View style={{ ...globals.styles.modalBackground, ...props.style }} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
-                    <View style={styles.info} onClick={handleChildClick}>
-                    <Text style={globals.styles.error}> {text} </Text>
-                    </View>
-                </View>
-            </Modal>
+            <View style={{
+                    ...styles.detailsContainer, ...{
+                    display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
+            }}} >
+                <Text style={globals.styles.error}> {text} </Text>
+            </View>
         );
     } else {
         //Transaction info has been returned, render it
         let pendingItalic = transactionInfo['is_approved'] == 0 ? { fontStyle: 'italic' } : {};
 
         return (
-           <Modal
-                transparent={true}
-                visible={true}
-                onRequestClose={() => popModal()}>
+            <View style={{
+                    ...styles.info, ...{
+                    display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
+            }}} >
+                <View style={styles.detailsContainer}>
+                    <Text style={{...globals.styles.h2, ...styles.name, ...pendingItalic}}>{transactionInfo['transaction_name']}</Text>
+                </View>
 
-                <View style={{ ...globals.styles.modalBackground, ...props.style }} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
-                    <View style={styles.info} onClick={handleChildClick}>
+                <View style={{ ...styles.detailsContainer, ...{ paddingBottom: '2.5em' }}}>
+                    <Text style={styles.details}>Transaction #{transactionInfo['transaction_id']}</Text>
+                    <Text style={styles.details}>{transactionInfo['transaction_date']}</Text>
+                </View>
 
-                        <View style={styles.detailsContainer}>
-                            <Text style={{ ...globals.styles.h2, ...styles.name, ...pendingItalic}}>{transactionInfo['transaction_name']}</Text>
-                        </View>
+                <View style={styles.detailsContainer}>
+                    <Text style={{ ...globals.styles.h4, ...styles.details}}>Description:</Text>
+                </View>
+                <View style={styles.detailsContainer}>
+                    <Text style={styles.description}>{transactionInfo['transaction_description']}</Text>
+                </View>
 
-                        <View style={{ ...styles.detailsContainer, ...{ paddingBottom: '2.5em' }}}>
-                            <Text style={styles.details}>Transaction #{transactionInfo['transaction_id']}</Text>
-                            <Text style={styles.details}>{transactionInfo['transaction_date']}</Text>
-                        </View>
+                <View style={{ alignSelf: 'center', height: '1px', width: '80%', backgroundColor: globals.COLOR_GRAY }} />
 
-                        <View style={styles.detailsContainer}>
-                            <Text style={{ ...globals.styles.h4, ...styles.details}}>Description:</Text>
-                        </View>
-                        <View style={styles.detailsContainer}>
-                            <Text style={styles.description}>{transactionInfo['transaction_description']}</Text>
-                        </View>
+                <View style={styles.detailsContainer}>
+                    <Text style={{ ...globals.styles.h4, ...styles.participants}}>Participants:</Text>
+                </View>
 
-                        <View style={{ alignSelf: 'center', height: '1px', width: '80%', backgroundColor: globals.COLOR_GRAY }} />
+                <View style={{...globals.styles.list, ...{ width: '80%' }, ...(transactionInfo['transaction_participants'].length < 5 ? { scrollbarWidth: 'none' } : {})}}>
+                    {getParticipants(transactionInfo['transaction_participants'])}
+                </View>
+                <View style={{ justifyContent: 'center', width: '75%', flexDirection: 'row' }}>
+                    {transactionInfo['receipt_path'] != null ?
+                        <Button style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '50%' }}} id='transactionInfo_viewReceipt' onClick={() => setPageNum(PAGES.RECEIPT)}>
+                            <label htmlFor="transactionInfo_viewReceipt" style={globals.styles.buttonLabel}>
+                                View Receipt
+                            </label>
+                        </Button> :
+                        <br/>}
+                </View>
+                <ApprovalButtons id={transactionInfo['transaction_id']} participants={transactionInfo['transaction_participants']} />
+            </View>
+        );
+    }
+}
 
-                        <View style={styles.detailsContainer}>
-                            <Text style={{ ...globals.styles.h4, ...styles.participants}}>Participants:</Text>
-                        </View>
+function ViewReceipt() {
+    const {
+        transactionInfo: [transactionInfo, setTransactionInfo],
+        pageNum: [pageNum, setPageNum]
+    } = useContext(TransactionInfoContext);
 
-                        <View style={{ ...globals.styles.list, ...{ width: '80%' }}}>
-                            {getParticipants(transactionInfo['transaction_participants'])}
-                        </View>
-                        <ApprovalButtons id={transactionInfo['transaction_id']} participants={transactionInfo['transaction_participants']} />
-                        
+    if (transactionInfo === null) {
+        //Transaction info hasnt loaded - show loading
+        return (
+            <View style={{display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'}}>
+                    <Loading />
+            </View>
+
+        );
+
+        } else {
+            return (
+                <View style={{display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'}}>
+                    <View style={{padding: '.75em'}}>
+                        <Image source={transactionInfo["receipt_path"] != null ? decodeURI(transactionInfo["receipt_path"]) : ""} style={{width: '225px', height: '400px', justifyContent: 'center', alignItems: 'center'}}/>
+                    </View>
+
+                    <View style={{justifyContent: 'center', flexDirection: 'row'}}>
+                        <Button style={{...globals.styles.formButton, ...{marginTop: '0em', marginBottom: '.75em', width: '100%'}}} id='transactionViewReceipt_close' onClick={() => setPageNum(PAGES.TRANSACTION_INFO)}>
+                            <label htmlFor="transactionViewReceipt_close" style={globals.styles.buttonLabel}>
+                                Go Back
+                            </label>
+                        </Button>
                     </View>
                 </View>
-            </Modal>
-
         );
     }
 }
@@ -168,7 +228,7 @@ function ListItem({ id, name, owed, border, hasApproved }) {
 function ApprovalButtons({ id, participants }) {
     const { currUserID, reRender} = useContext(GlobalContext);
     const { pushModal, popModal } = useContext(ModalContext);
-    
+
     let approved = true;
 
     for (let i = 0; i < participants.length; i++) {
@@ -185,10 +245,6 @@ function ApprovalButtons({ id, participants }) {
             popModal(2);
             reRender();
         }} />);
-
-       
-       
-    
     }
 
     if (!approved) {
