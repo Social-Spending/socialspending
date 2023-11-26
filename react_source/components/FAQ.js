@@ -91,7 +91,7 @@ function Question(props)
 
 const styles = {
     faqContainer: {
-        width: '100vh',
+        width: '80vh',
         minWidth: '25em',
         backgroundColor: '#FFF',
         boxShadow: '0px 0px 5px 5px #eee',
@@ -107,8 +107,7 @@ const styles = {
         height: '2em',
         fontSize: '1em',
         alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: '1.25em'
+        justifyContent: 'center'
     },
     questionSection: {
         display: 'flex',
