@@ -240,8 +240,8 @@ function ApprovalButtons({ id, participants }) {
     }
 
     function approve(e, approved) {
-        pushModal(<VerifyAction label={"Are you sure you want to " + (approved ? "approve " : "reject ") + "this transaction?"} accept={() => {
-            approveRejectTransaction(id, approved);
+        pushModal(<VerifyAction label={"Are you sure you want to " + (approved ? "approve " : "reject ") + "this transaction?"} accept={async () => {
+            await approveRejectTransaction(id, approved);
             popModal(2);
             reRender();
         }} />);

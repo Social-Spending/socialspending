@@ -43,8 +43,8 @@ export default function Profile(props) {
 
 
     function unfriend() {
-        pushModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={() => {
-            removeFriend(username);
+        pushModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={async () => {
+            await removeFriend(username);
             setIsFriend(false);
             popModal();
             navigate("/friends");
@@ -52,8 +52,8 @@ export default function Profile(props) {
         }} />);
     }
     function verifyAddFriend() {
-        pushModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={() => {
-            addFriend(username);
+        pushModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={async () => {
+            await addFriend(username);
             setIsPendingFriend(true);
             popModal();
             navigate("/friends");
@@ -61,8 +61,8 @@ export default function Profile(props) {
         }} />);
     }
     function verifyAcceptRejectFriend(acceptNReject) {
-        pushModal(<VerifyAction label={"Are you sure you want to " + (acceptNReject ? "accept" : "reject") + " friend request from " + username + "?"} accept={() => {
-            acceptRejectFriendRequest(friendRequestNotificationID, acceptNReject);
+        pushModal(<VerifyAction label={"Are you sure you want to " + (acceptNReject ? "accept" : "reject") + " friend request from " + username + "?"} accept={async () => {
+            await acceptRejectFriendRequest(friendRequestNotificationID, acceptNReject);
             setIsPendingFriend(false);
             setIsFriend(acceptNReject);
             popModal();
@@ -71,8 +71,8 @@ export default function Profile(props) {
         }} />);
     }
     function verifyCancelFriendRequest() {
-        pushModal(<VerifyAction label={"Are you sure you want to revoke your friend request to " + username + "?"} accept={() => {
-            cancelFriendRequest(friendRequestNotificationID);
+        pushModal(<VerifyAction label={"Are you sure you want to revoke your friend request to " + username + "?"} accept={async () => {
+            await cancelFriendRequest(friendRequestNotificationID);
             setIsPendingFriend(false);
             popModal();
             navigate("/friends");

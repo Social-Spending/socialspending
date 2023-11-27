@@ -21,8 +21,8 @@ let navigate = 0;
 
 export default function NewGroup(props) {
 
-    const onSubmit = () => {
-        submitForm(groupRef, errorMessageRef);
+    const onSubmit = async () => {
+        await submitForm(groupRef, errorMessageRef);
         popModal();
         navigate("/groups");
         navigate(0); //Fallback refresh page if on groups

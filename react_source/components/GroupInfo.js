@@ -61,8 +61,8 @@ export default function GroupInfo(props) {
     }
 
     const leave = () => {
-        pushModal(<VerifyAction label="Are you sure you want to leave this group?" accept={() => {
-            leaveGroup(props.id, navigate);
+        pushModal(<VerifyAction label="Are you sure you want to leave this group?" accept={async () => {
+            await leaveGroup(props.id, navigate);
             popModal();
             navigate("/groups", { replace: true });
             navigate(0); //fallback refresh page if already on groups
