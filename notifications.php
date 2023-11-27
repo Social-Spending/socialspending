@@ -214,17 +214,13 @@ function dismissNotification($notification_id)
             WHERE notification_id = ? AND user_id = ?;";
     $response = $mysqli->execute_query($sql, [$notification_id, $user_id]);
 
-    if (!$response)
-    {
-        http_response_code(HTTP_INTERNAL_SERVER_ERROR);
+    if (!$response) {
+        returnMessage("Could not contact database", HTTP_INTERNAL_SERVER_ERROR);
+    } else if ($mysqli->affected_rows == 0) {
+        returnMessage("Could not remove notification", HTTP_NOT_FOUND);
+    } else {
+        returnMessage("Success", HTTP_OK);
     }
-
-    if ($mysqli->affected_rows == 0)
-    {
-        http_response_code(HTTP_NOT_FOUND);
-    }
-
-    http_response_code(HTTP_OK);
 }
 
 ?>
