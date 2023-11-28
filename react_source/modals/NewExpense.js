@@ -16,16 +16,17 @@ const Logo = require('../assets/images/logo/logo-name-64.png');
 const ExpenseContext = createContext(0);
 
 const PAGES = {
-    CHOOSE_NAME: 4,
-    SELECT_SPLIT: 1,
-    SELECT_GROUP: 2,
-    SPLIT_EXPENSE: 3
+    CHOOSE_NAME: 1,
+    SELECT_SPLIT: 2,
+    SELECT_GROUP: 3,
+    SPLIT_EXPENSE: 4
 
 }
 
 /**
  * Example formData layout
  *  {
+ *      "group_id": 1, // Optional
         "transaction_name":"Halal Shack",
         "transaction_date":"2023-09-29",
         "transaction_description":"Bought you fools some food",
@@ -51,7 +52,7 @@ const PAGES = {
 export default function NewExpense(props) {
 
     //Variables to pass down to all children as a context so that they know and can edit the data of others
-    const [pageNum, setPageNum] = useState(props.groupID || props.profile ? PAGES.SPLIT_EXPENSE : PAGES.SELECT_SPLIT);
+    const [pageNum, setPageNum] = useState(props.groupID || props.profile ? PAGES.SPLIT_EXPENSE : PAGES.CHOOSE_NAME);
     const [groupID, setGroupID] = useState(props.groupID ? props.groupID : null);
     const [formData, setFormData] = useState({});
 
@@ -149,10 +150,13 @@ function ChooseName() {
     } = useContext(ExpenseContext);
 
     const onNameChange = () => { setNameDisabled(checkName(nameRef, errorRef)); }
+    const onTotalChange = () => { setTotalDisabled(checkTotal(totalRef, errorRef)); }
 
     const [nameDisabled, setNameDisabled] = useState(true);
+    const [totalDisabled, setTotalDisabled] = useState(true);
 
     const nameRef = useRef(null);
+    const totalRef = useRef(null);
     const dateRef = useRef(null);
     const descriptionRef = useRef(null);
     const receiptRef = useRef(null);
@@ -195,30 +199,30 @@ function ChooseName() {
                 <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>EXPENSE NAME *</Text>
             </View>
 
-            <input tabIndex={1} ref={nameRef} placeholder=" Enter name of new expense" style={globals.styles.input} id='createExpense_name' name="Expense Name" onInput={onNameChange} />
+            <input tabIndex={0} ref={nameRef} placeholder=" Enter name of new expense" style={globals.styles.input} id='createExpense_name' name="Expense Name" onInput={onNameChange} />
 
+            <View style={globals.styles.labelContainer}>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label }}>EXPENSE TOTAL *</Text>
+            </View>
+
+            <input tabIndex={0} ref={totalRef} placeholder=" Enter total cost of expense" style={globals.styles.input} id='createExpense_amount' name="Expense Amount" step={.01} type='number' placeholder={0} min={0} onInput={onTotalChange} />
+            
             <View style={globals.styles.labelContainer}>
                 <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>EXPENSE DATE</Text>
             </View>
 
-            <input tabIndex={2} ref={dateRef} type="date" style={globals.styles.input} id='createExpense_date' name="Expense date" />
+            <input tabIndex={0} ref={dateRef} type="date" style={globals.styles.input} id='createExpense_date' name="Expense date" />
 
             <View style={globals.styles.labelContainer}>
                 <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>DESCRIPTION</Text>
             </View>
 
-            <textarea tabIndex={3} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
-
-            <View style={globals.styles.labelContainer}>
-                <Text style={{...globals.styles.h5, ...globals.styles.label}}>UPLOAD RECEIPT</Text>
-            </View>
-
-            <input ref={receiptRef} type="file" accept="image/*" onInput={updateImageSource} />
+            <textarea tabIndex={0} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
-                <Button id="newExpense_submit" disabled={nameDisabled} style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={onSubmit}>
+                <Button id="newExpense_submit" disabled={nameDisabled || totalDisabled} style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum + 1)} >
                     <label htmlFor="newExpense_submit" style={globals.styles.buttonLabel} >
-                        Submit
+                        Next
                     </label>
                 </Button>
                 <Button id="newExpense_chooseName_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum - 1)} >
@@ -268,6 +272,16 @@ function SelectSplit() {
                     Friends
                 </label>
             </Button>
+
+            <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
+                
+                <Button id="newExpense_selectSplit_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum - 1)} >
+                    <label htmlFor="newExpense_selectSplit_back" style={globals.styles.buttonLabel} >
+                        Back
+                    </label>
+                </Button>
+
+            </View>
 
         </View>
     );
@@ -583,9 +597,9 @@ function getFriendsList(json, currUserID, setPaidList, setRefList) {
 
 /**
 * Checks value of expense name field and prevents user from submitting if too short
-* @param { React.MutableRefObject } groupRef reference to group name field
+* @param { React.MutableRefObject } nameRef reference to expense name field
 * @param { React.MutableRefObject } errorRef reference to error text field to print error text to
-* @returns { boolean }                       validity of group name
+* @returns { boolean }                       validity of expense name
 */
 function checkName(nameRef, errorRef) {
 
@@ -599,6 +613,29 @@ function checkName(nameRef, errorRef) {
         errorRef.current.innerText = "Expense name must be at least 4 characters";
         nameRef.current.setAttribute("aria-invalid", true);
         nameRef.current.setAttribute("aria-errormessage", errorRef.current.id);
+        return true;
+    }
+}
+
+
+/**
+* Checks value of expense total field and prevents user from submitting if no total is supplied
+* @param { React.MutableRefObject } totalRef reference to expesne total field
+* @param { React.MutableRefObject } errorRef reference to error text field to print error text to
+* @returns { boolean }                       validity of expense total
+*/
+function checkTotal(totalRef, errorRef) {
+
+    if (totalRef.current.value > 0) {
+        errorRef.current.innerText = "";
+        totalRef.current.removeAttribute("aria-invalid");
+        totalRef.current.removeAttribute("aria-errormessage");
+        return false;
+
+    } else {
+        errorRef.current.innerText = "Expense total must be greater than 0.00";
+        totalRef.current.setAttribute("aria-invalid", true);
+        totalRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         return true;
     }
 }
