@@ -12,6 +12,8 @@ import { ModalContext } from './ModalContext.js';
 import { GlobalContext } from '../components/GlobalContext.js';
 
 const Logo = require('../assets/images/logo/logo-name-64.png');
+import DenySvg from '../assets/images/bx-x.svg';
+import SVGIcon from '../components/SVGIcon.js';
 
 const ExpenseContext = createContext(0);
 
@@ -19,7 +21,8 @@ const PAGES = {
     CHOOSE_NAME: 1,
     SELECT_SPLIT: 2,
     SELECT_GROUP: 3,
-    SPLIT_EXPENSE: 4
+    SELECT_MEMBERS: 4,
+    SPLIT_EXPENSE: 5
 
 }
 
@@ -124,7 +127,7 @@ export default function NewExpense(props) {
                         <ChooseName />
                         <SelectSplit />
                         <SelectGroup />
-                        <SplitExpense />
+                        <SelectMembers />
 
                     </View>
                 </View>
@@ -332,10 +335,81 @@ function SelectGroup() {
     );
 }
 
+function SelectMembers() {
+    let {
+        pageNum: [pageNum, setPageNum],
+        groupID: [groupID, setGroupID],
+        formData: [formData, setFormData]
+    } = useContext(ExpenseContext);
+
+    const { currUserID } = useContext(GlobalContext);
+
+
+
+    let [memberList, setMemberList] = useState([]);
+
+    const removeMember = (key) => {
+        memberList = memberList.filter((member) => member.key != key);
+        setMemberList(memberList);
+    }
+
+    const addMember = (details) => {
+        memberList.push(<MemberListItem key={details.user_id} name={details.username} id={details.user_id} removeMember={removeMember} />);
+        setMemberList(memberList);
+    }
+
+
+    useEffect(() => {
+        async function getMembers() {
+            let json = null;
+
+            if (groupID != null) {
+                // Get group member list
+                json = await getGroupInfo(groupID);
+
+                if (json !== null) {
+                    memberList = await getGroupMembers(json, removeMember)
+                    setMemberList(memberList);
+                }
+            }
+            else {
+                //Get friends list
+                json = await getFriends();
+
+                if (json !== null) {
+                    memberList = [<MemberListItem key={-1} name='Me' id={-1} removeMember={removeMember} />];
+                    setMemberList(memberList);
+                }
+            }
+        }
+        if (pageNum == PAGES.SELECT_MEMBERS) getMembers();
+
+    }, [pageNum]);
+
+
+    return (
+        <View style={{
+            ...styles.pageContainer, ...{
+                display: pageNum != PAGES.SELECT_MEMBERS ? 'none' : 'inherit'
+            }
+        }}>
+            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '80% 20%', width: '75%' } }} >
+                {memberList}
+            </View>
+        </View>
+    
+    
+    );
+
+    
+
+}
+
+
 /**
  * 
  * @returns a page in which the user can select the amount each person owes/paid
- */
+ *
 function SplitExpense() {
 
     let {
@@ -468,7 +542,7 @@ function SplitExpense() {
             </View>
         </View>
     );
-}
+}*/
 
 // The item that holds the input and user name for each person to be split with
 // Generates a ref for each version and appends it to the refList
@@ -514,6 +588,23 @@ function SplitListItem(props) {
     );
 }
 
+function MemberListItem(props) {
+
+    return (
+
+        <>
+            <Text style={{ ...globals.styles.listText, ...{ margin: 'auto 0' } }}>{props.name}</Text>
+            <Button aria-label="Remove expense member" style={{ ...styles.removeButton }} onClick={() => props.removeMember(props.id)} >
+                <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+            </Button>
+
+        </>
+
+    );
+}
+
+
+
 /**
  * Builds a list of groups that the user is part of and converts them to button
  * @param {Function} setID function to set groupID variable
@@ -530,7 +621,7 @@ async function buildGroups(setID, setPage) {
             <Button id={"newExpense_selectGroup_" + groups[i].group_name} style={{ ...globals.styles.formButton, ...{ justifySelf: 'center', margin: '.5em 0' } }} key={i} onClick={
             () => { 
                 setID(groups[i].group_id);
-                setPage(PAGES.SPLIT_EXPENSE);
+                setPage(PAGES.SELECT_MEMBERS);
                 }} >
                 <label htmlFor={"newExpense_selectGroup_" + groups[i].group_name} style={globals.styles.buttonLabel}>
                     {groups[i].group_name}
@@ -544,26 +635,21 @@ async function buildGroups(setID, setPage) {
 }
 
 /**
- * Builds a list of SplitListItems and a refList from a group json
- * @param {JSON} json JSON object contianing gorup information, particularly a members array
- * @param {Function} setRefList function to set the refList variable of SplitExpense
- * @returns a list of SplitListItems
+ * Builds a list of MemberListItems and a refList from a group json
+ * @param {JSON} json JSON object contianing group information, particularly a members array
+ * @param {Function} setRefList function to set the refList variable of SelectMembers
+ * @returns a list of MemberListItems
  */
-function getGroupMembers(json, currUserID, setPaidList, setRefList) {
-
-    let refList = [];
+function getGroupMembers(json, removeMember) {
 
     let outputList = [];
-    let paidList = [];
 
-    outputList.push(<SplitListItem paidList={paidList} refList={refList} key={-1} name='Me' id={currUserID} />);
+    outputList.push(<MemberListItem key={-1} name='Me' id={-1} removeMember={removeMember} />);
 
     for (let i = 0; i < json['members'].length; i++) {
 
-        outputList.push(<SplitListItem paidList={paidList} refList={refList} key={i} name={json['members'][i].username} id={json['members'][i].user_id} />);
+        outputList.push(<MemberListItem key={json['members'][i].user_id} name={json['members'][i].username} id={json['members'][i].user_id} removeMember={removeMember} />);
     }
-    setPaidList(paidList);
-    setRefList(refList);
     return outputList;
 
 }
@@ -739,6 +825,13 @@ const styles = {
         minWidth: '2em',
         borderRadius: 1,
         marginTop: '1em'
-    }
+    },
+    removeButton: {
+        width: '2em',
+        height: '2em',
+        fontSize: '1em',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
 
 };
