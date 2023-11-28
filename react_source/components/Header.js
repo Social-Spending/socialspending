@@ -46,7 +46,8 @@ function Links(props) {
     } else {
         return (
             <View style={styles.container}>
-
+                <HeaderLink href="/about" style={{ ...globals.styles.h3, ...styles.text}}> About </HeaderLink>
+                <HeaderLink href="/faq" style={{ ...globals.styles.h3, ...styles.text}}> FAQ </HeaderLink>
             </View>
         );
     }
