@@ -47,14 +47,80 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
         return false;
     }
 
+    $exif = exif_read_data($file['tmp_name']);
+    
+    //Reorient image if necessary
+
+    if (!empty($exif['Orientation'])) {
+        switch ($exif['Orientation']) {
+            case 1:
+                // No change
+                break;
+            case 2:
+                //Image is mirrored
+                $image = imageflip($image, IMG_FLIP_HORIZONTAL);
+                break;
+            case 3:
+                //Image is rotated 180deg
+                $image = imagerotate($image, 180, 0);
+                break;
+            case 4:
+                //Image is mirrored and rotated 180deg
+                $image = imagerotate($image, 180, 0);
+                $image = imageflip($image, IMG_FLIP_HORIZONTAL);
+                break;
+            case 5:
+                //Image is mirrored and rotated 90deg
+                $image = imagerotate($image, -90, 0);
+                $image = imageflip($image, IMG_FLIP_HORIZONTAL);
+                break;
+            case 6:
+                //Image is rotated 90 deg
+                $image = imagerotate($image, -90, 0);
+                break;
+            case 7:
+                //Image is mirrored and rotated 270 deg
+                $image = imagerotate($image, 90, 0);
+                $image = imageflip($image, IMG_FLIP_HORIZONTAL);
+                break;
+            case 8:
+                //Image is rotated 270 deg
+                $image = imagerotate($image, 90, 0);
+                break;
+        }
+    }
+
     // check image size
     $actualWidth = imagesx($image);
     $actualHeight = imagesy($image);
 
-    $resizedImage = imagecreate($allowedWidth, $allowedHeight);
-    imagecopyresized($resizedImage, $image, 0, 0, 0, 0, $allowedWidth, $allowedHeight, $actualWidth, $actualHeight);
-    $resizedImage = imagerotate($resizedImage, 270, 0);
+    //Get original dimensions
+    $xSize = $actualWidth;
+    $ySize = $actualHeight;
 
+    //Determine the new size for the image
+    if ($allowedWidth && $allowedHeight){
+        //Find ratio between aspect ratios
+        $aspectRatio = $actualHeight / $actualWidth;
+        $desiredRatio = $allowedHeight / $allowedWidth;
+
+        $change = $aspectRatio / $desiredRatio;
+        //Adjust dimensions to meet new aspect ratio
+        if ($change > 1){
+            $ySize /= $change;
+        }else{
+            $xSize *= $change;
+        }
+    }
+
+    //Determine if we want to keep original dimensions
+    if ($allowedWidth <= 0) $allowedWidth = $actualWidth;
+    if ($allowedHeight <= 0) $allowedHeight = $actualHeight;
+    
+    $resizedImage = imagecreate($allowedWidth, $allowedHeight);
+    //This should cut out an image matching the desired dimensions 
+    imagecopyresized($resizedImage, $image, 0, 0, $actualWidth / 2 - $xSize / 2, $actualHeight / 2 - $ySize / 2, $allowedWidth, $allowedHeight, $xSize, $ySize);
+    
     // make sure this destination folder exists
     if (!file_exists($dir)) {
         mkdir($dir, 0777, true);

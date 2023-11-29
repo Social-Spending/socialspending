@@ -28,7 +28,7 @@ export default function ViewReceipt(props) {
 				<View style={{ ...globals.styles.modalBackground, ...props.style }} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
 					<View style={styles.info} onClick={handleChildClick}>
 						<View style={{padding: '.75em'}}>
-							<Image source={props.receipt_path} style={{width: '225px', height: '400px', justifyContent: 'center', alignItems: 'center'}}/>
+                            <Image source={props.receipt_path} useImageSize={true} style={{ maxHeight: '70vh', maxWidth: '80vw', justifyContent: 'center', alignItems: 'center'}}/>
 						</View>
 
 						<View style={{justifyContent: 'center', flexDirection: 'row'}}>
@@ -47,7 +47,8 @@ export default function ViewReceipt(props) {
 
 const styles = {
     info: {
-        width: '25em',
+        width: 'auto',
+        minWidth: '25em',
         minHeight: '30em',
         height: 'auto',
         maxHeight: '80vh',
