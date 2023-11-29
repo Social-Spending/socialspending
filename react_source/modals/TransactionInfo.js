@@ -23,18 +23,12 @@ import { Link } from "react-router-dom/dist/index.js";
 import { GlobalContext } from "../components/GlobalContext.js";
 import { approveRejectTransaction } from "../utils/transactions.js";
 import VerifyAction from "./VerifyAction.js";
+import ViewReceipt from "./ViewReceipt.js";
 
 const TransactionInfoContext = createContext(0);
 
-const PAGES = {
-    TRANSACTION_INFO: 1,
-    RECEIPT: 2
-};
-
-
 export default function ViewTransaction(props) {
     const [transactionInfo, setTransactionInfo] = useState(null);
-    const [pageNum, setPageNum] = useState(PAGES.TRANSACTION_INFO);
 
     const { pushModal, popModal } = useContext(ModalContext);
 
@@ -60,8 +54,7 @@ export default function ViewTransaction(props) {
     return (
         <TransactionInfoContext.Provider
             value={{
-                transactionInfo: [transactionInfo, setTransactionInfo],
-                pageNum: [pageNum, setPageNum]
+                transactionInfo: [transactionInfo, setTransactionInfo]
             }}>
             <Modal
                 transparent={true}
@@ -71,7 +64,6 @@ export default function ViewTransaction(props) {
                 <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                     <View style={styles.info} onClick={handleChildClick}>
                         <TransactionInfo/>
-                        <ViewReceipt/>
                     </View>
                 </View>
             </Modal>
@@ -81,17 +73,17 @@ export default function ViewTransaction(props) {
 
 function TransactionInfo() {
     const {
-        transactionInfo: [transactionInfo, setTransactionInfo],
-        pageNum: [pageNum, setPageNum]
+        transactionInfo: [transactionInfo, setTransactionInfo]
     } = useContext(TransactionInfoContext);
+
+    const { pushModal, popModal } = useContext(ModalContext);
 
     if (transactionInfo === null) {
         //Transaction info hasnt loaded - show loading
         return (
             <View style={{
-                    ...styles.detailsContainer, ...{
-                    display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
-            }}} >
+                    ...styles.detailsContainer
+            }} >
                     <Loading />
             </View>
         );
@@ -102,9 +94,8 @@ function TransactionInfo() {
 
         return (
             <View style={{
-                    ...styles.detailsContainer, ...{
-                    display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
-            }}} >
+                    ...styles.detailsContainer
+            }} >
                 <Text style={globals.styles.error}> {text} </Text>
             </View>
         );
@@ -114,9 +105,8 @@ function TransactionInfo() {
 
         return (
             <View style={{
-                    ...styles.info, ...{
-                    display: pageNum != PAGES.TRANSACTION_INFO ? 'none' : 'inherit'
-            }}} >
+                    ...styles.info,
+            }} >
                 <View style={styles.detailsContainer}>
                     <Text style={{...globals.styles.h2, ...styles.name, ...pendingItalic}}>{transactionInfo['transaction_name']}</Text>
                 </View>
@@ -144,7 +134,7 @@ function TransactionInfo() {
                 </View>
                 <View style={{ justifyContent: 'center', width: '75%', flexDirection: 'row' }}>
                     {transactionInfo['receipt_path'] != null ?
-                        <Button style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '50%' }}} id='transactionInfo_viewReceipt' onClick={() => setPageNum(PAGES.RECEIPT)}>
+                        <Button style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '50%' }}} id='transactionInfo_viewReceipt' onClick={() => pushModal(<ViewReceipt id={transactionInfo['transaction_id']} json={transactionInfo} />)}>
                             <label htmlFor="transactionInfo_viewReceipt" style={globals.styles.buttonLabel}>
                                 View Receipt
                             </label>
@@ -153,40 +143,6 @@ function TransactionInfo() {
                 </View>
                 <ApprovalButtons id={transactionInfo['transaction_id']} participants={transactionInfo['transaction_participants']} />
             </View>
-        );
-    }
-}
-
-function ViewReceipt() {
-    const {
-        transactionInfo: [transactionInfo, setTransactionInfo],
-        pageNum: [pageNum, setPageNum]
-    } = useContext(TransactionInfoContext);
-
-    if (transactionInfo === null) {
-        //Transaction info hasnt loaded - show loading
-        return (
-            <View style={{display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'}}>
-                    <Loading />
-            </View>
-
-        );
-
-        } else {
-            return (
-                <View style={{display: pageNum != PAGES.RECEIPT ? 'none' : 'inherit'}}>
-                    <View style={{padding: '.75em'}}>
-                        <Image source={transactionInfo["receipt_path"] != null ? decodeURI(transactionInfo["receipt_path"]) : ""} style={{width: '225px', height: '400px', justifyContent: 'center', alignItems: 'center'}}/>
-                    </View>
-
-                    <View style={{justifyContent: 'center', flexDirection: 'row'}}>
-                        <Button style={{...globals.styles.formButton, ...{marginTop: '0em', marginBottom: '.75em', width: '100%'}}} id='transactionViewReceipt_close' onClick={() => setPageNum(PAGES.TRANSACTION_INFO)}>
-                            <label htmlFor="transactionViewReceipt_close" style={globals.styles.buttonLabel}>
-                                Go Back
-                            </label>
-                        </Button>
-                    </View>
-                </View>
         );
     }
 }
