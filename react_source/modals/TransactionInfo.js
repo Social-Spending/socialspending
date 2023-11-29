@@ -14,7 +14,7 @@
 
 import * as globals from "../utils/globals.js";
 
-import { Text, View, Modal, Image } from '../utils/globals.js';
+import { Text, View, Modal } from '../utils/globals.js';
 import { useState, useEffect, useContext, createContext } from 'react';
 import { ModalContext } from "./ModalContext.js";
 import Button from '../components/Button.js'
@@ -134,7 +134,7 @@ function TransactionInfo() {
                 </View>
                 <View style={{ justifyContent: 'center', width: '75%', flexDirection: 'row' }}>
                     {transactionInfo['receipt_path'] != null ?
-                        <Button style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '50%' }}} id='transactionInfo_viewReceipt' onClick={() => pushModal(<ViewReceipt receipt_path={transactionInfo['receipt_path']} />)}>
+                        <Button style={{...globals.styles.formButton, ...{ marginTop: '0em', marginBottom: '1em', width: '50%' }}} id='transactionInfo_viewReceipt' onClick={() => pushModal(<ViewReceipt receipt_path={transactionInfo['receipt_path']} />)}>
                             <label htmlFor="transactionInfo_viewReceipt" style={globals.styles.buttonLabel}>
                                 View Receipt
                             </label>

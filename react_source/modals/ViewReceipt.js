@@ -1,14 +1,9 @@
 import * as globals from "../utils/globals.js";
 
-import { Text, View, Modal, Image } from '../utils/globals.js';
-import { useState, useEffect, useContext, createContext } from 'react';
+import {  View, Modal, Image } from '../utils/globals.js';
+import { useState, useContext, createContext } from 'react';
 import { ModalContext } from "./ModalContext.js";
 import Button from '../components/Button.js'
-import Loading from "../components/Loading.js";
-import { Link } from "react-router-dom/dist/index.js";
-import { GlobalContext } from "../components/GlobalContext.js";
-import { approveRejectTransaction } from "../utils/transactions.js";
-import VerifyAction from "./VerifyAction.js";
 
 const ViewReceiptContext = createContext(0);
 
@@ -20,23 +15,6 @@ export default function ViewReceipt(props) {
     function handleChildClick(e) {
         e.stopPropagation();
     }
-
-    // useEffect(() => {
-
-    //     if (!props.json) {
-	// 		console.log("Fetching transaction info");
-    //         // React advises to declare the async function directly inside useEffect
-    //         // On load asynchronously request groups and construct the list
-    //         async function getInfo() {
-
-    //             setTransactionInfo(await getTransaction(props.id));
-    //         }
-    //         getInfo();
-    //     } else {
-	// 		console.log("Already received transaction info");
-    //         setTransactionInfo(props.json);
-    //     }
-    // }, []);
 
 	return (
 		<ViewReceiptContext.Provider
@@ -65,26 +43,6 @@ export default function ViewReceipt(props) {
 			</Modal>
 		</ViewReceiptContext.Provider>
 	);
-}
-
-/**
- * Gets transaction data from the server using transaction.php endpoint
- *      @param {number} transactionId   id of transaction to fetch
- *      @return {JSON}                  JSON object containing data for transaction or an error message
- */
-async function getTransaction(transactionId) {
-
-    try {
-        let url = "/transactions.php?transaction_id=" + transactionId;
-
-        let response = await fetch(url, { credentials: 'same-origin' });
-
-        return await response.json();
-    }
-    catch (error) {
-        console.log("error in in GET request to transactions (/transactions.php)");
-        console.log(error);
-    }
 }
 
 const styles = {
