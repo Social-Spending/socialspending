@@ -134,7 +134,7 @@ function TransactionInfo() {
                 </View>
                 <View style={{ justifyContent: 'center', width: '75%', flexDirection: 'row' }}>
                     {transactionInfo['receipt_path'] != null ?
-                        <Button style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '50%' }}} id='transactionInfo_viewReceipt' onClick={() => pushModal(<ViewReceipt id={transactionInfo['transaction_id']} json={transactionInfo} />)}>
+                        <Button style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '50%' }}} id='transactionInfo_viewReceipt' onClick={() => pushModal(<ViewReceipt receipt_path={transactionInfo['receipt_path']} />)}>
                             <label htmlFor="transactionInfo_viewReceipt" style={globals.styles.buttonLabel}>
                                 View Receipt
                             </label>

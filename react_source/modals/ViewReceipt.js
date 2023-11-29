@@ -21,22 +21,22 @@ export default function ViewReceipt(props) {
         e.stopPropagation();
     }
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        if (!props.json) {
-			console.log("Fetching transaction info");
-            // React advises to declare the async function directly inside useEffect
-            // On load asynchronously request groups and construct the list
-            async function getInfo() {
+    //     if (!props.json) {
+	// 		console.log("Fetching transaction info");
+    //         // React advises to declare the async function directly inside useEffect
+    //         // On load asynchronously request groups and construct the list
+    //         async function getInfo() {
 
-                setTransactionInfo(await getTransaction(props.id));
-            }
-            getInfo();
-        } else {
-			console.log("Already received transaction info");
-            setTransactionInfo(props.json);
-        }
-    }, []);
+    //             setTransactionInfo(await getTransaction(props.id));
+    //         }
+    //         getInfo();
+    //     } else {
+	// 		console.log("Already received transaction info");
+    //         setTransactionInfo(props.json);
+    //     }
+    // }, []);
 
 	return (
 		<ViewReceiptContext.Provider
@@ -47,31 +47,20 @@ export default function ViewReceipt(props) {
 				transparent={true}
 				visible={true}
 				onRequestClose={() => popModal()}>
-				<View style={styles.info} onClick={handleChildClick}>
-				<Text>Hello</Text>
-				{/* {() => {
-					if (transactionInfo == null) {
-						return (
-							<Loading />
-						);
-					} else {
-						return (
-							<>
-								<View style={{padding: '.75em'}}>
-									<Image source={transactionInfo["receipt_path"] != null ? decodeURI(transactionInfo["receipt_path"]) : ""} style={{width: '225px', height: '400px', justifyContent: 'center', alignItems: 'center'}}/>
-								</View>
+				<View style={{ ...globals.styles.modalBackground, ...props.style }} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
+					<View style={styles.info} onClick={handleChildClick}>
+						<View style={{padding: '.75em'}}>
+							<Image source={props.receipt_path} style={{width: '225px', height: '400px', justifyContent: 'center', alignItems: 'center'}}/>
+						</View>
 
-								<View style={{justifyContent: 'center', flexDirection: 'row'}}>
-									<Button style={{...globals.styles.formButton, ...{marginTop: '0em', marginBottom: '.75em', width: '100%'}}} id='transactionViewReceipt_close' onClick={popModal()}>
-										<label htmlFor="transactionViewReceipt_close" style={globals.styles.buttonLabel}>
-											Go Back
-										</label>
-									</Button>
-								</View>
-							</>
-						);
-					}
-				}} */}
+						<View style={{justifyContent: 'center', flexDirection: 'row'}}>
+							<Button style={{...globals.styles.formButton, ...{marginTop: '0em', marginBottom: '.75em', width: '100%'}}} id='transactionViewReceipt_close' onClick={() => popModal()}>
+								<label htmlFor="transactionViewReceipt_close" style={globals.styles.buttonLabel}>
+									Go Back
+								</label>
+							</Button>
+						</View>
+					</View>
 				</View>
 			</Modal>
 		</ViewReceiptContext.Provider>
