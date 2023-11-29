@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS cookies, friendships, debts, transaction_participants, group_members, notifications, transactions, groups, users;
 create table users (
 	user_id int not null AUTO_INCREMENT,
 	email text not null,
