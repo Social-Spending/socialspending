@@ -1,12 +1,13 @@
+import { useNavigate } from 'react-router-dom/dist/index.js';
 import { addFriend } from '../utils/friends.js';
 
-import { router } from "expo-router";
 
 import UserSearch from './UserSearch.js';
 
-const Logo = require('../assets/images/logo/logo-name-64.png');
-
+let navigate = 0;
 export default function NewFriend(props) {
+
+    navigate = useNavigate();
 
     return (
         <UserSearch
@@ -21,15 +22,16 @@ export default function NewFriend(props) {
 }
 
 
-async function onSubmit(user, setErrorMsg, setModal, reRender)
+async function onSubmit(user, setErrorMsg, popModal, reRender)
 {
     let responseMessage = await addFriend(user);
     if (responseMessage !== null)
     {
         if (responseMessage == 'Success')
         {
-            setModal(null);
-            router.replace("/friends");
+            popModal();
+            navigate("/friends", { replace: true });
+            navigate(0);
         }
         else
         {

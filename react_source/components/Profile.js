@@ -1,9 +1,9 @@
 import * as globals from "../utils/globals.js";
 
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { Text, View, Image } from '../utils/globals.js';
 import { useState, useEffect, useContext } from 'react';
 
-import { Link } from "expo-router";
+import { Link, useNavigate } from "react-router-dom";
 
 import Button from "./Button.js";
 
@@ -21,6 +21,7 @@ import { getUserInfo, removeFriend, addFriend, acceptRejectFriendRequest, cancel
 import { ModalContext } from '../modals/ModalContext.js';
 import { GlobalContext } from "./GlobalContext.js";
 import NewExpense from "../modals/NewExpense.js";
+import SVGIcon from "./SVGIcon.js";
 
 
 export default function Profile(props) {
@@ -36,21 +37,47 @@ export default function Profile(props) {
     let [friendRequestNotificationID, setFriendRequestNotificationID] = useState(null);
     let [friendRequestCanApprove, setFriendRequestCanApprove] = useState(null);
 
-    const setModal = useContext(ModalContext);
-    const { reRenderCount } = useContext(GlobalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
+    const { reRenderCount, currUserID } = useContext(GlobalContext);
+    const navigate = useNavigate();
 
 
     function unfriend() {
-        setModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={() => {removeFriend(username); setIsFriend(false); setModal(null); }} />);
+        pushModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={async () => {
+            await removeFriend(username);
+            setIsFriend(false);
+            popModal();
+            navigate("/friends");
+            navigate(0)
+        }} />);
     }
     function verifyAddFriend() {
-        setModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={() => { addFriend(username); setIsPendingFriend(true);  setModal(null);}} />);
+        pushModal(<VerifyAction label={"Are you sure you want to add " + username + " as a friend?"} accept={async () => {
+            await addFriend(username);
+            setIsPendingFriend(true);
+            popModal();
+            navigate("/friends");
+            navigate(0)
+        }} />);
     }
     function verifyAcceptRejectFriend(acceptNReject) {
-        setModal(<VerifyAction label={"Are you sure you want to "+(acceptNReject ? "accept" : "reject")+" friend request from " + username + "?"} accept={() => {acceptRejectFriendRequest(friendRequestNotificationID, acceptNReject); setIsPendingFriend(false); setIsFriend(acceptNReject); setModal(null);}} />);
+        pushModal(<VerifyAction label={"Are you sure you want to " + (acceptNReject ? "accept" : "reject") + " friend request from " + username + "?"} accept={async () => {
+            await acceptRejectFriendRequest(friendRequestNotificationID, acceptNReject);
+            setIsPendingFriend(false);
+            setIsFriend(acceptNReject);
+            popModal();
+            navigate("/friends");
+            navigate(0)
+        }} />);
     }
     function verifyCancelFriendRequest() {
-        setModal(<VerifyAction label={"Are you sure you want to revoke your friend request to " + username + "?"} accept={() => {cancelFriendRequest(friendRequestNotificationID); setIsPendingFriend(false); setModal(null);}} />);
+        pushModal(<VerifyAction label={"Are you sure you want to revoke your friend request to " + username + "?"} accept={async () => {
+            await cancelFriendRequest(friendRequestNotificationID);
+            setIsPendingFriend(false);
+            popModal();
+            navigate("/friends");
+            navigate(0)
+        }} />);
     }
 
 
@@ -60,8 +87,9 @@ export default function Profile(props) {
         async function getItems() {
             let json = null;
 
-            if (props.id != null) {
+            if (props.id != null && props.id != currUserID) {
                 json = await getUserInfo(props.id);
+                if (!json) navigate("/profile_error", { replace: true })
             }
 
             if (json != null) {
@@ -86,7 +114,7 @@ export default function Profile(props) {
 
 
     const addExpense = () => {
-        setModal(<NewExpense profile={true} />);
+        pushModal(<NewExpense profile={true} />);
     }
 
     let text = debt < 0 ? "Owes You" : "You Owe";
@@ -97,12 +125,12 @@ export default function Profile(props) {
         <View style={{ flexDirection: 'row', height: '100%', flex: 1}}>
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
-                    <View style={globals.styles.listIconAndTextContainer}>
+                    <View style={{ flexDirection: 'row' }}>
                         <Image
-                            style={[globals.styles.listIcon, { width: '3em', height: '3em' }]}
+                            style={{ ...globals.styles.listIcon, ...{ width: '3em', height: '3em' }}}
                             source={iconPath !== null ? decodeURI(iconPath) : globals.getDefaultUserIcon(username)}
                         />
-                        <Text style={[globals.styles.h1, styles.groupName]}>{username}</Text>
+                        <Text style={{ ...globals.styles.h1, ...styles.groupName}}>{username}</Text>
                         
                     </View>
                     <FriendInteractionButtons
@@ -115,47 +143,39 @@ export default function Profile(props) {
                         onAddFriend={verifyAddFriend}
                     />
                 </View>
-                <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, styles.listTitle]}>Email</Text>
-                    <View style={styles.listHeader} >
-
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600', paddingBottom: '1.5em' }}>{email}</Text>
-
-                    </View>
+                <View style={globals.styles.listContainer}>
+                    <Text style={globals.styles.listTitle}>Email</Text>
+                    <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600', paddingBottom: '1.5em' }}>{email}</Text>                    
                 </View>
 
-                <View style={styles.listContainer}>
-                    <Text style={[globals.styles.h3, styles.listTitle]}>Groups in Common</Text>
-                    <View style={styles.listHeader} >
-
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>GROUP NAME</Text>
-
-                    </View>
-                    <View style={[globals.styles.list, { marginTop: '.25em', width: '100%', marginBottom: '1em' }]}>
+                <View style={globals.styles.listContainer}>
+                    <Text style={globals.styles.listTitle}>Groups in Common</Text>
+                   
+                    <View style={{ ...globals.styles.list, ...{ gridTemplateColumns : '100%', marginTop: '.25em', width: '100%', marginBottom: '1em' } }}>
+                        <Text style={globals.styles.smallListHeader}>GROUP NAME</Text>
                         {groups}
                     </View>
                 </View>
 
-                <View style={styles.listContainer}>
+                <View style={globals.styles.listContainer}>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <Text style={[globals.styles.h3, styles.listTitle]}>Transactions in Common</Text>
+                        <Text style={globals.styles.listTitle}>Transactions in Common</Text>
                         <View style={{ flexDirection: 'row' }}>
-                            <View style={{ width: 'auto', paddingRight: '.5em', marginTop: '.45em', minWidth: '5em', alignItems: 'center' }}>
-                                <Text style={[globals.styles.listText, { fontSize: '.66em' }, color]}>{text}</Text>
-                                <Text style={[globals.styles.listText, color]}>${Math.abs(debt / 100).toFixed(2)}</Text>
+                            <View style={{ width: 'auto', paddingRight: '.5em', margin: 'auto 0', minWidth: '5em', alignItems: 'center' }}>
+                                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
+                                <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(debt / 100).toFixed(2)}</Text>
                             </View>
-                            <Button style={[globals.styles.formButton, { width: '10em', margin: 0, marginTop: '.45em', marginRight: '.75em' }]} label='+ NEW EXPENSE' onClick={addExpense} />
+                            <Button id="profile_newExpense" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={addExpense} >
+                                <label htmlFor="profile_newExpense" style={globals.styles.buttonLabel}>
+                                    + NEW EXPENSE
+                                </label>
+                            </Button>
                         </View>
-                        
                     </View>
                     
-                    <View style={styles.listHeader} >
-
-                        <Text style={{ color: globals.COLOR_GRAY, paddingLeft: '2em', fontWeight: '600' }}>TRANSACTION</Text>
-                        <Text style={{ color: globals.COLOR_GRAY, paddingRight: '2em' }}>DATE</Text>
-
-                    </View>
-                    <View style={[globals.styles.list, { marginTop: '.25em', width: '100%', marginBottom: '1em' }]}>
+                    <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' } }}>
+                        <Text style={globals.styles.smallListHeader}>TRANSACTION</Text>
+                        <Text style={{ ...globals.styles.smallListHeader, ...{ alignItems: 'flex-end' } }}>DATE</Text>
                         {transactions}
                     </View>
 
@@ -171,57 +191,82 @@ function FriendInteractionButtons({isFriend, isPendingFriend, friendRequestCanAp
     // this must be called after all other state variables have been set
     if (isFriend) {
         // users are friends, only option is to not be friends
-        return (<Button
-            style={[globals.styles.formButton, { width: '15em', margin: 0, marginTop: '.25em' }]}
-            svg={UnfriendIcon}
-            iconStyle={styles.icon}
-            label={'UNFRIEND'}
-            onClick={onUnfriend}
-        />);
+        return (
+            <Button
+                    id="friend_unfriend"
+                    style={{ ...globals.styles.formButton, ...{ width: '15em', margin: '.25em 0 0 0' }}}
+                    onClick={onUnfriend}>
+
+                    <SVGIcon src={UnfriendIcon} style={styles.icon} />
+                    <label htmlFor="friend_unfriend" style={globals.styles.buttonLabel}>
+                        UNFRIEND
+                    </label>
+
+            </Button>
+
+          );
     }
     else if (isPendingFriend) {
         // pending friend request
         if (friendRequestCanApprove) {
             // friend request has been sent to this user, options are to accept to reject request
             return (
-                <View>
+                <>
                     <Button
-                        style={[globals.styles.formButton, styles.friendInteractionButton]}
-                        svg={DenySvg}
-                        iconStyle={styles.icon}
-                        label={'REJECT FRIEND REQUEST'}
-                        onClick={() => unAcceptRejectFriend(false)}
-                    />
+                        id="friend_rejectRequest"
+                        style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
+                        onClick={() => unAcceptRejectFriend(false)}>
+
+                        <SVGIcon src={DenySvg} style={styles.icon} />
+                        <label htmlFor="friend_rejectRequest" style={globals.styles.buttonLabel}>
+                           REJECT FRIEND REQUEST
+                        </label>
+
+                    </Button>
                     <Button
-                        style={[globals.styles.formButton, styles.friendInteractionButton]}
-                        svg={ApproveSvg}
-                        iconStyle={styles.icon}
-                        label={'ACCEPT FRIEND REQUEST'}
-                        onClick={() => unAcceptRejectFriend(true)}
-                    />
-                </View>
+                        id="friend_acceptRequest"
+                        style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
+                        onClick={() => unAcceptRejectFriend(true)}>
+
+                        <SVGIcon src={ApproveSvg} style={styles.icon} />
+                        <label htmlFor="friend_acceptRequest" style={globals.styles.buttonLabel}>
+                            ACCEPT FRIEND REQUEST
+                        </label>
+                    </Button>
+                </>
             );
         }
         else {
             // friend request was sent by the current user, option is to cancel it
-            return (<Button
-                style={[globals.styles.formButton, styles.friendInteractionButton]}
-                svg={DenySvg}
-                iconStyle={styles.icon}
-                label={'CANCEL FRIEND REQUEST'}
-                onClick={onCancelFriend}
-            />);
+            return (
+                <Button
+                    id="friend_cancelRequest"
+                    style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
+                    onClick={onCancelFriend}>
+
+                    <SVGIcon src={DenySvg} style={styles.icon} />
+                    <label htmlFor="friend_cancelRequest" style={globals.styles.buttonLabel}>
+                        CANCEL FRIEND REQUEST
+                    </label>
+
+                </Button>
+            );
+               
         }
     }
     else {
         // no pending friend request, only option is to send friend request
-        return (<Button
-            style={[globals.styles.formButton, styles.friendInteractionButton]}
-            svg={AddFriendSvg}
-            iconStyle={styles.icon}
-            label={'ADD FRIEND'}
-            onClick={onAddFriend}
-        />);
+         return (
+            <Button
+                id="friend_add"
+                style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
+                onClick={onAddFriend}>
+                <SVGIcon src={AddFriendSvg} style={styles.icon} />
+                <label htmlFor="friend_add" style={globals.styles.buttonLabel}>
+                    ADD FRIEND
+                </label>
+            </Button>
+         );
     }
 }
 
@@ -243,7 +288,6 @@ function getTransactionList(transactionsJSON) {
         outputList.push(
             <TransactionListItem
                 key={i}
-                border={i > 0}
                 name={transactionsJSON[i].name}
                 id={transactionsJSON[i].transaction_id}
                 date={transactionsJSON[i].date}
@@ -256,87 +300,68 @@ function getTransactionList(transactionsJSON) {
     return outputList;
 }
 
-function GroupListItem({ id, name, icon_path, border }) {
+function GroupListItem({ id, name, icon_path }) {
     return (
 
-        <Link href={'/groups/' + id} asChild>
-            <View style={border ? globals.styles.listItemSeperator : globals.styles.listItem} >
-                <View style={globals.styles.listIconAndTextContainer}>
-                    <Image
-                        style={[globals.styles.listIcon, { marginLeft: '.75em', width: '2.5em', height: '2.5em'}]}
-                        source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultGroupIcon(name)}
-                    />
-                    <Text style={[globals.styles.listText, {paddingLeft: '.25em'}]}>{name}</Text>
-                </View>
-            </View>
+        <Link to={'/groups/' + id} style={globals.styles.listItemRow}>
+            
+            <Image
+                style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em'}}}
+                source={icon_path !== null ? decodeURI(icon_path) : globals.getDefaultGroupIcon(name)}
+            />
+            <Text style={{ ...globals.styles.listText, ...{paddingLeft: '.25em'}}}>{name}</Text>
+            
         </Link>
 
     );
 }
 
-function TransactionListItem({ id, name, date, user_debt, border, isApproved }) {
+function TransactionListItem({ id, name, date, user_debt, isApproved }) {
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     // let text = user_debt >= 0 ? "Borrowed" : "Paid";
     // let color = user_debt >= 0 ? { color: globals.COLOR_ORANGE } : { color: globals.COLOR_BLUE };
     let pendingItalic = isApproved == 0 ? { fontStyle: 'italic' } : {};
 
     const viewTransaction = () => {
-        setModal(<TransactionInfo id={id} />);
+        pushModal(<TransactionInfo id={id} />);
     }
 
     return (
 
-        <View style={[border ? globals.styles.listItemSeperator : globals.styles.listItem, {cursor:'pointer'}]} onClick={viewTransaction} >
-
-            <Text style={[globals.styles.listText, pendingItalic]}>{name}</Text>
-            <Text style={globals.styles.listText}>{date}</Text>
-
-        </View>
+      <>
+            <Text
+                style={{ ...globals.styles.listItemRow, ...globals.styles.listText, ...pendingItalic, ...{ cursor: 'pointer', minHeight: '2.5em' } }}
+                onClick={viewTransaction}>
+                {name}
+            </Text>
+            <Text
+                style={{ ...globals.styles.listItemRow, ...globals.styles.listText, ...{ cursor: 'pointer', justifyContent: 'flex-end' } }}
+                onClick={viewTransaction}>
+                {date}
+            </Text>
+      
+      </>
 
     );
 }
 
 
-const styles = StyleSheet.create({
+const styles = {
     groupName: {
         color: globals.COLOR_GRAY,
         borderRadius: 2,
         padding: 0,
         paddingBottom: '.25em',
-        marginHorizontal: '.5em',
+        margin: '0 .5em',
         fontWeight: 500
     },
     groupInfo: {
         flex: 1,
         width: 'auto',
-        marginTop: '1em',
-        marginHorizontal: `min(5em, 5vw)`,
-        paddingVertical: '2.5em',
-        paddingHorizontal: `min(2.5em, 2.5vw)`
-    },
-    listContainer: {
-        height: 'auto',
-        marginTop: '2em',
-        boxShadow: '0px 0px 5px 5px #eee',
-        borderRadius: '1em',
-        backgroundColor: globals.COLOR_WHITE
-    },
-    listTitle: {
-        color: globals.COLOR_GRAY,
-        fontWeight: 600,
-        paddingLeft: '1em',
-        paddingBottom: '1.5em'
-    },
-    listHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        borderStyle: 'none',
-        borderBottomStyle: 'solid',
-        borderWidth: '1px',
-        borderColor: '#eee',
-        paddingBottom: '.5em'
+        margin: `1em min(5em, 5vw)`,
+        padding: '2.5em min(2.5em, 2.5vw)',
     },
     icon: {
         fill: globals.COLOR_WHITE,
@@ -347,4 +372,5 @@ const styles = StyleSheet.create({
         margin: 0,
         marginTop: '.25em'
     }
-});
+
+};

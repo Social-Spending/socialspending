@@ -1,6 +1,6 @@
 import * as globals from '../utils/globals.js'
 
-import { Text, View, Image } from 'react-native';
+import { Text, View, Image } from '../utils/globals.js';
 import { useState, useEffect, useContext } from 'react';
 
 import NewFriend from '../modals/NewFriend.js';
@@ -20,7 +20,7 @@ import { getFriends } from '../utils/friends.js';
  */
 export default function SidebarFriendList(props) {
     let [friendItems, setFriendItems] = useState(null);
-    let setModal = useContext(ModalContext);
+    let { pushModal, popModal } = useContext(ModalContext);
     const {reRenderCount} = useContext(GlobalContext);
 
     useEffect(() => {
@@ -35,7 +35,7 @@ export default function SidebarFriendList(props) {
     }, [reRenderCount]);
 
     const addFriendModal = () => {
-        setModal(<NewFriend />);
+        pushModal(<NewFriend />);
     }
 
     if (friendItems === null) {
@@ -49,11 +49,13 @@ export default function SidebarFriendList(props) {
         return (
             <>
                 {friendItems}
-                <Button style={{ height: '2em' }} textStyle={{ color: globals.COLOR_GRAY }} label="+ Add Friend" onClick={addFriendModal} />
+                <Button id="sidebar_addFriend" style={{ height: '2em' }} onClick={addFriendModal} >
+                    <label htmlFor="sidebar_addFriend" style={{ ...globals.styles.h5, ...{ cursor: 'pointer', color: globals.COLOR_GRAY } }}>
+                        + Add Friend
+                    </label>
+                </Button>
             </>
-
         );
-
     }
 }
 
@@ -63,15 +65,16 @@ function SidebarFriendListItems(props) {
     let pendingItalic = props.isPending == 1 ? { fontStyle: 'italic' } : {};
 
     return (
-        <View style={[props.border ? globals.styles.listItemSeperator : globals.styles.listItem, {cursor: 'pointer'}]} onClick={() => props.setFriendID(props.id)} >
-            <View style={globals.styles.listIconAndTextContainer}>
+        <Button id={"sidebar_friend_" + props.name} style={{ ...globals.styles.sidebarListItem, ...{ padding: 0 } }} onClick={() => props.setFriendID(props.id) }>
+            <View style={{...globals.styles.sidebarListItem, ...{padding: '.25em 1em'}} }>
                 <Image
-                    style={[globals.styles.listIcon, { width: '1.25em', height: '1.25em'}]}
+                    style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em'}}}
                     source={props.icon_path !== null ? decodeURI(props.icon_path) : globals.getDefaultUserIcon(props.name)}
                 />
-                <Text style={[globals.styles.listText, pendingItalic]}>{props.name}</Text>
+                <label htmlFor={"sidebar_friend_" + props.name} style={{ ...globals.styles.listText, ...pendingItalic, ...{ paddingLeft: '.25em' }}}>{props.name}</label>
             </View>
-        </View>
+        </Button>
+        
     );
 }
 
@@ -89,7 +92,6 @@ async function buildSidebarFriendListItems(friendID, setFriendID)
 
         friendList.push(<SidebarFriendListItems
             key={i}
-            border={i > 0}
             name={friendJSON[i].username}
             id={friendJSON[i].user_id}
             icon_path={friendJSON[i].icon_path}

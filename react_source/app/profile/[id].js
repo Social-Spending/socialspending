@@ -1,28 +1,36 @@
 import * as globals from '../../utils/globals.js';
 
-import { useLocalSearchParams, router } from 'expo-router';
-import { useContext } from 'react';
+
+import { useContext, useEffect } from 'react';
 
 import Base from '../../components/Base.js';
 
 import WaitForAuth from '../../components/WaitForAuth.js';
 import Profile from '../../components/Profile.js';
 import { GlobalContext } from '../../components/GlobalContext.js';
+import { useNavigate, useParams } from 'react-router-dom/dist/index.js';
 
 
 export default function Page() {
-    const slug = useLocalSearchParams();
+    const slug = useParams();
 
     const { currUserID, isLoading } = useContext(GlobalContext);
 
-    if (!isLoading && slug.id == currUserID) {
-        router.replace('/profile');
-        return;
-    }
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!isLoading && slug.id == currUserID) {
+            navigate('/profile', { replace: true });
+            return;
+        }
+
+    }, [isLoading, slug.id]);
+
+    
 
     return (
-        <Base style={[globals.styles.container, { justifyContent: 'flex-start', alignItems: 'flex-start' }]}>
-           <WaitForAuth redirectOnNotLoggedIn={'/login?origin=profile/'+slug.id}>
+        <Base style={{ ...globals.styles.container, ...{ justifyContent: 'flex-start', alignItems: 'flex-start' }}}>
+           <WaitForAuth redirectOnNotLoggedIn={'/login?origin=profile/' + slug.id}>
                 <Profile id={slug.id} />
            </WaitForAuth>
         </Base>

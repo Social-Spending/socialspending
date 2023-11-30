@@ -2,7 +2,7 @@
 
 call npm install
 
-call npx expo export -p web
+call npm run export
 
 if errorlevel 0 goto move
 echo !!An Error Occurred During Compile!!

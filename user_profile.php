@@ -95,6 +95,7 @@
 include_once('templates/connection.php');
 include_once('templates/cookies.php');
 include_once('templates/jsonMessage.php');
+include_once('templates/userValidation.php');
 
 function handleGET()
 {
@@ -323,6 +324,10 @@ function handlePOST()
 
     if (isset($_POST["username"]) && $_POST["username"] != "") {
         $newUsername = $_POST["username"];
+        // check that username is valid
+        if (checkUsername($newUsername)) {
+            returnMessage('Username is invalid', 400);
+        }
 
         $sql = "SELECT * FROM users WHERE username = ?";
         $result = $mysqli->execute_query($sql, [$newUsername]);
@@ -350,6 +355,10 @@ function handlePOST()
 
     if (isset($_POST["email"]) && $_POST["email"] != "") {
         $newEmail = $_POST["email"];
+        // check that email is valid
+        if (checkEmail($newEmail)) {
+            returnMessage('Email is invalid', 400);
+        }
 
         $sql = "SELECT * FROM users WHERE email = ?";
         $result = $mysqli->execute_query($sql, [$newEmail]);
@@ -377,6 +386,10 @@ function handlePOST()
 
     if (isset($_POST["password"]) && $_POST["password"] != "") {
         $newPassword = $_POST["password"];
+        // check that password is valid
+        if (checkPassword($newPassword)) {
+            returnMessage('Password is invalid', 400);
+        }
         $newPasswordHash = password_hash($newPassword, PASSWORD_BCRYPT);
 
         $sql = "UPDATE users SET pass_hash = ? WHERE user_id = ?;";

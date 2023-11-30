@@ -1,7 +1,6 @@
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image, Modal } from 'react-native';
-import { router } from "expo-router";
+import { Text, View, Image, Modal } from '../utils/globals.js';
 import { useRef, useState, createContext, useContext, useEffect } from 'react';
 
 import { getSettleUpCandidatesList } from "../utils/settleUp.js";
@@ -56,7 +55,7 @@ export default function SettleUp(props) {
 
     const errorMessageRef = useRef(null);
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     function handleChildClick(e) {
         e.stopPropagation();
@@ -77,14 +76,14 @@ export default function SettleUp(props) {
             <Modal
                 transparent={true}
                 visible={true}
-                onRequestClose={() => setModal(null)}>
+                onRequestClose={() => popModal()}>
 
-                <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+                <View style={{...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                     <View style={styles.create} onClick={handleChildClick}>
 
                         <Image source={Logo} style={styles.logo} />
 
-                        <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>SETTLE UP</Text>
+                        <Text style={{...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>SETTLE UP</Text>
 
                         <Text ref={errorMessageRef} id='settleUp_errorMessage' style={globals.styles.error}></Text>
                         
@@ -116,7 +115,7 @@ function SelectCandidate() {
         formData:       [formData   , setFormData]
     } = useContext(SettleUpContext);
 
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
     useEffect(() => {
         async function getSettleUpCandidates(targetID) {
@@ -127,17 +126,21 @@ function SelectCandidate() {
 
 
     return (
-        <View style={[styles.pageContainer, {
+        <View style={{...styles.pageContainer, ...{
             display: pageNum != PAGES.SELECT_CANDIDATE ? 'none' : 'inherit'
-        }]}>
-            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Who would you like to pay?</Text>
+        }}}>
+            <Text style={{...globals.styles.text, ...{ paddingTop: '1em' }}}>Who would you like to pay?</Text>
 
-            <View style={[globals.styles.list, { alignItems: 'center', justifyContent: 'center', width: '75%' }]} >
+            <View style={{...globals.styles.list, ...{ alignItems: 'center', justifyContent: 'center', width: '75%' }}} >
                 {candidates}
             </View>
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button  style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Cancel' onClick={() => setModal(null)} />
+                <Button  style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '33%' }}} id='settleUpModal_cancel' onClick={() => popModal()}>
+                    <label htmlFor="settleUpModal_cancel" style={globals.styles.buttonLabel }>
+                        Cancel
+                    </label>
+                </Button>
             </View>
         </View>
     );
@@ -149,7 +152,7 @@ function SelectCandidate() {
  */
 function ConfirmSettleUp() {
 
-    const setModal = useContext(ModalContext);
+    const { popModal } = useContext(ModalContext);
     const {reRender} = useContext(GlobalContext);
 
     let {
@@ -170,7 +173,7 @@ function ConfirmSettleUp() {
         setFormData(formData);
 
         if (await submitForm(formData, errorRef)) {
-            setModal(null);
+            popModal();
             reRender();
         }
 
@@ -178,21 +181,29 @@ function ConfirmSettleUp() {
     
 
     return (
-        <View style={[styles.pageContainer, {
+        <View style={{...styles.pageContainer, ...{
             display: pageNum != PAGES.CONFIRM_SETTLE_UP ? 'none' : 'inherit'
-        }]}>
-            <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Verify Transaction Details</Text>
+        }}}>
+            <Text style={{...globals.styles.text, ...{ paddingTop: '1em' }}}>Verify Transaction Details</Text>
                 
             <View style={{width: '75%', justifyContent: 'space-between', flexDirection: 'row' }}>
-                <Text style={[globals.styles.label, globals.styles.h4, { padding: 0 }]}>You Owe {candidateJSON[candidateIndex].username} </Text>
-                <Text style={[globals.styles.label, globals.styles.h4, { padding: 0 }]}>${(candidateJSON[candidateIndex].amount / 100).toFixed(2)}</Text>
+                <Text style={{...globals.styles.label, ...globals.styles.h4, ...{ padding: 0 }}}>You Owe {candidateJSON[candidateIndex].username} </Text>
+                <Text style={{...globals.styles.label, ...globals.styles.h4, ...{ padding: 0 }}}>${(candidateJSON[candidateIndex].amount / 100).toFixed(2)}</Text>
             </View>
            
 
       
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Back' onClick={() => setPageNum(PAGES.SELECT_CANDIDATE)} />
-                <Button style={[globals.styles.formButton, { margin: 0, marginVertical: '1em', width: '33%' }]} label='Confirm' onClick={onSubmit} />
+                <Button style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '33%' }}} id='confirmSettleUpModal_back' onClick={() => setPageNum(PAGES.SELECT_CANDIDATE)}>
+                    <label htmlFor="confirmSettleUpModal_back" style={globals.styles.buttonLabel }>
+                        Back
+                    </label>
+                </Button>
+                <Button style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '33%' }}} id='confirmSettleUpModal_confirm' onClick={onSubmit}>
+                    <label htmlFor="confirmSettleUpModal_confirm" style={globals.styles.buttonLabel }>
+                        Confirm
+                    </label>
+                </Button>
             </View>
         </View>
     );
@@ -217,11 +228,15 @@ async function buildCandidates(targetID, setJSON, setID, setPage) {
     setJSON(candidates);
 
     for (let i = 0; i < candidates.length; i++) {
-        outputList.push(<Button style={[globals.styles.formButton, { width: '100%', margin: 0, marginVertical: '.5em' }]} label={candidates[i].username} onClick={
+        outputList.push(<Button key={i} style={{...globals.styles.formButton, ...{ width: '100%', margin: 0, marginVertical: '.5em' }}} id={'settleUpModal_option'+i} onClick={
             () => { 
                 setID(i);
                 setPage(PAGES.CONFIRM_SETTLE_UP);
-                }} />);
+                }}>
+                <label htmlFor={'settleUpModal_option'+i} style={globals.styles.buttonLabel }>
+                    {candidates[i].username}
+                </label>
+                    </Button>);
     }
 
     return outputList;
@@ -263,7 +278,7 @@ async function submitForm(formData, errorRef) {
    return false;
 }
 
-const styles = StyleSheet.create({
+const styles = {
     create: {
         minHeight: '25em',
         height: 'auto',
@@ -297,4 +312,4 @@ const styles = StyleSheet.create({
         borderRadius: 1,
         marginTop: '1em'
     }
-});
+};

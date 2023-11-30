@@ -15,14 +15,7 @@ POST Request
 */
 if (str_contains($_SERVER["REQUEST_URI"], "notifications.php")) {
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
-        //Check if user_id and a notification type were passed
-        if (isset($_GET["type"])) {
-            getNotifications($_GET["type"]);
-        }
-        //No other valid GET requests, fail out
-        else {
-            returnMessage("Notification type not given", HTTP_BAD_REQUEST);
-        }
+        handleGET();
     }
     elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
         $body = file_get_contents("php://input");
@@ -34,39 +27,27 @@ if (str_contains($_SERVER["REQUEST_URI"], "notifications.php")) {
         }
         //No other valid POST requests, fail out
         else {
-            returnMessage("Operation and/or notification_id not not given or invalid", HTTP_BAD_REQUEST);
+            returnMessage("Operation and/or notification_id not given or invalid", HTTP_BAD_REQUEST);
         }
     }
 } 
 
-/*
-Selects the proper notifications to be returned
-    - type = "friend_request", "approval_request", or "approved_transaction"
-*/
-function getNotifications($type) {
-    //Get the user ID from the cookie
+function handleGET() {
     $user_id = intval(validateSessionID());
     if ($user_id === 0) {
         returnMessage("Valid session not found for user", HTTP_UNAUTHORIZED);
     }
 
-	switch ($type) {
-		case "friend_request":
-			getFriendRequests($user_id);
-			break;
-		case "transaction_approval":
-			getApprovalRequests($user_id);
-			break;
-		case "complete_transaction":
-			getApprovedTransactions($user_id);
-			break;
-        case "group_invite":
-            getGroupInvites($user_id);
-            break;
-		default:
-            returnMessage($type . " is not a valid notification type", HTTP_BAD_REQUEST);
-			break;
-	}
+    $response = ["friend_requests" => getFriendRequests($user_id),
+                "transaction_approvals" => getApprovalRequests($user_id),
+                "completed_transactions" => getApprovedTransactions($user_id),
+                "group_invites" => getGroupInvites($user_id)
+                ];
+
+    $json_data = json_encode($response);
+    header('Content-Type: application/json');
+    echo $json_data;
+    http_response_code(HTTP_OK);
 }
 
 /*
@@ -81,7 +62,8 @@ function getFriendRequests($user_id) {
                     users.user_id AS friend_id
             FROM notifications
             LEFT JOIN users ON users.user_id = notifications.friend_request_user_id
-            WHERE notifications.user_id=? AND notifications.type=\"friend_request\"";
+            WHERE notifications.user_id=? AND notifications.type=\"friend_request\"
+            ORDER BY notifications.notification_timestamp DESC";
 
     $friend_requests = $mysqli->execute_query($sql, [$user_id]);
 
@@ -91,11 +73,7 @@ function getFriendRequests($user_id) {
         array_push($friend_requests_array, $friend_requests->fetch_assoc());
     }
 
-    //Send response
-    $json_data = json_encode($friend_requests_array);
-    header('Content-Type: application/json');
-    echo $json_data;
-    http_response_code(HTTP_OK);
+    return $friend_requests_array;
 }
 
 /*
@@ -110,7 +88,8 @@ function getApprovalRequests($user_id) {
                     transactions.transaction_id AS transaction_id
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
-            WHERE notifications.user_id=? AND notifications.type=\"approval_request\"";
+            WHERE notifications.user_id=? AND notifications.type=\"approval_request\"
+            ORDER BY notifications.notification_timestamp DESC";
 
     $approval_requests = $mysqli->execute_query($sql, [$user_id]);
 
@@ -119,10 +98,7 @@ function getApprovalRequests($user_id) {
         array_push($approval_requests_array, $approval_requests->fetch_assoc());
     }
 
-    $json_data = json_encode($approval_requests_array);
-    header('Content-Type: application/json');
-    echo $json_data;
-    http_response_code(HTTP_OK);
+    return $approval_requests_array;
 }
 
 /*
@@ -137,7 +113,8 @@ function getApprovedTransactions($user_id) {
                     transactions.transaction_id AS transaction_id
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
-            WHERE notifications.user_id=? AND notifications.type=\"approved_transaction\"";
+            WHERE notifications.user_id=? AND notifications.type=\"approved_transaction\"
+            ORDER BY notifications.notification_timestamp DESC";
 
     $approved_transactions = $mysqli->execute_query($sql, [$user_id]);
 
@@ -146,10 +123,7 @@ function getApprovedTransactions($user_id) {
         array_push($approved_transactions_array, $approved_transactions->fetch_assoc());
     }
 
-    $json_data = json_encode($approved_transactions_array);
-    header('Content-Type: application/json');
-    echo $json_data;
-    http_response_code(HTTP_OK);
+    return $approved_transactions_array;
 }
 
 /*
@@ -164,7 +138,8 @@ function getGroupInvites($user_id) {
                     n.group_id AS group_id
             FROM notifications n
             JOIN groups g ON g.group_id = n.group_id
-            WHERE n.user_id = ? AND n.type = 'group_invite';";
+            WHERE n.user_id = ? AND n.type = 'group_invite'
+            ORDER BY n.notification_timestamp DESC";
 
     $results = $mysqli->execute_query($sql, [$user_id]);
     // check if failure
@@ -179,10 +154,7 @@ function getGroupInvites($user_id) {
         array_push($group_invites_array, $row);
     }
 
-    $json_data = json_encode($group_invites_array);
-    header('Content-Type: application/json');
-    echo $json_data;
-    http_response_code(HTTP_OK);
+    return $group_invites_array;    
 }
 
 /*
@@ -242,17 +214,13 @@ function dismissNotification($notification_id)
             WHERE notification_id = ? AND user_id = ?;";
     $response = $mysqli->execute_query($sql, [$notification_id, $user_id]);
 
-    if (!$response)
-    {
-        http_response_code(HTTP_INTERNAL_SERVER_ERROR);
+    if (!$response) {
+        returnMessage("Could not contact database", HTTP_INTERNAL_SERVER_ERROR);
+    } else if ($mysqli->affected_rows == 0) {
+        returnMessage("Could not remove notification", HTTP_NOT_FOUND);
+    } else {
+        returnMessage("Success", HTTP_OK);
     }
-
-    if ($mysqli->affected_rows == 0)
-    {
-        http_response_code(HTTP_NOT_FOUND);
-    }
-
-    http_response_code(HTTP_OK);
 }
 
 ?>

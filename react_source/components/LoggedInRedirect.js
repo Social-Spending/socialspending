@@ -1,6 +1,7 @@
-import { router } from 'expo-router';
-import { useContext } from 'react';
+
+import { useContext, useEffect } from 'react';
 import { GlobalContext } from './GlobalContext.js';
+import { useNavigate } from 'react-router-dom/dist/index.js';
 
 // component will redirect based on isLoggedIn in global context
 // will wait for user info to be valid to decide on redirect
@@ -8,13 +9,19 @@ import { GlobalContext } from './GlobalContext.js';
 //      if isLoggedIn == ifLoggedIn
 export default function LoggedInRedirect({ifLoggedIn, target}) {
     // get isLoggedIn from global context
-    const {isLoading, isLoggedIn} = useContext(GlobalContext);
+    const { isLoading, isLoggedIn } = useContext(GlobalContext);
 
+    let navigate = useNavigate();
+
+    useEffect(() => {
     // waiting to get user info
-    if (!isLoading) {
-        // we have user info, should we redirect?
-        if (isLoggedIn == ifLoggedIn) {
-            router.replace(target);
+        if (!isLoading) {
+            // we have user info, should we redirect?
+            if (isLoggedIn == ifLoggedIn) {
+           
+                    navigate(target, { replace: true });
+           
+            }
         }
-    }
+    }, [isLoading]);
 }

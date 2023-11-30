@@ -1,6 +1,6 @@
 #! /bin/bash
 
-npx --yes expo export -p web
+npm --yes run export
 RV=$?
 if [ "${RV}" -eq "0" ]
 then
