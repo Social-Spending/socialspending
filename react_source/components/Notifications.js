@@ -290,12 +290,16 @@ function CompletedTransaction(props) {
 */
 function GroupInvite(props) {
     const {removeNotif} = useContext(NotificationContext);
-    const {reRender} = useContext(GlobalContext);
+    const { reRender } = useContext(GlobalContext);
     const { pushModal, popModal } = useContext(ModalContext);
+    const navigate = useNavigate();
 
+    const reDirectOnAccept = () => {
+        navigate('/groups/' + props.group_id);
+    }
 
     const approve = (accept) => {
-        pushModal(<VerifyAction label={"Are you sure you want to " + (accept ? "join " : "ignore invite to ") + props.name + "?"} accept={() => { approveGroupInvite(props.id, accept, removeNotif, reRender); popModal(); }} />);
+        pushModal(<VerifyAction label={"Are you sure you want to " + (accept ? "join " : "ignore invite to ") + props.name + "?"} accept={() => { approveGroupInvite(props.id, accept, removeNotif, reRender, reDirectOnAccept); popModal(); }} />);
     }
 
     return (
@@ -310,9 +314,6 @@ function GroupInvite(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => navigate("/groups/" + props.group_id)} >
-                    <SVGIcon src={DetailsSvg} style={{ fill: globals.COLOR_GRAY, width: '1.5em' }} />
-                </Button>
                 <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(true)} >
                     <SVGIcon src={ApproveSvg} style={{ fill: globals.COLOR_BLUE, width: '2em' }} />
                 </Button>
@@ -354,7 +355,8 @@ async function approveTransaction(trans_id, id, approved, removeNotif, reRender)
     
 }
 
-async function approveGroupInvite(notification_id, accept, removeNotif, reRender) {
+async function approveGroupInvite(notification_id, accept, removeNotif, reRender, reDirect) {
+
     // 'operation' values are defined by groups.php backend api
     let payload = {
         'notification_id': notification_id,
@@ -375,7 +377,13 @@ async function approveGroupInvite(notification_id, accept, removeNotif, reRender
         if (await response.ok) {
             // remove notification and re-render the group page
             removeNotif('group_invite', notification_id);
-            reRender();
+            // if new group was accepted, switch to that group's page
+            if (accept) {
+                reDirect();
+            }
+            else {
+                reRender();
+            }
         }
         else {
             // failed, display error message returned by server
