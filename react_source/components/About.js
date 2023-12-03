@@ -8,7 +8,13 @@ export default function Contact() {
 			<Text style={styles.aboutText}>
 				Social Spending was created as a project for CMSC 447 at UMBC.
 			</Text>
-			<Text style={styles.aboutText}>Test</Text>
+			<Text style={styles.aboutText}>
+				Social Spending aims to improve upon other ledger software, such as Splitwise.
+				These apps allow people to keep track of shared expenses between individuals or groups,
+				then later pay back their creditors.
+                Social Spending is different in the way that we allow users to pay their creditor's creditor directly.
+                The effect this has is reducing the number of transactions for some individuals, as well as reducing the amount owed for others.
+			</Text>
         </View>
     );
 }
