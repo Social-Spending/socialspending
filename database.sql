@@ -150,3 +150,14 @@ UPDATE transactions SET group_id=1 WHERE transaction_id=1;
 UPDATE transactions SET group_id=2 WHERE transaction_id=2;
 UPDATE transactions SET group_id=1 WHERE transaction_id=3;
 
+/* Enable event scheduling (automatic query execution, cron-esque*/
+SET GLOBAL event_scheduler = ON;
+
+/* Delete Expired Cookies every 12 hours*/
+DROP EVENT IF EXISTS DeleteExpiredCookies;
+
+CREATE EVENT DeleteExpiredCookies
+ON SCHEDULE EVERY 12 HOUR
+DO
+	DELETE FROM `cookies`
+	WHERE NOW() > 'expiration_date'; 
