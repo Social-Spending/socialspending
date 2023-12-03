@@ -190,7 +190,7 @@ function FriendRequest(props) {
                 
             </View>
             <View style={styles.buttonContainer}>
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => navigate("/profile/" + props.username)} >
+                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => navigate("/profile/" + props.name)} >
                     <SVGIcon src={DetailsSvg} style={ {fill: globals.COLOR_GRAY, width: '1.5em' }}/>
                 </Button>
                 <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(true)} >

@@ -216,7 +216,7 @@ function FriendInteractionButtons({isFriend, isPendingFriend, friendRequestCanAp
         if (friendRequestCanApprove) {
             // friend request has been sent to this user, options are to accept to reject request
             return (
-                <>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'right',}}>
                     <Button
                         id="friend_rejectRequest"
                         style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
@@ -230,7 +230,7 @@ function FriendInteractionButtons({isFriend, isPendingFriend, friendRequestCanAp
                     </Button>
                     <Button
                         id="friend_acceptRequest"
-                        style={{ ...globals.styles.formButton, ...styles.friendInteractionButton }}
+                        style={{ ...globals.styles.formButton, ...styles.friendInteractionButton, marginLeft: '0.85em'}}
                         onClick={() => unAcceptRejectFriend(true)}>
 
                         <SVGIcon src={ApproveSvg} style={styles.icon} />
@@ -238,7 +238,7 @@ function FriendInteractionButtons({isFriend, isPendingFriend, friendRequestCanAp
                             ACCEPT FRIEND REQUEST
                         </label>
                     </Button>
-                </>
+                </View>
             );
         }
         else {
