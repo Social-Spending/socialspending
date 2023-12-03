@@ -27,10 +27,17 @@ export async function getFriends() {
 
 }
 
-export async function getUserInfo(id) {
+export async function getUserInfo(id=null, username=null) {
     // put user_id to search in URL param
     let payload = new URLSearchParams();
-    payload.append('user_id', id);
+    if (id != null)
+    {
+        payload.append('user_id', id);
+    }
+    if (username != null)
+    {
+        payload.append('user', username);
+    }
 
     // do the POST request
     try {

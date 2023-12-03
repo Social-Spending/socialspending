@@ -247,7 +247,7 @@ function MemberListItem({ id, name, owed, pending, group_id, icon_path }) {
 
     return (
         <>
-            <Link to={'/profile/' + id} style={globals.styles.listItemRow}>
+            <Link to={currUserID != id ? '/profile/' + name : '/profile'} style={globals.styles.listItemRow}>
                 
                 <Image
                     style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em' } }}
@@ -262,7 +262,7 @@ function MemberListItem({ id, name, owed, pending, group_id, icon_path }) {
                 }
                 
             </Link>
-            <Link to={'/profile/' + id} style={{
+            <Link to={currUserID != id ? '/profile/' + name : '/profile'} style={{
                 ...globals.styles.listItemColumn,
                 ...{ alignItems: 'flex-end' }
             }}>

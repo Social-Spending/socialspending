@@ -38,7 +38,7 @@ export default function Profile(props) {
     let [friendRequestCanApprove, setFriendRequestCanApprove] = useState(null);
 
     const { pushModal, popModal } = useContext(ModalContext);
-    const { reRenderCount, currUserID } = useContext(GlobalContext);
+    const { reRenderCount, currUserID, currUsername } = useContext(GlobalContext);
     const navigate = useNavigate();
 
 
@@ -89,7 +89,12 @@ export default function Profile(props) {
 
             if (props.id != null && props.id != currUserID) {
                 json = await getUserInfo(props.id);
-                if (!json) navigate("/profile_error", { replace: true })
+                if (!json) navigate("/notfound", { replace: true })
+            }
+
+            if (props.username != null && props.username != currUsername) {
+                json = await getUserInfo(null, props.username);
+                if (!json) navigate("/notfound", { replace: true })
             }
 
             if (json != null) {
@@ -107,8 +112,8 @@ export default function Profile(props) {
         }
         getItems();
 
-    }, [props.id, reRenderCount]);
-    if (props.id == null || username == null) {
+    }, [props.id, props.username, reRenderCount]);
+    if (username == null) {
         return (<></>);
     }
 
