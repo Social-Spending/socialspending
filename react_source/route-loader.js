@@ -84,6 +84,12 @@ function generateRoutes(routePath, path, keys, json, useLayout = keys.includes("
             routerJson = routerJson.concat(generateRoutes(routePath + "/" + keys[i], path + "_" + keys[i], Object.keys(json[keys[i]]), json[keys[i]]));
         }
     }
+
+    routerJson.push({
+        path: "*",
+        element: '/*__PURE__*/React.createElement(_app_notfound, null)'
+    })
+
     return routerJson;
 }
 //Generates import statements for a list of files in the given format:
