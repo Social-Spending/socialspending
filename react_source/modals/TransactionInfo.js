@@ -164,10 +164,10 @@ function ListItem({ id, name, owed, border, hasApproved }) {
 
     return (
         <>
-            <Link to={'/profile/' + id} style={{ ...globals.styles.listItemRow, ...globals.styles.listText, ...pendingItalic }}>
+            <Link to={'/profile/' + name} style={{ ...globals.styles.listItemRow, ...globals.styles.listText, ...pendingItalic }}>
                {name}
             </Link>
-            <Link to={'/profile/' + id} style={{
+            <Link to={'/profile/' + name} style={{
                 ...globals.styles.listItemColumn,
                 ...{ alignItems: 'flex-end' }
             }}>
