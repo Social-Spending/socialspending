@@ -278,12 +278,13 @@ function getTransactions($user_id)
                     transactions.date AS transaction_date,
                     transactions.description AS transaction_description,
                     transactions.group_id AS group_id,
-                    CASE WHEN COUNT(tp.user_id) = SUM(tp.has_approved)
+                    CASE WHEN COUNT(tp2.user_id) = SUM(tp2.has_approved)
                         THEN 1
                         ELSE 0
                     END AS is_approved
 
                 FROM transactions
+                JOIN transaction_participants tp2 ON tp2.transaction_id = transactions.transaction_id
                 JOIN transaction_participants tp ON tp.transaction_id = transactions.transaction_id
                 WHERE tp.user_id = ?
                 GROUP BY transaction_id";
