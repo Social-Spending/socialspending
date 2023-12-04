@@ -160,7 +160,7 @@ function Section(props) {
                     )
                 }
             </View>
-            <View style={{ ...styles.notifSection, ...open ? { maxHeight: '75vh' } : { maxHeight: 0, overflowY: 'hidden' }}}>
+            <View style={{ ...styles.notifSection, ...open ? { maxHeight: '25vh', overflowY: 'auto' } : { maxHeight: 0, overflowY: 'hidden' }}}>
                 {props.children}
             </View>
         </>
@@ -464,6 +464,8 @@ const styles = {
         transition: '500ms',
         borderWidth: 1,
         borderStyle: 'none',
+        overflowY: 'auto',
+        scrollbarWidth: 'thin'
     },
     notifSection: {
         transition: '500ms',
@@ -477,6 +479,7 @@ const styles = {
         flexDirection: 'row',
         marginTop: '.5em',
         marginBottom: '.5em',
+        minHeight: '2.5em'
     },
     buttonContainer: {
         flexDirection: 'row',
