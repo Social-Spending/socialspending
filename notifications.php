@@ -4,6 +4,7 @@ include_once("templates/connection.php");
 include_once("templates/cookies.php");
 include_once("templates/constants.php");
 include_once("templates/jsonMessage.php");
+include_once("templates/notificationHelpers.php");
 
 /*
 GET Request
@@ -155,43 +156,6 @@ function getGroupInvites($user_id) {
     }
 
     return $group_invites_array;    
-}
-
-/*
-Removes a notification from the database
-    - notification_id = ID of notification to remove from the DB
-*/
-function removeNotification($notification_id) {
-    global $mysqli;
-
-    $sql = "DELETE FROM notifications
-            WHERE notification_id = ?";
-
-    $mysqli->execute_query($sql, [$notification_id]);
-}
-
-/*
-Adds a new notification to a given user's feed about a transaction
-    Params
-        $transaction_id - The unique identifier for the transaction being modified
-        $user_id - The user that should be notified
-
-TODO: Does not check if the user exists. Does it need to?
-*/
-function addApprovalRequestNotification($transaction_id, $user_id)
-{
-    global $mysqli;
-
-    $sql = "INSERT INTO notifications
-                        (user_id, type, transaction_id)
-            VALUES (?, \"approval_request\", ?)";
-
-    $mysqli->execute_query($sql, [$user_id, $transaction_id]);
-
-    
-    http_response_code(HTTP_OK);
-    return;
-   
 }
 
 /*

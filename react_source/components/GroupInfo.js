@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom/dist/index.js";
 import ChangeableIcon from "./ChangeableIcon.js"
 import NewExpense from "../modals/NewExpense.js";
 import SVGIcon from "./SVGIcon.js";
+import { getTransactionJSONComparator } from "../utils/transactions.js";
 
 
 export default function GroupInfo(props) {
@@ -36,15 +37,19 @@ export default function GroupInfo(props) {
     const { pushModal, popModal } = useContext(ModalContext);
     const { currUserID, currUsername, currUserIconPath, reRenderCount, reRender } = useContext(GlobalContext);
 
-    const navigate = useNavigate();
+    const [fetched, setFetched] = useState(false);
 
+    const navigate = useNavigate();
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
         // On load asynchronously request groups and construct the list
         async function getItems() {
             let json = null;
 
-            if (props.id != null) json = await getGroupInfo(props.id, navigate);
+            if (props.id != null) {
+                json = await getGroupInfo(props.id);
+                setFetched(true);
+            }
 
             if (json !== null) {
                 setGroupName(json.group_name);
@@ -57,7 +62,12 @@ export default function GroupInfo(props) {
             
     }, [props.id, reRenderCount]);
     if (props.id == null || groupName == null) {
-        return (<></>);
+        if (fetched) {
+            throw new Response("Group Doesn't Exist", { status: 404 });
+        } else {
+            return <></>;
+        }
+       
     }
 
     const leave = () => {
@@ -91,9 +101,9 @@ export default function GroupInfo(props) {
             
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
-                    <View style={{ flexDirection: 'row' } }>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' } }>
                         <ChangeableIcon iconPath={iconPath} name={groupName} groupID={props.id} />
-                        <Text style={{ ...globals.styles.h1, ...styles.groupName}}>{groupName}</Text>
+                        <Text style={{ ...globals.styles.h1, ...globals.styles.profileAndGroupNameText}}>{groupName}</Text>
                     </View>
                     
                     <Button id="groupPage_leaveGroup" style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' } }} onClick={leave}>
@@ -127,11 +137,11 @@ export default function GroupInfo(props) {
                 <View style={globals.styles.listContainer}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <Text style={globals.styles.listTitle }>Transactions</Text>
-                        <Button id="groupPage_newExpense" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={addExpense}>
+                        {/* <Button id="groupPage_newExpense" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={addExpense}>
                             <label htmlFor="groupPage_newExpense" style={globals.styles.buttonLabel}>
                                 + NEW EXPENSE
                             </label>
-                        </Button>
+                        </Button> */}
                         
                     </View>
                     <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' } }}>
@@ -198,6 +208,9 @@ function getGroupMembers(currUserID, currUsername, currUserIconPath, json) {
 function getTransactions(json) {
 
     let outputList = [];
+
+    // sort transactions
+    json['transactions'].sort(getTransactionJSONComparator());
 
     for (let i = 0; i < json['transactions'].length; i++) {
 
@@ -331,14 +344,6 @@ function TransactionListItem({ id, name, owed, border, isApproved }) {
 }
 
 const styles = {
-    groupName: {
-        color: globals.COLOR_GRAY,
-        borderRadius: 2,
-        padding: 0,
-        paddingBottom: '.25em',
-        margin: '0 .5em',
-        fontWeight: 500
-    },
     groupInfo: {
         flex: 1,
         width: 'auto',

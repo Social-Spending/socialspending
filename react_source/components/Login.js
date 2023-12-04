@@ -11,7 +11,7 @@ import * as globals from '../utils/globals.js'
 
 import { View, Text, Image } from '../utils/globals.js'
 
-import { useRef, useState, useContext } from 'react';
+import { useRef, useState, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom/dist/index.js';
 
 import ForgotPassword from '../modals/ForgotPasswordModal.js';
@@ -50,6 +50,22 @@ export default function Login(props) {
         e.preventDefault();
         pushModal(<ForgotPassword />);
     }
+
+    const submitOnEnter = (event) => {
+        if (event.key === "Enter") {
+            onSubmit();
+        }
+        
+    }
+
+    useEffect(() => {
+        passwordRef.current.addEventListener("keypress", submitOnEnter); 
+        userRef.current.addEventListener("keypress", submitOnEnter); 
+        return () => {
+            if (passwordRef.current) passwordRef.current.removeEventListener("keypress", submitOnEnter);
+            if (userRef.current) userRef.current.removeEventListener("keypress", submitOnEnter);  
+        }
+    })
 
     return (
 
