@@ -73,8 +73,9 @@ function FriendList() {
     } else {
         // List has been parsed into SummaryFriendItem components, render it
         return (
-            <View style={globals.styles.list}>
+            <View style={{...globals.styles.list, ...{gridTemplateColumns: '60% 20% 20%'}}}>
                 <Text style={globals.styles.listHeader}>USERNAME</Text>
+                <Text style={globals.styles.listHeader}></Text>
                 <Text style={{ ...globals.styles.listHeader, ...{ alignItems: 'center' }}}>BALANCE</Text>
                
                 {summaryFriendItems}
@@ -103,17 +104,19 @@ function SummaryFriendItem(props) {
                 <Text style={{ ...globals.styles.listText, ...{ paddingLeft: '.25em' } }}>{props.name}</Text>
                 
             </Link>
-            <Link to={'/profile/' + props.name} style={globals.styles.listItemColumn}>
-                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
-                <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
+            <Link to={'/profile/' + props.name} style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'row', borderStyle: 'solid none none', borderColor: globals.COLOR_OFF_WHITE, borderWidth: '1px'}}>
                 {
                     props.owed > 0 &&
-                    <Button id="friendsList_addFriend" style={globals.styles.formButton} textstyle={globals.styles.h4} onClick={() => {pushModal(<SettleUp targetID={props.id}/>)}}>
-                        <label htmlFor="friendsList_addFriend" style={globals.styles.buttonLabel }>
-                            Settle Up
+                    <Button id={'friendsList_settleUp'+props.id} style={{...globals.styles.formButton, ...{marginTop: '0', width: '12ch'}}} onClick={() => {pushModal(<SettleUp targetID={props.id}/>)}}>
+                        <label htmlFor={'friendsList_settleUp'+props.id} style={globals.styles.buttonLabel }>
+                            SETTLE UP
                         </label>
                     </Button>
                 }
+            </Link>
+            <Link to={'/profile/' + props.name} style={globals.styles.listItemColumn}>
+                <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
+                <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
             </Link>
         </>
         

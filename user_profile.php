@@ -269,7 +269,7 @@ function handleGET()
         $returnArray['groups'] = $groups;
 
         // get transactions common to both users
-        $sql = "SELECT t.transaction_id, t.name, t.date, tp1.amount as user_debt,
+        $sql = "SELECT t.transaction_id, t.name, t.date, tp1.spent - tp1.paid as user_debt,
                     CASE WHEN COUNT(tp3.user_id) = SUM(tp3.has_approved)
                         THEN 1
                         ELSE 0

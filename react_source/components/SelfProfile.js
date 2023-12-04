@@ -55,9 +55,9 @@ export default function SelfProfile(props) {
         <View style={{ flexDirection: 'row', height: '100%', flex: 1}}>
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
-                    <View style={{ flexDirection: 'row' }} >
+                    <View style={{ flexDirection: 'row', alignItems: 'center'}} >
                         <ChangeableIcon iconPath={iconPath} name={username} />
-                        <Text style={{ ...globals.styles.h1, ...styles.groupName}}>MY PROFILE</Text>
+                        <Text style={{ ...globals.styles.h1, ...globals.styles.profileAndGroupNameText}}>MY PROFILE</Text>
                     </View>
                 </View>
                 
@@ -84,14 +84,6 @@ export default function SelfProfile(props) {
 }
 
 const styles = {
-    groupName: {
-        color: globals.COLOR_GRAY,
-        borderRadius: 2,
-        padding: 0,
-        paddingBottom: '.25em',
-        margin: '0 .5em',
-        fontWeight: 500
-    },
     groupInfo: {
         flex: 1,
         width: 'auto',

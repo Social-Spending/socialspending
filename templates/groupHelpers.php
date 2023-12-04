@@ -2,6 +2,7 @@
 
 include_once('templates/connection.php');
 include_once('templates/cookies.php');
+include_once('templates/jsonMessage.php');
 
 // verify that a group exists and that the given user is a member
 // send an error response if group not found or user is not a member
@@ -23,7 +24,7 @@ function verifyGroupAndUserIDs($userID, $groupID)
     {
         returnMessage('Group with group_id '.$groupID.' doesn\'t exist or user is not a member.', 404);
     }
-
+    return true;
 }
 
 ?>

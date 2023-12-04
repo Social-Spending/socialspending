@@ -38,7 +38,7 @@ export const Image = React.forwardRef(function ImageType(props, ref) {
 
     const [divStyle, setDivStyle] = useState(props.style);
     function onImgLoad({ target: img }) {
-        if (props.useImageSize) {
+        if (props.useimagesize) {
             setDivStyle({...props.style, ...{ height: img.naturalHeight, aspectRatio: img.naturalWidth / img.naturalHeight }});
 
         } else {
@@ -440,5 +440,12 @@ export const styles = {
         marginRight: '1em',
         borderRadius: '2em',
         color: COLOR_ORANGE,
+    },
+    profileAndGroupNameText: {
+        color: COLOR_GRAY,
+        borderRadius: 2,
+        padding: 0,
+        margin: '0 .5em',
+        fontWeight: 500
     }
 };
