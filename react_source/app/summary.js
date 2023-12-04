@@ -7,6 +7,7 @@ import WaitForAuth from '../components/WaitForAuth.js';
 import SummaryTransactionsList from '../components/SummaryTransactionsList.js';
 
 export default function Page() {
+
     return (
         <Base style={globals.styles.container} defaultDisplayNotif={true}>
             <View style={styles.summaryContainer}>

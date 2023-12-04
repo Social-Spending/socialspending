@@ -36,15 +36,19 @@ export default function GroupInfo(props) {
     const { pushModal, popModal } = useContext(ModalContext);
     const { currUserID, currUsername, currUserIconPath, reRenderCount, reRender } = useContext(GlobalContext);
 
-    const navigate = useNavigate();
+    const [fetched, setFetched] = useState(false);
 
+    const navigate = useNavigate();
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect
         // On load asynchronously request groups and construct the list
         async function getItems() {
             let json = null;
 
-            if (props.id != null) json = await getGroupInfo(props.id, navigate);
+            if (props.id != null) {
+                json = await getGroupInfo(props.id);
+                setFetched(true);
+            }
 
             if (json !== null) {
                 setGroupName(json.group_name);
@@ -57,7 +61,12 @@ export default function GroupInfo(props) {
             
     }, [props.id, reRenderCount]);
     if (props.id == null || groupName == null) {
-        return (<></>);
+        if (fetched) {
+            throw new Response("Group Doesn't Exist", { status: 404 });
+        } else {
+            return <></>;
+        }
+       
     }
 
     const leave = () => {
