@@ -325,13 +325,14 @@ function SelectMembers() {
     let {
         pageNum:    [pageNum, setPageNum],
         groupID:    [groupID, setGroupID],
-        memberList: [memberList, setMemberList]
+        memberList: [memberList, setMemberList],
+        errorRef:   errorRef
     } = useContext(ExpenseContext);
 
     const { currUserID } = useContext(GlobalContext);
     const { pushModal, popModal } = useContext(ModalContext);
 
-
+    const [submitDisabled, setSubmitDisabled] = useState(true);
 
     let [chosenMembers, setChosenMembers] = useState([]);
     let [possibleMembers, setPossibleMembers] = useState([]);
@@ -339,15 +340,28 @@ function SelectMembers() {
     const removeMember = (key) => {
         chosenMembers = chosenMembers.filter((member) => member.key != key);
         setChosenMembers(chosenMembers);
+        setSubmitDisabled(checkMemberList());
     }
 
     const addMember = (details) => {
         chosenMembers.push(<MemberListItem key={details.user_id} name={details.username} id={details.user_id} removeMember={removeMember} />);
         setChosenMembers(chosenMembers.concat([]));
+        setSubmitDisabled(checkMemberList());
     }
 
+    // return true if the member list is invalid
+    const checkMemberList = () => {
+        if (chosenMembers.length < 2) {
+            errorRef.current.innerText = "Transaction must have at least 2 participants";
+            errorRef.current.style.visibility = 'visible';
+            return true;
+        }
+        errorRef.current.style.visibility = 'hidden';
+        return false;
+    }
 
     useEffect(() => {
+        setSubmitDisabled(true);
         async function getMembers() {
             let json = null;
 
@@ -430,7 +444,7 @@ function SelectMembers() {
 
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
-                <Button id="newExpense_selectMember_next" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => onSubmit()} >
+                <Button id="newExpense_selectMember_next" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => onSubmit()} disabled={submitDisabled} >
                     <label htmlFor="newExpense_selectMember_next" style={globals.styles.buttonLabel} >
                         Next
                     </label>
