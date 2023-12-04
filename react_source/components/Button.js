@@ -1,74 +1,50 @@
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, View, Pressable, Text, Image } from 'react-native';
+import { View } from '../utils/globals.js'
 
 import { useState } from 'react';
 
 
 
-export default function Button({ label, style, hoverStyle, iconStyle, textStyle, icon, svg, onClick, disabled }) {
+export default function Button(props) {
     const [hover, setHover] = useState(false);
+    const { hoverStyle, ...otherProps } = props;
+
+    function click(e) {
+        e.preventDefault();
+        props.onClick();
+    }
 
     return (
         
-        <Pressable style={[styles.button, style]} onPress={onClick} disabled={disabled} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-            <View style={[styles.button, hoverStyle, disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {})]} >
+        <button {...otherProps} tabIndex={props.tabIndex ? props.tabIndex : -1} style={{ ...styles.button, ...props.style, ...{ cursor: props.disabled ? 'default' : 'pointer' } }} onClick={click} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+            <View style={{ ...styles.button, ...hoverStyle, ...{zIndex: 1}, ...(props.disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {}))}} >
             
-                <Icon svg={svg} style={iconStyle} icon={icon} />
-                <ButtonText disabled={disabled} label={label} style={textStyle} />
+                {props.children}
             </View>
            
-        </Pressable>
+        </button>
         
     );
 }
 
-function Icon(props) {
-    if (props.svg) {
-        return (
-            <props.svg style={[styles.icon, props.style]} />
-        );
-    }
-    else if (props.icon) {
-        return (
-            <Image source={props.icon} style={[styles.icon, props.style]} />
-        );
-    } else {
-        return;
-    }
-}
-
-function ButtonText(props) {
-    if (props.label) {
-        return (
-            <Text style={[globals.styles.h5, props.disabled ? styles.buttonLabelDisabled : styles.buttonLabel, props.style ]} >{props.label}</Text>
-        );
-    } else {
-        return;
-    }
-}
-
-const styles = StyleSheet.create({
+const styles = {
     button: {
-        borderRadius: 1,
         width: '100%',
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
+        borderRadius: '.25em',
     },
     buttonIcon: {
         paddingRight: 8,
-    },
-    buttonLabel: {
-        color: globals.COLOR_WHITE,
     },
     buttonLabelDisabled: {
         color: '#dfdfdf',
     },
     icon: {
         aspectRatio: 1,
-        justifyContent: 'flex-start',
         height: '100%',
     },
-});
+};

@@ -105,19 +105,21 @@ if ($pushedBranch != $branch)
 execute_command('git fetch origin '.$branch);
 execute_command('git reset --hard origin/'.$branch);
 execute_command('cd react_source && ./compile.sh');
+// compile c++ executable(s)
+execute_command('cd executables && make');
 
 // re-create database
 // only do this on dev
 if ($branch == 'develop')
 {
     include_once('./templates/connection.php');
-    if (!$mysqli->query('DROP TABLES IF EXISTS cookies, friendships, debts, transaction_participants, group_members, group_transactions, notifications, groups, users, transactions;'))
-    {
-        write_log('Failed to drop all tables');
-        write_log($mysqli->error);
-        exit(0);
-    }
-    $dbSQL = file_get_contents('database.sql');
+    // if (!$mysqli->query('DROP TABLES IF EXISTS cookies, friendships, debts, transaction_participants, group_members, group_transactions, notifications, groups, users, transactions;'))
+    // {
+    //     write_log('Failed to drop all tables');
+    //     write_log($mysqli->error);
+    //     exit(0);
+    // }
+    // $dbSQL = file_get_contents('database.sql');
 
     // re-build database
     $dbUsername = getenv('DB_USER');

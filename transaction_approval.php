@@ -5,9 +5,8 @@ include_once('templates/cookies.php');
 include_once('templates/constants.php');
 include_once("templates/jsonMessage.php");
 
-include_once('notifications.php');
-
-include_once("templates/debtHelpers.php");
+include_once('templates/debtHelpers.php');
+include_once('templates/notificationHelpers.php');
 
 /*
 Transaction Approval PHP Endpoint
@@ -182,41 +181,62 @@ Uses a transaction will full-approval and modifies the debt table
 		false - error submiting transaction (transaction malformed)
 		true - transaction submitted succesfully
 
-TODO: Does not support multiple creditors at this time
 */
 function submitTransaction($transaction_id)
 {
 	global $mysqli;
 
-	//Get the creditor (owed money, amount < 0), first
-	$sql = "SELECT	user_id, amount
+	//Get the creditors (owed money, amount < 0), first
+	$sql = "SELECT	user_id, paid - spent as amount_lent
 			FROM	transaction_participants
-			WHERE	transaction_id = ? AND amount < 0";
+			WHERE	transaction_id = ? AND paid > spent";
 	
-	$response = $mysqli->execute_query($sql, [$transaction_id]);
-
-	$creditor = $response->fetch_assoc();
+	$creditor_response = $mysqli->execute_query($sql, [$transaction_id]);
 
     // Need a creditor associated with the transaction
-	if ($creditor === NULL) 
+	if (!$creditor_response || mysqli_num_rows($creditor_response) == 0) 
 	{
 		return false;
 	}
 
-	$sql = "SELECT	user_id, amount
-			FROM	transaction_participants
-			WHERE	transaction_id = ? AND amount > 0";
-	
-	$response = $mysqli->execute_query($sql, [$transaction_id]);
+    //Determine the amount that all creditors lent
+    $sum_credited = 0;
+    while ($creditor = $creditor_response->fetch_assoc())
+    {
+        $sum_credited += $creditor['amount_lent'];
+    }
 
-	while ($debtor = $response->fetch_assoc())
-	{
-		//Use debtor amount, NOT creditor amount; creditor amount is total of transaction
-		if (addDebt($creditor['user_id'], $debtor['user_id'], $debtor['amount']) === false)
-		{
-			return false; 
-		}
+	$sql = "SELECT	user_id, spent - paid as amount_borrowed
+			FROM	transaction_participants
+			WHERE	transaction_id = ? AND spent > paid";
+	
+	$debtor_response = $mysqli->execute_query($sql, [$transaction_id]);
+
+	while ($debtor = $debtor_response->fetch_assoc())
+	{   
+        mysqli_data_seek($creditor_response,0);
+        while ($creditor = $creditor_response->fetch_assoc())
+        {
+            /*
+            Divide amount borrowed among creditors, ratioed by contribution amount (positive)
+            
+            amount_owed_to_creditor = amount_borrowed * (amount_creditor_lent / amount_all_creditors_lent)
+                (Postitive)         =   (Positive)    *   [  (Negative)       /          (Negative) ]
+            
+            */
+            $amount_owed = $debtor['amount_borrowed'] * ($creditor['amount_lent'] / $sum_credited );
+
+            //Add amount to debt ledger
+            if (addDebt($creditor['user_id'], $debtor['user_id'], $amount_owed) === false)
+            { 
+                return false; 
+            }
+        }
+
 	}
+
+    // add a "completed transaction" notification to each participant's inbox
+    createCompleteTransactionNotifications($transaction_id);
 
 	return true;	
 }

@@ -1,23 +1,24 @@
 // Most of this file is copied from ../components/Signup.js
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image, Modal, TextInput } from 'react-native';
-import { Link, router } from "expo-router";
+import { Text, View, Image, Modal } from '../utils/globals.js';
 import { useRef, useState, useContext } from 'react';
 
 
 import Button from '../components/Button.js'
 import { ModalContext } from './ModalContext.js';
 import { GlobalContext } from '../components/GlobalContext.js';
-import { styles, checkPassword, checkUsername, checkEmail } from '../components/Signup.js';
+import { styles, checkPassword, checkUsername, checkEmail } from '../utils/validateUserInfo.js';
 
-const Logo = require('../assets/images/logo/logo-name-64.png');
+
+import Logo from '../assets/images/logo/logo-name-64.png';
 
 import ShowSvg from '../assets/images/bx-show.svg';
 import HideSvg from '../assets/images/bx-hide.svg';
+import SVGIcon from '../components/SVGIcon.js';
 
 export default function EditProfile(props) {
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
     // when a signup is completed, increment loginAttempts to trigger a re-render of GlobalContext
     const {loginAttempts} = useContext(GlobalContext);
     const [loginAttemptsState, setLoginAttemptsState] = loginAttempts;
@@ -30,10 +31,12 @@ export default function EditProfile(props) {
     // Refs must be used in the same component they were declared in call any of these functions from a component executes them in said
     // components where the refs are null. This fixes that by rerouting the function to run in this component
 
-    const onEmailChange     = () => { setEmailDisabled      (checkEmail(emailRef, emailErrorMessageRef)); }
-    const onPasswordChange  = () => { setPasswordDisabled   (checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
-    const onUsernameChange  = () => { setUsernameDisabled   (checkUsername(userRef, userErrorMessageRef)); }
-    const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, errorMessageRef, loginAttemptsState, setLoginAttemptsState, setModal); }
+    //Only perform the verification tests if the field isn't empy
+    //If the field is empty, clear the error message and disable the field
+    const onEmailChange     = () => { setEmailDisabled      (emailRef.current.value == "" ? () => {emailErrorMessageRef.current.innerText = ""; return true;} : checkEmail(emailRef, emailErrorMessageRef)); }
+    const onPasswordChange  = () => { setPasswordDisabled   (passwordRef.current.value == "" ? () => {passwordErrorMessageRef.current.innerText = ""; return true;} : checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
+    const onUsernameChange  = () => { setUsernameDisabled   (userRef.current.value == "" ? () => {userErrorMessageRef.current.innerText = ""; return true;} : checkUsername(userRef, userErrorMessageRef)); }
+    const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, errorMessageRef, loginAttemptsState, setLoginAttemptsState, popModal); }
 
     const errorMessageRef           = useRef(null);
     const emailErrorMessageRef      = useRef(null);
@@ -52,44 +55,50 @@ export default function EditProfile(props) {
         <Modal
             transparent={true}
             visible={true}
-            onRequestClose={() => setModal(null)}>
+            onRequestClose={() => popModal()}>
 
-            <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
-                <View style={[styles.signup, { boxShadow: 0 }] } onClick={handleChildClick}>
+            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
+                <View style={{ ...styles.signup, ...{ boxShadow: 0 }}} onClick={handleChildClick}>
 
                     <Image source={Logo} style={styles.logo} />
 
-                    <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>Edit your Account</Text>
-                    <Text style={[globals.styles.text, { paddingTop: '1em'}]}>Edit your profile details</Text>
+                    <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>Edit your Account</Text>
+                    <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em'}}}>Edit your profile details</Text>
 
-                    <Text ref={errorMessageRef} id='signupForm_errorMessage' style={[globals.styles.error, { paddingTop: 0 }]}></Text>
+                    <Text ref={errorMessageRef} id='signupForm_errorMessage' style={{ ...globals.styles.error, ...{ paddingTop: 0 }}}></Text>
 
                     <View style={globals.styles.labelContainer}>
-                        <Text style={[globals.styles.h5, globals.styles.label]}>EMAIL</Text>
+                        <label htmlFor="signupForm_email" style={{ ...globals.styles.h5, ...globals.styles.label}}>EMAIL</label>
                         <Text ref={emailErrorMessageRef} id='email_errorMessage' style={globals.styles.error}></Text>
                     </View>
-                    <TextInput tabIndex={1} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onChangeText={onEmailChange} />
+                    <input autoFocus tabIndex={0} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
 
                     <View style={globals.styles.labelContainer}>
-                        <Text style={[globals.styles.h5, globals.styles.label]}>USERNAME</Text>
+                        <label htmlFor="signupForm_user" style={{ ...globals.styles.h5, ...globals.styles.label}}>USERNAME</label>
                         <Text ref={userErrorMessageRef} id='username_errorMessage' style={globals.styles.error}></Text>
                     </View>
-                    <TextInput tabIndex={2} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onChangeText={onUsernameChange} />
+                    <input tabIndex={0} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
 
-                    <View style={[globals.styles.labelContainer, { justifyContent: 'flex-start' }]}>
+                    <View style={{ ...globals.styles.labelContainer, ...{ justifyContent: 'flex-start' }}}>
 
-                        <Text style={[globals.styles.h5, globals.styles.label]}>PASSWORD</Text>
-                        <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1em' }} onClick={() => setShowPassword(!showPassword)}></Button>
+                        <label htmlFor="signupForm_password" style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</label>
+                        <Button aria-label={(showPassword ? "Hide" : "Show") + " Password"} style={globals.styles.showPassword} onClick={() => setShowPassword(!showPassword)}>
+                            <SVGIcon src={showPassword ? HideSvg : ShowSvg} style={{ fill: globals.COLOR_GRAY, height: '1.25em' }} />
+                        </Button>
                     </View>
-                    <TextInput tabIndex={3} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' secureTextEntry={!showPassword} autoComplete="current-password" name="Password" onChangeText={onPasswordChange} />
+                    <input tabIndex={0} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='signupForm_password' type={showPassword ? "text" : "password"} autoComplete="current-password" name="Password" onInput={onPasswordChange} />
 
                     <View style={globals.styles.labelContainer}>
-                        <Text style={[globals.styles.h5, globals.styles.label]}>VERIFY PASSWORD</Text>
+                                <label htmlFor="signupForm_verifyPassword" style={{ ...globals.styles.h5, ...globals.styles.label}}>VERIFY PASSWORD</label>
                         <Text ref={passwordErrorMessageRef} id='password_errorMessage' style={globals.styles.error}></Text>
                     </View>
-                    <TextInput tabIndex={4} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' secureTextEntry={!showPassword} autoComplete='current-password' name="Password" onChangeText={onPasswordChange} />
+                    <input tabIndex={0} ref={passwordVerifyRef} placeholder=" Verify Password" style={globals.styles.input} id='signupForm_verifyPassword' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password" onInput={onPasswordChange} />
 
-                    <Button disabled={emailDisabled || passwordDisabled || usernameDisabled} style={globals.styles.formButton} label='Submit' onClick={onSubmit} />
+                    <Button id="signupForm_submit" tabIndex={0} disabled={emailDisabled && passwordDisabled && usernameDisabled} style={globals.styles.formButton} onClick={onSubmit} >
+                        <label htmlFor="signupForm_submit" style={globals.styles.buttonLabel}>
+                            Submit
+                        </label>
+                    </Button>
 
                 </View>
             </View>
@@ -98,7 +107,7 @@ export default function EditProfile(props) {
     );
 }
 
-async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempts, setLoginAttempts, setModal) {
+async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempts, setLoginAttempts, popModal) {
 
     // pul username and password in form data for a POST request
     let payload = new URLSearchParams();
@@ -114,7 +123,7 @@ async function submitForm(userRef, emailRef, passwordRef, errorRef, loginAttempt
             // force GlobalContext to re-try getting user info
             setLoginAttempts(loginAttempts + 1);
             // success, exit out of modal
-            setModal(null);
+            popModal();
         }
         else {
             // failed, display error message returned by server

@@ -1,25 +1,30 @@
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View } from 'react-native';
-import { Link, router } from "expo-router";
+import { Text, View } from '../utils/globals.js';
+import { Link } from "react-router-dom/dist/index.js";
 
 export default function Footer() {
     return (
 
         <View style={styles.footer}>
 
-            <Text style={{ color: globals.COLOR_BEIGE }}>Copyright ©2023 SocialSpending. All Rights Reserved.</Text>
+            <Text style={styles.footerText}>Copyright ©2023 SocialSpending. All Rights Reserved.</Text>
             <View style={{flexDirection: 'row'}}>
-                <Link href="/faq" style={{color: globals.COLOR_BEIGE}}> FAQ </Link>
-                <Link href="/about" style={{color: globals.COLOR_BEIGE}}> About </Link>
-                <Link href="/contact" style={{color: globals.COLOR_BEIGE}}> Contact Us </Link>
+                <Link to="/faq" style={styles.footerText}> FAQ </Link>
+                <Link to="/about" style={styles.footerText}> About </Link>
+                <Link to="/contact" style={styles.footerText}> Contact Us </Link>
             </View>
 
         </View>
     );
 }
 
-const styles = StyleSheet.create({
+const styles = {
+    footerText: {
+        padding: '0em .5em',
+        fontSize: '.85em',
+        color: globals.COLOR_BEIGE
+    },
     footer: {
         bottom: 0,
         zIndex: 1,
@@ -37,4 +42,4 @@ const styles = StyleSheet.create({
     },
     
 
-});
+};

@@ -5,6 +5,10 @@
 /index.html
 /metadata.json
 /.vs/
+/.vscode/
 cookiefile
 /*.log
 /group_icons
+/transaction_receipts
+/user_icons
+/executables/bin/

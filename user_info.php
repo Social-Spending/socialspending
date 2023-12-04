@@ -16,9 +16,12 @@
                 {
                     "message":<RESULT>,
                     "user_id":<USER ID>,
-                    "username":<USERNAME>
+                    "username":<USERNAME>,
+                    "icon_path":<PATH TO ICON FILE>
                 }
                 <RESULT> is a message explaining the status code to a user.
+                <PATH TO ICON FILE> will be a relative path that is url-encoded in utf-8...
+                    Before using the value to assemble a URI, pass the value through the decodeURI function (in javascript)
 */
 
 include_once('templates/connection.php');
@@ -38,7 +41,7 @@ function handleGET()
         $sessionIDhash = hash('sha256', $sessionID);
 
         // sql request to get user_id and username from cookie.session_id
-        $sql =  'SELECT u.user_id, u.username, c.expiration_date '.
+        $sql =  'SELECT u.user_id, u.username, u.icon_path, c.expiration_date '.
                 'FROM cookies c '.
                 'JOIN users u ON u.user_id = c.user_id '.
                 'WHERE c.session_id = ?';
@@ -73,10 +76,11 @@ function handleGET()
             else
             {
                 // database has associated this cookie with a user and cookie is unexpired
-                // user 'user_id' and 'username' keys in the result's associative array
+                // user 'user_id', 'username', and 'icon_path' keys in the result's associative array
                 $returnArray = array();
                 $returnArray['user_id'] = $row['user_id'];
                 $returnArray['username'] = $row['username'];
+                $returnArray['icon_path'] = $row['icon_path'];
                 $returnArray['message'] = 'Success';
 
                 // return the returnArray as JSON

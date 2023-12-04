@@ -4,48 +4,51 @@ include_once("templates/connection.php");
 include_once("templates/cookies.php");
 include_once("templates/constants.php");
 include_once("templates/jsonMessage.php");
+include_once("templates/notificationHelpers.php");
 
 /*
 GET Request
     - Param 1 = "notification_type"
     - Param 2 = "user_id"
+POST Request
+    - Param 1 = "operation"
+    - Param 2 = "notification_id"
 */
-if (str_contains($_SERVER["REQUEST_URI"], "notifications.php") && $_SERVER["REQUEST_METHOD"] == "GET") {
-    //Check if user_id and a notification type were passed
-    if (isset($_GET["type"])) {
-		getNotifications($_GET["type"]);
+if (str_contains($_SERVER["REQUEST_URI"], "notifications.php")) {
+    if ($_SERVER["REQUEST_METHOD"] == "GET") {
+        handleGET();
     }
-	//No other valid GET requests, fail out
-    else {
-        returnMessage("Notification type not given", HTTP_BAD_REQUEST);
+    elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $body = file_get_contents("php://input");
+        $bodyJSON = json_decode($body, true);
+
+        //Check if user_id and a notification type were passed
+        if (isset($bodyJSON["operation"]) && $bodyJSON["operation"] == "dismiss" && isset($bodyJSON["notification_id"])) {
+            dismissNotification($bodyJSON["notification_id"]);
+        }
+        //No other valid POST requests, fail out
+        else {
+            returnMessage("Operation and/or notification_id not given or invalid", HTTP_BAD_REQUEST);
+        }
     }
 } 
 
-/*
-Selects the proper notifications to be returned
-    - type = "friend_request", "approval_request", or "approved_transaction"
-*/
-function getNotifications($type) {
-    //Get the user ID from the cookie
+function handleGET() {
     $user_id = intval(validateSessionID());
     if ($user_id === 0) {
         returnMessage("Valid session not found for user", HTTP_UNAUTHORIZED);
     }
 
-	switch ($type) {
-		case "friend_request":
-			getFriendRequests($user_id);
-			break;
-		case "transaction_approval":
-			getApprovalRequests($user_id);
-			break;
-		case "complete_transaction":
-			getApprovedTransactions($user_id);
-			break;
-		default:
-            returnMessage($type . " is not a valid notification type", HTTP_BAD_REQUEST);
-			break;
-	}
+    $response = ["friend_requests" => getFriendRequests($user_id),
+                "transaction_approvals" => getApprovalRequests($user_id),
+                "completed_transactions" => getApprovedTransactions($user_id),
+                "group_invites" => getGroupInvites($user_id)
+                ];
+
+    $json_data = json_encode($response);
+    header('Content-Type: application/json');
+    echo $json_data;
+    http_response_code(HTTP_OK);
 }
 
 /*
@@ -60,7 +63,8 @@ function getFriendRequests($user_id) {
                     users.user_id AS friend_id
             FROM notifications
             LEFT JOIN users ON users.user_id = notifications.friend_request_user_id
-            WHERE notifications.user_id=? AND notifications.type=\"friend_request\"";
+            WHERE notifications.user_id=? AND notifications.type=\"friend_request\"
+            ORDER BY notifications.notification_timestamp DESC";
 
     $friend_requests = $mysqli->execute_query($sql, [$user_id]);
 
@@ -70,11 +74,7 @@ function getFriendRequests($user_id) {
         array_push($friend_requests_array, $friend_requests->fetch_assoc());
     }
 
-    //Send response
-    $json_data = json_encode($friend_requests_array);
-    header('Content-Type: application/json');
-    echo $json_data;
-    http_response_code(HTTP_OK);
+    return $friend_requests_array;
 }
 
 /*
@@ -89,7 +89,8 @@ function getApprovalRequests($user_id) {
                     transactions.transaction_id AS transaction_id
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
-            WHERE notifications.user_id=? AND notifications.type=\"approval_request\"";
+            WHERE notifications.user_id=? AND notifications.type=\"approval_request\"
+            ORDER BY notifications.notification_timestamp DESC";
 
     $approval_requests = $mysqli->execute_query($sql, [$user_id]);
 
@@ -98,10 +99,7 @@ function getApprovalRequests($user_id) {
         array_push($approval_requests_array, $approval_requests->fetch_assoc());
     }
 
-    $json_data = json_encode($approval_requests_array);
-    header('Content-Type: application/json');
-    echo $json_data;
-    http_response_code(HTTP_OK);
+    return $approval_requests_array;
 }
 
 /*
@@ -116,7 +114,8 @@ function getApprovedTransactions($user_id) {
                     transactions.transaction_id AS transaction_id
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
-            WHERE notifications.user_id=? AND notifications.type=\"approved_transaction\"";
+            WHERE notifications.user_id=? AND notifications.type=\"approved_transaction\"
+            ORDER BY notifications.notification_timestamp DESC";
 
     $approved_transactions = $mysqli->execute_query($sql, [$user_id]);
 
@@ -125,47 +124,67 @@ function getApprovedTransactions($user_id) {
         array_push($approved_transactions_array, $approved_transactions->fetch_assoc());
     }
 
-    $json_data = json_encode($approved_transactions_array);
-    header('Content-Type: application/json');
-    echo $json_data;
-    http_response_code(HTTP_OK);
+    return $approved_transactions_array;
 }
 
 /*
-Removes a notification from the database
-    - notification_id = ID of notification to remove from the DB
+Returns group invite notifications
+    - user_id = User ID to return notifications for
 */
-function removeNotification($notification_id) {
+function getGroupInvites($user_id) {
     global $mysqli;
 
-    $sql = "DELETE FROM notifications
-            WHERE notification_id = ?";
+    $sql = "SELECT  n.notification_id AS notification_id,
+    				g.group_name AS group_name,
+                    n.group_id AS group_id
+            FROM notifications n
+            JOIN groups g ON g.group_id = n.group_id
+            WHERE n.user_id = ? AND n.type = 'group_invite'
+            ORDER BY n.notification_timestamp DESC";
 
-    $mysqli->execute_query($sql, [$notification_id]);
+    $results = $mysqli->execute_query($sql, [$user_id]);
+    // check if failure
+    if (!$results)
+    {
+        // not sure if this is the way notifications.php returns other error messages
+        handleDBError();
+    }
+
+    $group_invites_array = array();
+    while ($row = $results->fetch_assoc()) {
+        array_push($group_invites_array, $row);
+    }
+
+    return $group_invites_array;    
 }
 
 /*
-Adds a new notification to a given user's feed about a transaction
+Dismiss a notification
     Params
-        $transaction_id - The unique identifier for the transaction being modified
-        $user_id - The user that should be notified
-
-TODO: Does not check if the user exists. Does it need to?
+        $transaction_id - The key for the transaction to dismiss
 */
-function addApprovalRequestNotification($transaction_id, $user_id)
+function dismissNotification($notification_id)
 {
     global $mysqli;
 
-    $sql = "INSERT INTO notifications
-                        (user_id, type, transaction_id)
-            VALUES (?, \"approval_request\", ?)";
+    //Get the user ID from the cookie
+    $user_id = intval(validateSessionID());
+    if ($user_id === 0) {
+        returnMessage("Valid session not found for user", HTTP_UNAUTHORIZED);
+    }
 
-    $mysqli->execute_query($sql, [$user_id, $transaction_id]);
+    $sql = "DELETE
+            FROM notifications
+            WHERE notification_id = ? AND user_id = ?;";
+    $response = $mysqli->execute_query($sql, [$notification_id, $user_id]);
 
-    
-    http_response_code(HTTP_OK);
-    return;
-   
+    if (!$response) {
+        returnMessage("Could not contact database", HTTP_INTERNAL_SERVER_ERROR);
+    } else if ($mysqli->affected_rows == 0) {
+        returnMessage("Could not remove notification", HTTP_NOT_FOUND);
+    } else {
+        returnMessage("Success", HTTP_OK);
+    }
 }
 
 ?>

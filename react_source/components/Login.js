@@ -9,9 +9,10 @@
 
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image, TextInput } from 'react-native';
-import { Link, router } from "expo-router";
-import { useRef, useState, useContext } from 'react';
+import { View, Text, Image } from '../utils/globals.js'
+
+import { useRef, useState, useContext, useEffect } from 'react';
+import { Link } from 'react-router-dom/dist/index.js';
 
 import ShowSvg from '../assets/images/bx-show.svg';
 import HideSvg from '../assets/images/bx-hide.svg';
@@ -20,9 +21,10 @@ import Button from './Button.js'
 
 import { GlobalContext } from '../components/GlobalContext.js';
 
-const Logo = require('../assets/images/logo/logo-name-64.png');
+import Logo from '../assets/images/logo/logo-name-64.png';
+import SVGIcon from './SVGIcon.js';
 
-export default function Login() {
+export default function Login(props) {
     // when a login is completed, increment loginAttempts to trigger a re-render of GlobalContext
     const {loginAttempts} = useContext(GlobalContext);
     const [loginAttemptsState, setLoginAttemptsState] = loginAttempts;
@@ -38,6 +40,22 @@ export default function Login() {
     const passwordRef       = useRef(null);
     const rememberRef       = useRef(null);
 
+    const submitOnEnter = (event) => {
+        if (event.key === "Enter") {
+            onSubmit();
+        }
+        
+    }
+
+    useEffect(() => {
+        passwordRef.current.addEventListener("keypress", submitOnEnter); 
+        userRef.current.addEventListener("keypress", submitOnEnter); 
+        return () => {
+            if (passwordRef.current) passwordRef.current.removeEventListener("keypress", submitOnEnter);
+            if (userRef.current) userRef.current.removeEventListener("keypress", submitOnEnter);  
+        }
+    })
+
 
     return (
 
@@ -47,37 +65,45 @@ export default function Login() {
             <Image source={Logo} style={styles.logo} />
 
 
-            <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>Welcome</Text>
-            <Text style={[globals.styles.text, { paddingTop: '1em'}]}>Please sign-in to your account below</Text>
+            <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 } }}>Welcome</Text>
+            <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em'}}}>Please sign-in to your account below</Text>
 
             <Text ref={errorMessageRef} id='loginForm_errorMessage' style={globals.styles.error}></Text>
 
             <View style={globals.styles.labelContainer}>
-                <Text style={[globals.styles.h5, globals.styles.label]}>EMAIL OR USERNAME</Text>
+                <label htmlFor='loginForm_username' style={{ ...globals.styles.h5, ...globals.styles.label}}>EMAIL OR USERNAME</label>
             </View>
 
-            <TextInput tabIndex={1} ref={userRef} placeholder=" Enter your email or username" style={globals.styles.input} id='loginForm_user' name="Username" />
+            <input autoFocus tabIndex={0} ref={userRef} placeholder=" Enter your email or username" style={globals.styles.input} id='loginForm_username' name="Username" />
 
             <View style={globals.styles.labelContainer}>
                 <View style={{flexDirection: 'row'} }>
-                    <Text style={[globals.styles.h5, globals.styles.label]}>PASSWORD</Text>
-                    <Button style={globals.styles.showPassword} svg={showPassword ? HideSvg : ShowSvg} iconStyle={{ fill: globals.COLOR_GRAY, height: '1em' }} onClick={() => setShowPassword(!showPassword)}></Button>
+                    <label htmlFor='loginForm_password' style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</label>
+                    <Button aria-label={(showPassword ? "Hide" : "Show") + " Password"} id="loginForm_showPassword" style={globals.styles.showPassword} onClick={() => setShowPassword(!showPassword)}>
+                        <SVGIcon src={showPassword ? HideSvg : ShowSvg} style={{ fill: globals.COLOR_GRAY, height: '1.25em' }} />
+                    </Button>
                 </View>
                 
-                <Link href="/forgot" style={[globals.styles.h5, styles.forgot]}>Forgot Password?</Link> 
+                <Link tabIndex={-1} to="/forgot" style={{ ...globals.styles.h5, ...styles.forgot}}>Forgot Password?</Link> 
             </View>
-            <TextInput tabIndex={2} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='loginForm_password' secureTextEntry={!showPassword} autoComplete='current-password' name="Password" name="Password" />
+            
+            <input tabIndex={0} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='loginForm_password' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password" name="Password" />
 
-            <View style={[globals.styles.labelContainer, { justifyContent: 'flex-start', paddingTop: 0, width: '78%' }]}>
-                <input tabIndex={3} ref={rememberRef} type="checkbox" style={styles.checkbox} id="loginForm_remember" />
-                <Text style={[globals.styles.text, { marginTop: '.6em' }]}> Remember Me?</Text>
+            <View style={{ ...globals.styles.labelContainer, ...{ justifyContent: 'flex-start', paddingTop: 0, width: '78%' }}}>
+                <input tabIndex={0} ref={rememberRef} type="checkbox" style={styles.checkbox} id="loginForm_remember" />
+                <label htmlFor='loginForm_remember' style={{ ...globals.styles.text, ...{ marginTop: '.6em' }}}> Remember Me?</label>
             </View>
 
-            <Button style={globals.styles.formButton} label='Login' onClick={onSubmit} />
+            <Button id="loginForm_submit" tabIndex={0} style={globals.styles.formButton} onClick={onSubmit} >
+                <label htmlFor="loginForm_submit" style={globals.styles.buttonLabel}>
+                    Login
+                </label>
+            </Button>
+
 
             <View style={{ flexDirection: 'row', justifyContent: 'flex-start', paddingTop: '2em' }}>
-                <Text style={globals.styles.text}>New to our platform? </Text>
-                <Link href="/signup" style={[globals.styles.text, { color: globals.COLOR_ORANGE }]}>Create an Account</Link>
+                <Text style={{...globals.styles.text, ...{paddingRight: '.5em' }}}>New to our platform?</Text>
+                <Link to="/signup" style={{ ...globals.styles.text, ...{ color: globals.COLOR_ORANGE }}}>Create an Account</Link>
             </View>
 
         </View>
@@ -100,7 +126,6 @@ async function submitForm(userRef, passwordRef, rememberRef, errorRef, loginAtte
             // force GlobalContext to re-try getting user info
             setLoginAttempts(loginAttempts + 1);
             // redirect
-            router.push("/summary");
         }
         else {
             // failed, display error message returned by server
@@ -115,7 +140,7 @@ async function submitForm(userRef, passwordRef, rememberRef, errorRef, loginAtte
     }
 }
 
-const styles = StyleSheet.create({
+const styles = {
     login: {
         width: '50vh',
         minHeight: '30em',
@@ -142,4 +167,4 @@ const styles = StyleSheet.create({
         color: globals.COLOR_GRAY,
     }
 
-});
+};

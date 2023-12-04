@@ -30,9 +30,12 @@
                     "user_id":<USER ID>,
                     "username":<USERNAME>,
                     "email":<USER EMAIL>,
-                    "debt":<DEBT>,
+                    "icon_path":<PATH TO ICON FILE | null>,
+                    "debt":<DEBT | null>,
                     "is_friend":<true | false>,
                     "is_pending_friend":<true | false>,
+                    "friend_request_notification_id":<[FRIEND REQUEST notification_id] | null>,
+                    "friend_request_can_approve":<true | false | null>
                     "groups":
                     [
                         {
@@ -59,6 +62,13 @@
                     or (negative) amount the specified user owes the current user.
                 "groups" is a list of groups the current user has in common with the specified user.
                 "transactions" is a list of most recent transactions where the current user and the specified user are both participants.
+                <PATH TO ICON FILE> will be a relative path that is url-encoded in utf-8...
+                    Before using the value to assemble a URI, pass the value through the decodeURI function (in javascript)
+                If "is_friend"==false, "debt" will be null.
+                If "is_pending_friend"==false, "friend_request_notification_id" and "friend_request_can_approve" will be null.
+                "friend_request_can_approve" indicates if the friend request is directed towards the current user...
+                    If "friend_request_can_approve"==false, the current user may cancel the friend request
+                    If "friend_request_can_approve"==true, the current user may accept or reject the friend request
     - POST: Update the current user's profile information
         - Request:
             - Headers:
@@ -85,6 +95,7 @@
 include_once('templates/connection.php');
 include_once('templates/cookies.php');
 include_once('templates/jsonMessage.php');
+include_once('templates/userValidation.php');
 
 function handleGET()
 {
@@ -158,14 +169,18 @@ function handleGET()
 
 
     // get the profile user's info
-    $sql = "SELECT u.user_id, u.username, u.email, COALESCE(d.amount, 0) as debt, d.debtor
+    $sql = "SELECT u.user_id, u.username, u.email, u.icon_path, COALESCE(SUM(dsum.debt), 0) as debt
             FROM users u
-            JOIN users u2
-            LEFT JOIN debts d
-            ON (d.creditor = u.user_id AND d.debtor = u2.user_id)
-            OR (d.creditor = u2.user_id AND d.debtor = u.user_id)
-            WHERE u.user_id = ? AND u2.user_id = ?;";
-    $result = $mysqli->execute_query($sql, [$profileUserID, $currUserID]);
+            LEFT JOIN (
+                SELECT
+                    CASE WHEN debtor = ? THEN creditor ELSE debtor END AS creditor,
+                    CASE WHEN debtor = ? THEN amount ELSE -1*amount END AS debt
+                FROM debts
+                WHERE debtor = ? OR creditor = ?
+            ) as dsum ON u.user_id = dsum.creditor
+            WHERE u.user_id = ?
+            GROUP BY u.user_id;";
+    $result = $mysqli->execute_query($sql, [$currUserID, $currUserID, $currUserID, $currUserID, $profileUserID]);
     // check for errors
     if (!$result)
     {
@@ -174,18 +189,14 @@ function handleGET()
     }
     // unpack data
     $row = $result->fetch_assoc();
-    $returnArray = array(
-        'user_id' => $row['user_id'],
-        'username' => $row['username'],
-        'email' => $row['email'],
-        'debt' => $row['debt']
-    );
-    // if there is a non-zero debt, decide if it's positive or negative
-    if ($row['debt'] && $row['debtor'] != $currUserID)
-    {
-        // selected user is debtor, which means the current user's debt is negative
-        $returnArray['debt'] *= -1;
-    }
+    // $returnArray = array(
+    //     'user_id' => $row['user_id'],
+    //     'username' => $row['username'],
+    //     'email' => $row['email'],
+    //     'icon_path' => $row['icon_path'],
+    //     'debt' => $row['debt']
+    // );
+    $returnArray = $row;
 
     if ($profileUserID != $currUserID)
     {
@@ -204,11 +215,12 @@ function handleGET()
         // check if there was a row, meaning these two are friends
         $returnArray['is_friend'] = $result->num_rows > 0;
 
+
         // get if there is an outstanding friend request
         if (!$returnArray['is_friend'])
         {
             // query to check if there is already a friend request
-            $sql = "SELECT notification_id
+            $sql = "SELECT notification_id, user_id as destination_user_id
                 FROM notifications
                 WHERE type = 'friend_request'
                 AND ((friend_request_user_id = ? AND user_id = ?) OR (friend_request_user_id = ? AND user_id = ?))";
@@ -218,10 +230,20 @@ function handleGET()
                 handleDBError();
             }
             $returnArray['is_pending_friend'] = $result->num_rows > 0;
+            // if there is a pending friend request, get whether the current user sent it or
+            if ($returnArray['is_pending_friend'])
+            {
+                $row = $result->fetch_assoc();
+                $returnArray['friend_request_notification_id'] = $row['notification_id'];
+                // user can approve if the notification is in the currently logged in user's inbox
+                $returnArray['friend_request_can_approve'] = $row['destination_user_id'] == $currUserID;
+            }
         }
         else
         {
             $returnArray['is_pending_friend'] = false;
+            $returnArray['friend_request_notification_id'] = null;
+            $returnArray['friend_request_can_approve'] = null;
         }
 
         // get groups both users are a member of
@@ -247,7 +269,7 @@ function handleGET()
         $returnArray['groups'] = $groups;
 
         // get transactions common to both users
-        $sql = "SELECT t.transaction_id, t.name, t.date, tp1.amount as user_debt,
+        $sql = "SELECT t.transaction_id, t.name, t.date, tp1.spent - tp1.paid as user_debt,
                     CASE WHEN COUNT(tp3.user_id) = SUM(tp3.has_approved)
                         THEN 1
                         ELSE 0
@@ -300,121 +322,83 @@ function handlePOST()
         handleDBError();
     }
 
-    $newUsername = '';
-    if (isset($_POST['username']))
-    {
-        $newUsername = $_POST['username'];
-    }
-    $newEmail = '';
-    if (isset($_POST['email']))
-    {
-        $newEmail = $_POST['email'];
-    }
-    $newPassword = '';
-    if (isset($_POST['password']))
-    {
-        $newPassword = $_POST['password'];
-    }
+    if (isset($_POST["username"]) && $_POST["username"] != "") {
+        $newUsername = $_POST["username"];
+        // check that username is valid
+        if (checkUsername($newUsername)) {
+            returnMessage('Username is invalid', 400);
+        }
 
-    if ($newUsername != '' && $newEmail != '')
-    {
-        // lookup user by username or by email to check if one already exists
-        $query = 'SELECT * FROM `users` WHERE `username`= ? OR `email`= ?;';
-        $result = $mysqli->execute_query($query, [$newUsername, $newEmail]);
-        // check that query was successful
+        $sql = "SELECT * FROM users WHERE username = ?";
+        $result = $mysqli->execute_query($sql, [$newUsername]);
+
         if (!$result)
-        {
-            // query failed, internal server error
             handleDBError();
-        }
-        if ($result->num_rows > 0)
-        {
-            returnMessage('An account with that username and/or email already exists', 400);
-        }
-    }
-    elseif ($newUsername != '')
-    {
-        // lookup user by username or by email to check if one already exists
-        $query = 'SELECT * FROM `users` WHERE `username`= ?;';
-        $result = $mysqli->execute_query($query, [$newUsername]);
-        // check that query was successful
-        if (!$result)
-        {
-            // query failed, internal server error
-            handleDBError();
-        }
-        if ($result->num_rows > 0)
-        {
-            returnMessage('An account with that username already exists', 400);
-        }
-    }
-    elseif ($newEmail != '')
-    {
-        // lookup user by username or by email to check if one already exists
-        $query = 'SELECT * FROM `users` WHERE `email`= ?;';
-        $result = $mysqli->execute_query($query, [$newEmail]);
-        // check that query was successful
-        if (!$result)
-        {
-            // query failed, internal server error
-            handleDBError();
-        }
-        if ($result->num_rows > 0)
-        {
-            returnMessage('An account with that email already exists', 400);
+
+        //Check to see if a user with this username exists
+        if ($result->num_rows > 0) {
+            $result = $result->fetch_assoc();
+
+            //If someone else has the username, return with an error.
+            //Otherwise, we don't need to do anything
+            if ($result["user_id"] != $currUserID) {
+                returnMessage("An account with that username already exists", 400);
+            }
+        } else {
+            $sql = "UPDATE users SET username = ? WHERE user_id = ?;";
+            $result = $mysqli->execute_query($sql, [$newUsername, $currUserID]);
+
+            if (!$result)
+                handleDBError();
         }
     }
 
-    // username and email are confirmed unique
-    // hash password if present
-    if ($newPassword != '')
-    {
+    if (isset($_POST["email"]) && $_POST["email"] != "") {
+        $newEmail = $_POST["email"];
+        // check that email is valid
+        if (checkEmail($newEmail)) {
+            returnMessage('Email is invalid', 400);
+        }
+
+        $sql = "SELECT * FROM users WHERE email = ?";
+        $result = $mysqli->execute_query($sql, [$newEmail]);
+
+        if (!$result)
+            handleDBError();
+
+        //Check to see if a user with this email exists
+        if ($result->num_rows > 0) {
+            $result = $result->fetch_assoc();
+
+            //If someone else has the email, return with an error.
+            //Otherwise, we don't need to do anything
+            if ($result["user_id"] != $currUserID) {
+                returnMessage("An account with that email already exists", 400);
+            }
+        } else {
+            $sql = "UPDATE users SET email = ? WHERE user_id = ?;";
+            $result = $mysqli->execute_query($sql, [$newEmail, $currUserID]);
+
+            if (!$result)
+                handleDBError();
+        }
+    }
+
+    if (isset($_POST["password"]) && $_POST["password"] != "") {
+        $newPassword = $_POST["password"];
+        // check that password is valid
+        if (checkPassword($newPassword)) {
+            returnMessage('Password is invalid', 400);
+        }
         $newPasswordHash = password_hash($newPassword, PASSWORD_BCRYPT);
-    }
-    // update entries
-    $result = false;
-    if ($newUsername != '' && $newEmail != '' && $newPassword != '')
-    {
-        $sql = "UPDATE users SET username = ?, email = ?, pass_hash = ? WHERE user_id = ?;";
-        $result = $mysqli->execute_query($sql, [$newUsername, $newEmail, $newPasswordHash, $currUserID]);
-    }
-    elseif ($newUsername != '' && $newEmail != '')
-    {
-        $sql = "UPDATE users SET username = ?, email = ? WHERE user_id = ?;";
-        $result = $mysqli->execute_query($sql, [$newUsername, $newEmail, $currUserID]);
-    }
-    elseif ($newUsername != '' && $newPassword != '')
-    {
-        $sql = "UPDATE users SET username = ?, pass_hash = ? WHERE user_id = ?;";
-        $result = $mysqli->execute_query($sql, [$newUsername, $newPasswordHash, $currUserID]);
-    }
-    elseif ($newEmail != '' && $newPassword != '')
-    {
-        $sql = "UPDATE users SET email = ?, pass_hash = ? WHERE user_id = ?;";
-        $result = $mysqli->execute_query($sql, [$newEmail, $newPasswordHash, $currUserID]);
-    }
-    elseif ($newUsername != '')
-    {
-        $sql = "UPDATE users SET username = ? WHERE user_id = ?;";
-        $result = $mysqli->execute_query($sql, [$newUsername, $currUserID]);
-    }
-    elseif ($newEmail != '')
-    {
-        $sql = "UPDATE users SET email = ? WHERE user_id = ?;";
-        $result = $mysqli->execute_query($sql, [$newEmail, $currUserID]);
-    }
-    elseif ($newPassword != '')
-    {
+
         $sql = "UPDATE users SET pass_hash = ? WHERE user_id = ?;";
         $result = $mysqli->execute_query($sql, [$newPasswordHash, $currUserID]);
+
+        if (!$result)
+            handleDBError();
     }
-    // check that query was successful
-    if (!$result)
-    {
-        // query failed, internal server error
-        handleDBError();
-    }
-    //if ($mysqli->affected_rows > 0)
+
     returnMessage('Success', 200);
 
 }

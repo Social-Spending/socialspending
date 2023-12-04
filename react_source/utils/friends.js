@@ -27,10 +27,17 @@ export async function getFriends() {
 
 }
 
-export async function getUserInfo(id) {
+export async function getUserInfo(id=null, username=null) {
     // put user_id to search in URL param
     let payload = new URLSearchParams();
-    payload.append('user_id', id);
+    if (id != null)
+    {
+        payload.append('user_id', id);
+    }
+    if (username != null)
+    {
+        payload.append('user', username);
+    }
 
     // do the POST request
     try {
@@ -51,7 +58,7 @@ export async function getUserInfo(id) {
     return null;
 }
 
-export async function removeFriend(username, reRender) {
+export async function removeFriend(username, reRender = null) {
     // put username to search in request body
     let payload = {
         "operation": "remove",
@@ -74,7 +81,7 @@ export async function removeFriend(username, reRender) {
             if (json !== null) {
                 // successfully removed friend
                 // reload the window, because this will change the sidebar if on the /friends page
-                reRender();
+                if ( reRender) reRender();
                 return json;
             }
 
@@ -116,4 +123,64 @@ export async function addFriend(username) {
     }
 
     return null;
+}
+
+/* accept or reject friend request sent to the current user
+ * @param notification_id notification_id of the friend request
+ * @param acceptNReject when true, accept friend request
+ *                      when false, reject friend request
+ * @return 0 on success; otherwise return the message explaining the error
+*/
+export async function acceptRejectFriendRequest(notification_id, acceptNReject)
+{
+    let payload = {
+        'operation': (acceptNReject ? 'accept' : 'reject'),
+        'notification_id': notification_id
+    };
+
+    // do the POST request
+    try {
+        let response = await fetch("/friendships.php", { method: 'POST', body: JSON.stringify(payload), credentials: 'same-origin' });
+
+        if (response.ok) {
+            return 0;
+        } else {
+            let responseJSON = await response.json();
+            return responseJSON['message'];
+        }
+    }
+    catch (error) {
+        console.error("error in POST request to accept/reject friend request (/friendships.php)");
+        console.error(error);
+    }
+    return 'Could not send POST request';
+}
+
+/* cancel a friend request sent from the current user
+ * @param notification_id notification_id of the friend request
+ * @return 0 on success; otherwise return the message explaining the error
+*/
+export async function cancelFriendRequest(notification_id)
+{
+    let payload = {
+        'operation': 'cancel',
+        'notification_id': notification_id
+    };
+
+    // do the POST request
+    try {
+        let response = await fetch("/friendships.php", { method: 'POST', body: JSON.stringify(payload), credentials: 'same-origin' });
+
+        if (response.ok) {
+            return 0;
+        } else {
+            let responseJSON = await response.json();
+            return responseJSON['message'];
+        }
+    }
+    catch (error) {
+        console.error("error in POST request to accept/reject friend request (/friendships.php)");
+        console.error(error);
+    }
+    return 'Could not send POST request';
 }

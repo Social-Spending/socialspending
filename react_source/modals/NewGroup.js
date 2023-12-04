@@ -7,26 +7,35 @@
 */
 import * as globals from '../utils/globals.js'
 
-import { StyleSheet, Text, View, Image, Modal, TextInput } from 'react-native';
-import { router } from "expo-router";
+import { Text, View, Image, Modal } from '../utils/globals.js';
 import { useRef, useState, useContext } from 'react';
 
 
 import Button from '../components/Button.js'
 import { ModalContext } from './ModalContext.js';
+import { useNavigate } from 'react-router-dom/dist/index.js';
 
-const Logo = require('../assets/images/logo/logo-name-64.png');
+import Logo from '../assets/images/logo/logo-name-64.png';
+
+let navigate = 0;
 
 export default function NewGroup(props) {
 
-    const onSubmit = () => { submitForm(groupRef, errorMessageRef); }
+    const onSubmit = async () => {
+        await submitForm(groupRef, errorMessageRef);
+        popModal();
+        navigate("/groups");
+        navigate(0); //Fallback refresh page if on groups
+    }
     const onNameChange = () => { setNameDisabled(checkName(groupRef, errorMessageRef)); }
 
     const [nameDisabled, setNameDisabled] = useState(true);
     
-    const setModal = useContext(ModalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
     const errorMessageRef = useRef(null);
     const groupRef = useRef(null);
+
+    navigate = useNavigate();
 
     function handleChildClick(e) {
         e.stopPropagation();
@@ -37,25 +46,29 @@ export default function NewGroup(props) {
         <Modal
             transparent={true}
             visible={true}
-            onRequestClose={() => setModal(null)}>
+            onRequestClose={() => popModal()}>
 
-            <View style={[globals.styles.modalBackground, props.style]} onClick={(props.exit != undefined ? props.exit : () => setModal(null))}>
+            <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
                 <View style={styles.create} onClick={handleChildClick}>
 
                     <Image source={Logo} style={styles.logo} />
 
-                    <Text style={[globals.styles.label, globals.styles.h2, { padding: 0 }]}>CREATE GROUP</Text>
-                    <Text style={[globals.styles.text, { paddingTop: '1em' }]}>Enter a new group name to get started</Text>
+                    <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>CREATE GROUP</Text>
+                    <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>Enter a new group name to get started</Text>
 
                     <Text ref={errorMessageRef} id='createGroup_errorMessage' style={globals.styles.error}></Text>
 
                     <View style={globals.styles.labelContainer}>
-                        <Text style={[globals.styles.h5, globals.styles.label]}>GROUP NAME</Text>
+                        <label htmlFor="createGroup_name" style={{ ...globals.styles.h5, ...globals.styles.label}}>GROUP NAME</label>
                     </View>
 
-                    <TextInput tabIndex={1} ref={groupRef} placeholder=" Enter name of new group" style={globals.styles.input} id='createGroup_name' name="Group Name" onChangeText={onNameChange} />
+                    <input autoFocus tabIndex={0} ref={groupRef} placeholder=" Enter name of new group" style={globals.styles.input} id='createGroup_name' name="Group Name" onInput={onNameChange} />
 
-                    <Button disabled={nameDisabled}  style={globals.styles.formButton} label='Create New Group' onClick={onSubmit} />
+                    <Button id="createGroup_submit" tabIndex={0} disabled={nameDisabled} style={globals.styles.formButton} onClick={onSubmit}>
+                        <label htmlFor="createGroup_submit" style={globals.styles.buttonLabel }>
+                            Create New Group
+                        </label>
+                    </Button>
 
                 </View>
             </View>
@@ -74,10 +87,16 @@ function checkName(groupRef, errorRef) {
 
     if (groupRef.current.value.length >= 4) {
         errorRef.current.innerText = "";
+
+        groupRef.current.removeAttribute("aria-invalid");
+        groupRef.current.removeAttribute("aria-errormessage");
         return false;
 
     } else {
         errorRef.current.innerText = "Group name must be at least 4 characters";
+
+        groupRef.current.setAttribute("aria-invalid", true);
+        groupRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         return true;
     }
 }
@@ -103,13 +122,16 @@ async function submitForm(groupRef, errorRef) {
 
         if (await response.ok) {
             // redirect
-            router.replace("/groups");
+            navigate("/groups", {replace: true});
+
         }
         else {
             // failed, display error message returned by server
             let responseJSON = await response.json();
             errorRef.current.innerText = responseJSON['message'];
             errorRef.current.classList.remove('hidden');
+            groupRef.current.setAttribute("aria-invalid", true);
+            groupRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         }
     }
     catch (error) {
@@ -118,7 +140,7 @@ async function submitForm(groupRef, errorRef) {
     }
 }
 
-const styles = StyleSheet.create({
+const styles = {
     create: {
         zIndex: 1,
         height: '20em',
@@ -136,4 +158,4 @@ const styles = StyleSheet.create({
         borderRadius: 1,
     }
 
-});
+};

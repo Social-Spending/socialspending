@@ -25,11 +25,14 @@
                     [
                         {
                             "user_id":<USER ID>,
-                            "username":<USERNAME>
+                            "username":<USERNAME>,
+                            "icon_path":<PATH TO ICON FILE>
                         }
                     ]
                 }
                 <RESULT> is a message explaining the status code to a user.
+                <PATH TO ICON FILE> will be a relative path that is url-encoded in utf-8...
+                    Before using the value to assemble a URI, pass the value through the decodeURI function (in javascript)
 */
 
 include_once('templates/connection.php');
@@ -69,10 +72,11 @@ function handlePOST()
     $searchTerm = $bodyJSON['search_term'];
 
     // query database for user search
-    $sql =  'SELECT user_id, username '.
+    $sql =  'SELECT user_id, username, icon_path '.
             'FROM users '.
             'WHERE MATCH(username, email) '.
-            'AGAINST (? IN BOOLEAN MODE);';
+            'AGAINST (? IN BOOLEAN MODE) '.
+            'LIMIT 10;';
     $result = $mysqli->execute_query($sql, [$searchTerm.'*']);
 
     // check that query was successful
@@ -86,7 +90,9 @@ function handlePOST()
     $usersArray = array();
     while($row = $result->fetch_assoc())
     {
-        $usersArray[] = $row;
+        if ($row['user_id'] != $userID) {
+            $usersArray[] = $row;
+        }
     }
 
     // return the returnArray as JSON

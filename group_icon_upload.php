@@ -13,7 +13,7 @@
         - Response:
             - Status Codes:
                 - 200 if image was uploaded successfully
-                - 400 if request body is invalid
+                - 400 if request body is invalid, or the image size or format was invalid
                 - 401 if session_id cookie is not present or invalid
                 - 404 if the specified group doesn't exist or current user is not a member
                 - 500 if the database could not be reached, or file could not be saved
@@ -33,10 +33,11 @@ include_once('templates/constants.php');
 include_once('templates/connection.php');
 include_once('templates/cookies.php');
 include_once('templates/jsonMessage.php');
+include_once('templates/saveImage.php');
 
 function handlePOST()
 {
-    global $mysqli;
+    global $mysqli, $_VALIDATE_IMAGE_FAILURE_MESSAGE;
 
     // user must have valid sessionID
     $userID = validateSessionID();
@@ -51,66 +52,29 @@ function handlePOST()
     }
 
     // get data from POST
-    // TODO: protect against SQL injection
     if (!isset($_POST['group_id']) || !isset($_FILES['icon']))
     {
         returnMessage('Missing form fields', 400);
     }
     $groupID = $_POST['group_id'];
-    // get icon file
-    $iconFile = $_FILES['icon'];
 
-    // check that file size is smaller than 1 MB
-    if ($iconFile['size'] > MAX_ICON_SIZE)
-    {
-        returnMessage('Cannot upload icons exceeding '.MAX_ICON_SIZE.' bytes', 400);
-    }
+    //Check to see if an image already exists
+    $sql = "SELECT icon_path
+            FROM groups g
+            WHERE g.group_id = ?";
+    $result = $mysqli->execute_query($sql, [$groupID]);
 
-    // check that file is a valid MIME type
-    $finfo = finfo_open(FILEINFO_MIME_TYPE); // MIME type will be something like image/gif, image/jpeg
-    $imageFileType = $finfo->file($iconFile['tmp_name']);
-    //$imageFileTypes = explode('/', $imageFileType);
-
-    // parse the file into an image
-    $iconImage = null;
-    if ($imageFileType == 'image/png')
-    {
-        $iconImage = imagecreatefrompng($iconFile['tmp_name']);
-    }
-    elseif ($imageFileType == 'image/jpeg')
-    {
-        $iconImage = imagecreatefromjpeg($iconFile['tmp_name']);
-    }
-    elseif ($imageFileType == 'image/gif')
-    {
-        $iconImage = imagecreatefromgif($iconFile['tmp_name']);
-    }
-    // iconImage will be null if MIME type was not recognized or false if imagecreatefromX failed
-    if ($iconImage == null || !$iconImage)
-    {
-        returnMessage('Icon is not valid image type. Must be gif, png, or jpeg', 400);
+    //Delete the existing icon if one exists
+    if ($result->num_rows != 0) {
+        unlink("." . $result->fetch_assoc()['icon_path']);
     }
 
-    // check image size
-    $width = imagesx($iconImage);
-    $height = imagesy($iconImage);
-	
-	$size = min($width, $height);
-	$iconImage = imagecrop($iconImage, ['x' => $width / 2 - $size / 2, 'y' => $height / 2 - $size / 2, 'width' => $size, 'height' => $size]);
-    
-	imagecopyresized($iconImage, $iconImage, 0, 0, 0, 0, GROUP_ICON_WIDTH, GROUP_ICON_HEIGHT, $width, $height);
-	
-    // generate random name for the file and save
-    do
+    // parse to image and save as gif to filesystem
+    $serverFileName = validateAndSaveImage($_FILES['icon'], MAX_ICON_SIZE, GROUP_ICON_WIDTH, GROUP_ICON_HEIGHT, GROUP_ICON_DIR);
+    if (!$serverFileName)
     {
-        $imageID = bin2hex(random_bytes(20));
-        $serverFileName = GROUP_ICON_DIR.$imageID.'.gif';
+        returnMessage($_VALIDATE_IMAGE_FAILURE_MESSAGE, 400);
     }
-    while (file_exists($serverFileName));
-    imagegif($iconImage, $serverFileName);
-    imagedestroy($iconImage);
-
-    // TODO get and remove old icon file if size becomes an issue
 
     // query to store image path with the group
     $sql =  'UPDATE groups g '.
