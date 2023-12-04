@@ -10,7 +10,7 @@
 import * as globals from '../utils/globals.js'
 
 import { Text, View, Image } from '../utils/globals.js';
-import { useState, useRef, useContext } from 'react';
+import { useState, useRef, useContext, useEffect } from 'react';
 import { Link } from "react-router-dom/dist/index.js";
 import { useNavigate } from 'react-router-dom';
 
@@ -51,7 +51,29 @@ export default function Signup() {
     const userRef                   = useRef(null);
     const passwordErrorMessageRef   = useRef(null);
     const passwordRef               = useRef(null);
-    const passwordVerifyRef         = useRef(null);
+    const passwordVerifyRef = useRef(null);
+
+    const submitOnEnter = (event) => {
+        if (event.key === "Enter" && !emailDisabled && !passwordDisabled && !usernameDisabled) {
+            onSubmit();
+        }
+    }
+
+    useEffect(() => {
+
+        emailRef.current.addEventListener("keypress", submitOnEnter);
+        userRef.current.addEventListener("keypress", submitOnEnter);
+        passwordRef.current.addEventListener("keypress", submitOnEnter);
+        passwordVerifyRef.current.addEventListener("keypress", submitOnEnter);
+
+        return () => {
+            if (emailRef.current) emailRef.current.removeEventListener("keypress", submitOnEnter);
+            if (userRef.current) userRef.current.removeEventListener("keypress", submitOnEnter);
+            if (passwordRef.current) passwordRef.current.removeEventListener("keypress", submitOnEnter);
+            if (passwordVerifyRef.current) passwordVerifyRef.current.removeEventListener("keypress", submitOnEnter);
+        }
+
+    })
 
     return (
 
