@@ -3,7 +3,7 @@ import * as globals from '../utils/globals.js'
 import { Text, View, Image, Modal } from '../utils/globals.js';
 import { useRef, useState, createContext, useContext, useEffect } from 'react';
 
-import { getSettleUpCandidatesList } from "../utils/settleUp.js";
+import { getDisplayStringForCandidate, getSettleUpCandidatesList } from "../utils/settleUp.js";
 
 import Button from '../components/Button.js'
 import { ModalContext } from './ModalContext.js';
@@ -47,7 +47,6 @@ export default function SettleUp(props) {
 
     //Variables to pass down to all children as a context so that they know and can edit the data of others
     const [pageNum, setPageNum] = useState(PAGES.SELECT_CANDIDATE);
-    const [formData, setFormData] = useState({});
     const [candidates, setCandidates] = useState([]);
     const [candidateJSON, setJSON] = useState([{'user_id':null, 'username':"", 'amount':0}]);
     const [candidateIndex, setCandidateIndex] = useState(0);
@@ -55,13 +54,25 @@ export default function SettleUp(props) {
 
     const errorMessageRef = useRef(null);
 
+    function setErrorMsg(msg) {
+        if (msg)
+        {
+            errorMessageRef.current.innerText = msg;
+            errorMessageRef.current.classList.remove('hidden');
+        }
+        else
+        {
+            errorMessageRef.current.innerText = "";
+        }
+    }
+
     const { pushModal, popModal } = useContext(ModalContext);
 
     function handleChildClick(e) {
         e.stopPropagation();
     }
 
-    //Provide the context including pageNum, groupId, errorRef, and formData
+    //Provide the context including pageNum, groupId, and setErrorMsg
     return (
         <SettleUpContext.Provider
             value={{
@@ -71,7 +82,7 @@ export default function SettleUp(props) {
                 candidateIndex: [candidateIndex, setCandidateIndex],
                 targetID: [targetID, setTargetID],
                 errorRef: errorMessageRef,
-                formData: [formData, setFormData]
+                setErrorMsg: setErrorMsg
             }}>
             <Modal
                 transparent={true}
@@ -112,14 +123,14 @@ function SelectCandidate() {
         candidateJSON:  [candidateJSON, setCandidateJSON],
         candidateIndex:    [candidateIndex, setCandidateIndex],
         targetID:       [targetID   , setTargetID],
-        formData:       [formData   , setFormData]
+        setErrorMsg:    setErrorMsg
     } = useContext(SettleUpContext);
 
     const { pushModal, popModal } = useContext(ModalContext);
 
     useEffect(() => {
         async function getSettleUpCandidates(targetID) {
-            setCandidates(await buildCandidates(targetID, setCandidateJSON, setCandidateIndex, setPageNum));
+            setCandidates(await buildCandidates(targetID, setCandidateJSON, setCandidateIndex, setPageNum, setErrorMsg));
         }
         if (pageNum == PAGES.SELECT_CANDIDATE) getSettleUpCandidates(targetID);
     }, [pageNum]);
@@ -131,12 +142,12 @@ function SelectCandidate() {
         }}}>
             <Text style={{...globals.styles.text, ...{ paddingTop: '1em' }}}>Who would you like to pay?</Text>
 
-            <View style={{...globals.styles.list, ...{ alignItems: 'center', justifyContent: 'center', width: '75%' }}} >
+            <View style={{...globals.styles.list, ...{ gridTemplateColumns: '100%', width: '75%' }}} >
                 {candidates}
             </View>
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button  style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '33%' }}} id='settleUpModal_cancel' onClick={() => popModal()}>
+                <Button  style={{...globals.styles.formButton, ...{ margin: 0, marginTop: '1em', marginBottom: '1em', width: '33%' }}} id='settleUpModal_cancel' onClick={() => popModal()}>
                     <label htmlFor="settleUpModal_cancel" style={globals.styles.buttonLabel }>
                         Cancel
                     </label>
@@ -159,20 +170,14 @@ function ConfirmSettleUp() {
         pageNum: [pageNum, setPageNum],
         candidateJSON: [candidateJSON, setCandidateJSON],
         candidateIndex: [candidateIndex, setCandidateIndex],
-        formData: [formData, setFormData],
-        errorRef: errorRef,
+        setErrorMsg: setErrorMsg
     } = useContext(SettleUpContext);
 
     // Update form data to include participants list move on to name setting
     async function onSubmit() {
-        setPageNum(pageNum + 1);
-        
-        formData.user_id = candidateJSON[candidateIndex].user_id;
-        formData.amount = candidateJSON[candidateIndex].amount;
+        // setPageNum(pageNum + 1); // not sure why this was here? this is already the last page
 
-        setFormData(formData);
-
-        if (await submitForm(formData, errorRef)) {
+        if (await submitForm(candidateJSON[candidateIndex], setErrorMsg)) {
             popModal();
             reRender();
         }
@@ -182,24 +187,27 @@ function ConfirmSettleUp() {
 
     return (
         <View style={{...styles.pageContainer, ...{
-            display: pageNum != PAGES.CONFIRM_SETTLE_UP ? 'none' : 'inherit'
+            display: pageNum != PAGES.CONFIRM_SETTLE_UP ? 'none' : 'inherit',
+            justifyContent: 'space-between'
         }}}>
-            <Text style={{...globals.styles.text, ...{ paddingTop: '1em' }}}>Verify Transaction Details</Text>
-                
-            <View style={{width: '75%', justifyContent: 'space-between', flexDirection: 'row' }}>
-                <Text style={{...globals.styles.label, ...globals.styles.h4, ...{ padding: 0 }}}>You Owe {candidateJSON[candidateIndex].username} </Text>
-                <Text style={{...globals.styles.label, ...globals.styles.h4, ...{ padding: 0 }}}>${(candidateJSON[candidateIndex].amount / 100).toFixed(2)}</Text>
-            </View>
-           
+            <View style={{justifyContent: 'start'}} >
+                <Text style={{...globals.styles.text, ...{ paddingTop: '1em' }}}>Verify Transaction Details</Text>
 
-      
+                <Text style={{...globals.styles.label, ...globals.styles.h4, ...{ padding: 0, marginLeft: '1em'}}}>You Pay ${(candidateJSON[candidateIndex].amount / 100).toFixed(2)} to:</Text>
+
+                <View style={{...globals.styles.list, ...{ gridTemplateColumns: '100%', width: '75%' }}} >
+                    {buildSettleUpChainMembers(candidateJSON[candidateIndex].length, candidateJSON[candidateIndex].chain)}
+                </View>
+
+            </View>
+
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '33%' }}} id='confirmSettleUpModal_back' onClick={() => setPageNum(PAGES.SELECT_CANDIDATE)}>
+                <Button style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '33%' }}} id='confirmSettleUpModal_back' onClick={() => { setPageNum(PAGES.SELECT_CANDIDATE); setErrorMsg(''); }}>
                     <label htmlFor="confirmSettleUpModal_back" style={globals.styles.buttonLabel }>
                         Back
                     </label>
                 </Button>
-                <Button style={{...globals.styles.formButton, ...{ margin: 0, marginVertical: '1em', width: '33%' }}} id='confirmSettleUpModal_confirm' onClick={onSubmit}>
+                <Button style={{...globals.styles.formButton, ...{ margin: 0, marginTop: '1em', marginBottom: '1em', width: '33%' }}} id='confirmSettleUpModal_confirm' onClick={onSubmit}>
                     <label htmlFor="confirmSettleUpModal_confirm" style={globals.styles.buttonLabel }>
                         Confirm
                     </label>
@@ -209,6 +217,44 @@ function ConfirmSettleUp() {
     );
 }
 
+/**
+ * Builds DOM content to display the users in a settle-up chain
+ * @param {Number} length number of users in the chain
+ * @param {Array} chain array of {'user_id':<Number>, 'username':<String>} objects describing the list of creditors in the chain..
+ *                      the first user in the chain should be one of the current user's immediate creditors
+ * @returns a list of elements displaying members of the settle-up chain
+ */
+function buildSettleUpChainMembers(length, chain)
+{
+    let outputList = [];
+
+    for (let i = length; i > 0; i--)
+    {
+        outputList.push(
+            <View key={i} style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={{...globals.styles.label, ...globals.styles.h4}}>{chain[i-1].username}</Text>
+                {i > 1 ? <Text style={globals.styles.text}>on Behalf of</Text> : <></>}
+            </View>
+        );
+        // <Button
+        //     key={i}
+        //     style={{...globals.styles.formButton, ...{ width: '100%' }}}
+        //     id={'settleUpModal_option'+i}
+        //     onClick={
+        //         () => {
+        //             setID(i);
+        //             setPage(PAGES.CONFIRM_SETTLE_UP);
+        //             setErrorMsg('');
+        //         }}
+        // >
+        //     <label htmlFor={'settleUpModal_option'+i} style={globals.styles.buttonLabel }>
+        //         {getDisplayStringForCandidate(candidates[i])}
+        //     </label>
+        // </Button>
+    }
+
+    return outputList;
+}
 
 /**
  * Builds a list of candidates that a user may pay and converts them to button
@@ -216,11 +262,12 @@ function ConfirmSettleUp() {
  * @param {Function} setPage function to set pageNum variable
  * @returns a list of Button elements
  */
-async function buildCandidates(targetID, setJSON, setID, setPage) {
+async function buildCandidates(targetID, setJSON, setID, setPage, setErrorMsg) {
     let outputList = [];
 
-    const candidates = await getSettleUpCandidatesList(targetID);
+    const candidates = await getSettleUpCandidatesList(targetID, setErrorMsg);
 
+    // getSettleUpCandidatesList will return null if something went wrong
     if (!candidates){
         return outputList;
     }
@@ -228,15 +275,21 @@ async function buildCandidates(targetID, setJSON, setID, setPage) {
     setJSON(candidates);
 
     for (let i = 0; i < candidates.length; i++) {
-        outputList.push(<Button key={i} style={{...globals.styles.formButton, ...{ width: '100%', margin: 0, marginVertical: '.5em' }}} id={'settleUpModal_option'+i} onClick={
-            () => { 
-                setID(i);
-                setPage(PAGES.CONFIRM_SETTLE_UP);
-                }}>
-                <label htmlFor={'settleUpModal_option'+i} style={globals.styles.buttonLabel }>
-                    {candidates[i].username}
-                </label>
-                    </Button>);
+        outputList.push(<Button
+            key={i}
+            style={{...globals.styles.formButton, ...{ width: '100%' }}}
+            id={'settleUpModal_option'+i}
+            onClick={
+                () => {
+                    setID(i);
+                    setPage(PAGES.CONFIRM_SETTLE_UP);
+                    setErrorMsg('');
+                }}
+        >
+            <label htmlFor={'settleUpModal_option'+i} style={globals.styles.buttonLabel }>
+                {getDisplayStringForCandidate(candidates[i])}
+            </label>
+        </Button>);
     }
 
     return outputList;
@@ -246,15 +299,15 @@ async function buildCandidates(targetID, setJSON, setID, setPage) {
 
 /**
  * Sends a post request to transactions.php in order to create a new transaction
- * @param {Object} formData object contianing all the details for the new transaction
+ * @param {Object} candidate object describing the selected settle-up option
  * @returns {Boolean} whether or not a new transaction was created
  */
-async function submitForm(formData, errorRef) {
+async function submitForm(candidate, setErrorMsg) {
 
     try {
         let response = await fetch("/settle_up.php", {
             method: 'POST',
-            body: JSON.stringify(formData),
+            body: JSON.stringify(candidate),
             credentials: 'same-origin',
             headers: {
                 "Content-Type": "application/json"
@@ -263,16 +316,15 @@ async function submitForm(formData, errorRef) {
 
         if (await response.ok) {
             return true;
-
         }
         else {
-            let responseJSON = await await response.json();
-            errorRef.current.innerText = responseJSON.message;
+            let responseJSON = await response.json();
+            setErrorMsg(responseJSON.message);
             return false;
         }
     }
     catch (error) {
-        console.log("error in POST request to settle_up (/settle_up.php)");
+        console.log("error in POST request to /settle_up.php");
         console.log(error);
     }
    return false;
@@ -294,7 +346,8 @@ const styles = {
         flex: 1,
         height: 'auto', 
         width: '100%',
-        justifyContent: 'center',
+        flexDirection: 'column',
+        justifyContent: 'start',
         alignItems: 'center',
 
         overflowY: 'none',

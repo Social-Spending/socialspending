@@ -105,6 +105,8 @@ if ($pushedBranch != $branch)
 execute_command('git fetch origin '.$branch);
 execute_command('git reset --hard origin/'.$branch);
 execute_command('cd react_source && ./compile.sh');
+// compile c++ executable(s)
+execute_command('cd executables && make');
 
 // re-create database
 // only do this on dev
