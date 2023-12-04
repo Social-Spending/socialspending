@@ -6,8 +6,8 @@ include_once('templates/constants.php');
 include_once("templates/jsonMessage.php");
 include_once('templates/saveImage.php');
 
-include_once('notifications.php');
 include_once('templates/groupHelpers.php');
+include_once('templates/notificationHelpers.php');
 
 /*
 Transactions PHP Endpoint
@@ -272,7 +272,7 @@ function getTransactions($user_id)
         returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
     }
 
-    //Retrieves all information about transactions that $user_id particpated in
+    //Retrieves all information about transactions that $user_id participated in
     $sql = "SELECT  transactions.transaction_id AS transaction_id,
                     transactions.name AS transaction_name,
                     transactions.date AS transaction_date,
@@ -323,11 +323,11 @@ function getTransaction($transaction_id) {
 
     if ($passed_user_id === 0) 
     {
-        // Unathorized, no user_id associated with cookie
+        // Unauthorized, no user_id associated with cookie
         returnMessage("User not signed in", HTTP_UNAUTHORIZED);
     }
 
-    //Retrieves all information about transactions that $user_id particpated in
+    //Retrieves all information about transactions that $user_id participated in
     $sql = "SELECT  transactions.transaction_id AS transaction_id,
                     transactions.name AS transaction_name,
                     transactions.date AS transaction_date,
@@ -485,7 +485,7 @@ function addNewTransaction($data)
 
     $passed_user_id = intval(validateSessionID());
 
-    // Unathorized, no user_id associated with cookie
+    // Unauthorized, no user_id associated with cookie
     if ($passed_user_id === 0)
     {
         returnMessage("User not signed in", HTTP_UNAUTHORIZED);
@@ -527,7 +527,7 @@ function addNewTransaction($data)
 
     //$response === true if insertion successful
     if ($response !== true) {
-        //JSON was valid, clearly something internal (HTTP_500) occured
+        //JSON was valid, clearly something internal (HTTP_500) occurred
         returnMessage("Error creating transaction", HTTP_INTERNAL_SERVER_ERROR);
     }
 
@@ -549,7 +549,7 @@ function addNewTransaction($data)
 
         //$response === true if insertion successful
         if ($response !== true) {
-            //JSON was valid, clearly something internal (HTTP_500) occured
+            //JSON was valid, clearly something internal (HTTP_500) occurred
             returnMessage("Error creating transaction", HTTP_INTERNAL_SERVER_ERROR);
         }
         
@@ -590,7 +590,7 @@ function updateExistingTransaction($data)
 
     $passed_user_id = intval(validateSessionID());
 
-    // Unathorized, no user_id associated with cookie OR
+    // Unauthorized, no user_id associated with cookie OR
     if ($passed_user_id === 0)
     {
         returnMessage("User not signed in", HTTP_UNAUTHORIZED);
@@ -618,7 +618,7 @@ function updateExistingTransaction($data)
 
     //$response === true if update successful
     if ($response !== true) {
-        //JSON was valid, clearly something internal (HTTP_500) occured
+        //JSON was valid, clearly something internal (HTTP_500) occurred
         returnMessage("Failed to update transaction", HTTP_INTERNAL_SERVER_ERROR);
     }
 
@@ -703,7 +703,7 @@ function deleteTransaction($transaction_id)
 
     $passed_user_id = intval(validateSessionID());
 
-    // Unathorized, no user_id associated with cookie OR
+    // Unauthorized, no user_id associated with cookie OR
     if ($passed_user_id === 0)
     {
         returnMessage("User not signed in", HTTP_UNAUTHORIZED);

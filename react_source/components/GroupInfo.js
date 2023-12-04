@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom/dist/index.js";
 import ChangeableIcon from "./ChangeableIcon.js"
 import NewExpense from "../modals/NewExpense.js";
 import SVGIcon from "./SVGIcon.js";
+import { getTransactionJSONComparator } from "../utils/transactions.js";
 
 
 export default function GroupInfo(props) {
@@ -198,6 +199,9 @@ function getGroupMembers(currUserID, currUsername, currUserIconPath, json) {
 function getTransactions(json) {
 
     let outputList = [];
+
+    // sort transactions
+    json['transactions'].sort(getTransactionJSONComparator());
 
     for (let i = 0; i < json['transactions'].length; i++) {
 

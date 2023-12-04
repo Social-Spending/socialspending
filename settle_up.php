@@ -6,6 +6,7 @@ include_once("templates/constants.php");
 include_once("templates/jsonMessage.php");
 include_once("templates/settleUpOptions.php");
 include_once("templates/debtHelpers.php");
+include_once('templates/notificationHelpers.php');
 
 /*
     GET - Gets viable candidates for how to settle up with the given user
@@ -122,8 +123,27 @@ function verifyBalance($creditorID, $debtorID, $minAmount)
     return $row['balance'] >= $minAmount;
 }
 
+function addParticipant($transactionID, $userID, $paid, $borrowed)
+{
+    global $mysqli;
+    $sql = "INSERT INTO transaction_participants (transaction_id, user_id, has_approved, amount)
+            VALUES  (?, ?, 1, ?)";
+
+    $response = $mysqli->execute_query($sql, [  $transactionID,
+                                                $userID,
+                                                $borrowed - $paid
+                                            ]);
+
+    // check that query was successful
+    if (!$response) {
+        handleDBError();
+    }
+}
+
 function handlePOST($bodyJSON)
 {
+    global $mysqli;
+
     // authenticate user using cookie
 	$currUserID = intval(validateSessionID());
 	if ($currUserID == 0)
@@ -190,6 +210,43 @@ function handlePOST($bodyJSON)
         // this creditor becomes the debtor in the next link
         $debtorID = $creditorID;
     }
+
+    // store settling up as a completed transaction
+    $targetUserID = intval($chain[0]['user_id']);
+    $transactionDate = date("Y-m-d", time());
+    $sql = "INSERT INTO transactions (name, date, amount, description)
+            SELECT CONCAT(debtor.username, ' Settle Up With ', creditor.username), ?, ?, ''
+            FROM users debtor
+            INNER JOIN users creditor ON creditor.user_id = ?
+            WHERE debtor.user_id = ?;";
+
+    $response = $mysqli->execute_query($sql,    [   $transactionDate,
+                                                    $amount,
+                                                    $targetUserID,
+                                                    $currUserID
+                                                ]);
+
+    // check that query was successful
+    if (!$response) {
+        handleDBError();
+    }
+
+    // Get AUTO_INCREMENT ID for most recent insertion
+    $transactionID = $mysqli->insert_id;
+
+    // add all users as participants, pre-approved
+    // start with the debtor (the current user)
+    addParticipant($transactionID, $currUserID, $amount, 0);
+    // next, the person with whom they are settling up
+    addParticipant($transactionID, $targetUserID, 0, $amount);
+    // finally, all the other people
+    for ($index = 1; $index < count($chain); $index += 1)
+    {
+        addParticipant($transactionID, intval($chain[$index]['user_id']), $amount, $amount);
+    }
+
+    // add a "completed transaction" notification to each participant's inbox
+    createCompleteTransactionNotifications($transactionID);
 
     // if we got here, all is good
     returnMessage('Success', HTTP_OK);

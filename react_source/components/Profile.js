@@ -23,6 +23,7 @@ import { GlobalContext } from "./GlobalContext.js";
 import NewExpense from "../modals/NewExpense.js";
 import SVGIcon from "./SVGIcon.js";
 import SettleUp from "../modals/SettleUp.js";
+import { getTransactionJSONComparator } from "../utils/transactions.js";
 
 
 export default function Profile(props) {
@@ -299,6 +300,9 @@ function getGroupList(groupsJSON) {
 
 function getTransactionList(transactionsJSON) {
     let outputList = [];
+
+    // sort transactions
+    transactionsJSON.sort(getTransactionJSONComparator());
 
     for (let i = 0; i < transactionsJSON.length; i++) {
         outputList.push(

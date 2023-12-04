@@ -9,7 +9,7 @@ import Loading from "./Loading.js";
 import { GlobalContext } from "./GlobalContext.js";
 import TransactionInfo from "../modals/TransactionInfo.js";
 import { ModalContext } from "../modals/ModalContext.js";
-import { getTransactions } from "../utils/transactions.js";
+import { getTransactionJSONComparator, getTransactions } from "../utils/transactions.js";
 
 export default function SummaryTransactionsList(props) {
 
@@ -121,6 +121,9 @@ async function buildTransactions(currUserID) {
     let transactions = await getTransactions(currUserID);
 
     if (transactions === null) return transactionList;
+
+    // sort transactions
+    transactions.sort(getTransactionJSONComparator('transaction_date'));
 
     for (let i = 0; i < transactions.length; i++) {
         let currUserAsParticipant = transactions[i].transaction_participants.find((part) => {return part.user_id == currUserID;});
