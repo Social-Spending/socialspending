@@ -2,13 +2,14 @@
 import * as globals from '../utils/globals.js'
 
 import { Text, View, Image, Modal } from '../utils/globals.js';
-import { useRef, useState, useContext } from 'react';
+import { useRef, useState, useContext, useEffect } from 'react';
 
 
 import Button from '../components/Button.js'
 import { ModalContext } from './ModalContext.js';
 import { GlobalContext } from '../components/GlobalContext.js';
 import { styles, checkPassword, checkUsername, checkEmail } from '../utils/validateUserInfo.js';
+import { getUserInfo } from '../utils/friends.js'
 
 
 import Logo from '../assets/images/logo/logo-name-64.png';
@@ -47,9 +48,30 @@ export default function EditProfile(props) {
     const passwordRef               = useRef(null);
     const passwordVerifyRef         = useRef(null);
 
+    const [username, setUsername] = useState(null);
+    const [email, setEmail] = useState(null);
+
     function handleChildClick(e) {
         e.stopPropagation();
     }
+
+    useEffect(() => {
+
+        async function getItems() {
+            let json = null;
+
+            json = await getUserInfo(props.id);
+
+            if (json != null) {
+                setUsername(json.username);
+                setEmail(json.email);
+            }
+        
+        }
+
+        getItems();
+
+    });
 
     return (
         <Modal
@@ -71,13 +93,13 @@ export default function EditProfile(props) {
                         <label htmlFor="signupForm_email" style={{ ...globals.styles.h5, ...globals.styles.label}}>EMAIL</label>
                         <Text ref={emailErrorMessageRef} id='email_errorMessage' style={globals.styles.error}></Text>
                     </View>
-                    <input autoFocus tabIndex={0} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" onInput={onEmailChange} />
+                    <input autoFocus tabIndex={0} ref={emailRef} type='email' placeholder=" Enter your email address" style={globals.styles.input} id='signupForm_email' name="Email" defaultValue={email} onInput={onEmailChange} />
 
                     <View style={globals.styles.labelContainer}>
                         <label htmlFor="signupForm_user" style={{ ...globals.styles.h5, ...globals.styles.label}}>USERNAME</label>
                         <Text ref={userErrorMessageRef} id='username_errorMessage' style={globals.styles.error}></Text>
                     </View>
-                    <input tabIndex={0} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" onInput={onUsernameChange} />
+                    <input tabIndex={0} ref={userRef} placeholder=" Enter your desired username" style={globals.styles.input} id='signupForm_user' name="Username" defaultValue={username} onInput={onUsernameChange} />
 
                     <View style={{ ...globals.styles.labelContainer, ...{ justifyContent: 'flex-start' }}}>
 
