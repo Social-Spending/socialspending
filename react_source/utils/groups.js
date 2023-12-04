@@ -186,7 +186,7 @@ export async function sendGroupInvitation(username, group_id, popModal, reRender
         }
         else {
             // failed, display error message returned by server
-            responseJSON = await response.json();
+            let responseJSON = await response.json();
             setErrorMsg(responseJSON['message']);
         }
     }

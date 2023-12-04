@@ -94,7 +94,7 @@ function SummaryFriendItem(props) {
 
     return (
         <>
-            <Link to={'/profile/' + props.id} style={globals.styles.listItemRow}>
+            <Link to={'/profile/' + props.name} style={globals.styles.listItemRow}>
                 
                 <Image
                     style={{ ...globals.styles.listIcon, ...{ marginLeft: '.75em', width: '2.5em', height: '2.5em' } }}
@@ -103,7 +103,7 @@ function SummaryFriendItem(props) {
                 <Text style={{ ...globals.styles.listText, ...{ paddingLeft: '.25em' } }}>{props.name}</Text>
                 
             </Link>
-            <Link to={'/profile/' + props.id} style={globals.styles.listItemColumn}>
+            <Link to={'/profile/' + props.name} style={globals.styles.listItemColumn}>
                 <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color }}>{text}</Text>
                 <Text style={{ ...globals.styles.listText, ...color }}>${Math.abs(props.owed / 100).toFixed(2)}</Text>
                 {

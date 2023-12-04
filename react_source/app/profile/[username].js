@@ -14,24 +14,24 @@ import { useNavigate, useParams } from 'react-router-dom/dist/index.js';
 export default function Page() {
     const slug = useParams();
 
-    const { currUserID, isLoading } = useContext(GlobalContext);
+    const { currUsername, isLoading } = useContext(GlobalContext);
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!isLoading && slug.id == currUserID) {
+        if (!isLoading && slug.username == currUsername) {
             navigate('/profile', { replace: true });
             return;
         }
 
-    }, [isLoading, slug.id]);
+    }, [isLoading, slug.username]);
 
     
 
     return (
         <Base style={{ ...globals.styles.container, ...{ justifyContent: 'flex-start', alignItems: 'flex-start' }}}>
-           <WaitForAuth redirectOnNotLoggedIn={'/login?origin=profile/' + slug.id}>
-                <Profile id={slug.id} />
+           <WaitForAuth redirectOnNotLoggedIn={'/login?origin=profile/' + slug.username}>
+                <Profile username={slug.username} />
            </WaitForAuth>
         </Base>
     );

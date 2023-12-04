@@ -36,13 +36,19 @@ export const Text = React.forwardRef((props, ref) => (
 export const Image = React.forwardRef(function ImageType(props, ref) {
     const [imgStyle, setImgStyle] = useState({ height: 'auto', maxHeight: '100%' });
 
-
+    const [divStyle, setDivStyle] = useState(props.style);
     function onImgLoad({ target: img }) {
-        setImgStyle(img.naturalWidth > img.naturalHeight ? { height: 'auto', maxHeight: '100%' } : { width: 'auto', maxWidth: '100%' });
+        if (props.useImageSize) {
+            setDivStyle({...props.style, ...{ height: img.naturalHeight, aspectRatio: img.naturalWidth / img.naturalHeight }});
+
+        } else {
+            setImgStyle(img.naturalWidth > img.naturalHeight ? { height: 'auto', maxHeight: '100%' } : { width: 'auto', maxWidth: '100%' });
+        }
+        
     }
 
     return (
-        <div tabIndex={props.tabIndex ? props.tabIndex : -1} {...props} style={{ ...props.style, ...{ overflow: 'hidden', justifyContent: 'center', alignItems: 'center' } }} >
+        <div tabIndex={props.tabIndex ? props.tabIndex : -1} {...props} style={{ ...divStyle, ...{ overflow: 'hidden', justifyContent: 'center', alignItems: 'center' } }} >
             <img ref={ref} src={props.source} onLoad={onImgLoad} style={imgStyle} />
         </div>
 
