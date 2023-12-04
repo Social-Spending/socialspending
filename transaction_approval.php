@@ -5,9 +5,8 @@ include_once('templates/cookies.php');
 include_once('templates/constants.php');
 include_once("templates/jsonMessage.php");
 
-include_once('notifications.php');
-
 include_once('templates/debtHelpers.php');
+include_once('templates/notificationHelpers.php');
 
 /*
 Transaction Approval PHP Endpoint
@@ -235,6 +234,9 @@ function submitTransaction($transaction_id)
         }
 
 	}
+
+    // add a "completed transaction" notification to each participant's inbox
+    createCompleteTransactionNotifications($transaction_id);
 
 	return true;	
 }

@@ -440,5 +440,12 @@ export const styles = {
         marginRight: '1em',
         borderRadius: '2em',
         color: COLOR_ORANGE,
+    },
+    profileAndGroupNameText: {
+        color: COLOR_GRAY,
+        borderRadius: 2,
+        padding: 0,
+        margin: '0 .5em',
+        fontWeight: 500
     }
 };

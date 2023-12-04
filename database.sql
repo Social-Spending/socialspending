@@ -23,7 +23,7 @@ create table transactions (
 	amount int not null,
 	receipt_path text null,
 	description text not null,
-	group_id int,
+	group_id int null,
 	primary key (transaction_id),
 	foreign key (group_id) references groups(group_id) on delete cascade on update cascade
 );
