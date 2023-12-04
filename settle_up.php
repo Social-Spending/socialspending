@@ -123,15 +123,16 @@ function verifyBalance($creditorID, $debtorID, $minAmount)
     return $row['balance'] >= $minAmount;
 }
 
-function addParticipant($transactionID, $userID, $paid, $borrowed)
+function addParticipant($transactionID, $userID, $paid, $spent)
 {
     global $mysqli;
-    $sql = "INSERT INTO transaction_participants (transaction_id, user_id, has_approved, amount)
-            VALUES  (?, ?, 1, ?)";
+    $sql = "INSERT INTO transaction_participants (transaction_id, user_id, has_approved, paid, spent)
+            VALUES  (?, ?, 1, ?, ?)";
 
     $response = $mysqli->execute_query($sql, [  $transactionID,
                                                 $userID,
-                                                $borrowed - $paid
+                                                $paid,
+                                                $spent
                                             ]);
 
     // check that query was successful

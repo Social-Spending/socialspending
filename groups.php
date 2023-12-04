@@ -598,7 +598,7 @@ function fillGroupTransactions(&$group, $userID)
     // query to get all transactions linked to this group
     $sql = "SELECT
                 t.transaction_id, t.name, t.date, t.group_id,
-                COALESCE(tp.amount, 0) as user_debt,
+                COALESCE(tp.spent - tp.paid, 0) as user_debt,
                 CASE WHEN COUNT(tp2.user_id) = SUM(tp2.has_approved)
                         THEN 1
                         ELSE 0

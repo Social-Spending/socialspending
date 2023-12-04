@@ -189,11 +189,11 @@ export default function Profile(props) {
                                     </label>
                                 </Button>
                             }
-                            <Button id="profile_newExpense" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={addExpense} >
+                            {/* <Button id="profile_newExpense" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={addExpense} >
                                 <label htmlFor="profile_newExpense" style={globals.styles.buttonLabel}>
                                     + NEW EXPENSE
                                 </label>
-                            </Button>
+                            </Button> */}
                         </View>
                     </View>
                     

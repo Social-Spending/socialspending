@@ -60,8 +60,10 @@ Transactions PHP Endpoint
                         "transaction_name":"Halal Shack",
                         "transaction_date":"2023-09-29",
                         "transaction_description":"Bought you fools some food",
+                        "receipt_path":"/transaction_receipts/01234567890abcdef.gif",
                         "group_id": 2,
                         "is_approved": 1,
+                        "amount":2000,
                         "transaction_participants":[ 
                                                     {
                                                     "user_id":1,
@@ -90,8 +92,10 @@ Transactions PHP Endpoint
                     "transaction_name":"Halal Shack",
                     "transaction_date":"2023-09-29",
                     "transaction_description":"Bought you fools some food",
+                    "receipt_path":"/transaction_receipts/01234567890abcdef.gif",
                     "group_id": 2,
                     "is_approved": 1,
+                    "amount":2000,
                     "transaction_participants":[ 
                                                 {
                                                 "user_id":1,
@@ -117,15 +121,18 @@ Transactions PHP Endpoint
                     "transaction_name":"Halal Shack",
                     "transaction_date":"2023-09-29",
                     "transaction_description":"Bought you fools some food",
-                    "group_id":2
+                    "group_id":2,
+                    "amount":2000,
                     "transaction_participants":[ 
                                                 {
                                                     "user_id":1,
-                                                    "amount":20
+                                                    "paid":2000,
+                                                    "spent":1000
                                                     },
                                                     {
                                                     "user_id": 2,
-                                                    "amount":10
+                                                    "paid":0,
+                                                    "spent":1000
                                                     } 
                                                 ]
                 }
@@ -139,15 +146,18 @@ Transactions PHP Endpoint
                     "transaction_name":"Halal Shack",
                     "transaction_date":"2023-09-29",
                     "transaction_description":"Bought you fools some food",
-                    "group_id":2
+                    "amount":2000,
+                    "group_id":2,
                     "transaction_participants":[ 
                                                 {
                                                     "user_id":1,
-                                                    "amount":20
+                                                    "paid":2000,
+                                                    "spent":1000
                                                     },
                                                     {
                                                     "user_id": 2,
-                                                    "amount":10
+                                                    "paid":0,
+                                                    "spent":1000
                                                     } 
                                                 ]
                 }
@@ -278,6 +288,8 @@ function getTransactions($user_id)
                     transactions.date AS transaction_date,
                     transactions.description AS transaction_description,
                     transactions.group_id AS group_id,
+                    transactions.receipt_path as receipt_path,
+                    transactions.amount AS amount,
                     CASE WHEN COUNT(tp2.user_id) = SUM(tp2.has_approved)
                         THEN 1
                         ELSE 0
@@ -335,6 +347,7 @@ function getTransaction($transaction_id) {
                     transactions.description AS transaction_description,
                     transactions.group_id as group_id,
                     transactions.receipt_path as receipt_path,
+                    transactions.amount AS amount,
                     CASE WHEN COUNT(tp.user_id) = SUM(tp.has_approved)
                         THEN 1
                         ELSE 0
@@ -395,15 +408,18 @@ function checkParticipantsForUser($array, $user_id)
         true - sum of amounts is 0
         false - sum of amounts is not 0
 */
-function checkAmountsSumToZero($data)
+function checkAmountsSum($data)
 {
-    $sum = 0;
+    $paidSum = 0;
+    $spentSum = 0;
     foreach($data['transaction_participants'] as $participant)
     {
-        $sum += intval($participant['amount']);
+        $paidSum += intval($participant['paid']);
+        $spentSum += intval($participant['spent']);
     }
 
-    return $sum === 0;
+    $transactionTotal = $data['amount'];
+    return ($paidSum == $transactionTotal && $spentSum == $transactionTotal);
 }
 
 /*
@@ -425,9 +441,8 @@ function encapsulateTransactionData($row)
     $transaction['transaction_description'] = $row['transaction_description'];
     $transaction['group_id'] = $row['group_id'];
     $transaction['is_approved'] = $row['is_approved'];
-    //Check for receipt_path just to eliminate warnings
-    if (isset($row['receipt_path']))
-        $transaction['receipt_path'] = $row['receipt_path'];
+    $transaction['receipt_path'] = $row['receipt_path'];
+    $transaction['amount'] = $row['amount'];
 
 
     // Fetch data about participants *in* that given transaction
@@ -438,7 +453,8 @@ function encapsulateTransactionData($row)
                     users.username AS username,
                     users.icon_path AS icon_path,
                     transaction_participants.has_approved AS has_approved,
-                    transaction_participants.amount AS amount
+                    transaction_participants.paid AS paid,
+                    transaction_participants.spent AS spent
 
             FROM transaction_participants
             LEFT JOIN users on users.user_id = transaction_participants.user_id
@@ -455,7 +471,7 @@ function encapsulateTransactionData($row)
         $transaction['transaction_participants'][$j]['username'] = $subrow['username'];
         $transaction['transaction_participants'][$j]['icon_path'] = $subrow['icon_path'];
         $transaction['transaction_participants'][$j]['has_approved'] = $subrow['has_approved'];
-        $transaction['transaction_participants'][$j]['amount'] = $subrow['amount'];
+        $transaction['transaction_participants'][$j]['amount'] = $subrow['spent'] - $subrow['paid'];
         $j++;
     }
 
@@ -498,10 +514,10 @@ function addNewTransaction($data)
         returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
     }
 
-    // check that sum of all participant amount is 0
-    if (!checkAmountsSumToZero($data))
+    // check that sum of all spent and all paid both equal the amount
+    if (!checkAmountsSum($data))
     {
-        returnMessage("Sum of all amounts should be 0", HTTP_BAD_REQUEST);
+        returnMessage("Sum of paid and sum of spent must match the transaction amount", HTTP_BAD_REQUEST);
     }
 
     if (!is_null($data['group_id']) && !is_numeric($data['group_id'])) 
@@ -518,10 +534,11 @@ function addNewTransaction($data)
     //TODO this follows the same pattern as validation, room for improvement
 
     $sql = "INSERT INTO transactions    (name, date, amount, description, group_id)
-                                VALUES  (?, ?, 0, ?, ?)";
+                                VALUES  (?, ?, ?, ?, ?)";
 
     $response = $mysqli->execute_query($sql,    [   $data['transaction_name'],
                                                     $data['transaction_date'],
+                                                    $data['amount'],
                                                     $data['transaction_description'],
                                                     $data['group_id']
                                                 ]);
@@ -540,13 +557,14 @@ function addNewTransaction($data)
     foreach($data['transaction_participants'] as $participant) 
     {
         $sql = "INSERT INTO transaction_participants    
-                            (transaction_id, user_id, has_approved, amount)
-                    VALUES  (?, ?, ?, ?)";
+                            (transaction_id, user_id, has_approved, paid, spent)
+                    VALUES  (?, ?, ?, ?, ?)";
 
         $response = $mysqli->execute_query($sql, [  $transaction_id,
                                                     $participant['user_id'],
                                                     ($participant['user_id'] == $passed_user_id) ? 1 : 0,
-                                                    $participant['amount'] ]);
+                                                    $participant['paid'],
+                                                    $participant['spent'] ]);
 
         //$response === true if insertion successful
         if ($response !== true) {
@@ -554,9 +572,9 @@ function addNewTransaction($data)
             returnMessage("Error creating transaction", HTTP_INTERNAL_SERVER_ERROR);
         }
         
-        //Send out notifications for approval
-        addApprovalRequestNotification($transaction_id, $participant['user_id']);
     }
+    //Send out notifications for approval
+    createApprovalRequestNotification($transaction_id);
 
     $resultJSON = array();
     $resultJSON["transaction_id"] = $transaction_id;
@@ -580,6 +598,8 @@ NOTE: Approval should probably be handled outside of this method
 */
 function updateExistingTransaction($data)
 {
+    returnMessage("Request Type Not Supported", HTTP_BAD_REQUEST);
+
     global $mysqli;
 
     // If invalid data, return HTTP_400 (Bad Request)
@@ -607,7 +627,8 @@ function updateExistingTransaction($data)
     $sql = "UPDATE  transactions
             SET     transaction_name = ?,
                     transaction_date = ?,
-                    transaction_description = ?
+                    transaction_description = ?,
+                    amount = ?
             WHERE   transaction_id = ?";
     
     //TODO: this DOES NOT handle participant changes at ALL
@@ -615,6 +636,7 @@ function updateExistingTransaction($data)
     $response = $mysqli->execute_query($sql, [  $data['transaction_name'],
                                                 $data['transaction_date'],
                                                 $data['transaction_description'],
+                                                $data['amount'],
                                                 $data['transaction_id'] ]);
 
     //$response === true if update successful
@@ -647,10 +669,10 @@ Returns:
 function validateTransactionData($data)
 {
     // Needed keys for transactions (t)
-    $nkt = ['transaction_name', 'transaction_date', 'transaction_description'];
+    $nkt = ['transaction_name', 'transaction_date', 'transaction_description', 'amount'];
 
     //Needed keys for participants (p)
-    $nkp = ['user_id', 'amount'];
+    $nkp = ['user_id', 'paid', 'spent'];
 
      /*
     Find the keys in common between the needed_keys and the keys provided

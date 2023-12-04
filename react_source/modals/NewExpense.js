@@ -34,16 +34,17 @@ const PAGES = {
        "transaction_name": "Halal Shack",
        "transaction_date": "2023-09-29",
        "transaction_description": "Bought you fools some food",
+       "amount": 2000,
        "transaction_participants": [ 
            {
                "user_id": 1,
-               "spent": 2000 // $20
+               "spent": 1000, // $10
                "paid": 0
            },
            {
                "user_id":  2,
-               "spent": 0,
-               "paid": 1000 // $10
+               "spent": 1000, // $10
+               "paid": 2000 // $10
            } 
        ]
    }
@@ -64,6 +65,8 @@ export default function NewExpense(props) {
     const [formData, setFormData] = useState({});
     const [image, setImage] = useState(null);
     const [total, setTotal] = useState(0);
+    // this will store the transactionID in case the transaction was created successfully, but the
+    const transactionIDRef = useRef(0);
 
     const errorMessageRef = useRef(null);
 
@@ -83,8 +86,8 @@ export default function NewExpense(props) {
                 formData:   [formData, setFormData],
                 image:      [image, setImage],
                 memberList: [memberList, setMemberList],
-                
                 errorRef: errorMessageRef,
+                transactionIDRef: transactionIDRef
             }}>
             <Modal
                 transparent={true}
@@ -454,10 +457,12 @@ function SplitExpense() {
         total:      [total, setTotal],
         image:      [image, setImage],
         memberList: [memberList, setMemberList],
-        errorRef:    errorRef
+        errorRef:    errorRef,
+        transactionIDRef: transactionIDRef
     } = useContext(ExpenseContext);
 
-
+    let { popModal } = useContext(ModalContext);
+    let { reRender } = useContext(GlobalContext);
     
     //  splitList is the list of the SplitListItems elements with each participant name and the 2 inputs for how much they spent
     //  inputRefs is the list of the refs for inputs for each splitList entry accessed as follows inputRefs[i].paid & inputRefs[i].spent
@@ -553,9 +558,16 @@ function SplitExpense() {
 
         setFormData(formData);
 
-        let transaction_id = await submitForm(formData, errorRef);
-        if (transaction_id != -1) {
-            uploadReceipt(image, transaction_id, errorRef);
+        // check if transaction ID was already created, meaning the transaction was created properly but the receipt upload failed
+        if (!transactionIDRef.current > 0) {
+            transactionIDRef.current = await submitForm(formData, errorRef);
+        }
+        if (transactionIDRef.current > 0) {
+            if (image != null) {
+                if (!uploadReceipt(image, transactionIDRef.current, errorRef)) {
+                    return;
+                };
+            }
             popModal();
             reRender();
         }
@@ -755,7 +767,7 @@ async function buildGroups(setID, setPage) {
 
 /**
  * Builds a list of MemberListItems
- * @param {JSON} json JSON object contianing group information, particularly a members array
+ * @param {JSON} json JSON object containing group information, particularly a members array
  * @param {Function} setRefList function to set the refList variable of SelectMembers
  * @returns a list of MemberListItems
  */
@@ -775,7 +787,7 @@ function getGroupMembers(json, removeMember) {
 
 /**
  * Builds a list of SplitListItems
- * @param {JSON[]} members JSON array contianing members
+ * @param {JSON[]} members JSON array containing members
  * @param {Function} setInputRefs Function pointer to change inputRefs in SplitExpense
  * @returns a list of SplitListItems
  */
@@ -806,11 +818,9 @@ function checkSplit(total, inputRefs, isPercent, errorRef) {
     // Check to make sure values add to total or 100%
     let totalPaid = 0;
     let totalSpent = 0;
-    console.log("checking " +inputRefs.length + " regs with isPercent=" + isPercent);
     for (let i = 0; i < inputRefs.length; i++) {
         totalPaid += parseInt(inputRefs[i].paid.current.value * 100);
         totalSpent += parseInt(inputRefs[i].spent.current.value * 100);
-        console.log("user "+i+" paid: "+ inputRefs[i].paid.current.value +" spent "+ inputRefs[i].spent.current.value);
     }
 
     if (parseInt(totalPaid) != (isPercent ? 10000 : total)) {
@@ -878,7 +888,7 @@ function checkTotal(totalRef, errorRef) {
 
 /**
  * Sends a post request to transactions.php in order to create a new transaction
- * @param {Object} formData object contianing all the details for the new transaction
+ * @param {Object} formData object containing all the details for the new transaction
  * @returns {int} transaction ID of the created transaction, -1 if failed
  */
 async function submitForm(formData, errorRef) {
@@ -901,6 +911,7 @@ async function submitForm(formData, errorRef) {
         }
         else {
             errorRef.current.innerText = responseJSON.message;
+            errorRef.current.style.visibility = 'visible';
             return -1;
         }
     }
@@ -929,9 +940,10 @@ async function uploadReceipt(image, transaction_id, errorRef) {
 
         }
         else {
-            let responseJSON = await await response.json();
-            //This errorRef doesn't get updated since the wnidow closes anyways
+            let responseJSON = await response.json();
+            //This errorRef doesn't get updated since the window closes anyways
             errorRef.current.innerText = responseJSON.message;
+            errorRef.current.style.visibility = 'visible';
             return false;
         }
     }
