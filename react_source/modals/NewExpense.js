@@ -37,11 +37,13 @@ const PAGES = {
         "transaction_participants":[ 
             {
                 "user_id":1,
-                "amount":20
+                "borrowed":20
+                "paid": 0
             },
             {
                 "user_id": 2,
-                "amount":10
+                "paid":10,
+                "borrowed": 0
             } 
         ]
     }
@@ -58,7 +60,10 @@ export default function NewExpense(props) {
     //Variables to pass down to all children as a context so that they know and can edit the data of others
     const [pageNum, setPageNum] = useState(props.groupID || props.profile ? PAGES.SPLIT_EXPENSE : PAGES.CHOOSE_NAME);
     const [groupID, setGroupID] = useState(props.groupID ? props.groupID : null);
+    const [memberList, setMemberList] = useState([]);
     const [formData, setFormData] = useState({});
+    const [image, setImage] = useState(null);
+    const [total, setTotal] = useState(0);
 
     const errorMessageRef = useRef(null);
 
@@ -68,48 +73,18 @@ export default function NewExpense(props) {
         e.stopPropagation();
     }
 
-    // TODO refactor this modal
-    /*return (
-        <ExpenseContext.Provider
-            value={{
-                pageNum: [pageNum, setPageNum],
-                groupID: [groupID, setGroupID],
-                errorRef: errorMessageRef,
-                formData: [formData, setFormData]
-            }}>
-            <Modal
-                transparent={true}
-                visible={true}
-                onRequestClose={() => popModal()}>
-
-                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
-                    <View style={styles.create} onClick={handleChildClick}>
-
-                        <Image source={Logo} style={styles.logo} />
-
-                        <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>NEW EXPENSE</Text>
-
-                        <Text ref={errorMessageRef} id='createExpense_errorMessage' style={globals.styles.error}></Text>
-
-                        <Text>
-                            Under Construction!
-                        </Text>
-
-                    </View>
-                </View>
-            </Modal>
-        </ExpenseContext.Provider>
-
-    );*/
-
     //Provide the context including pageNum, groupId, errorRef, and formData
     return (
         <ExpenseContext.Provider
             value={{
-                pageNum: [pageNum, setPageNum],
-                groupID: [groupID, setGroupID],
+                pageNum:    [pageNum, setPageNum],
+                total:      [total, setTotal],
+                groupID:    [groupID, setGroupID],
+                formData:   [formData, setFormData],
+                image:      [image, setImage],
+                memberList: [memberList, setMemberList],
+                
                 errorRef: errorMessageRef,
-                formData: [formData, setFormData]
             }}>
             <Modal
                 transparent={true}
@@ -129,6 +104,7 @@ export default function NewExpense(props) {
                         <SelectSplit />
                         <SelectGroup />
                         <SelectMembers />
+                        <SplitExpense />
 
                     </View>
                 </View>
@@ -144,12 +120,11 @@ export default function NewExpense(props) {
  */
 function ChooseName() {
 
-    const { pushModal, popModal } = useContext(ModalContext);
-    const {reRender} = useContext(GlobalContext);
-
     let {
-        pageNum:    [pageNum    , setPageNum],
-        formData:   [formData   , setFormData],
+        pageNum:    [pageNum, setPageNum],
+        formData:   [formData, setFormData],
+        total:      [total, setTotal],
+        image:      [image, setImage],
         errorRef:    errorRef
     } = useContext(ExpenseContext);
 
@@ -164,7 +139,6 @@ function ChooseName() {
     const dateRef = useRef(null);
     const descriptionRef = useRef(null);
     const receiptRef = useRef(null);
-    const [image, setImage] = useState(null);
 
     const updateImageSource = (e) => {
         setImage(e.target.files[0]);
@@ -173,6 +147,9 @@ function ChooseName() {
     //Sets appropriate values of form data before updating the global version 
     //and then pushing the value to the web request
     async function onSubmit() {
+        setPageNum(pageNum + 1);
+        setTotal(parseInt(totalRef.current.value * 100));
+
         formData.transaction_name = nameRef.current.value;
         formData.transaction_description = descriptionRef.current.value;
         
@@ -184,12 +161,7 @@ function ChooseName() {
 
         setFormData(formData);
 
-        let transaction_id = await submitForm(formData, errorRef);
-        if (transaction_id != -1) {
-            await uploadReceipt(image, transaction_id, errorRef);
-            popModal();
-            reRender();
-        }
+        
     }
 
     return (
@@ -223,8 +195,14 @@ function ChooseName() {
 
             <textarea tabIndex={0} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
 
+            <View style={globals.styles.labelContainer}>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label }}>UPLOAD RECEIPT</Text>
+            </View>
+
+            <input ref={receiptRef} type="file" accept="image/*" onInput={updateImageSource} />
+
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
-                <Button id="newExpense_chooseName_next" disabled={nameDisabled || totalDisabled} style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum + 1)} >
+                <Button id="newExpense_chooseName_next" disabled={nameDisabled || totalDisabled} style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => onSubmit()} >
                     <label htmlFor="newExpense_chooseName_next" style={globals.styles.buttonLabel} >
                         Next
                     </label>
@@ -334,9 +312,9 @@ function SelectGroup() {
 
 function SelectMembers() {
     let {
-        pageNum: [pageNum, setPageNum],
-        groupID: [groupID, setGroupID],
-        formData: [formData, setFormData]
+        pageNum:    [pageNum, setPageNum],
+        groupID:    [groupID, setGroupID],
+        memberList: [memberList, setMemberList]
     } = useContext(ExpenseContext);
 
     const { currUserID } = useContext(GlobalContext);
@@ -344,17 +322,17 @@ function SelectMembers() {
 
 
 
-    let [memberList, setMemberList] = useState([]);
-    let [possibleMembers, setPossibleMembers]       = useState([]);
+    let [chosenMembers, setChosenMembers] = useState([]);
+    let [possibleMembers, setPossibleMembers] = useState([]);
 
     const removeMember = (key) => {
-        memberList = memberList.filter((member) => member.key != key);
-        setMemberList(memberList);
+        chosenMembers = chosenMembers.filter((member) => member.key != key);
+        setChosenMembers(chosenMembers);
     }
 
     const addMember = (details) => {
-        memberList.push(<MemberListItem key={details.user_id} name={details.username} id={details.user_id} removeMember={removeMember} />);
-        setMemberList(memberList.concat([]));
+        chosenMembers.push(<MemberListItem key={details.user_id} name={details.username} id={details.user_id} removeMember={removeMember} />);
+        setChosenMembers(chosenMembers.concat([]));
     }
 
 
@@ -368,8 +346,8 @@ function SelectMembers() {
 
                 if (json !== null) {
                     setPossibleMembers(json['members']);
-                    memberList = await getGroupMembers(json, removeMember)
-                    setMemberList(memberList);
+                    chosenMembers = await getGroupMembers(json, removeMember)
+                    setChosenMembers(chosenMembers);
                 }
             }
             else {
@@ -379,22 +357,21 @@ function SelectMembers() {
                 if (json !== null) {
 
                     setPossibleMembers(json);
-                    memberList = [<MemberListItem key={-1} name='Me' id={-1} removeMember={removeMember} />];
-                    setMemberList(memberList);
+                    chosenMembers = [<MemberListItem key={-1} name='Me' id={-1} removeMember={removeMember} />];
+                    setChosenMembers(chosenMembers);
                 }
             }
         }
-        if (pageNum == PAGES.SELECT_MEMBERS) getMembers();
+        if (pageNum == PAGES.SELECT_MEMBERS && chosenMembers.length == 0) getMembers();
 
     }, [pageNum]);
 
     const addMemberModal = () => {
 
         let excludedMembers = [];
-        for (let i = 0; i < memberList.length; i++) {
-            excludedMembers.push(memberList[i].props.name);
+        for (let i = 0; i < chosenMembers.length; i++) {
+            excludedMembers.push(chosenMembers[i].props.name);
         }
-        console.log(excludedMembers);
 
         pushModal(<OfflineUserSearch
             users={possibleMembers}
@@ -404,6 +381,22 @@ function SelectMembers() {
             onSubmit={addMember}
             exit={() => popModal()}
             submitLabel="Add Member" /> )
+    }
+
+    const onSubmit = () => {
+        setPageNum(pageNum + 1);
+
+        memberList = [];
+
+        for (let i = 0; i < chosenMembers.length; i++) {
+            memberList.push({
+                id: chosenMembers[i].props.id == -1 ? currUserID : chosenMembers[i].props.id,
+                name: chosenMembers[i].props.name
+            })
+        }
+        setMemberList(memberList.concat([]));
+
+        
     }
 
 
@@ -416,7 +409,7 @@ function SelectMembers() {
             <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' } }}>Which users are a part of this transaction?</Text>
 
             <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '80% 20%', width: '75%', minHeight: '20em' } }} >
-                {memberList}
+                {chosenMembers}
                 <Button id="newExpense_addMember" style={{ gridColumn: '1 / span 2', height: '2em' }} onClick={addMemberModal}>
                     <label htmlFor="newExpense_addMember" style={{ ...globals.styles.h5, ...{ cursor: 'pointer', color: globals.COLOR_GRAY } }}>
                         + Add Member
@@ -426,12 +419,16 @@ function SelectMembers() {
 
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
-                <Button id="newExpense_selectMember_next" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum + 1)} >
+                <Button id="newExpense_selectMember_next" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => onSubmit()} >
                     <label htmlFor="newExpense_selectMember_next" style={globals.styles.buttonLabel} >
                         Next
                     </label>
                 </Button>
-                <Button id="newExpense_selectMember_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum - 2)} >
+                <Button id="newExpense_selectMember_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => {
+                    setPageNum(pageNum - 2);
+                    setChosenMembers([]);
+                    }
+                } >
                     <label htmlFor="newExpense_selectMember_back" style={globals.styles.buttonLabel} >
                         Back
                     </label>
@@ -445,89 +442,142 @@ function SelectMembers() {
 /**
  * 
  * @returns a page in which the user can select the amount each person owes/paid
- *
+ */
 function SplitExpense() {
 
     let {
-        pageNum: [pageNum, setPageNum],
-        groupID: [groupID, setGroupID],
-        formData: [formData, setFormData]
+        pageNum:    [pageNum, setPageNum],
+        groupID:    [groupID, setGroupID],
+        formData:   [formData, setFormData],
+        total:      [total, setTotal],
+        image:      [image, setImage],
+        memberList: [memberList, setMemberList],
+        errorRef:    errorRef
     } = useContext(ExpenseContext);
 
-    const { currUserID } = useContext(GlobalContext);
 
-    // I didn't write this code, but...
-    //  refList is an ordered list of ref's to the input fields containing the amount paid/borrowed (?)
-    //  splitList is the list of the SplitListItems elements with each participant and how much they paid/borrowed (?)
-    //  paidList is (?)
+    
+    //  splitList is the list of the SplitListItems elements with each participant name and the 2 inputs for how much they borrowed
+    //  inputRefs is the list of the refs for inputs for each splitList entry accessed as follows inputRefs[i].paid & inputRefs[i].borrowed
+
     const [splitList, setSplitList] = useState([]);
-    const [refList, setRefList] = useState([]);
-    const [paidList, setPaidList] = useState([]);
+    const [inputRefs, setInputRefs] = useState([]);
 
-    // If users selected a group, groupID will be set and so we get the member list for that group
-    // Otherwise get the users friends
-    // Pass a setRefList variable so that the unknown number of inputs can be accessed 
+    const [isPercent, setIsPercent] = useState(false);
+
+    // Build the list of members from the membersList context
+    // Pass a setInputRefs variable so that the unknown number of inputs can be accessed 
     useEffect(() => {
-        async function getSplitList() {
-            let json = null;
-
-            if (groupID != null) {
-                // Get group member list
-                json = await getGroupInfo(groupID);
-
-                if (json !== null) {
-                    setSplitList(await getGroupMembers(json, currUserID, setPaidList, setRefList));
-                }
-            }
-            else {
-                //Get friends list
-                json = await getFriends();
-
-                if (json !== null) {
-                    setSplitList(await getFriendsList(json, currUserID, setPaidList, setRefList));
-                }
-            }
+        setIsPercent(false);
+        function getMembers() {
+            setSplitList(buildSplitList(memberList, setInputRefs));
         }
-        if (pageNum == PAGES.SPLIT_EXPENSE) getSplitList();
+        
+        if (pageNum == PAGES.SPLIT_EXPENSE) getMembers();
 
     }, [pageNum]);
 
     // Update form data to include participants list move on to name setting
-    const onSubmit = () => {
-        setPageNum(pageNum + 1);
-        
+    const onSubmit = async () => {        
         formData.group_id = groupID;
         formData.transaction_participants = [];
 
+        // Check to make sure values add to total 
+        
+        let totalPaid = 0;
+        let totalBorrowed = 0;
         for (let i = 0; i < splitList.length; i++) {
-
-            //Dont add users with 0 values
-            if (refList[i].current.value == "" || refList[i].current.value == "0") continue;
-
-            formData.transaction_participants.push({
-                user_id: splitList[i].props.id,
-                amount: parseInt(parseFloat(refList[i].current.value).toFixed(2) * (paidList[i].current ? -100 : 100))
-            })
+            totalPaid += inputRefs[i].paid.current.value;
+            totalBorrowed += inputRefs[i].borrowed.current.value;
         }
+
+        if (parseInt(totalPaid) != isPercent ? 100 : total) {
+            errorRef.current.innerText = "All paid values must add up to the total or 100%";
+            return;
+        }
+        if (parseInt(totalBorrowed) != isPercent ? 100 : total) {
+            errorRef.current.innerText = "All borrowed values must add up to the total or 100%";
+            return;
+        } 
+        errorRef.current.innerText = "";
+        
+        if (isPercent) {
+            let totalPaid = total;
+            let totalBorrowed = total;
+            for (let i = 0; i < splitList.length; i++) {
+
+                //Dont add users with 0 values
+                if ((inputRefs[i].paid.current.value == "" || inputRefs[i].paid.current.value == "0")
+                    && (inputRefs[i].borrowed.current.value == "" || inputRefs[i].borrowed.current.value == "0")) continue;
+
+                let paidAmount = parseInt(parseFloat(inputRefs[i].paid.current.value).toFixed(2) / 100) * amount;
+                let borrowedAmount = parseInt(parseFloat(inputRefs[i].borrowed.current.value).toFixed(2) / 100) * amount;
+
+                formData.transaction_participants.push({
+                    user_id: splitList[i].props.id,
+                    paid: paidAmount,
+                    borrowed: borrowedAmount
+                })
+
+                totalPaid -= paidAmount;
+                totalBorrowed -= borrowedAmount;
+            }
+
+            formData.transaction_participants[formData.transaction_participants.length - 1].paid += totalPaid;
+            formData.transaction_participants[formData.transaction_participants.length - 1].paid += totalBorrowed;
+
+        } else {
+            for (let i = 0; i < splitList.length; i++) {
+
+                //Dont add users with 0 values
+                if ((inputRefs[i].paid.current.value == "" || inputRefs[i].paid.current.value == "0")
+                    && (inputRefs[i].borrowed.current.value == "" || inputRefs[i].borrowed.current.value == "0")) continue;
+
+                formData.transaction_participants.push({
+                    user_id: splitList[i].props.id,
+                    paid: parseInt(parseFloat(inputRefs[i].paid.current.value).toFixed(2) * 100),
+                    borrowed: parseInt(parseFloat(inputRefs[i].borrowed.current.value).toFixed(2) * 100)
+                })
+            }
+        }
+
         setFormData(formData);
 
-    }
-    const splitPaid = (paid) => {
-        let total = 0;
-        let count = 0;
-        for (let i = 0; i < refList.length; i++) {
-            if (paidList[i].current == paid) {
-                total += refList[i].current.value == "" ? 0 : parseInt(parseFloat(refList[i].current.value).toFixed(2) * 100);
-                count++;
-            }
-            
+        let transaction_id = await submitForm(formData, errorRef);
+        if (transaction_id != -1) {
+            uploadReceipt(image, transaction_id, errorRef);
+            popModal();
+            reRender();
         }
-        for (let i = 0; i < refList.length; i++) {
-            if (paidList[i].current == paid) refList[i].current.value = (total / count / 100).toFixed(2);
 
+    }
+
+    const splitEvenly = (paid) => {
+       
+        let amount = isPercent ? 10000 : total;
+        for (let i = 0; i < inputRefs.length; i++) {
+            if (i == inputRefs.length - 1) {
+                if (paid) {
+                    inputRefs[i].paid.current.value = ((amount / inputRefs.length + (amount % inputRefs.length)) / 100).toFixed(2);
+                } else {
+                    inputRefs[i].borrowed.current.value = ((amount / inputRefs.length + (amount % inputRefs.length)) / 100).toFixed(2);
+                }
+            } else {
+                if (paid) {
+                    inputRefs[i].paid.current.value = ((amount / inputRefs.length) / 100).toFixed(2);
+                } else {
+                    inputRefs[i].borrowed.current.value = ((amount / inputRefs.length) / 100).toFixed(2);
+                }
+            } 
         }
     }
-    
+
+    const changePercent = () => {
+        setIsPercent(!isPercent);
+        for (let i = 0; i < inputRefs.length; i++) {
+            inputRefs[i].symbol.current.innerText = isPercent ? "$" : "%"; 
+        }
+    }
 
     return (
         <View style={{
@@ -535,87 +585,87 @@ function SplitExpense() {
             display: pageNum != PAGES.SPLIT_EXPENSE ? 'none' : 'inherit'
         }}}>
             <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>How much did each person contribute?</Text>
-
-            <View style={{width: '75%', justifyContent: 'space-between', flexDirection: 'row' }}>
-                <Button
-                    id="newExpense_splitExpense_splitPaid"
-                    style={{ width: 'auto', height: 'auto', marginTop: '.25em' }}
-                    onClick={() => splitPaid(true)} >
-
-                    <label htmlFor="newExpense_splitExpense_splitPaid" style={{ padding: '.25em', cursor: 'pointer', fontSize: '.75em', fontWeight: '500', color: globals.COLOR_BLUE }}>
-                        Split Paid Evenly
-                    </label>
-                </Button>
-                <Button
-                    id="newExpense_splitExpense_splitBorrowed"
-                    style={{ width: 'auto', height: 'auto', marginTop: '.25em' }}
-                    onClick={() => splitPaid(false)} > 
-
-                    <label htmlFor="newExpense_splitExpense_splitBorrowed" style={{ padding: '.25em',  cursor: 'pointer', fontSize: '.75em', fontWeight: '500', color: globals.COLOR_ORANGE }}>
-                        Split Borrowed Evenly
-                    </label>
-                </Button>
-            </View>
            
 
-            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '60% 40%', width: '75%' } }} >
+            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '45% 5% 25% 25%', width: '75%', minHeight: '20em' } }} >
+
+                <Text style={{ ...globals.styles.listHeader, ...{ textAlign: 'center', padding: 0, margin: '.5em 0 0', gridColumn: '1 / span 4' } }}>Total: ${(total / 100).toFixed(2)}</Text>
+                <Button id="newExpense_splitExpense_switch" style={{ ...globals.styles.formButton, ...{ gridColumn: '1 / span 4', height: '1.25em', width: '10em', margin: '.5em 0', justifySelf: 'center' } }} onClick={() => changePercent()} >
+                    <label htmlFor="newExpense_splitExpense_switch" style={{ ...globals.styles.buttonLabel, ...{fontSize: '1em'}}} >
+                        {isPercent ? "Split by $" : "Split by %"}
+                    </label>
+                </Button>
+
+                <Text style={{ ...globals.styles.smallListHeader, ...{ padding: 0, fontSize: '1em', fontWeight: '600', gridColumn: '1 / span 2' } }}>USERNAME</Text>
+                <Text style={{ ...globals.styles.smallListHeader, ...{ padding: 0, color: globals.COLOR_BLUE, fontSize: '1em', fontWeight: '600', textAlign: 'center' } }}>PAID</Text>
+                <Text style={{ ...globals.styles.smallListHeader, ...{ padding: 0, color: globals.COLOR_ORANGE, fontSize: '1em', fontWeight: '600', textAlign: 'center' } }}>BORROWED</Text>
+
+                <View />
+                <View />
+                <Button id="newExpense_splitExpense_splitPaid" style={{ ...globals.styles.formButton, ...{ height: '1em', margin: '.25em 0', justifySelf: 'center' } }} onClick={() => splitEvenly(true)} >
+                    <label htmlFor="newExpense_splitExpense_splitPaid" style={{ ...globals.styles.buttonLabel, ...{ fontSize: '.85em' } }} >
+                        SPLIT
+                    </label>
+                </Button>
+                <Button id="newExpense_splitExpense_splitBorrowed" style={{ ...globals.styles.formButton, ...{ height: '1em', margin: '.25em .25em', justifySelf: 'center' } }} onClick={() => splitEvenly(false)} >
+                    <label htmlFor="newExpense_splitExpense_splitBorrowed" style={{ ...globals.styles.buttonLabel, ...{ fontSize: '.85em' } }} >
+                        SPLIT
+                    </label>
+                </Button>
+
                 {splitList}
             </View>
             
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row' }}>
-                <Button id="newExpense_splitExpense_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(PAGES.SELECT_SPLIT)} >
+                <Button id="newExpense_splitExpense_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum - 1)} >
                     <label htmlFor="newExpense_splitExpense_back" style={globals.styles.buttonLabel} >
                         Back
                     </label>
                 </Button>
                 <Button id="newExpense_splitExpense_next" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={onSubmit} >
                     <label htmlFor="newExpense_splitExpense_next" style={globals.styles.buttonLabel} >
-                        Next
+                        Submit
                     </label>
                 </Button>
                 
             </View>
         </View>
     );
-}*/
+}
 
 // The item that holds the input and user name for each person to be split with
 // Generates a ref for each version and appends it to the refList
 function SplitListItem(props) {
 
-    const inputRef = useRef(null);
-    const paid = useRef(true);
-    const [reRender, setReRender] = useState(0);
+    const inputRefPaid = useRef(null);
+    const inputRefBorrowed = useRef(null);
+    const inputRefSymbol = useRef(null);
 
     useEffect(() => {
-        props.refList.push(inputRef);
-        props.paidList.push(paid);
+        inputRefPaid.current.value = 0;
+        inputRefBorrowed.current.value = 0;
+        inputRefSymbol.current.innerText = "$";
+        props.inputList.push({ symbol: inputRefSymbol, paid: inputRefPaid, borrowed: inputRefBorrowed});
 
+    });
 
-    }, []);
-
-    function updateButton() {
-        paid.current = !paid.current;
-        setReRender(reRender + 1);
-    }
-    
     return (
 
         <>
             <Text style={{ ...globals.styles.listText, ...{ margin: 'auto 0' } }}>{props.name}</Text>
-            <View style={{ flexDirection: 'row', width: 'auto', justifySelf: 'flex-end' }}>
-                <Button id={"newExpense_splitExpense" + props.name + "_paid"}
-                    style={{ width: 'auto', marginTop: '.25em' }}
-                    onClick={updateButton} >
-                    <label htmlFor={"newExpense_splitExpense" + props.name + "_paid"} style={{ padding: '.25em', cursor: 'pointer', fontWeight: '500', color: paid.current ? globals.COLOR_BLUE : globals.COLOR_ORANGE }}>
-                        {paid.current ? "Paid" : "Borrowed"}
-                    </label>
-
-                </Button>
+            <Text ref={inputRefSymbol} style={{ ...globals.styles.listText, ...{ margin: 'auto 0', textAlign: 'flex-end' } }}>$</Text>
+            <View style={{ flexDirection: 'row', width: 'auto', justifyContent: 'center' }}>
 
                 <View style={{ width: '5em' }}>
-                    <input ref={inputRef} style={{ ...globals.styles.input, ...{ width: '90%' }}} step={.01} type='number' placeholder={0} min={0}></input>
+                    <input ref={inputRefPaid} style={{ ...globals.styles.input, ...{ width: '100%' }}} step={.01} type='number' placeholder={0} min={0}></input>
+
+                </View>
+            </View>
+            <View style={{ flexDirection: 'row', width: 'auto', justifyContent: 'center' }}>
+
+                <View style={{ width: '5em' }}>
+                    <input ref={inputRefBorrowed} style={{ ...globals.styles.input, ...{ width: '100%' } }} step={.01} type='number' placeholder={0} min={0}></input>
 
                 </View>
             </View>
@@ -680,7 +730,7 @@ async function buildGroups(setID, setPage) {
 }
 
 /**
- * Builds a list of MemberListItems and a refList from a group json
+ * Builds a list of MemberListItems
  * @param {JSON} json JSON object contianing group information, particularly a members array
  * @param {Function} setRefList function to set the refList variable of SelectMembers
  * @returns a list of MemberListItems
@@ -700,25 +750,24 @@ function getGroupMembers(json, removeMember) {
 }
 
 /**
- * Builds a list of SplitListItems and a refList from a friends json
- * @param {JSON} json JSON object contianing friends array
- * @param {Function} setRefList function to set the refList variable of SplitExpense
+ * Builds a list of SplitListItems
+ * @param {JSON[]} members JSON array contianing members
+ * @param {Function} setInputRefs Function pointer to change inputRefs in SplitExpense
  * @returns a list of SplitListItems
  */
-function getFriendsList(json, removeMember) {
+function buildSplitList(members, setInputRefs) {
 
     let outputList = [];
+    let inputRefs = [];
+    console.log(members);
+    for (let i = 0; i < members.length; i++) {
 
-    outputList.push(<MemberListItem key={-1} name='Me' id={-1} removeMember={removeMember} />);
-
-    for (let i = 0; i < json.length; i++) {
-
-        outputList.push(<MemberListItem key={json[i].user_id} name={json[i].username} id={json[i].user_id} removeMember={removeMember} />);
+        outputList.push(<SplitListItem key={members[i].id} name={members[i].name} id={members[i].id} inputList={inputRefs} />);
     }
+    setInputRefs(inputRefs);
     return outputList;
 
 }
-
 
 /**
 * Checks value of expense name field and prevents user from submitting if too short

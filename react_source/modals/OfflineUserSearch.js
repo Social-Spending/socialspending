@@ -13,7 +13,7 @@ import { GlobalContext } from '../components/GlobalContext.js';
 import Logo from '../assets/images/logo/logo-name-64.png';
 import { debounce } from '../utils/userSearch.js';
 
-const MAX_DISPLAYED = 15;
+const MAX_DISPLAYED = 15; //Max amount of results to display
 
 
 /**
@@ -25,15 +25,13 @@ const MAX_DISPLAYED = 15;
  *      @param {JSON Object} style   Styles to use
  *      @param {Function} exit       function to call when exiting if you dont want to exit the modal for some reason
  *      @param {number} onSubmit     function handle for what to do with the username/email when user presses submit
- *                                   onSubmit takes args (user, setErrorMsg, popModal, reRender)...
+ *                                   onSubmit takes args (user)...
  *                                   where  'user' is a string of the username/email entered
- *                                          'setErrorMsg' is a function handle that takes 1 argument of a string error message to present on this modal
- *                                          'popModal' is a function handle from ModalContext that takes 0 or 1 arguments and removes one (or more) modals from the stack
+ *                                          
  *      @return {React.JSX.Element}  DOM element
  */
 export default function OfflineUserSearch(props) {
     // context vars/functions
-    const { reRender } = useContext(GlobalContext);
     const { pushModal, popModal } = useContext(ModalContext);
 
     // refs to DOM content
@@ -146,6 +144,8 @@ function FoundUser(props) {
 
 /**
  * Search for users given the username or email and populate the drop down display of found users
+ * @param {JSON[]} users              A list of users to search through
+ * @param {JSON[]} excludedUsers      A list of users to exclude from the search Ex: people already in the group
  * @param {React.MutableRefObject} userRef  A reference to the username input
  * @param {React.MutableRefObject} errorRef A reference to the error display element
  * @param {Function} setFoundUsers          A function to change the entries of the found users drop down menu
