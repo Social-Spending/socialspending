@@ -345,8 +345,8 @@ async function approveFriendRequest(id, approved, removeNotif, reRender) {
 
 async function approveTransaction(trans_id, id, approved, removeNotif, reRender) {
 
-
-    if (approveRejectTransaction(trans_id, approved)){
+    let response = await approveRejectTransaction(trans_id, approved);
+    if (response){
         removeNotif('transaction_approval', id);
         // call function to refresh the Base component with new friend
         reRender();

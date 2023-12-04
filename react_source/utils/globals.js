@@ -38,7 +38,7 @@ export const Image = React.forwardRef(function ImageType(props, ref) {
 
     const [divStyle, setDivStyle] = useState(props.style);
     function onImgLoad({ target: img }) {
-        if (props.useImageSize) {
+        if (props.useimagesize) {
             setDivStyle({...props.style, ...{ height: img.naturalHeight, aspectRatio: img.naturalWidth / img.naturalHeight }});
 
         } else {

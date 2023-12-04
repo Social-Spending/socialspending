@@ -137,11 +137,11 @@ export default function GroupInfo(props) {
                 <View style={globals.styles.listContainer}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <Text style={globals.styles.listTitle }>Transactions</Text>
-                        <Button id="groupPage_newExpense" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={addExpense}>
+                        {/* <Button id="groupPage_newExpense" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={addExpense}>
                             <label htmlFor="groupPage_newExpense" style={globals.styles.buttonLabel}>
                                 + NEW EXPENSE
                             </label>
-                        </Button>
+                        </Button> */}
                         
                     </View>
                     <View style={{ ...globals.styles.list, ...{ marginTop: '.25em', width: '100%', marginBottom: '1em' } }}>

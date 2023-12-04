@@ -187,9 +187,9 @@ function submitTransaction($transaction_id)
 	global $mysqli;
 
 	//Get the creditors (owed money, amount < 0), first
-	$sql = "SELECT	user_id, amount
+	$sql = "SELECT	user_id, paid - spent as amount_lent
 			FROM	transaction_participants
-			WHERE	transaction_id = ? AND amount < 0";
+			WHERE	transaction_id = ? AND paid > spent";
 	
 	$creditor_response = $mysqli->execute_query($sql, [$transaction_id]);
 
@@ -203,12 +203,12 @@ function submitTransaction($transaction_id)
     $sum_credited = 0;
     while ($creditor = $creditor_response->fetch_assoc())
     {
-        $sum_credited += $creditor['amount'];
+        $sum_credited += $creditor['amount_lent'];
     }
 
-	$sql = "SELECT	user_id, amount
+	$sql = "SELECT	user_id, spent - paid as amount_borrowed
 			FROM	transaction_participants
-			WHERE	transaction_id = ? AND amount > 0";
+			WHERE	transaction_id = ? AND spent > paid";
 	
 	$debtor_response = $mysqli->execute_query($sql, [$transaction_id]);
 
@@ -224,7 +224,7 @@ function submitTransaction($transaction_id)
                 (Postitive)         =   (Positive)    *   [  (Negative)       /          (Negative) ]
             
             */
-            $amount_owed = $debtor['amount'] * ($creditor['amount'] / $sum_credited );
+            $amount_owed = $debtor['amount_borrowed'] * ($creditor['amount_lent'] / $sum_credited );
 
             //Add amount to debt ledger
             if (addDebt($creditor['user_id'], $debtor['user_id'], $amount_owed) === false)

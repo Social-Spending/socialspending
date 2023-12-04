@@ -3,7 +3,7 @@ import * as globals from '../utils/globals.js';
 
 import { Text, View, Image, Modal } from '../utils/globals.js';
 
-import { useRef, useState, useContext } from 'react';
+import { useRef, useState, useContext, useEffect } from 'react';
 
 
 import Button from '../components/Button.js'
@@ -11,7 +11,9 @@ import { ModalContext } from './ModalContext.js';
 import { GlobalContext } from '../components/GlobalContext.js';
 
 import Logo from '../assets/images/logo/logo-name-64.png';
-import { debounce, userSearch } from '../utils/userSearch.js';
+import { debounce } from '../utils/userSearch.js';
+
+const MAX_DISPLAYED = 15; //Max amount of results to display
 
 
 /**
@@ -23,16 +25,13 @@ import { debounce, userSearch } from '../utils/userSearch.js';
  *      @param {JSON Object} style   Styles to use
  *      @param {Function} exit       function to call when exiting if you dont want to exit the modal for some reason
  *      @param {number} onSubmit     function handle for what to do with the username/email when user presses submit
- *                                   onSubmit takes args (user, setErrorMsg, popModal, reRender)...
+ *                                   onSubmit takes args (user)...
  *                                   where  'user' is a string of the username/email entered
- *                                          'setErrorMsg' is a function handle that takes 1 argument of a string error message to present on this modal
- *                                          'popModal' is a function handle from ModalContext that takes 0 or 1 arguments and removes one (or more) modals from the stack
- *                                          'reRender' is a function handle from GlobalContext that, when called, re-renders the screen
+ *                                          
  *      @return {React.JSX.Element}  DOM element
  */
-export default function UserSearch(props) {
+export default function OfflineUserSearch(props) {
     // context vars/functions
-    const {reRender} = useContext(GlobalContext);
     const { pushModal, popModal } = useContext(ModalContext);
 
     // refs to DOM content
@@ -40,28 +39,33 @@ export default function UserSearch(props) {
     const userRef = useRef(null);
 
     const [foundUsers, setFoundUsers] = useState([]);
-    const [showDropDown, setShowDropDown] = useState(false);
 
     // functions
     function handleChildClick(e) {
         e.stopPropagation();
     }
 
-    function setErrorMsg(msg) {
-        errorMessageRef.current.innerText = msg;
-        errorMessageRef.current.classList.remove('hidden');
-        userRef.current.setAttribute("aria-invalid", true);
-        userRef.current.setAttribute("aria-errormessage", "userSearch_errorMessage");
-
-    }
-
     function onSubmit() {
 
-        props.onSubmit(userRef.current.value, setErrorMsg, popModal, reRender);
+        let foundUsers = props.users.filter((user) =>
+            user.username.toLowerCase().indexOf(userRef.current.value.toLowerCase()) != -1 /* set to 0 to only include names that start with the search*/
+            && !props.excludedUsers.includes(user.username)
+        );
+
+        if (foundUsers.length != 0) {
+            props.onSubmit(foundUsers[0]);
+            popModal();
+        } else {
+            popModal();
+        }
     }
 
     //Create debounced function for searching users
-    let onNameChange = debounce(() => searchUser(userRef, errorMessageRef, setFoundUsers), 500);
+    let onNameChange = debounce(() => searchUser(props.users, props.excludedUsers, userRef, errorMessageRef, setFoundUsers), 500);
+    useEffect(() => {
+        searchUser(props.users, props.excludedUsers, userRef, errorMessageRef, setFoundUsers);
+
+    }, []);
 
 
     // DOM content to return
@@ -76,37 +80,30 @@ export default function UserSearch(props) {
 
                     <Image source={Logo} style={styles.logo} />
 
-                    <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>{props.title}</Text>
-                    <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>{props.label}</Text>
+                    <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 } }}>{props.title}</Text>
+                    <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em', textAlign: 'center' } }}>{props.label}</Text>
 
                     <Text ref={errorMessageRef} id='userSearch_errorMessage' style={globals.styles.error}></Text>
 
                     <View style={globals.styles.labelContainer}>
-                        <label htmlFor="userSearch_name" style={{ ...globals.styles.h5, ...globals.styles.label}}>USERNAME OR EMAIL</label>
+                        <label htmlFor="userSearch_name" style={{ ...globals.styles.h5, ...globals.styles.label }}>USERNAME</label>
                     </View>
 
                     <input autoFocus
                         tabIndex={0}
                         ref={userRef}
-                        placeholder=" Enter username or email"
+                        placeholder=" Enter username"
                         style={globals.styles.input}
                         id='userSearch_name'
                         name="user"
                         onInput={onNameChange}
-                        onBlur={() => setShowDropDown(false)} 
-                        onFocus={() => setShowDropDown(true)}
                     />
-                    { showDropDown && 
-                        <View style={{ width: '100%', height: 'auto', alignItems: 'center', zIndex: 10 }} >
-                       
-                            <View style={styles.dropDown}>
-                                {foundUsers}
-                            </View>
-                        </View>
-                    }
-                   
+                    
+                    <View style={styles.dropDown}>
+                        {foundUsers}
+                    </View>
 
-                    <Button id="userSearch_button" tabIndex={0} style={globals.styles.formButton} onClick={onSubmit}>
+                    <Button id="userSearch_button" tabIndex={0} style={{...globals.styles.formButton, ...{ marginBottom: '1em' }}} onClick={onSubmit}>
                         <label htmlFor="userSearch_button" style={globals.styles.buttonLabel}>
                             {props.submitLabel}
                         </label>
@@ -134,54 +131,66 @@ function FoundUser(props) {
 
     return (
         <Button tabIndex={0} id={"foundUser_" + props.username} onMouseDown={pickUser}>
-            <View style={{ width: '100%', alignItems: 'center', flexDirection: 'row'}}>
+            <View style={{ width: '100%', alignItems: 'center', flexDirection: 'row' }}>
                 <Image source={props.icon ? props.icon : globals.getDefaultUserIcon(props.username)} style={{ ...globals.styles.listIcon, ...{ width: '1.25em', height: '1.25em', marginLeft: '.5em' } }} />
                 <label htmlFor={"foundUser_" + props.username} style={{ fontSize: '1.25em', color: globals.COLOR_GRAY, paddingLeft: '.25em', cursor: 'pointer' }}>
                     {props.username}
                 </label>
-            </View>     
+            </View>
         </Button>
-    
+
     );
 }
 
 /**
  * Search for users given the username or email and populate the drop down display of found users
+ * @param {JSON[]} users              A list of users to search through
+ * @param {JSON[]} excludedUsers      A list of users to exclude from the search Ex: people already in the group
  * @param {React.MutableRefObject} userRef  A reference to the username input
  * @param {React.MutableRefObject} errorRef A reference to the error display element
  * @param {Function} setFoundUsers          A function to change the entries of the found users drop down menu
  */
-async function searchUser(userRef, errorRef, setFoundUsers) {
+async function searchUser(users, excludedUsers, userRef, errorRef, setFoundUsers) {
 
-    if (userRef.current.value.length < 4) {
-        // set error acessability features
-        setFoundUsers([]);
-        errorRef.current.innerText = "Cannot search for a username less than 4 characters";
-        userRef.current.setAttribute("aria-invalid", true);
-        userRef.current.setAttribute("aria-errormessage", errorRef.current.id);
-    } else {
+    let output = [];
+
+    let foundUsers = users.filter((user) =>
+        user.username.toLowerCase().indexOf(userRef.current.value.toLowerCase()) != -1 /* set to 0 to only include names that start with the search*/
+        && !excludedUsers.includes(user.username)
+    );
+
+    if (foundUsers.length) {
+
         // remove error
         errorRef.current.innerText = "";
         userRef.current.removeAttribute("aria-invalid");
         userRef.current.removeAttribute("aria-errormessage");
 
-        let output = [];
-        let users = await userSearch(userRef.current.value);
-
-        for (let i = 0; i < users.length; i++) {
+        for (let i = 0; i < foundUsers.length && i < MAX_DISPLAYED; i++) {
             output.push(
-                <FoundUser key={i} username={users[i].username} userRef={userRef} icon={users[i].icon_path} setFound={setFoundUsers} />
+                <FoundUser key={foundUsers[i].user_id} username={foundUsers[i].username} userRef={userRef} icon={foundUsers[i].icon_path} setFound={setFoundUsers} />
 
-            );               
+            );
         }
         setFoundUsers(output);
-    }    
+    } else {
+
+        setFoundUsers([]);
+
+        // set error acessability features
+        errorRef.current.innerText = "No Users Found";
+        userRef.current.setAttribute("aria-invalid", true);
+        userRef.current.setAttribute("aria-errormessage", errorRef.current.id);
+
+    }
+
+    
 }
 
 const styles = {
     create: {
         zIndex: 1,
-        height: '20em',
+        height: 'auto',
         backgroundColor: globals.COLOR_WHITE,
         width: '26em',
         borderRadius: 18,
@@ -190,17 +199,19 @@ const styles = {
         opacity: 1
     },
     logo: {
+        marginTop: '.5em',
         height: '3em',
         width: '9em',
         minWidth: '2em',
         borderRadius: 1,
     },
     dropDown: {
+        marginTop: '.5em',
         width: '75%',
         height: 'auto',
-        maxHeight: '13.5em',
+        minHeight: '10em',
+        maxHeight: '27em',
         backgroundColor: globals.COLOR_WHITE,
-        position: 'absolute',
         overflowY: 'auto',
         scrollbarWidth: 'thin'
     }
