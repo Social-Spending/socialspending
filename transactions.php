@@ -5,6 +5,7 @@ include_once('templates/cookies.php');
 include_once('templates/constants.php');
 include_once("templates/jsonMessage.php");
 include_once('templates/saveImage.php');
+include_once('templates/groupHelpers.php');
 
 include_once('templates/groupHelpers.php');
 include_once('templates/notificationHelpers.php');
@@ -351,7 +352,7 @@ function getTransaction($transaction_id) {
     $response = encapsulateTransactionData($transaction->fetch_assoc());
 
     // User attempted to access transaction they are not a part of
-    if (!checkParticipantsForUser($response, $passed_user_id))
+    if (!checkParticipantsForUser($response, $passed_user_id) && !verifyGroupAndUserIDs($passed_user_id, $response["group_id"]))
     {
         returnMessage("User must be part of transaction", HTTP_FORBIDDEN);
     }
