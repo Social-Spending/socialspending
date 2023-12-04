@@ -77,6 +77,11 @@ export default function NewExpense(props) {
         e.stopPropagation();
     }
 
+    // clear error message when page num changes
+    useEffect(() => {
+        errorMessageRef.current.style.visibility = 'hidden';
+    }, [pageNum]);
+
     const exit = () => {
         
          pushModal(<VerifyAction label={"Are you sure you want to discard this transaction?"} accept={() => popModal(2)} />);
@@ -336,15 +341,17 @@ function SelectMembers() {
 
     let [chosenMembers, setChosenMembers] = useState([]);
     let [possibleMembers, setPossibleMembers] = useState([]);
+    const removeMemberRef = useRef(null);
 
     const removeMember = (key) => {
         chosenMembers = chosenMembers.filter((member) => member.key != key);
         setChosenMembers(chosenMembers);
         setSubmitDisabled(checkMemberList());
     }
+    removeMemberRef.current = removeMember;
 
     const addMember = (details) => {
-        chosenMembers.push(<MemberListItem key={details.user_id} name={details.username} id={details.user_id} removeMember={removeMember} />);
+        chosenMembers.push(<MemberListItem key={details.user_id} name={details.username} id={details.user_id} removeMemberRef={removeMemberRef} />);
         setChosenMembers(chosenMembers.concat([]));
         setSubmitDisabled(checkMemberList());
     }
@@ -361,7 +368,6 @@ function SelectMembers() {
     }
 
     useEffect(() => {
-        setSubmitDisabled(true);
         async function getMembers() {
             let json = null;
 
@@ -371,7 +377,7 @@ function SelectMembers() {
 
                 if (json !== null) {
                     setPossibleMembers(json['members']);
-                    chosenMembers = await getGroupMembers(json, removeMember)
+                    chosenMembers = await getGroupMembers(json, removeMemberRef)
                     setChosenMembers(chosenMembers);
                 }
             }
@@ -382,10 +388,11 @@ function SelectMembers() {
                 if (json !== null) {
 
                     setPossibleMembers(json);
-                    chosenMembers = [<MemberListItem key={-1} name='Me' id={-1} removeMember={removeMember} />];
+                    chosenMembers = [<MemberListItem key={-1} name='Me' id={-1} />];
                     setChosenMembers(chosenMembers);
                 }
             }
+            setSubmitDisabled(checkMemberList());
         }
         if (pageNum == PAGES.SELECT_MEMBERS && chosenMembers.length == 0) getMembers();
 
@@ -751,11 +758,16 @@ function MemberListItem(props) {
 
         );
     } else {
+        const removeThis = () => {
+            if (props.removeMemberRef.current != null) {
+                props.removeMemberRef.current(props.id);
+            }
+        }
         return (
 
             <>
                 <Text style={{ ...globals.styles.listText, ...{ margin: 'auto 0' } }}>{props.name}</Text>
-                <Button aria-label="Remove expense member" style={{ ...styles.removeButton }} onClick={() => props.removeMember(props.id)} >
+                <Button aria-label="Remove expense member" style={{ ...styles.removeButton }} onClick={removeThis} >
                     <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
                 </Button>
 
@@ -798,18 +810,18 @@ async function buildGroups(setID, setPage) {
 /**
  * Builds a list of MemberListItems
  * @param {JSON} json JSON object containing group information, particularly a members array
- * @param {Function} setRefList function to set the refList variable of SelectMembers
+ * @param {React.MutableRefObject} removeMemberRef ref to function to remove a given member
  * @returns a list of MemberListItems
  */
-function getGroupMembers(json, removeMember) {
+function getGroupMembers(json, removeMemberRef) {
 
     let outputList = [];
 
-    outputList.push(<MemberListItem key={-1} name='Me' id={-1} removeMember={removeMember} />);
+    outputList.push(<MemberListItem key={-1} name='Me' id={-1} />);
 
     for (let i = 0; i < json['members'].length; i++) {
 
-        outputList.push(<MemberListItem key={json['members'][i].user_id} name={json['members'][i].username} id={json['members'][i].user_id} removeMember={removeMember} />);
+        outputList.push(<MemberListItem key={json['members'][i].user_id} name={json['members'][i].username} id={json['members'][i].user_id} removeMemberRef={removeMemberRef} />);
     }
     return outputList;
 
