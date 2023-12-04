@@ -37,12 +37,12 @@ const PAGES = {
        "transaction_participants": [ 
            {
                "user_id": 1,
-               "borrowed": 2000 // $20
+               "spent": 2000 // $20
                "paid": 0
            },
            {
                "user_id":  2,
-               "borrowed": 0, 
+               "spent": 0,
                "paid": 1000 // $10
            } 
        ]
@@ -98,7 +98,7 @@ export default function NewExpense(props) {
 
                         <Text style={{ ...globals.styles.label, ...globals.styles.h2, ...{ padding: 0 }}}>NEW EXPENSE</Text>
 
-                        <Text ref={errorMessageRef} id='createExpense_errorMessage' style={globals.styles.error}></Text>
+                        <Text ref={errorMessageRef} id='createExpense_errorMessage' style={{...globals.styles.error, visibility: 'hidden'}}>not an error</Text>
 
                         <ChooseName />
                         <SelectSplit />
@@ -148,10 +148,12 @@ function ChooseName() {
     //and then pushing the value to the web request
     async function onSubmit() {
         setPageNum(pageNum + 1);
-        setTotal(parseInt(totalRef.current.value * 100));
+        let newTotal = parseInt(totalRef.current.value * 100);
+        setTotal(newTotal);
 
         formData.transaction_name = nameRef.current.value;
         formData.transaction_description = descriptionRef.current.value;
+        formData.amount = newTotal;
         
         if (dateRef.current.value === "") {
             //If date is empty set to todays date
@@ -178,10 +180,10 @@ function ChooseName() {
             <input tabIndex={0} ref={nameRef} placeholder=" Enter name of new expense" style={globals.styles.input} id='createExpense_name' name="Expense Name" onInput={onNameChange} />
 
             <View style={globals.styles.labelContainer}>
-                <Text style={{ ...globals.styles.h5, ...globals.styles.label }}>EXPENSE TOTAL *</Text>
+                <Text style={{ ...globals.styles.h5, ...globals.styles.label }}>EXPENSE TOTAL ($) *</Text>
             </View>
 
-            <input tabIndex={0} ref={totalRef} placeholder=" Enter total cost of expense" style={globals.styles.input} id='createExpense_amount' name="Expense Amount" step={.01} type='number' placeholder={0} min={0} onInput={onTotalChange} />
+            <input tabIndex={0} ref={totalRef} style={globals.styles.input} id='createExpense_amount' name="Expense Amount" step={.01} type='number' placeholder={0} min={0} onInput={onTotalChange} />
             
             <View style={globals.styles.labelContainer}>
                 <Text style={{ ...globals.styles.h5, ...globals.styles.label}}>EXPENSE DATE</Text>
@@ -408,7 +410,7 @@ function SelectMembers() {
         }}>
             <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' } }}>Which users are a part of this transaction?</Text>
 
-            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '80% 20%', width: '75%', minHeight: '20em' } }} >
+            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '80% 20%', width: '75%', minHeight: '20em', marginTop: '1em' } }} >
                 {chosenMembers}
                 <Button id="newExpense_addMember" style={{ gridColumn: '1 / span 2', height: '2em' }} onClick={addMemberModal}>
                     <label htmlFor="newExpense_addMember" style={{ ...globals.styles.h5, ...{ cursor: 'pointer', color: globals.COLOR_GRAY } }}>
@@ -457,88 +459,94 @@ function SplitExpense() {
 
 
     
-    //  splitList is the list of the SplitListItems elements with each participant name and the 2 inputs for how much they borrowed
-    //  inputRefs is the list of the refs for inputs for each splitList entry accessed as follows inputRefs[i].paid & inputRefs[i].borrowed
+    //  splitList is the list of the SplitListItems elements with each participant name and the 2 inputs for how much they spent
+    //  inputRefs is the list of the refs for inputs for each splitList entry accessed as follows inputRefs[i].paid & inputRefs[i].spent
 
     const [splitList, setSplitList] = useState([]);
     const [inputRefs, setInputRefs] = useState([]);
 
     const [isPercent, setIsPercent] = useState(false);
 
+    const [submitDisabled, setSubmitDisabled] = useState(true);
+
+    // this ref stores the callback that will get passed to SplitListItems
+    // needs to be a ref because onSplitAmountChange will change each time the state changes
+    const onAmountChangeCallbackRef = useRef(null);
+
+    // create function that checks the split is valid when things are changed
+    const onSplitAmountChange = () => { setSubmitDisabled(checkSplit(total, inputRefs, isPercent, errorRef)); };
+    onAmountChangeCallbackRef.current = onSplitAmountChange;
+
+    // re-check totals when switching between split by % and split by $
+    useEffect(onSplitAmountChange, [isPercent]);
+
     // Build the list of members from the membersList context
-    // Pass a setInputRefs variable so that the unknown number of inputs can be accessed 
+    // Pass a setInputRefs variable so that the unknown number of inputs can be accessed
     useEffect(() => {
         setIsPercent(false);
+        setSubmitDisabled(true);
         function getMembers() {
-            setSplitList(buildSplitList(memberList, setInputRefs));
+            setSplitList(buildSplitList(memberList, setInputRefs, onAmountChangeCallbackRef));
         }
-        
+
         if (pageNum == PAGES.SPLIT_EXPENSE) getMembers();
 
     }, [pageNum]);
 
     // Update form data to include participants list move on to name setting
-    const onSubmit = async () => {        
+    const onSubmit = async () => {
         formData.group_id = groupID;
         formData.transaction_participants = [];
 
-        // Check to make sure values add to total or 100%
-        let totalPaid = 0;
-        let totalBorrowed = 0;
-        for (let i = 0; i < splitList.length; i++) {
-            totalPaid += inputRefs[i].paid.current.value;
-            totalBorrowed += inputRefs[i].borrowed.current.value;
-        }
-
-        if (parseInt(totalPaid) != isPercent ? 100 : total) {
-            errorRef.current.innerText = "All paid values must add up to the total or 100%";
+        // if for some reason onSubmit was not disabled, check that split is good before submitting
+        if (checkSplit(total, inputRefs, isPercent, errorRef))
+        {
+            setSubmitDisabled(true);
             return;
         }
-        if (parseInt(totalBorrowed) != isPercent ? 100 : total) {
-            errorRef.current.innerText = "All borrowed values must add up to the total or 100%";
-            return;
-        } 
-        errorRef.current.innerText = "";
         
         if (isPercent) {
             let totalPaid = total;
-            let totalBorrowed = total;
+            let totalSpent = total;
             for (let i = 0; i < splitList.length; i++) {
 
                 //Dont add users with 0 values
                 if ((inputRefs[i].paid.current.value == "" || inputRefs[i].paid.current.value == "0")
-                    && (inputRefs[i].borrowed.current.value == "" || inputRefs[i].borrowed.current.value == "0")) continue;
+                    && (inputRefs[i].spent.current.value == "" || inputRefs[i].spent.current.value == "0")) continue;
 
                 //Calculate amount based on percent 
-                let paidAmount = parseInt(parseFloat(inputRefs[i].paid.current.value).toFixed(2) / 100) * total;
-                let borrowedAmount = parseInt(parseFloat(inputRefs[i].borrowed.current.value).toFixed(2) / 100) * total;
-
+                let paidAmount =    inputRefs[i].paid.current.value != "" ?
+                                    parseInt(parseFloat(inputRefs[i].paid.current.value).toFixed(2) / 100 * total) :
+                                    0;
+                let spentAmount =    inputRefs[i].spent.current.value != "" ?
+                                        parseInt(parseFloat(inputRefs[i].spent.current.value).toFixed(2) / 100 * total) :
+                                        0;
                 formData.transaction_participants.push({
                     user_id: splitList[i].props.id,
                     paid: paidAmount,
-                    borrowed: borrowedAmount
+                    spent: spentAmount
                 })
 
                 //Subtract calculated amount from total
                 totalPaid -= paidAmount;
-                totalBorrowed -= borrowedAmount;
+                totalSpent -= spentAmount;
             }
 
             //Add remainder to last contributing person on list - unlucky!
             formData.transaction_participants[formData.transaction_participants.length - 1].paid += totalPaid;
-            formData.transaction_participants[formData.transaction_participants.length - 1].paid += totalBorrowed;
+            formData.transaction_participants[formData.transaction_participants.length - 1].paid += totalSpent;
 
         } else {
             for (let i = 0; i < splitList.length; i++) {
 
                 //Dont add users with 0 values
                 if ((inputRefs[i].paid.current.value == "" || inputRefs[i].paid.current.value == "0")
-                    && (inputRefs[i].borrowed.current.value == "" || inputRefs[i].borrowed.current.value == "0")) continue;
+                    && (inputRefs[i].spent.current.value == "" || inputRefs[i].spent.current.value == "0")) continue;
 
                 formData.transaction_participants.push({
                     user_id: splitList[i].props.id,
-                    paid: parseInt(parseFloat(inputRefs[i].paid.current.value).toFixed(2) * 100),
-                    borrowed: parseInt(parseFloat(inputRefs[i].borrowed.current.value).toFixed(2) * 100)
+                    paid: inputRefs[i].paid.current.value != "" ? parseInt(parseFloat(inputRefs[i].paid.current.value).toFixed(2) * 100) : 0,
+                    spent: inputRefs[i].spent.current.value != "" ? parseInt(parseFloat(inputRefs[i].spent.current.value).toFixed(2) * 100) : 0
                 })
             }
         }
@@ -555,7 +563,7 @@ function SplitExpense() {
     }
 
     const splitEvenly = (paid) => {
-       //Evenly split the expense among either the paid or borrowed section
+       //Evenly split the expense among either the paid or spent section
         let amount = isPercent ? 10000 : total; // 10000 == 100% because it gets divided by 100
         for (let i = 0; i < inputRefs.length; i++) {
             if (i == inputRefs.length - 1) {
@@ -563,17 +571,18 @@ function SplitExpense() {
                 if (paid) {
                     inputRefs[i].paid.current.value = ((amount / inputRefs.length + (amount % inputRefs.length)) / 100).toFixed(2);
                 } else {
-                    inputRefs[i].borrowed.current.value = ((amount / inputRefs.length + (amount % inputRefs.length)) / 100).toFixed(2);
+                    inputRefs[i].spent.current.value = ((amount / inputRefs.length + (amount % inputRefs.length)) / 100).toFixed(2);
                 }
             } else {
                 //set value to total/numUsers 
                 if (paid) {
                     inputRefs[i].paid.current.value = ((amount / inputRefs.length) / 100).toFixed(2);
                 } else {
-                    inputRefs[i].borrowed.current.value = ((amount / inputRefs.length) / 100).toFixed(2);
+                    inputRefs[i].spent.current.value = ((amount / inputRefs.length) / 100).toFixed(2);
                 }
             } 
         }
+        onSplitAmountChange();
     }
 
     const changePercent = () => {
@@ -581,6 +590,7 @@ function SplitExpense() {
         for (let i = 0; i < inputRefs.length; i++) {
             //Switch displayed symbol next to inputs
             inputRefs[i].symbol.current.innerText = isPercent ? "$" : "%"; 
+            // TODO also change the paid and spent amounts to their equivalent in the other system
         }
     }
 
@@ -592,7 +602,7 @@ function SplitExpense() {
             <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>How much did each person contribute?</Text>
            
 
-            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '45% 5% 25% 25%', width: '75%', minHeight: '20em' } }} >
+            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '40% 5% 25% 30%', width: '85%', minHeight: '20em' } }} >
 
                 <Text style={{ ...globals.styles.listHeader, ...{ textAlign: 'center', padding: 0, margin: '.5em 0 0', gridColumn: '1 / span 4' } }}>Total: ${(total / 100).toFixed(2)}</Text>
                 <Button id="newExpense_splitExpense_switch" style={{ ...globals.styles.formButton, ...{ gridColumn: '1 / span 4', height: '1.25em', width: '10em', margin: '.5em 0', justifySelf: 'center' } }} onClick={() => changePercent()} >
@@ -603,7 +613,7 @@ function SplitExpense() {
 
                 <Text style={{ ...globals.styles.smallListHeader, ...{ padding: 0, fontSize: '1em', fontWeight: '600', gridColumn: '1 / span 2' } }}>USERNAME</Text>
                 <Text style={{ ...globals.styles.smallListHeader, ...{ padding: 0, color: globals.COLOR_BLUE, fontSize: '1em', fontWeight: '600', textAlign: 'center' } }}>PAID</Text>
-                <Text style={{ ...globals.styles.smallListHeader, ...{ padding: 0, color: globals.COLOR_ORANGE, fontSize: '1em', fontWeight: '600', textAlign: 'center' } }}>BORROWED</Text>
+                <Text style={{ ...globals.styles.smallListHeader, ...{ padding: 0, color: globals.COLOR_ORANGE, fontSize: '1em', fontWeight: '600', textAlign: 'center' } }}>SPENT</Text>
 
                 <View />
                 <View />
@@ -612,8 +622,8 @@ function SplitExpense() {
                         SPLIT
                     </label>
                 </Button>
-                <Button id="newExpense_splitExpense_splitBorrowed" style={{ ...globals.styles.formButton, ...{ height: '1em', margin: '.25em .25em', justifySelf: 'center' } }} onClick={() => splitEvenly(false)} >
-                    <label htmlFor="newExpense_splitExpense_splitBorrowed" style={{ ...globals.styles.buttonLabel, ...{ fontSize: '.85em' } }} >
+                <Button id="newExpense_splitExpense_splitSpent" style={{ ...globals.styles.formButton, ...{ height: '1em', margin: '.25em .25em', justifySelf: 'center' } }} onClick={() => splitEvenly(false)} >
+                    <label htmlFor="newExpense_splitExpense_splitSpent" style={{ ...globals.styles.buttonLabel, ...{ fontSize: '.85em' } }} >
                         SPLIT
                     </label>
                 </Button>
@@ -628,7 +638,7 @@ function SplitExpense() {
                         Back
                     </label>
                 </Button>
-                <Button id="newExpense_splitExpense_next" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={onSubmit} >
+                <Button id="newExpense_splitExpense_next" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={onSubmit} disabled={submitDisabled}>
                     <label htmlFor="newExpense_splitExpense_next" style={globals.styles.buttonLabel} >
                         Submit
                     </label>
@@ -644,17 +654,25 @@ function SplitExpense() {
 function SplitListItem(props) {
 
     const inputRefPaid = useRef(null);
-    const inputRefBorrowed = useRef(null);
+    const inputRefSpent = useRef(null);
     const inputRefSymbol = useRef(null);
 
     useEffect(() => {
         inputRefPaid.current.value = 0;
-        inputRefBorrowed.current.value = 0;
+        inputRefSpent.current.value = 0;
         inputRefSymbol.current.innerText = "$";
         //Create json object containing refs to important values
-        props.inputList.push({ symbol: inputRefSymbol, paid: inputRefPaid, borrowed: inputRefBorrowed});
+        props.inputList.push({ symbol: inputRefSymbol, paid: inputRefPaid, spent: inputRefSpent});
 
     });
+
+    const onAmountChange = () => {
+        // callback ref will get updated with the parameters of the latest state
+        if (props.onAmountChangeCallbackRef.current != null)
+        {
+            props.onAmountChangeCallbackRef.current();
+        }
+    }
 
     return (
 
@@ -664,14 +682,14 @@ function SplitListItem(props) {
             <View style={{ flexDirection: 'row', width: 'auto', justifyContent: 'center' }}>
 
                 <View style={{ width: '5em' }}>
-                    <input ref={inputRefPaid} style={{ ...globals.styles.input, ...{ width: '100%' }}} step={.01} type='number' placeholder={0} min={0}></input>
+                    <input ref={inputRefPaid} style={{ ...globals.styles.input, ...{ width: '100%' }}} step={.01} type='number' placeholder={0} min={0} onInput={onAmountChange}></input>
 
                 </View>
             </View>
             <View style={{ flexDirection: 'row', width: 'auto', justifyContent: 'center' }}>
 
                 <View style={{ width: '5em' }}>
-                    <input ref={inputRefBorrowed} style={{ ...globals.styles.input, ...{ width: '100%' } }} step={.01} type='number' placeholder={0} min={0}></input>
+                    <input ref={inputRefSpent} style={{ ...globals.styles.input, ...{ width: '100%' } }} step={.01} type='number' placeholder={0} min={0} onInput={onAmountChange}></input>
 
                 </View>
             </View>
@@ -761,18 +779,52 @@ function getGroupMembers(json, removeMember) {
  * @param {Function} setInputRefs Function pointer to change inputRefs in SplitExpense
  * @returns a list of SplitListItems
  */
-function buildSplitList(members, setInputRefs) {
+function buildSplitList(members, setInputRefs, onAmountChangeCallbackRef) {
 
     let outputList = [];
     let inputRefs = [];
-    console.log(members);
+    //console.log(members);
     for (let i = 0; i < members.length; i++) {
 
-        outputList.push(<SplitListItem key={members[i].id} name={members[i].name} id={members[i].id} inputList={inputRefs} />);
+        outputList.push(<SplitListItem key={members[i].id} name={members[i].name} id={members[i].id} inputList={inputRefs} onAmountChangeCallbackRef={onAmountChangeCallbackRef}/>);
     }
     setInputRefs(inputRefs);
     return outputList;
 
+}
+
+/**
+* Checks value of all paid/spent amounts
+* @param { int } total total (dollar) amount to be split
+* @param { Array } inputRefs list of { symbol: inputRefSymbol, paid: inputRefPaid, spent: inputRefSpent} ref container objects
+* @param { boolean } isPercent true if splitting by percent, false if splitting by amount
+* @param { React.MutableRefObject } errorRef reference to error text field to print error text to
+* @returns { boolean }                       validity of expense total; true when split is invalid
+*/
+function checkSplit(total, inputRefs, isPercent, errorRef) {
+
+    // Check to make sure values add to total or 100%
+    let totalPaid = 0;
+    let totalSpent = 0;
+    console.log("checking " +inputRefs.length + " regs with isPercent=" + isPercent);
+    for (let i = 0; i < inputRefs.length; i++) {
+        totalPaid += parseInt(inputRefs[i].paid.current.value * 100);
+        totalSpent += parseInt(inputRefs[i].spent.current.value * 100);
+        console.log("user "+i+" paid: "+ inputRefs[i].paid.current.value +" spent "+ inputRefs[i].spent.current.value);
+    }
+
+    if (parseInt(totalPaid) != (isPercent ? 10000 : total)) {
+        errorRef.current.innerText = "All paid values must add up to " + (isPercent ? "100%" : ("$" + (parseFloat(total)/100.0).toFixed(2)));
+        errorRef.current.style.visibility = 'visible';
+        return true;
+    }
+    if (parseInt(totalSpent) != (isPercent ? 10000 : total)) {
+        errorRef.current.innerText = "All spent values must add up to " + (isPercent ? "100%" : ("$" + (parseFloat(total)/100.0).toFixed(2)));
+        errorRef.current.style.visibility = 'visible';
+        return true;
+    }
+    errorRef.current.style.visibility = 'hidden';
+    return false;
 }
 
 /**
@@ -784,13 +836,15 @@ function buildSplitList(members, setInputRefs) {
 function checkName(nameRef, errorRef) {
 
     if (nameRef.current.value.length >= 4) {
-        errorRef.current.innerText = "";
+        // errorRef.current.innerText = "";
+        errorRef.current.style.visibility = 'hidden';
         nameRef.current.removeAttribute("aria-invalid");
         nameRef.current.removeAttribute("aria-errormessage");
         return false;
 
     } else {
         errorRef.current.innerText = "Expense name must be at least 4 characters";
+        errorRef.current.style.visibility = 'visible';
         nameRef.current.setAttribute("aria-invalid", true);
         nameRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         return true;
@@ -807,13 +861,15 @@ function checkName(nameRef, errorRef) {
 function checkTotal(totalRef, errorRef) {
 
     if (totalRef.current.value > 0) {
-        errorRef.current.innerText = "";
+        // errorRef.current.innerText = "";
+        errorRef.current.style.visibility = 'hidden';
         totalRef.current.removeAttribute("aria-invalid");
         totalRef.current.removeAttribute("aria-errormessage");
         return false;
 
     } else {
-        errorRef.current.innerText = "Expense total must be greater than 0.00";
+        errorRef.current.innerText = "Expense total must be greater than $0";
+        errorRef.current.style.visibility = 'visible';
         totalRef.current.setAttribute("aria-invalid", true);
         totalRef.current.setAttribute("aria-errormessage", errorRef.current.id);
         return true;
