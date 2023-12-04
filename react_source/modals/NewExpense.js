@@ -489,7 +489,9 @@ function SplitExpense() {
     onAmountChangeCallbackRef.current = onSplitAmountChange;
 
     // re-check totals when switching between split by % and split by $
-    useEffect(onSplitAmountChange, [isPercent]);
+    useEffect(() => {
+        if (pageNum == PAGES.SPLIT_EXPENSE) onSplitAmountChange();
+    }, [pageNum, isPercent]);
 
     // Build the list of members from the membersList context
     // Pass a setInputRefs variable so that the unknown number of inputs can be accessed
@@ -545,7 +547,7 @@ function SplitExpense() {
 
             //Add remainder to last contributing person on list - unlucky!
             formData.transaction_participants[formData.transaction_participants.length - 1].paid += totalPaid;
-            formData.transaction_participants[formData.transaction_participants.length - 1].paid += totalSpent;
+            formData.transaction_participants[formData.transaction_participants.length - 1].spent += totalSpent;
 
         } else {
             for (let i = 0; i < splitList.length; i++) {
@@ -560,6 +562,14 @@ function SplitExpense() {
                     spent: inputRefs[i].spent.current.value != "" ? parseInt(parseFloat(inputRefs[i].spent.current.value).toFixed(2) * 100) : 0
                 })
             }
+        }
+
+        if (formData.transaction_participants.length < 2)
+        {
+            errorRef.current.innerText = "Transaction must have at least 2 participants";
+            errorRef.current.style.visibility = 'visible';
+            setSubmitDisabled(true);
+            return;
         }
 
         setFormData(formData);
@@ -824,9 +834,12 @@ function checkSplit(total, inputRefs, isPercent, errorRef) {
     // Check to make sure values add to total or 100%
     let totalPaid = 0;
     let totalSpent = 0;
+    let numParticipants = 0;
     for (let i = 0; i < inputRefs.length; i++) {
         totalPaid += parseInt(inputRefs[i].paid.current.value * 100);
         totalSpent += parseInt(inputRefs[i].spent.current.value * 100);
+        numParticipants += ((inputRefs[i].paid.current.value == '' || inputRefs[i].paid.current.value == 0) &&
+                            (inputRefs[i].spent.current.value == '' || inputRefs[i].spent.current.value == 0)) ? 0 : 1;
     }
 
     if (parseInt(totalPaid) != (isPercent ? 10000 : total)) {
@@ -836,6 +849,11 @@ function checkSplit(total, inputRefs, isPercent, errorRef) {
     }
     if (parseInt(totalSpent) != (isPercent ? 10000 : total)) {
         errorRef.current.innerText = "All spent values must add up to " + (isPercent ? "100%" : ("$" + (parseFloat(total)/100.0).toFixed(2)));
+        errorRef.current.style.visibility = 'visible';
+        return true;
+    }
+    if (numParticipants < 2) {
+        errorRef.current.innerText = "Transaction must have at least 2 participants";
         errorRef.current.style.visibility = 'visible';
         return true;
     }
