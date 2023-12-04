@@ -29,24 +29,24 @@ const PAGES = {
 
 /**
  * Example formData layout
- *  {
- *      "group_id": 1, // Optional
-        "transaction_name":"Halal Shack",
-        "transaction_date":"2023-09-29",
-        "transaction_description":"Bought you fools some food",
-        "transaction_participants":[ 
-            {
-                "user_id":1,
-                "borrowed":20
-                "paid": 0
-            },
-            {
-                "user_id": 2,
-                "paid":10,
-                "borrowed": 0
-            } 
-        ]
-    }
+   {
+       "group_id": 1, // Optional
+       "transaction_name": "Halal Shack",
+       "transaction_date": "2023-09-29",
+       "transaction_description": "Bought you fools some food",
+       "transaction_participants": [ 
+           {
+               "user_id": 1,
+               "borrowed": 2000 // $20
+               "paid": 0
+           },
+           {
+               "user_id":  2,
+               "borrowed": 0, 
+               "paid": 1000 // $10
+           } 
+       ]
+   }
  */
 
 /**
@@ -115,7 +115,7 @@ export default function NewExpense(props) {
 }
 
 /**
- * Allows user to choose name, date, and description for a the transaction, name is validated to be more than 4 chars, date is set to today if not selected
+ * Allows user to choose name, total, date, and description for a the transaction, name is validated to be more than 4 chars, total is validated to > 0, date is set to today if not selected
  * @returns page for choosing name, date and description
  */
 function ChooseName() {
@@ -482,8 +482,7 @@ function SplitExpense() {
         formData.group_id = groupID;
         formData.transaction_participants = [];
 
-        // Check to make sure values add to total 
-        
+        // Check to make sure values add to total or 100%
         let totalPaid = 0;
         let totalBorrowed = 0;
         for (let i = 0; i < splitList.length; i++) {
@@ -510,8 +509,9 @@ function SplitExpense() {
                 if ((inputRefs[i].paid.current.value == "" || inputRefs[i].paid.current.value == "0")
                     && (inputRefs[i].borrowed.current.value == "" || inputRefs[i].borrowed.current.value == "0")) continue;
 
-                let paidAmount = parseInt(parseFloat(inputRefs[i].paid.current.value).toFixed(2) / 100) * amount;
-                let borrowedAmount = parseInt(parseFloat(inputRefs[i].borrowed.current.value).toFixed(2) / 100) * amount;
+                //Calculate amount based on percent 
+                let paidAmount = parseInt(parseFloat(inputRefs[i].paid.current.value).toFixed(2) / 100) * total;
+                let borrowedAmount = parseInt(parseFloat(inputRefs[i].borrowed.current.value).toFixed(2) / 100) * total;
 
                 formData.transaction_participants.push({
                     user_id: splitList[i].props.id,
@@ -519,10 +519,12 @@ function SplitExpense() {
                     borrowed: borrowedAmount
                 })
 
+                //Subtract calculated amount from total
                 totalPaid -= paidAmount;
                 totalBorrowed -= borrowedAmount;
             }
 
+            //Add remainder to last contributing person on list - unlucky!
             formData.transaction_participants[formData.transaction_participants.length - 1].paid += totalPaid;
             formData.transaction_participants[formData.transaction_participants.length - 1].paid += totalBorrowed;
 
@@ -553,16 +555,18 @@ function SplitExpense() {
     }
 
     const splitEvenly = (paid) => {
-       
-        let amount = isPercent ? 10000 : total;
+       //Evenly split the expense among either the paid or borrowed section
+        let amount = isPercent ? 10000 : total; // 10000 == 100% because it gets divided by 100
         for (let i = 0; i < inputRefs.length; i++) {
             if (i == inputRefs.length - 1) {
+                //Add remainder to last user
                 if (paid) {
                     inputRefs[i].paid.current.value = ((amount / inputRefs.length + (amount % inputRefs.length)) / 100).toFixed(2);
                 } else {
                     inputRefs[i].borrowed.current.value = ((amount / inputRefs.length + (amount % inputRefs.length)) / 100).toFixed(2);
                 }
             } else {
+                //set value to total/numUsers 
                 if (paid) {
                     inputRefs[i].paid.current.value = ((amount / inputRefs.length) / 100).toFixed(2);
                 } else {
@@ -575,6 +579,7 @@ function SplitExpense() {
     const changePercent = () => {
         setIsPercent(!isPercent);
         for (let i = 0; i < inputRefs.length; i++) {
+            //Switch displayed symbol next to inputs
             inputRefs[i].symbol.current.innerText = isPercent ? "$" : "%"; 
         }
     }
@@ -646,6 +651,7 @@ function SplitListItem(props) {
         inputRefPaid.current.value = 0;
         inputRefBorrowed.current.value = 0;
         inputRefSymbol.current.innerText = "$";
+        //Create json object containing refs to important values
         props.inputList.push({ symbol: inputRefSymbol, paid: inputRefPaid, borrowed: inputRefBorrowed});
 
     });
