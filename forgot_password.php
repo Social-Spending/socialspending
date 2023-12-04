@@ -140,7 +140,7 @@ function sendEmail($username, $access_code, $email)
         'region'        => $SES_REGION
     ]);
 
-    $forgot_password_link = "https://".$_SERVER['SERVER_NAME']."forgotpassword?access_code=$access_code";
+    $forgot_password_link = "https://".$_SERVER['SERVER_NAME']."/forgotpassword?access_code=$access_code";
     
     $html_body = "
                     <h2> Password Reset - SocialSpendingApp </h2>
