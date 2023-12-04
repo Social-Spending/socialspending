@@ -41,6 +41,7 @@ export default function Profile(props) {
     const { reRenderCount, currUserID, currUsername } = useContext(GlobalContext);
     const navigate = useNavigate();
 
+    const [fetched, setFetched] = useState(false);
 
     function unfriend() {
         pushModal(<VerifyAction label={"Are you sure you want to unfriend " + username + " ?"} accept={async () => {
@@ -89,12 +90,12 @@ export default function Profile(props) {
 
             if (props.id != null && props.id != currUserID) {
                 json = await getUserInfo(props.id);
-                if (!json) navigate("/notfound", { replace: true })
+                setFetched(true);
             }
 
             if (props.username != null && props.username != currUsername) {
                 json = await getUserInfo(null, props.username);
-                if (!json) navigate("/notfound", { replace: true })
+                setFetched(true);
             }
 
             if (json != null) {
@@ -109,12 +110,18 @@ export default function Profile(props) {
                 setGroups(getGroupList(json.groups));
                 setTransactions(getTransactionList(json.transactions));
             }
+
         }
         getItems();
 
     }, [props.id, props.username, reRenderCount]);
     if (username == null) {
-        return (<></>);
+        if (fetched) {
+            throw new Response("User Doesn't Exist", { status: 404 });
+        }else{
+            return <></>;
+        }
+        
     }
 
 

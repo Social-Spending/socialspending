@@ -20,6 +20,8 @@ const { globSync } = require('glob');
     ]
 */
 function generateRoutes(routePath, path, keys, json, useLayout = keys.includes("_layout.js")) {
+    let isError = keys.includes("_error.js");
+    keys = keys.filter((key) => key != "_error.js");
     let routerJson = [];
     for (let i = 0; i < keys.length; i++) {
 
@@ -36,11 +38,21 @@ function generateRoutes(routePath, path, keys, json, useLayout = keys.includes("
                 let tempJson = routerJson;
 
                 routerJson = [];
-                routerJson.push({
-                    path: routePath,
-                    element: "/*__PURE__*/React.createElement(Outlet, null)", // Creates an element in format <_app_[subfolder]_{element} /> but as a function
-                    children: generateRoutes(routePath, path, keys.slice(i + 1), json).concat(tempJson)
-                });
+                if (isError) {
+                    routerJson.push({
+                        path: routePath,
+                        element: "/*__PURE__*/React.createElement(Outlet, null)", // Creates an element in format <_app_[subfolder]_{element} /> but as a function
+                        errorElement: "/*__PURE__*/React.createElement(_app" + path + "__error, null)", // Creates an error handler element in format <_app_[subfolder]__error /> but as a function
+                        children: generateRoutes(routePath, path, keys.slice(i + 1), json).concat(tempJson)
+                    });
+                } else {
+                    routerJson.push({
+                        path: routePath,
+                        element: "/*__PURE__*/React.createElement(Outlet, null)", // Creates an element in format <_app_[subfolder]_{element} /> but as a function
+                        children: generateRoutes(routePath, path, keys.slice(i + 1), json).concat(tempJson)
+                    });
+                }
+                
 
                 break;
             } else {
@@ -56,11 +68,22 @@ function generateRoutes(routePath, path, keys, json, useLayout = keys.includes("
             //generate this node and move all other nodes in the directory as a child
             let tempJson = routerJson;
             routerJson = [];
-            routerJson.push({
-                path: routePath,
-                element: "/*__PURE__*/React.createElement(_app" + path + "_" + "_layout, null)",
-                children: generateRoutes(routePath, path, keys.slice(i + 1), json, true).concat(tempJson)
-            });
+            if (isError) {
+                routerJson.push({
+                    path: routePath,
+                    element: "/*__PURE__*/React.createElement(_app" + path + "_" + "_layout, null)",
+                    errorElement: "/*__PURE__*/React.createElement(_app" + path + "__error, null)", // Creates an error handler element in format <_app_[subfolder]__error /> but as a function
+                    children: generateRoutes(routePath, path, keys.slice(i + 1), json, true).concat(tempJson)
+                });
+               
+            } else {
+                routerJson.push({
+                    path: routePath,
+                    element: "/*__PURE__*/React.createElement(_app" + path + "_" + "_layout, null)",
+                    children: generateRoutes(routePath, path, keys.slice(i + 1), json, true).concat(tempJson)
+                });
+            }
+            
             break;
         }
         // Handle urls with slugs in format `[slug].js`
@@ -84,11 +107,6 @@ function generateRoutes(routePath, path, keys, json, useLayout = keys.includes("
             routerJson = routerJson.concat(generateRoutes(routePath + "/" + keys[i], path + "_" + keys[i], Object.keys(json[keys[i]]), json[keys[i]]));
         }
     }
-
-    routerJson.push({
-        path: "*",
-        element: '/*__PURE__*/React.createElement(_app_notfound, null)'
-    })
 
     return routerJson;
 }

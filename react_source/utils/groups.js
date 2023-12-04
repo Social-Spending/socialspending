@@ -25,7 +25,7 @@ export async function getGroups() {
     return null;
 
 }
-export async function getGroupInfo(id, navigate) {
+export async function getGroupInfo(id) {
 
 
     // pul username and password in form data for a POST request
@@ -45,7 +45,6 @@ export async function getGroupInfo(id, navigate) {
         }
         else {
             console.log(response.json()['message']);
-            navigate("/groups_error", {replace: true});
             return null;
         }
     }
