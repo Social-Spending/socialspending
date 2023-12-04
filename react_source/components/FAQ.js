@@ -49,7 +49,7 @@ function Question(props)
                     <SVGIcon src={DownChevron} style={{ ...styles.chevron, transform: (isOpen ? 'rotate(180deg)' : '') }} />
                 </Button>
             </View>
-            <View style={{ ...styles.answerSection, ...isOpen ? { marginBottom: '0.5em' } : { maxHeight: 0, overflowY: 'hidden' }}}>
+            <View style={{ ...styles.answerSection, ...isOpen ? { maxHeight: '20em', marginBottom: '0.5em' } : { maxHeight: 0, overflowY: 'hidden' }}}>
                 <Text style={styles.answerText}>{props.answer}</Text>
             </View>
         </>
