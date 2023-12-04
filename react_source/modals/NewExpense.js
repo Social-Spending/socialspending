@@ -15,6 +15,7 @@ const Logo = require('../assets/images/logo/logo-name-64.png');
 import DenySvg from '../assets/images/bx-x.svg';
 import SVGIcon from '../components/SVGIcon.js';
 import OfflineUserSearch from './OfflineUserSearch.js';
+import VerifyAction from './VerifyAction.js';
 
 const ExpenseContext = createContext(0);
 
@@ -76,6 +77,11 @@ export default function NewExpense(props) {
         e.stopPropagation();
     }
 
+    const exit = () => {
+        
+         pushModal(<VerifyAction label={"Are you sure you want to discard this transaction?"} accept={() => popModal(2)} />);
+       
+    }
     //Provide the context including pageNum, groupId, errorRef, and formData
     return (
         <ExpenseContext.Provider
@@ -92,9 +98,9 @@ export default function NewExpense(props) {
             <Modal
                 transparent={true}
                 visible={true}
-                onRequestClose={() => popModal()}>
+                onRequestClose={() => exit()}>
 
-                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => popModal())}>
+                <View style={{ ...globals.styles.modalBackground, ...props.style}} onClick={(props.exit != undefined ? props.exit : () => exit())}>
                     <View style={styles.create} onClick={handleChildClick}>
 
                         <Image source={Logo} style={styles.logo} />
