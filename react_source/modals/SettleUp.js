@@ -193,7 +193,7 @@ function ConfirmSettleUp() {
             <View style={{justifyContent: 'start'}} >
                 <Text style={{...globals.styles.text, ...{ paddingTop: '1em' }}}>Verify Transaction Details</Text>
 
-                <Text style={{...globals.styles.label, ...globals.styles.h4, ...{ padding: 0, marginLeft: '1em'}}}>You Pay ${(candidateJSON[candidateIndex].amount / 100).toFixed(2)} to:</Text>
+                <Text style={{...globals.styles.label, ...globals.styles.h4, ...{ padding: 0, marginLeft: '1em', marginTop: '1em'}}}>You Pay ${(candidateJSON[candidateIndex].amount / 100).toFixed(2)} to:</Text>
 
                 <View style={{...globals.styles.list, ...{ gridTemplateColumns: '100%', width: '75%' }}} >
                     {buildSettleUpChainMembers(candidateJSON[candidateIndex].length, candidateJSON[candidateIndex].chain)}

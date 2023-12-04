@@ -91,9 +91,9 @@ export default function GroupInfo(props) {
             
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
-                    <View style={{ flexDirection: 'row' } }>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' } }>
                         <ChangeableIcon iconPath={iconPath} name={groupName} groupID={props.id} />
-                        <Text style={{ ...globals.styles.h1, ...styles.groupName}}>{groupName}</Text>
+                        <Text style={{ ...globals.styles.h1, ...globals.styles.profileAndGroupNameText}}>{groupName}</Text>
                     </View>
                     
                     <Button id="groupPage_leaveGroup" style={{ ...globals.styles.formButton, ...{ width: '15em', margin: 0, marginTop: '.25em' } }} onClick={leave}>
@@ -331,14 +331,6 @@ function TransactionListItem({ id, name, owed, border, isApproved }) {
 }
 
 const styles = {
-    groupName: {
-        color: globals.COLOR_GRAY,
-        borderRadius: 2,
-        padding: 0,
-        paddingBottom: '.25em',
-        margin: '0 .5em',
-        fontWeight: 500
-    },
     groupInfo: {
         flex: 1,
         width: 'auto',

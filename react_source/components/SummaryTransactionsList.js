@@ -63,9 +63,9 @@ function TransactionList() {
             }} >
 
                 <Text style={globals.styles.listHeader}>NAME</Text>
-                <Text style={globals.styles.listHeader}>DATE</Text>
+                <Text style={{...globals.styles.listHeader, ...{ alignItems: 'center' }}}>DATE</Text>
                 <Text style={{ ...globals.styles.listHeader, ...{ alignItems: 'center' } }}>AMOUNT</Text>
-               
+
                 {summaryTransactionItems}
 
             </View>
@@ -96,7 +96,7 @@ function SummaryTransactionItem(props) {
                 {props.name}
             </Text>
             <Text
-                style={{ ...globals.styles.listText, ...globals.styles.listItemRow, ...{ cursor: 'pointer' } }}
+                style={{ ...globals.styles.listText, ...globals.styles.listItemRow, ...{ cursor: 'pointer', justifyContent: 'center' } }}
                 onClick={viewTransaction}>
                 {props.date}
             </Text>

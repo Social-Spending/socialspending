@@ -22,6 +22,7 @@ import { ModalContext } from '../modals/ModalContext.js';
 import { GlobalContext } from "./GlobalContext.js";
 import NewExpense from "../modals/NewExpense.js";
 import SVGIcon from "./SVGIcon.js";
+import SettleUp from "../modals/SettleUp.js";
 
 
 export default function Profile(props) {
@@ -29,6 +30,7 @@ export default function Profile(props) {
     let [groups, setGroups] = useState(null);
     let [transactions, setTransactions] = useState(null);
     let [username, setUsername] = useState(null);
+    let [userID, setUserID] = useState(null);
     let [email, setEmail] = useState(null);
     let [iconPath, setIconPath] = useState(null);
     let [debt, setDebt] = useState(null);
@@ -98,6 +100,7 @@ export default function Profile(props) {
             }
 
             if (json != null) {
+                setUserID(json.user_id);
                 setUsername(json.username);
                 setEmail(json.email);
                 setIconPath(json.icon_path);
@@ -130,12 +133,12 @@ export default function Profile(props) {
         <View style={{ flexDirection: 'row', height: '100%', flex: 1}}>
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Image
                             style={{ ...globals.styles.listIcon, ...{ width: '3em', height: '3em' }}}
                             source={iconPath !== null ? decodeURI(iconPath) : globals.getDefaultUserIcon(username)}
                         />
-                        <Text style={{ ...globals.styles.h1, ...styles.groupName}}>{username}</Text>
+                        <Text style={{ ...globals.styles.h1, ...globals.styles.profileAndGroupNameText}}>{username}</Text>
                         
                     </View>
                     <FriendInteractionButtons
@@ -170,6 +173,14 @@ export default function Profile(props) {
                                 <Text style={{ ...globals.styles.listText, ...{ fontSize: '.66em' }, ...color}}>{text}</Text>
                                 <Text style={{ ...globals.styles.listText, ...color}}>${Math.abs(debt / 100).toFixed(2)}</Text>
                             </View>
+                            {
+                                debt > 0 &&
+                                <Button id={'profile_settleUp'} style={{...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' }}} onClick={() => {pushModal(<SettleUp targetID={userID}/>);}} >
+                                    <label htmlFor={'profile_settleUp'} style={globals.styles.buttonLabel }>
+                                        SETTLE UP
+                                    </label>
+                                </Button>
+                            }
                             <Button id="profile_newExpense" style={{ ...globals.styles.formButton, ...{ width: '10em', margin: '.45em .75em 0' } }} onClick={addExpense} >
                                 <label htmlFor="profile_newExpense" style={globals.styles.buttonLabel}>
                                     + NEW EXPENSE
@@ -354,14 +365,6 @@ function TransactionListItem({ id, name, date, user_debt, isApproved }) {
 
 
 const styles = {
-    groupName: {
-        color: globals.COLOR_GRAY,
-        borderRadius: 2,
-        padding: 0,
-        paddingBottom: '.25em',
-        margin: '0 .5em',
-        fontWeight: 500
-    },
     groupInfo: {
         flex: 1,
         width: 'auto',
