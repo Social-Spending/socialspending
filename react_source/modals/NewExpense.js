@@ -14,6 +14,7 @@ import { GlobalContext } from '../components/GlobalContext.js';
 const Logo = require('../assets/images/logo/logo-name-64.png');
 import DenySvg from '../assets/images/bx-x.svg';
 import SVGIcon from '../components/SVGIcon.js';
+import OfflineUserSearch from './OfflineUserSearch.js';
 
 const ExpenseContext = createContext(0);
 
@@ -223,16 +224,12 @@ function ChooseName() {
             <textarea tabIndex={0} ref={descriptionRef} placeholder=" Enter description" style={globals.styles.textarea} id='createExpense_description' name="Expense Description" />
 
             <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
-                <Button id="newExpense_submit" disabled={nameDisabled || totalDisabled} style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum + 1)} >
-                    <label htmlFor="newExpense_submit" style={globals.styles.buttonLabel} >
+                <Button id="newExpense_chooseName_next" disabled={nameDisabled || totalDisabled} style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum + 1)} >
+                    <label htmlFor="newExpense_chooseName_next" style={globals.styles.buttonLabel} >
                         Next
                     </label>
                 </Button>
-                <Button id="newExpense_chooseName_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum - 1)} >
-                    <label htmlFor="newExpense_chooseName_back" style={globals.styles.buttonLabel} >
-                        Back
-                    </label>
-                </Button>
+                
 
             </View>
         </View>
@@ -266,7 +263,7 @@ function SelectSplit() {
 
             <Button id="newExpense_splitFriends" style={{ ...globals.styles.formButton, ...{ margin: '.5em 0' }}} onClick={
                 () => {
-                    setPageNum(PAGES.SPLIT_EXPENSE);
+                    setPageNum(PAGES.SELECT_MEMBERS);
                     setGroupID(null);
                     }   
                 }
@@ -343,10 +340,12 @@ function SelectMembers() {
     } = useContext(ExpenseContext);
 
     const { currUserID } = useContext(GlobalContext);
+    const { pushModal, popModal } = useContext(ModalContext);
 
 
 
     let [memberList, setMemberList] = useState([]);
+    let [possibleMembers, setPossibleMembers]       = useState([]);
 
     const removeMember = (key) => {
         memberList = memberList.filter((member) => member.key != key);
@@ -355,7 +354,7 @@ function SelectMembers() {
 
     const addMember = (details) => {
         memberList.push(<MemberListItem key={details.user_id} name={details.username} id={details.user_id} removeMember={removeMember} />);
-        setMemberList(memberList);
+        setMemberList(memberList.concat([]));
     }
 
 
@@ -368,6 +367,7 @@ function SelectMembers() {
                 json = await getGroupInfo(groupID);
 
                 if (json !== null) {
+                    setPossibleMembers(json['members']);
                     memberList = await getGroupMembers(json, removeMember)
                     setMemberList(memberList);
                 }
@@ -377,6 +377,8 @@ function SelectMembers() {
                 json = await getFriends();
 
                 if (json !== null) {
+
+                    setPossibleMembers(json);
                     memberList = [<MemberListItem key={-1} name='Me' id={-1} removeMember={removeMember} />];
                     setMemberList(memberList);
                 }
@@ -386,6 +388,24 @@ function SelectMembers() {
 
     }, [pageNum]);
 
+    const addMemberModal = () => {
+
+        let excludedMembers = [];
+        for (let i = 0; i < memberList.length; i++) {
+            excludedMembers.push(memberList[i].props.name);
+        }
+        console.log(excludedMembers);
+
+        pushModal(<OfflineUserSearch
+            users={possibleMembers}
+            excludedUsers={excludedMembers}
+            title="ADD MEMBER"
+            label="Enter the username of the person you wish to add to this transaction"
+            onSubmit={addMember}
+            exit={() => popModal()}
+            submitLabel="Add Member" /> )
+    }
+
 
     return (
         <View style={{
@@ -393,16 +413,32 @@ function SelectMembers() {
                 display: pageNum != PAGES.SELECT_MEMBERS ? 'none' : 'inherit'
             }
         }}>
-            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '80% 20%', width: '75%' } }} >
+            <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' } }}>Which users are a part of this transaction?</Text>
+
+            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '80% 20%', width: '75%', minHeight: '20em' } }} >
                 {memberList}
+                <Button id="newExpense_addMember" style={{ gridColumn: '1 / span 2', height: '2em' }} onClick={addMemberModal}>
+                    <label htmlFor="newExpense_addMember" style={{ ...globals.styles.h5, ...{ cursor: 'pointer', color: globals.COLOR_GRAY } }}>
+                        + Add Member
+                    </label>
+                </Button>
+            </View>
+
+
+            <View style={{ justifyContent: 'space-between', width: '75%', flexDirection: 'row-reverse' }}>
+                <Button id="newExpense_selectMember_next" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum + 1)} >
+                    <label htmlFor="newExpense_selectMember_next" style={globals.styles.buttonLabel} >
+                        Next
+                    </label>
+                </Button>
+                <Button id="newExpense_selectMember_back" style={{ ...globals.styles.formButton, ...{ margin: '1em 0', width: '33%' } }} onClick={() => setPageNum(pageNum - 2)} >
+                    <label htmlFor="newExpense_selectMember_back" style={globals.styles.buttonLabel} >
+                        Back
+                    </label>
+                </Button>
             </View>
         </View>
-    
-    
     );
-
-    
-
 }
 
 
@@ -589,18 +625,27 @@ function SplitListItem(props) {
 }
 
 function MemberListItem(props) {
+    //User is required to be a part of the transaction so dont give them the option to remove
+    if (props.id == -1) {
+        return (
 
-    return (
+            <>
+                <Text style={{ ...globals.styles.listText, ...{ margin: 'auto 0', gridColumn: '1 / span 2' } }}>{props.name}</Text>
+            </>
 
-        <>
-            <Text style={{ ...globals.styles.listText, ...{ margin: 'auto 0' } }}>{props.name}</Text>
-            <Button aria-label="Remove expense member" style={{ ...styles.removeButton }} onClick={() => props.removeMember(props.id)} >
-                <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
-            </Button>
+        );
+    } else {
+        return (
 
-        </>
+            <>
+                <Text style={{ ...globals.styles.listText, ...{ margin: 'auto 0' } }}>{props.name}</Text>
+                <Button aria-label="Remove expense member" style={{ ...styles.removeButton }} onClick={() => props.removeMember(props.id)} >
+                    <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+                </Button>
 
-    );
+            </>
+        );
+    }  
 }
 
 
@@ -660,22 +705,16 @@ function getGroupMembers(json, removeMember) {
  * @param {Function} setRefList function to set the refList variable of SplitExpense
  * @returns a list of SplitListItems
  */
-function getFriendsList(json, currUserID, setPaidList, setRefList) {
-
-    let refList = [];
+function getFriendsList(json, removeMember) {
 
     let outputList = [];
-    let paidList = [];
 
-    outputList.push(<SplitListItem paidList={paidList} refList={refList} key={-1} name='Me' id={currUserID} />);
+    outputList.push(<MemberListItem key={-1} name='Me' id={-1} removeMember={removeMember} />);
 
     for (let i = 0; i < json.length; i++) {
 
-        outputList.push(<SplitListItem paidList={paidList} refList={refList} key={i} name={json[i].username} id={json[i].user_id} />);
+        outputList.push(<MemberListItem key={json[i].user_id} name={json[i].username} id={json[i].user_id} removeMember={removeMember} />);
     }
-
-    setPaidList(paidList);
-    setRefList(refList);
     return outputList;
 
 }
@@ -795,11 +834,11 @@ async function uploadReceipt(image, transaction_id, errorRef) {
 
 const styles = {
     create: {
-        minHeight: '25em',
+        minHeight: '30em',
         height: 'auto',
         maxHeight: '80vh',
         backgroundColor: globals.COLOR_WHITE,
-        width: '25em',
+        width: '30em',
         borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
@@ -830,8 +869,9 @@ const styles = {
         width: '2em',
         height: '2em',
         fontSize: '1em',
-        alignItems: 'center',
-        justifyContent: 'center'
+        alignItems: 'flex-end',
+        justifyContent: 'flex-end',
+        justifySelf: 'flex-end'
     },
 
 };
