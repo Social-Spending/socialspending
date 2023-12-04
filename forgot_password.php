@@ -9,7 +9,7 @@ require('vendor/autoload.php');
 use Aws\Ses\SesClient; 
 use Aws\Exception\AwsException;
 
-//$SES_CRED_FILE = 'SES_CREDENTIALS.json';
+$SES_CRED_FILE = 'SES_CREDENTIALS.json';
 
 $SES_REGION = "us-east-1";
 $SES_SOURCE_EMAIL = "noreply@socialspendingapp.com";
@@ -18,8 +18,12 @@ $SES_ENDPOINT = "https://email.$SES_REGION.amazonaws.com/";
 
 
 try {
-    $databaseUsername = getenv("SES_ACCESS_KEY");
-    $databasePassword = getenv("SES_SECRET_KEY");
+        $ses_cred_file = file_get_contents($SES_CRED_FILE);
+        $ses_creds = json_decode($ses_cred_file, true);
+    
+        $SES_ACCESS_KEY = $ses_creds['SES_ACCESS_KEY'];
+        $SES_SECRET_KEY = $ses_creds['SES_SECRET_KEY'];
+
 } catch (Exception $e) 
 {
     returnMessage("No valid SES credentials found.", HTTP_INTERNAL_SERVER_ERROR);
