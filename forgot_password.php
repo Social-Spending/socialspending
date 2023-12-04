@@ -6,6 +6,7 @@ include_once('templates/constants.php');
 include_once("templates/jsonMessage.php");
 
 require('vendor/autoload.php');
+
 use Aws\Ses\SesClient; 
 use Aws\Exception\AwsException;
 
@@ -139,7 +140,7 @@ function sendEmail($username, $access_code, $email)
         'region'        => $SES_REGION
     ]);
 
-    $forgot_password_link = "https://socialspendingapp.com/forgotpassword?access_code=$access_code";
+    $forgot_password_link = "https://".$_SERVER['SERVER_NAME']."forgotpassword?access_code=$access_code";
     
     $html_body = "
                     <h2> Password Reset - SocialSpendingApp </h2>
