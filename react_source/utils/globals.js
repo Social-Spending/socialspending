@@ -232,6 +232,7 @@ export const styles = {
         marginTop: '1em',
         backgroundColor: COLOR_ORANGE,
         boxShadow: '3px 3px 3px #aaa',
+        marginRight: '3px'
     },
     buttonLabel: {
         padding: '.5em',
@@ -258,7 +259,7 @@ export const styles = {
         height: 'auto',
         display: 'grid',
         width: '90%',
-        gridTemplateColumns: '80% 20%',
+        gridTemplateColumns: '1fr max-content',
         gridAutoRows: 'min-content',
 
         alignSelf: 'center',
@@ -301,7 +302,7 @@ export const styles = {
 
     },
     listItemColumn: {
-        flex: 'auto',
+        flex: '0 0 auto',
         height: 'auto',
         width: 'auto',
         padding: '.5em 1em',

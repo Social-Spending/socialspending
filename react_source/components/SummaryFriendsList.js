@@ -73,7 +73,7 @@ function FriendList() {
     } else {
         // List has been parsed into SummaryFriendItem components, render it
         return (
-            <View style={{...globals.styles.list, ...{gridTemplateColumns: '60% 20% 20%'}}}>
+            <View style={{...globals.styles.list, ...{gridTemplateColumns: '1fr max-content max-content'}}}>
                 <Text style={globals.styles.listHeader}>USERNAME</Text>
                 <Text style={globals.styles.listHeader}></Text>
                 <Text style={{ ...globals.styles.listHeader, ...{ alignItems: 'center' }}}>BALANCE</Text>
