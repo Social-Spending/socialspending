@@ -117,7 +117,7 @@ function validateAndSaveImage($file, $maxSize, $allowedWidth, $allowedHeight, $d
     if ($allowedWidth <= 0) $allowedWidth = $actualWidth;
     if ($allowedHeight <= 0) $allowedHeight = $actualHeight;
     
-    $resizedImage = imagecreate($allowedWidth, $allowedHeight);
+    $resizedImage = imagecreatetruecolor($allowedWidth, $allowedHeight);
     //This should cut out an image matching the desired dimensions 
     imagecopyresized($resizedImage, $image, 0, 0, $actualWidth / 2 - $xSize / 2, $actualHeight / 2 - $ySize / 2, $allowedWidth, $allowedHeight, $xSize, $ySize);
     
