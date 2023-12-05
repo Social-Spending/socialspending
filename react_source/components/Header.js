@@ -65,7 +65,8 @@ function Account({ showNotif, isNotifShown, areNotifs }) {
                     </label>
                 </Button>
                 <Button aria-label="Show/Hide Notifications" style={styles.notif} hoverStyle={styles.notif} onClick={showNotif} >
-                    <SVGIcon src={areNotifs ? RingingBell : Bell} style={styles.bell }/>
+                    <SVGIcon src={Bell} style={styles.bell} />
+                    {areNotifs ? <Text style={styles.notifBadge}>!</Text> : <></>}
                 </Button>
                 <HeaderLink aria-label="Profile" href="/profile/" style={{marginLeft: '1em'}} >
                     <View style={styles.headerIconAndUsernameContainer} >
@@ -169,6 +170,22 @@ const styles = {
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: '50%'
+    },
+    notifBadge: {
+        backgroundColor: globals.COLOR_ORANGE,
+        width: '60%',
+        height: '60%',
+        borderRadius: '50%',
+        borderWidth: '1px',
+        borderColor: globals.COLOR_BLUE,
+        position: 'absolute',
+        top: '0%',
+        left: '40%',
+        color: globals.COLOR_WHITE,
+        fontSize: '.75em',
+        fontWeight: 'bolder',
+        fontFamily: 'Segoe UI',
+        textAlign: 'center'
     },
     newExpense: {
         height: '2em',

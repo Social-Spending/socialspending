@@ -18,6 +18,7 @@ import VerifyAction from '../modals/VerifyAction.js';
 import { GlobalContext } from './GlobalContext.js';
 import { useNavigate } from 'react-router-dom/dist/index.js';
 import SVGIcon from './SVGIcon.js';
+import getRelativeTime from '../utils/relativeTime.js';
 
 const NotificationContext = createContext(null);
 
@@ -49,28 +50,28 @@ export default function Notifications(props) {
 
                 let friend_requests = [];
                 notifications.friend_requests.forEach(fr => {
-                    friend_requests.push(<FriendRequest name={fr.username} id={fr.notification_id} user_id={fr.friend_id} key={keyIndex++}/>)
+                    friend_requests.push(<FriendRequest name={fr.username} id={fr.notification_id} user_id={fr.friend_id} key={fr.notification_id} date={new Date(fr.timestamp)} />)
                 });
                 setFriendRequests(friend_requests);
                 newNotifCount += friend_requests.length;
 
                 let transaction_approvals = [];
                 notifications.transaction_approvals.forEach(ta => {
-                    transaction_approvals.push(<ApproveTransaction name={ta.name} id={ta.notification_id} trans_id={ta.transaction_id} key={keyIndex++}/>)
+                    transaction_approvals.push(<ApproveTransaction name={ta.name} id={ta.notification_id} trans_id={ta.transaction_id} key={ta.notification_id} date={new Date(ta.timestamp)} />)
                 });
                 setTransactionApprovals(transaction_approvals);
                 newNotifCount += transaction_approvals.length;
 
                 let completed_transactions = [];
                 notifications.completed_transactions.forEach(ct => {
-                    completed_transactions.push(<CompletedTransaction name={ct.name} id={ct.notification_id} trans_id={ct.transaction_id} key={keyIndex++}/>)
+                    completed_transactions.push(<CompletedTransaction name={ct.name} id={ct.notification_id} trans_id={ct.transaction_id} key={ct.notification_id} date={new Date(ct.timestamp)} />)
                 });
                 setCompletedTransactions(completed_transactions);
                 newNotifCount += completed_transactions.length;
 
                 let group_invites = [];
                 notifications.group_invites.forEach(gi => {
-                    group_invites.push(<GroupInvite name={gi.group_name} id={gi.notification_id} group_id={gi.group_id} key={keyIndex++}/>)
+                    group_invites.push(<GroupInvite name={gi.group_name} id={gi.notification_id} group_id={gi.group_id} key={gi.notification_id} date={new Date(gi.timestamp)} />)
                 });
                 setGroupInvites(group_invites);
                 newNotifCount += group_invites.length;
@@ -182,8 +183,12 @@ function FriendRequest(props) {
     return (
         <View style={styles.notification}>
             
-            <View style={{flex: 1}}>
-                <Text style={styles.text}>New Pending Friend Request {props.date}</Text>
+            <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={styles.text}>Pending Friend Request</Text>
+                    <Text style={{ ...styles.text, fontWeight: '500' }}>{getRelativeTime(props.date)}</Text>
+                </View>
+                
                 <View style={{ flexDirection: 'columnn', justifyContent: 'center' }}>
                     <Text style={styles.notificationText}>{props.name} sent you a friend request</Text>
                 </View>
@@ -222,8 +227,12 @@ function ApproveTransaction(props) {
     return (
         <View style={styles.notification}>
             
-            <View style={{flex: 1}}>
-                <Text style={styles.text}>New Pending Transaction {props.date}</Text>
+            <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={styles.text}>Pending Transaction</Text>
+                    <Text style={{ ...styles.text, fontWeight: '500' }}>{getRelativeTime(props.date)}</Text>
+                </View>
+             
                 <View style={{ flexDirection: 'columnn', justifyContent: 'center' }}>
                     <Text style={styles.notificationText}>{props.name}</Text>
                 </View>
@@ -260,8 +269,13 @@ function CompletedTransaction(props) {
     return (
         <View style={styles.notification}>
             
-            <View style={{flex: 1}}>
-                <Text style={styles.text}>New Completed Transaction {props.date}</Text>
+            <View style={{ flex: 1 }}>
+
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={styles.text}>Completed Transaction</Text>
+                    <Text style={{ ...styles.text, fontWeight: '500' }}>{getRelativeTime(props.date)}</Text>
+                </View>
+
                 <View style={{ flexDirection: 'column', justifyContent: 'center' }}>
                     <Text style={styles.notificationText}>{props.name}</Text>
                 </View>
@@ -306,7 +320,11 @@ function GroupInvite(props) {
         <View style={styles.notification}>
 
             <View style={{flex: 1}}>
-                <Text style={styles.text}>New Group Invite</Text>
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={styles.text}>Group Invite</Text>
+                    <Text style={{ ...styles.text, fontWeight: '500' }}>{getRelativeTime(props.date)}</Text>
+                </View>
+
                 <View style={{ flexDirection: 'column', justifyContent: 'center' }}>
                     <Text style={styles.notificationText}>{props.name}</Text>
                 </View>

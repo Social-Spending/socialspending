@@ -1009,7 +1009,6 @@ const styles = {
     create: {
         minHeight: '30em',
         height: 'auto',
-        maxHeight: '80vh',
         backgroundColor: globals.COLOR_WHITE,
         width: '30em',
         borderRadius: 18,
