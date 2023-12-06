@@ -138,7 +138,7 @@ export default function Profile(props) {
     color = debt == 0 ? { color: globals.COLOR_GRAY } : color;
 
     return (
-        <View style={{ flexDirection: 'row', height: '100%', flex: 1}}>
+        <View style={{ flexDirection: 'row', height: '100%', flex: 1, overflowY: 'auto', scrollbarWidth: 'thin' }}>
             <View style={styles.groupInfo} >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxWidth: '100%', width: 'auto'}}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -379,6 +379,7 @@ const styles = {
     groupInfo: {
         flex: 1,
         width: 'auto',
+        height: 'max-content',
         margin: `1em min(5em, 5vw)`,
         padding: '2.5em min(2.5em, 2.5vw)',
     },
