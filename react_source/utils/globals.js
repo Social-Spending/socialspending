@@ -226,13 +226,11 @@ export const styles = {
         width: '75%',
         height: '1.75em',
         fontSize: '1.17em',
-        marginHorizontal: 20,
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: '1em',
         backgroundColor: COLOR_ORANGE,
-        boxShadow: '3px 3px 3px #aaa',
-        marginRight: '3px'
+        boxShadow: '3px 3px 3px #aaa'
     },
     buttonLabel: {
         padding: '.5em',
@@ -244,7 +242,6 @@ export const styles = {
     transparentButton: {
         width: '75%',
         fontSize: '1.17em',
-        marginHorizontal: 20,
         alignItems: 'center',
         justifyContent: 'center'
     },

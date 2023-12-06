@@ -107,7 +107,7 @@ function SummaryFriendItem(props) {
             <Link to={'/profile/' + props.name} style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'row', borderStyle: 'solid none none', borderColor: globals.COLOR_OFF_WHITE, borderWidth: '1px'}}>
                 {
                     props.owed > 0 &&
-                    <Button id={'friendsList_settleUp'+props.id} style={{...globals.styles.formButton, ...{marginTop: '0', width: '12ch'}}} onClick={() => {pushModal(<SettleUp targetID={props.id}/>)}}>
+                    <Button id={'friendsList_settleUp'+props.id} style={{...globals.styles.formButton, ...{margin: '0 .25em', width: 'max-content'}}} onClick={() => {pushModal(<SettleUp targetID={props.id}/>)}}>
                         <label htmlFor={'friendsList_settleUp'+props.id} style={globals.styles.buttonLabel }>
                             SETTLE UP
                         </label>
