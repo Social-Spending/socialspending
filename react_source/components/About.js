@@ -14,7 +14,7 @@ export default function Contact() {
 				We make it easy to keep track of debts between individuals or groups in any scenario,
 				whether it be a dinner between friends, a girl's weekend, or simply paying someone back.
 				We know that keeping track of a large group of people and how much they owe can get very complex when paying them back, even with software to help.
-				This is why we added our expense reduction algorithm to automatically reduce the amount of transactions required to pay your debts and simply your life.
+				This is why we added our expense reduction algorithm to automatically reduce the amount of transactions required to pay your debts and simplify your life.
 			</Text>
 			<Text style={{ ...globals.styles.h1, textAlign: 'center', color: globals.COLOR_GRAY }}>Meet The Team</Text>
 			<View style={{ flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1em' }}>
