@@ -26,6 +26,7 @@ import { GlobalContext } from '../components/GlobalContext.js';
 
 import Logo from '../assets/images/logo/logo-name-64.png';
 import SVGIcon from './SVGIcon.js';
+import Tooltip from './Tooltip.js';
 
 export default function Login(props) {
     // when a login is completed, increment loginAttempts to trigger a re-render of GlobalContext
@@ -92,6 +93,9 @@ export default function Login(props) {
                     <label htmlFor='loginForm_password' style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</label>
                     <Button aria-label={(showPassword ? "Hide" : "Show") + " Password"} id="loginForm_showPassword" style={globals.styles.showPassword} onClick={() => setShowPassword(!showPassword)}>
                         <SVGIcon src={showPassword ? HideSvg : ShowSvg} style={{ fill: globals.COLOR_GRAY, height: '1.25em' }} />
+                        <Tooltip>
+                            Test
+                        </Tooltip>
                     </Button>
                 </View>
                 
