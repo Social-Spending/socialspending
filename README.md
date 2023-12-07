@@ -50,7 +50,7 @@ GRANT INSERT, UPDATE, DELETE, SELECT ON social_spending.* TO '<username>'@'local
 
 ### 1.3. Update Apache Configuration with MariaDB User
 
-Finally, update your Apache configuration to provide the MariaDB credentials in environment variables. For XAMPP installations, see [2.1.2. Setup Apache Config for XAMPP](#212-setup-apache-config-for-xampp), for stand-alone Apache2 installations, see [2.2.3 Apache2 Configuration for Standalone Server](#223-setup-environment-variables-in-apache).
+Finally, update your Apache configuration to provide the MariaDB credentials in environment variables. For XAMPP installations, see [2.1.2. Setup Apache Config for XAMPP](#212-setup-apache-config-for-xampp), for stand-alone Apache2 installations, see [2.2.3 Setup Environment Variables in Apache for Standalone Server](#223-setup-environment-variables-in-apache-for-standalone-server).
 
 To see how to access the database from a PHP script, refer to `templates/connection.php`.
 
@@ -239,7 +239,7 @@ rm -rf /var/www/html/* /var/www/html/.*
 Replacing `USER:GROUP` with the current user and group used for configuration. This should match the `APACHE_RUN_USER` and `APACHE_RUN_GROUP` in `/etc/apache2/envvars`.
 
 In the `/var/www/html` directory
-1. Clone the repository using `git clone https://github.com/Social-Spending/socialspending.git -b main`
+1. Clone the repository using `git clone https://github.com/Social-Spending/socialspending.git -b main .`
 2. Setup the upstream branch using `git remote set-branches origin main`
 
 You must then run the initial build steps described in sections [3. Node.js and React](#3-nodejs-and-react) and [4. Executables](#4-executables).
@@ -263,7 +263,7 @@ npm install
 
 If running on a XAMPP installation, `<PATH_TO_REPOSITORY>` will be `/opt/lampp/htdocs`.
 
-If running on a stand-along Apache2 installation, `<PATH_TO_REPOSITORY>` will be `/var/www/html`.
+If running on a stand-alone Apache2 installation, `<PATH_TO_REPOSITORY>` will be `/var/www/html`.
 
 If you receive an error where npm cannot be found on a standalone installation, see [Section 3.3. NPM Setup for Standalone Server](#33-npm-setup-for-standalone-server).
 
@@ -278,7 +278,7 @@ cd <PATH_TO_REPOSITORY>/react_source/
 
 If running on a XAMPP installation, `<PATH_TO_REPOSITORY>` will be `/opt/lampp/htdocs`.
 
-If running on a stand-along Apache2 installation, `<PATH_TO_REPOSITORY>` will be `/var/www/html`.
+If running on a stand-alone Apache2 installation, `<PATH_TO_REPOSITORY>` will be `/var/www/html`.
 
 If you receive an error on a standalone installation where npm cannot be found, see [Section 3.3. NPM Setup for Standalone Server](#33-npm-setup-for-standalone-server).
 
@@ -324,7 +324,7 @@ make
 
 If running on a XAMPP installation, `<PATH_TO_REPOSITORY>` will be `/opt/lampp/htdocs`.
 
-If running on a stand-along Apache2 installation, `<PATH_TO_REPOSITORY>` will be `/var/www/html`.
+If running on a stand-alone Apache2 installation, `<PATH_TO_REPOSITORY>` will be `/var/www/html`.
 
 ## 5. AWS SES
 
@@ -334,7 +334,7 @@ This system uses AWS SES to send emails.
 
 ## 5.2. Add Credentials to Apache Environment Variables
 
-Add your credentials as environment variables to your Apache configuration. For XAMPP installations, see [2.1.2. Setup Apache Config for XAMPP](#212-setup-apache-config-for-xampp), for stand-alone Apache2 installations, see [2.2.3. Apache2 Configuration for Standalone Server](#223-setup-environment-variables-in-apache).
+Add your credentials as environment variables to your Apache configuration. For XAMPP installations, see [2.1.2. Setup Apache Config for XAMPP](#212-setup-apache-config-for-xampp), for stand-alone Apache2 installations, see [2.2.3. Setup Environment Variables in Apache for Standalone Server](#223-setup-environment-variables-in-apache-for-standalone-server).
 
 ## 6. (Optional) Github Webhooks
 
@@ -345,6 +345,6 @@ To automatically pull changes from Github, setup webhooks by navigating to your 
 Create a webhooks:
 * The 'Payload URL' should be http://example.com/repo_pull.php (or https:// if you have configured ssl)
 * 'Content type' should be 'application/json'
-* Create a secret. This secret should then be copied into `<GITHUB_WEBHOOK_SECRET>` in your Apache configuration file (See [2.2.3. Apache2 Configuration for Standalone Server](#223-setup-environment-variables-in-apache)).
+* Create a secret. This secret should then be copied into `<GITHUB_WEBHOOK_SECRET>` in your Apache configuration file (See [2.2.3. Setup Environment Variables in Apache for Standalone Server](#223-setup-environment-variables-in-apache-for-standalone-server)).
 
 The webhook handler (`repo_pull.php`) will automatically pull changes from Github and build the React JS bundle and executables.
