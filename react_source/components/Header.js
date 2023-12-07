@@ -14,6 +14,7 @@ import {GlobalContext} from './GlobalContext.js';
 import { ModalContext } from '../modals/ModalContext.js';
 import NewExpense from '../modals/NewExpense.js';
 import SVGIcon from './SVGIcon.js';
+import Tooltip from './Tooltip.js';
 
 export default function Header({showNotif, isNotifShown, areNotifs }) {
     return (
@@ -67,6 +68,9 @@ function Account({ showNotif, isNotifShown, areNotifs }) {
                 <Button aria-label="Show/Hide Notifications" style={styles.notif} hoverStyle={styles.notif} onClick={showNotif} >
                     <SVGIcon src={Bell} style={styles.bell} />
                     {areNotifs ? <Text style={styles.notifBadge}>!</Text> : <></>}
+                    <Tooltip>
+                        Show/Hide Notifications
+                    </Tooltip>
                 </Button>
                 <HeaderLink aria-label="Profile" href="/profile/" style={{marginLeft: '1em'}} >
                     <View style={styles.headerIconAndUsernameContainer} >

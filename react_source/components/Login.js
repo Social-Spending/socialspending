@@ -94,7 +94,7 @@ export default function Login(props) {
                     <Button aria-label={(showPassword ? "Hide" : "Show") + " Password"} id="loginForm_showPassword" style={globals.styles.showPassword} onClick={() => setShowPassword(!showPassword)}>
                         <SVGIcon src={showPassword ? HideSvg : ShowSvg} style={{ fill: globals.COLOR_GRAY, height: '1.25em' }} />
                         <Tooltip>
-                            Test
+                            {(showPassword ? "Hide" : "Show") + " Password"}
                         </Tooltip>
                     </Button>
                 </View>

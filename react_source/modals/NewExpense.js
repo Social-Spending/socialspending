@@ -16,6 +16,7 @@ import DenySvg from '../assets/images/bx-x.svg';
 import SVGIcon from '../components/SVGIcon.js';
 import OfflineUserSearch from './OfflineUserSearch.js';
 import VerifyAction from './VerifyAction.js';
+import Tooltip from '../components/Tooltip.js';
 
 const ExpenseContext = createContext(0);
 
@@ -769,6 +770,9 @@ function MemberListItem(props) {
                 <Text style={{ ...globals.styles.listText, ...{ margin: 'auto 0' } }}>{props.name}</Text>
                 <Button aria-label="Remove expense member" style={{ ...styles.removeButton }} onClick={removeThis} >
                     <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+                    <Tooltip>
+                        Remove Expense Member
+                    </Tooltip>
                 </Button>
 
             </>

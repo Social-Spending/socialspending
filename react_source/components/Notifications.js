@@ -19,6 +19,7 @@ import { GlobalContext } from './GlobalContext.js';
 import { useNavigate } from 'react-router-dom/dist/index.js';
 import SVGIcon from './SVGIcon.js';
 import getRelativeTime from '../utils/relativeTime.js';
+import Tooltip from './Tooltip.js';
 
 const NotificationContext = createContext(null);
 
@@ -157,6 +158,9 @@ function Section(props) {
                     (
                     <Button aria-label={open ? "Hide" : "Open"} style={{ ...styles.sectionButton, ...{ backgroundColor: globals.COLOR_WHITE }}} hoverStyle={{ borderRadius: '50%' }} onClick={() => setOpen(!open)}>
                         <SVGIcon src={DownChevron} style={{ width: '100%', fill: globals.COLOR_GRAY, transition: '500ms', transform: (open ? 'rotate(180deg)' : '') }} />
+                        <Tooltip>
+                            {open ? "Hide Section" : "Open Section"}
+                        </Tooltip>
                     </Button>
                     )
                 }
@@ -195,14 +199,23 @@ function FriendRequest(props) {
                 
             </View>
             <View style={styles.buttonContainer}>
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => navigate("/profile/" + props.name)} >
-                    <SVGIcon src={DetailsSvg} style={ {fill: globals.COLOR_GRAY, width: '1.5em' }}/>
+                <Button aria-label="View Profile" style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => navigate("/profile/" + props.name)} >
+                    <SVGIcon src={DetailsSvg} style={{ fill: globals.COLOR_GRAY, width: '1.5em' }} />
+                    <Tooltip>
+                        View Profile
+                    </Tooltip>
                 </Button>
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(true)} >
+                <Button aria-label="Approve Friend Request" style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(true)} >
                     <SVGIcon src={ApproveSvg} style={{ fill: globals.COLOR_BLUE, width: '2em' }} />
+                    <Tooltip>
+                        Approve Friend Request
+                    </Tooltip>
                 </Button>
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(false)} >
+                <Button aria-label="Deny Friend Request" style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(false)} >
                     <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+                    <Tooltip>
+                        Deny Friend Request
+                    </Tooltip>
                 </Button>
             </View>
                       
@@ -240,14 +253,23 @@ function ApproveTransaction(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={viewTransaction} >
+                <Button aria-label="View Transaction" style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={viewTransaction} >
                     <SVGIcon src={DetailsSvg} style={{ fill: globals.COLOR_GRAY, width: '1.5em' }} />
+                    <Tooltip>
+                        View Transaction
+                    </Tooltip>
                 </Button>
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(true)} >
+                <Button aria-label="Approve Transaction" style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(true)} >
                     <SVGIcon src={ApproveSvg} style={{ fill: globals.COLOR_BLUE, width: '2em' }} />
+                    <Tooltip>
+                        Approve Transaction
+                    </Tooltip>
                 </Button>
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(false)} >
+                <Button aria-label="Deny Transaction" style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(false)} >
                     <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+                    <Tooltip>
+                        Deny Transaction
+                    </Tooltip>
                 </Button>
 
                 
@@ -283,12 +305,18 @@ function CompletedTransaction(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={viewTransaction} >
+                <Button aria-label="View Transaction" style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={viewTransaction} >
                     <SVGIcon src={DetailsSvg} style={{ fill: globals.COLOR_GRAY, width: '1.5em' }} />
+                    <Tooltip>
+                        View Transaction
+                    </Tooltip>
                 </Button>
             
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => dismissCompletedTransaction(props.id, removeNotif)} >
+                <Button aria-label="Dismiss Notification" style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => dismissCompletedTransaction(props.id, removeNotif)} >
                     <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+                    <Tooltip>
+                        Dismiss Notification
+                    </Tooltip>
                 </Button>
 
             </View>
@@ -332,11 +360,17 @@ function GroupInvite(props) {
             </View>
             <View style={styles.buttonContainer}>
 
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(true)} >
+                <Button aria-label="Join Group" style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(true)} >
                     <SVGIcon src={ApproveSvg} style={{ fill: globals.COLOR_BLUE, width: '2em' }} />
+                    <Tooltip>
+                        Join Group
+                    </Tooltip>
                 </Button>
-                <Button style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(false)} >
+                <Button aria-label="Deny Group Invite" style={{ ...styles.button, ...{ backgroundColor: globals.COLOR_WHITE } }} onClick={() => approve(false)} >
                     <SVGIcon src={DenySvg} style={{ fill: globals.COLOR_ORANGE, width: '2em' }} />
+                    <Tooltip>
+                        Deny Group Invite
+                    </Tooltip>
                 </Button>
                
             </View>

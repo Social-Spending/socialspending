@@ -26,8 +26,8 @@ export default function Tooltip(props) {
         textRef.current.parentNode.addEventListener("mouseover", onHover);
         textRef.current.parentNode.addEventListener("mouseout", onHover);
         return () => {
-            if (textRef.current.parentNode) textRef.current.parentNode.removeEventListener("mouseover", onHover);
-            if (textRef.current.parentNode) textRef.current.parentNode.removeEventListener("mouseout", onHover);
+            if (textRef.current && textRef.current.parentNode) textRef.current.parentNode.removeEventListener("mouseover", onHover);
+            if (textRef.current && textRef.current.parentNode) textRef.current.parentNode.removeEventListener("mouseout", onHover);
         }
     }, [windowHeight])
 
@@ -45,7 +45,11 @@ export default function Tooltip(props) {
 const styles = {
     tooltip: {
         ...globals.styles.text,
+
         position: 'absolute',
+        width: 'max-content',
+        zIndex: 10,
+
         backgroundColor: globals.COLOR_WHITE,
         borderRadius: '.25em',
         padding: '0 .25em',

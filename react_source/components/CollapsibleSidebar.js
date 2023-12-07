@@ -9,6 +9,7 @@ import Button from './Button.js';
 import LeftChevron from '../assets/images/bx-chevrons-left.svg';
 import RightChevron from '../assets/images/bx-chevrons-right.svg';
 import SVGIcon from "./SVGIcon.js";
+import Tooltip from "./Tooltip.js";
 
 export default function Sidebar(props) {
 
@@ -18,8 +19,11 @@ export default function Sidebar(props) {
         <View style={{ ...styles.sidebar, ...{ width: open ? '15em' : '2em' }}} >
             <View style={{ flexDirection: 'row', width: '100%', minHeight: 'max-content', position: 'sticky', top:0, zIndex: 1, backgroundColor: styles.sidebar.backgroundColor}}>
                 <Text style={{ ...globals.styles.h3, ...styles.title, ...open ? {paddingBottom: '0'} : { display: 'none' }}}>{props.title}</Text>
-                <Button style={styles.button} onClick={() => setOpen(!open)} >
-                    <SVGIcon src={LeftChevron} style={{ ...styles.buttonIcon, ...{ transform: open ? '' : 'rotate(180deg)' } }}/>
+                <Button aria-label={open ? "Close Sidebar" : "Open Sidebar"} style={styles.button} onClick={() => setOpen(!open)} >
+                    <SVGIcon src={LeftChevron} style={{ ...styles.buttonIcon, ...{ transform: open ? '' : 'rotate(180deg)' } }} />
+                    <Tooltip>
+                        {open ? "Close Sidebar" : "Open Sidebar" }
+                    </Tooltip>
                 </Button>
             </View>
             <View style={{ ...{ width: '15em' }, ...{ display: open ? 'block' : 'none' }}}>

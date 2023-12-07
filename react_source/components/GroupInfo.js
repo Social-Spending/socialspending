@@ -25,6 +25,7 @@ import ChangeableIcon from "./ChangeableIcon.js"
 import NewExpense from "../modals/NewExpense.js";
 import SVGIcon from "./SVGIcon.js";
 import { getTransactionJSONComparator } from "../utils/transactions.js";
+import Tooltip from "./Tooltip.js";
 
 
 export default function GroupInfo(props) {
@@ -271,6 +272,9 @@ function MemberListItem({ id, name, owed, pending, group_id, icon_path }) {
 
                     <Button style={{ ...globals.styles.transparentButton, ...{ width: '1.75em', margin: 0, marginTop: '.25em' } }} aria-label="Kick User" onClick={kickMember}>
                         <SVGIcon src={KickIcon} style={styles.kickButton} />
+                        <Tooltip>
+                            Kick User
+                        </Tooltip>
                     </Button>
                 }
                 
