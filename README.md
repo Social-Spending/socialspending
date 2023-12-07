@@ -228,8 +228,12 @@ Replace `<GITHUB_WEBHOOK_SECRET>` with the shared secret for your Github Webhook
 Create the new folder:
 
 ```sh
+# create new folder, if it doesn't exist
 sudo mkdir -p /var/www/html
+# update permissions
 sudo chown USER:GROUP -R /var/www/html
+# remove existing contents
+rm -rf /var/www/html/* /var/www/html/.*
 ```
 
 Replacing `USER:GROUP` with the current user and group used for configuration. This should match the `APACHE_RUN_USER` and `APACHE_RUN_GROUP` in `/etc/apache2/envvars`.
