@@ -191,7 +191,7 @@ Add the following lines to `/etc/apache2/sites-available/socialspending.conf`:
 
 Replace `<DOMAIN_NAME>` in the above text with your domain name, ie. `example.com`.
 
-#### 2.2.3. Setup Environment Variables in Apache
+#### 2.2.3. Setup Environment Variables in Apache for Standalone Server
 
 Setup environment variables in `/etc/apache2/envvars`:
 
