@@ -42,7 +42,7 @@ export default function Base(props) {
 
     return (
         <ModalContext.Provider value={{ pushModal: pushModal, popModal: popModal }}>
-            <View style={styles.base}>
+            <View style={{...props.style, ...styles.base}}>
                 <Header showNotif={() => setShowShelf(!showShelf)} isNotifShown={showShelf} areNotifs={areNotifs} />
 
                 <View style={{ width: 'auto', minWidth:'100%', flexDirection: 'column', flex: 1 }}>
@@ -76,6 +76,9 @@ const styles = {
         height: 'auto',
         minHeight: '100%',
         flexWrap: 'nowrap',
+        flexDirection: 'none',
+        alignItems: 'none',
+        justifyContent: 'none'
 
     },
     container: {

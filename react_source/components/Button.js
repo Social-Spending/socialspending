@@ -18,11 +18,10 @@ export default function Button(props) {
     return (
         
         <button {...otherProps} tabIndex={props.tabIndex ? props.tabIndex : -1} style={{ ...styles.button, ...props.style, ...{ cursor: props.disabled ? 'default' : 'pointer' } }} onClick={click} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-            <View style={{ ...styles.button, ...hoverStyle, ...{zIndex: 1}, ...(props.disabled ? globals.styles.disabled : (hover ? globals.styles.hover : {}))}} >
-            
+            <View style={{ ...styles.button, ...hoverStyle, ...(hover ? globals.styles.hover : {})}} >
                 {props.children}
+                <View style={{ ...styles.button, ...hoverStyle, ...{ zIndex: 1, position: 'absolute', top: 0, left: 0 }, ...(props.disabled ? globals.styles.disabled : {}) }} />
             </View>
-           
         </button>
         
     );

@@ -16,8 +16,8 @@ export default function Sidebar(props) {
     
     return (
         <View style={{ ...styles.sidebar, ...{ width: open ? '15em' : '2em' }}} >
-            <View style={{ flexDirection: 'row', width: '100%'}}>
-                <Text style={{ ...globals.styles.h3, ...styles.title, ...open ? {} : { display: 'none' }}}>{props.title}</Text>
+            <View style={{ flexDirection: 'row', width: '100%', minHeight: 'max-content', position: 'sticky', top:0, zIndex: 1, backgroundColor: styles.sidebar.backgroundColor}}>
+                <Text style={{ ...globals.styles.h3, ...styles.title, ...open ? {paddingBottom: '0'} : { display: 'none' }}}>{props.title}</Text>
                 <Button style={styles.button} onClick={() => setOpen(!open)} >
                     <SVGIcon src={LeftChevron} style={{ ...styles.buttonIcon, ...{ transform: open ? '' : 'rotate(180deg)' } }}/>
                 </Button>

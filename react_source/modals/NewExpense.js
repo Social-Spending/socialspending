@@ -440,7 +440,7 @@ function SelectMembers() {
         }}>
             <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' } }}>Which users are a part of this transaction?</Text>
 
-            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '80% 20%', width: '75%', minHeight: '20em', marginTop: '1em' } }} >
+            <View style={{ ...globals.styles.list, ...{ width: '75%', minHeight: '20em', marginTop: '1em' } }} >
                 {chosenMembers}
                 <Button id="newExpense_addMember" style={{ gridColumn: '1 / span 2', height: '2em' }} onClick={addMemberModal}>
                     <label htmlFor="newExpense_addMember" style={{ ...globals.styles.h5, ...{ cursor: 'pointer', color: globals.COLOR_GRAY } }}>
@@ -651,7 +651,7 @@ function SplitExpense() {
             <Text style={{ ...globals.styles.text, ...{ paddingTop: '1em' }}}>How much did each person contribute?</Text>
            
 
-            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '40% 5% 25% 30%', width: '85%', minHeight: '20em' } }} >
+            <View style={{ ...globals.styles.list, ...{ gridTemplateColumns: '1fr max-content 22.5% 22.5%', width: '85%', minHeight: '20em' } }} >
 
                 <Text style={{ ...globals.styles.listHeader, ...{ textAlign: 'center', padding: 0, margin: '.5em 0 0', gridColumn: '1 / span 4' } }}>Total: ${(total / 100).toFixed(2)}</Text>
                 <Button id="newExpense_splitExpense_switch" style={{ ...globals.styles.formButton, ...{ gridColumn: '1 / span 4', height: '1.25em', width: '10em', margin: '.5em 0', justifySelf: 'center' } }} onClick={() => changePercent()} >

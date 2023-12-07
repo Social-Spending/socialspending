@@ -13,7 +13,7 @@ const TIME_365_DAYS     = 31536000;
  */
 export default function getRelativeTime(date) {
     let currDate = new Date();
-    let currTime = currDate.getTime() / 1000;
+    let currTime = currDate.getTime() / 1000 + currDate.getTimezoneOffset() * TIME_MINUTE;
     let relativeTime = date.getTime() / 1000;
 
     let timeDiff = currTime - relativeTime;
@@ -48,8 +48,8 @@ export default function getRelativeTime(date) {
     }
     else if (timeDiff < TIME_365_DAYS) {
         let mult = negative ? -1 : 1;
-        if (timeDiff > TIME_31_DAYS || (currDate.getDate() - date.getDate()) * mult >= 0) {
-            let diff = parseInt((currDate.getMonth() - date.getMonth()) * mult);
+        if (timeDiff > TIME_31_DAYS || (currDate.getUTCDate() - date.getUTCDate()) * mult >= 0) {
+            let diff = parseInt((currDate.getUTCMonth() - date.getUTCMonth()) * mult);
             if (diff < 0) diff += 12;
             outputString = diff + (diff == 1 ? " month " : " months ");
         } else {

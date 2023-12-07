@@ -189,7 +189,7 @@ const styles = {
     },
     newExpense: {
         height: '2em',
-        width: '13em',
+        width: 'max-content',
         margin: 0,
         marginRight: '1em',
         borderRadius: '2em'
