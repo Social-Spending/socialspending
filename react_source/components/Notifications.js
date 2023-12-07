@@ -159,7 +159,7 @@ function Section(props) {
                     <Button aria-label={open ? "Hide" : "Open"} style={{ ...styles.sectionButton, ...{ backgroundColor: globals.COLOR_WHITE }}} hoverStyle={{ borderRadius: '50%' }} onClick={() => setOpen(!open)}>
                         <SVGIcon src={DownChevron} style={{ width: '100%', fill: globals.COLOR_GRAY, transition: '500ms', transform: (open ? 'rotate(180deg)' : '') }} />
                         <Tooltip>
-                            {open ? "Hide Section" : "Open Section"}
+                            {open ? "Hide Section" : "Show Section"}
                         </Tooltip>
                     </Button>
                     )
