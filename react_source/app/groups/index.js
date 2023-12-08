@@ -19,7 +19,7 @@ export default function Page() {
     let [groupID, setGroupID] = useState(searchParams.get('id') ? parseInt(searchParams.get('id')) : null);
 
     return (
-        <Base style={{ ...globals.styles.container, ...{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }}}>
+        <Base style={{ ...globals.styles.container, ...{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start', maxHeight: '100vh' }}}>
             
             <WaitForAuth redirectOnNotLoggedIn={'/login?origin=groups'}>
                 <Sidebar title={'Groups'}>

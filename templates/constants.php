@@ -5,6 +5,12 @@ const COOKIE_EXPIRY_TIME = 60*60*24*30;
 // 1 day, in seconds
 const TRANSIENT_COOKIE_EXPIRY_TIME = 60*60*24;
 
+//24 hours, in seconds
+const ACCESS_CODE_EXPIRY_TIME = 60*60*24;
+
+const RANDOM_PASSWORD_LEN = 16;
+const ACCESS_CODE_LEN = 64;
+
 const HTTP_OK = 200;
 
 const HTTP_BAD_REQUEST = 400;

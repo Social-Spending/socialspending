@@ -60,7 +60,8 @@ function getFriendRequests($user_id) {
 
     $sql = "SELECT  notifications.notification_id AS notification_id,
                     users.username AS username,
-                    users.user_id AS friend_id
+                    users.user_id AS friend_id,
+                    notifications.notification_timestamp AS timestamp
             FROM notifications
             LEFT JOIN users ON users.user_id = notifications.friend_request_user_id
             WHERE notifications.user_id=? AND notifications.type=\"friend_request\"
@@ -86,7 +87,8 @@ function getApprovalRequests($user_id) {
 
     $sql = "SELECT  notifications.notification_id AS notification_id,
     				transactions.name AS name,
-                    transactions.transaction_id AS transaction_id
+                    transactions.transaction_id AS transaction_id,
+                    notifications.notification_timestamp AS timestamp
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
             WHERE notifications.user_id=? AND notifications.type=\"approval_request\"
@@ -111,7 +113,8 @@ function getApprovedTransactions($user_id) {
 
     $sql = "SELECT  notifications.notification_id AS notification_id,
     				transactions.name AS name,
-                    transactions.transaction_id AS transaction_id
+                    transactions.transaction_id AS transaction_id,
+                    notifications.notification_timestamp AS timestamp
             FROM notifications
             LEFT JOIN transactions ON transactions.transaction_id = notifications.transaction_id
             WHERE notifications.user_id=? AND notifications.type=\"approved_transaction\"
@@ -136,7 +139,8 @@ function getGroupInvites($user_id) {
 
     $sql = "SELECT  n.notification_id AS notification_id,
     				g.group_name AS group_name,
-                    n.group_id AS group_id
+                    n.group_id AS group_id,
+                    n.notification_timestamp AS timestamp
             FROM notifications n
             JOIN groups g ON g.group_id = n.group_id
             WHERE n.user_id = ? AND n.type = 'group_invite'

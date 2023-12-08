@@ -59,7 +59,7 @@ function TransactionList() {
         return (
             <View style={{
                 ...globals.styles.list,
-                ...{ gridTemplateColumns: '50% 30% 20%', }
+                ...{ gridTemplateColumns: '1.5fr 1fr max-content', }
             }} >
 
                 <Text style={globals.styles.listHeader}>NAME</Text>

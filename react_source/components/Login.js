@@ -14,11 +14,14 @@ import { View, Text, Image } from '../utils/globals.js'
 import { useRef, useState, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom/dist/index.js';
 
+import ForgotPassword from '../modals/ForgotPasswordModal.js';
+
 import ShowSvg from '../assets/images/bx-show.svg';
 import HideSvg from '../assets/images/bx-hide.svg';
 
 import Button from './Button.js'
 
+import { ModalContext } from "../modals/ModalContext.js";
 import { GlobalContext } from '../components/GlobalContext.js';
 
 import Logo from '../assets/images/logo/logo-name-64.png';
@@ -28,6 +31,9 @@ export default function Login(props) {
     // when a login is completed, increment loginAttempts to trigger a re-render of GlobalContext
     const {loginAttempts} = useContext(GlobalContext);
     const [loginAttemptsState, setLoginAttemptsState] = loginAttempts;
+
+    let { pushModal, popModal } = useContext(ModalContext);
+
     const onSubmit = () => {
         submitForm(userRef, passwordRef, rememberRef, errorMessageRef, loginAttemptsState, setLoginAttemptsState);
     }
@@ -39,6 +45,11 @@ export default function Login(props) {
     const userRef           = useRef(null);
     const passwordRef       = useRef(null);
     const rememberRef       = useRef(null);
+
+    const addForgotPasswordModal = (e) => {
+        e.preventDefault();
+        pushModal(<ForgotPassword />);
+    }
 
     const submitOnEnter = (event) => {
         if (event.key === "Enter") {
@@ -55,7 +66,6 @@ export default function Login(props) {
             if (userRef.current) userRef.current.removeEventListener("keypress", submitOnEnter);  
         }
     })
-
 
     return (
 
@@ -77,6 +87,7 @@ export default function Login(props) {
             <input autoFocus tabIndex={0} ref={userRef} placeholder=" Enter your email or username" style={globals.styles.input} id='loginForm_username' name="Username" />
 
             <View style={globals.styles.labelContainer}>
+
                 <View style={{flexDirection: 'row'} }>
                     <label htmlFor='loginForm_password' style={{ ...globals.styles.h5, ...globals.styles.label}}>PASSWORD</label>
                     <Button aria-label={(showPassword ? "Hide" : "Show") + " Password"} id="loginForm_showPassword" style={globals.styles.showPassword} onClick={() => setShowPassword(!showPassword)}>
@@ -84,10 +95,15 @@ export default function Login(props) {
                     </Button>
                 </View>
                 
-                <Link tabIndex={-1} to="/forgot" style={{ ...globals.styles.h5, ...styles.forgot}}>Forgot Password?</Link> 
+
+                <Link tabIndex={-1} style={{ ...globals.styles.h5, ...styles.forgot}} onClick={addForgotPasswordModal}>Forgot Password?</Link> 
+
             </View>
+                
+
+
             
-            <input tabIndex={0} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='loginForm_password' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password" name="Password" />
+            <input tabIndex={0} ref={passwordRef} placeholder=" Password" style={globals.styles.input} id='loginForm_password' type={showPassword ? "text" : "password"} autoComplete='current-password' name="Password"/>
 
             <View style={{ ...globals.styles.labelContainer, ...{ justifyContent: 'flex-start', paddingTop: 0, width: '78%' }}}>
                 <input tabIndex={0} ref={rememberRef} type="checkbox" style={styles.checkbox} id="loginForm_remember" />

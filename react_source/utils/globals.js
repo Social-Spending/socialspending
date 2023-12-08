@@ -226,12 +226,11 @@ export const styles = {
         width: '75%',
         height: '1.75em',
         fontSize: '1.17em',
-        marginHorizontal: 20,
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: '1em',
         backgroundColor: COLOR_ORANGE,
-        boxShadow: '3px 3px 3px #aaa',
+        boxShadow: '3px 3px 3px #aaa'
     },
     buttonLabel: {
         padding: '.5em',
@@ -243,7 +242,6 @@ export const styles = {
     transparentButton: {
         width: '75%',
         fontSize: '1.17em',
-        marginHorizontal: 20,
         alignItems: 'center',
         justifyContent: 'center'
     },
@@ -258,7 +256,7 @@ export const styles = {
         height: 'auto',
         display: 'grid',
         width: '90%',
-        gridTemplateColumns: '80% 20%',
+        gridTemplateColumns: '1fr max-content',
         gridAutoRows: 'min-content',
 
         alignSelf: 'center',
@@ -301,7 +299,7 @@ export const styles = {
 
     },
     listItemColumn: {
-        flex: 'auto',
+        flex: '0 0 auto',
         height: 'auto',
         width: 'auto',
         padding: '.5em 1em',
