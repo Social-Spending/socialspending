@@ -347,7 +347,7 @@ This codebase leverages AWS's SDK for PHP to communicate with AWS servers. The r
 
 If Composer is not already installed:
 ```bash
-sudo apt-get install composer SimpleXML
+sudo apt-get install composer php8.2-xml
 ```
 
 Then, within the project directory, require the AWS SDK:
