@@ -66,13 +66,13 @@ export default function ForgotPasswordModal(props) {
 
 async function submitForm(email, setErrorMsg, popModal, navigate)
 {
+    popModal();
     let response = await fetch("/forgot_password.php?email=" + email.current.value, { method: 'GET', credentials: 'same-origin' });
 
     if (response !== null)
     {
         if (response.ok)
         {
-            popModal();
             navigate("/login", { replace: true });
             navigate(0);
         }

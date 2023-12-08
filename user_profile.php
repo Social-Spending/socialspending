@@ -101,15 +101,19 @@ function handleGET()
 {
     global $mysqli, $_VALIDATE_COOKIE_ERRORNO;
 
-    // user must have valid sessionID
+    
     $currUserID = validateSessionID();
-    if ($currUserID == 0)
+
+
+    // user must have valid sessionID or be using OTP
+    if ($currUserID == 0 && !isset($_GET['access_code']))
     {
         // failed to validate cookie, check if it was db error or just invalid cookie
         if ($_VALIDATE_COOKIE_ERRORNO == SESSION_ID_INVALID)
         {
             returnMessage('Invalid session_id cookie', 401);
         }
+
         handleDBError();
     }
 
@@ -160,6 +164,25 @@ function handleGET()
         // add user_id to list of member to add
         $row = $result->fetch_assoc();
         $profileUserID = $row['user_id'];
+    }
+    // perhaps user is using an access code from forgot_password
+    elseif (isset($_GET['access_code']))
+    {
+        $currUserID = checkAccessCode($_GET['access_code']);
+        $sql = 'SELECT user_id from users WHERE user_id = ?;';
+        $result = $mysqli->execute_query($sql, [$currUserID]);
+        // check that query was successful
+        if (!$result)
+        {
+            // query failed, internal server error
+            handleDBError();
+        }
+        // check that user was found
+        if ($result->num_rows == 0)
+        {
+            returnMessage('User with user_id '.$currUserID.' not found', 404);
+        }
+        $profileUserID = $currUserID;
     }
     // otherwise, get profile of current user
     else
@@ -310,8 +333,15 @@ function handlePOST()
 {
     global $mysqli, $_VALIDATE_COOKIE_ERRORNO;
 
-    // user must have valid sessionID
+    // user must have valid sessionID or OTP
     $currUserID = validateSessionID();
+
+    //Validate OTP
+    if (isset($_POST['access_code']))
+    {
+        $currUserID = checkAccessCode($_POST['access_code']);
+    }
+    
     if ($currUserID == 0)
     {
         // failed to validate cookie, check if it was db error or just invalid cookie

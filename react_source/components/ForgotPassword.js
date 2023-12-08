@@ -34,7 +34,7 @@ export default function ForgotPassword(props) {
     const onEmailChange     = () => { setEmailDisabled      (emailRef.current.value == "" ? () => {emailErrorMessageRef.current.innerText = ""; return true;} : checkEmail(emailRef, emailErrorMessageRef)); }
     const onPasswordChange  = () => { setPasswordDisabled   (passwordRef.current.value == "" ? () => {passwordErrorMessageRef.current.innerText = ""; return true;} : checkPassword(passwordRef, passwordVerifyRef, passwordErrorMessageRef)); }
     const onUsernameChange  = () => { setUsernameDisabled   (userRef.current.value == "" ? () => {userErrorMessageRef.current.innerText = ""; return true;} : checkUsername(userRef, userErrorMessageRef)); }
-    const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, navigate); }
+    const onSubmit          = () => { submitForm            (userRef, emailRef, passwordRef, navigate, searchParams); }
 
     const errorMessageRef           = useRef(null);
     const emailErrorMessageRef      = useRef(null);
@@ -58,8 +58,10 @@ export default function ForgotPassword(props) {
 
         async function getItems() {
             let json = null;
+            
+            let url_access_code = searchParams.get("access_code");
 
-            json = await getUserInfo(props.id);
+            json = await getUserInfo(null, null, url_access_code);
 
             if (json != null) {
                 setUsername(json.username);
@@ -139,10 +141,11 @@ export default function ForgotPassword(props) {
 }
 
 
-async function submitForm(userRef, emailRef, passwordRef, navigate) {
+async function submitForm(userRef, emailRef, passwordRef, navigate, searchParams) {
 
     // pul username and password in form data for a POST request
     let payload = new URLSearchParams();
+    payload.append('access_code', searchParams.get("access_code"));
     payload.append('username', userRef.current.value);
     payload.append('email', emailRef.current.value);
     payload.append('password', passwordRef.current.value);

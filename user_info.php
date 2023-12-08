@@ -26,12 +26,50 @@
 
 include_once('templates/connection.php');
 include_once('templates/jsonMessage.php');
+include_once('templates/userValidation.php');
 
 function handleGET()
 {
     global $mysqli;
 
     // get user's sessionID from cookie
+    if (isset($_GET['access_key']))
+    {
+        $user_id = checkAccessCode($_GET['access_code']);
+
+        $sql =  'SELECT u.user_id, u.username, u.icon_path '.
+                'FROM users u'.
+                'WHERE u.user_id = ?';
+        $result = $mysqli->execute_query($sql, [$user_id]);
+        // check that query was successful
+        if (!$result)
+        {
+            // query failed, internal server error
+            handleDBError();
+        }
+
+        $row = $result->fetch_assoc();
+
+        // if access code was valid
+        if ($row)
+        {
+            $returnArray = array();
+            $returnArray['user_id'] = $row['user_id'];
+            $returnArray['username'] = $row['username'];
+            $returnArray['icon_path'] = $row['icon_path'];
+            $returnArray['message'] = 'Success';
+
+            // return the returnArray as JSON
+            header('Content-Type: application/json');
+            http_response_code(200);
+            print(json_encode($returnArray));
+            exit(0);
+        }
+        
+        returnMessage('Invalid access_code', 401);
+    }
+
+
     if (array_key_exists('session_id', $_COOKIE))
     {
         // get cookie

@@ -77,7 +77,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         returnMessage('Access code not found', HTTP_UNAUTHORIZED);
     }
 
-    exchangeCookie($_GET['access_code']);
 }
 
 function resetPassword($email) 
@@ -194,43 +193,9 @@ function sendEmail($username, $access_code, $email)
 
     } catch (AwsException $e) {
         // output error message if fails
-        echo $e->getMessage();
-        echo "\n";
+        return;
     }
 
-}
-
-function exchangeCookie($access_code)
-{
-    global $mysqli;
-
-    //Check the passed access code
-    $sql = "SELECT  user_id AS user_id
-
-            FROM    forgotten_passwords
-            WHERE   access_code = ?";
-
-    $response = $mysqli->execute_query($sql, [strval($access_code)]);
-
-    //Bad access code
-    if ($response == null || mysqli_num_rows($response) == 0) {
-        returnMessage('Invalid or expired access code.', HTTP_UNAUTHORIZED);
-    }
-
-    $user_id = $response->fetch_assoc()['user_id'];
-
-    //Delete the used token from database
-    /*
-    $sql = "DELETE FROM     forgotten_passwords
-            WHERE           user_id = ?";
-
-    $response = $mysqli->execute_query($sql, [$user_id]);
-    */
-
-    //Set the cookie on the user so they are temporarily 'authenticated'
-    createAndSetSessionID($user_id, false);
-
-    return;
 }
 
 ?>

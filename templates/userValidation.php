@@ -65,4 +65,27 @@ function checkPassword($password)
     return 0;
 }
 
+// return user_id assocaited with an access_code
+// break with error HTTP_UNAUTHORIZED if not
+function checkAccessCode($access_code)
+{
+    global $mysqli;
+
+    //Check the passed access code
+    $sql = "SELECT  user_id AS user_id
+
+            FROM    forgotten_passwords
+            WHERE   access_code = ?";
+
+    $response = $mysqli->execute_query($sql, [strval($access_code)]);
+
+    //Bad access code
+    if ($response == null || mysqli_num_rows($response) == 0) {
+        returnMessage('Invalid or expired access code.', HTTP_UNAUTHORIZED);
+    }
+
+    $user_id = $response->fetch_assoc()['user_id'];
+    return $user_id;
+}
+
 ?>
