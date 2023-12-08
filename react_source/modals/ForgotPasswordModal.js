@@ -12,7 +12,7 @@ import Logo from '../assets/images/logo/logo-name-64.png';
 let navigate = 0;
 export default function ForgotPasswordModal(props) {
 
-    
+    navigate = useNavigate();
 
     const [emailDisabled, setEmailDisabled]      = useState(true);
     const { popModal } = useContext(ModalContext);
@@ -23,7 +23,7 @@ export default function ForgotPasswordModal(props) {
     const onEmailChange     = () => { setEmailDisabled      (checkEmail(emailRef, emailErrorMessageRef)); }
     
     const onSubmit = () => {
-        submitForm(emailRef, emailErrorMessageRef, popModal);
+        submitForm(emailRef, emailErrorMessageRef, popModal, navigate);
     }
 
     function handleChildClick(e) {
@@ -64,7 +64,7 @@ export default function ForgotPasswordModal(props) {
 }
 
 
-async function submitForm(email, setErrorMsg, popModal)
+async function submitForm(email, setErrorMsg, popModal, navigate)
 {
     let response = await fetch("/forgot_password.php?email=" + email.current.value, { method: 'GET', credentials: 'same-origin' });
 
