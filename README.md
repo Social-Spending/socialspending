@@ -219,7 +219,7 @@ Replace `<DB_USERNAME>`, `<DB_PASSWORD>`, and `example.com` with your database c
 
 Replace `<APACHE USER>` and `<APACHE GROUP>` with the user and group of the user used to setup the config.
 
-Replace `<SES_ACCESS_KEY>` and `<SES_SHARED_SECRET>` with your credentials from setting up AWS SES (See [5.1. Create an Account with AWS SES](#51-create-an-account-with-aws-ses)).
+Replace `<SES_ACCESS_KEY>` and `<SES_SHARED_SECRET>` with your credentials from setting up AWS SES (See [5.1. Generate SES Credentials](#51-generate-ses-credentials)).
 
 Replace `<GITHUB_WEBHOOK_SECRET>` with the shared secret for your Github Webhook, if you set that up (See [6. (Optional) Github Webhooks](#6-optional-github-webhooks)).
 
@@ -328,13 +328,34 @@ If running on a stand-alone Apache2 installation, `<PATH_TO_REPOSITORY>` will be
 
 ## 5. AWS SES
 
-This system uses AWS SES to send emails.
+This system uses AWS SES to send emails. In environments where SMTP traffic is not blocked, it is recommended that direct mailing is used instead.
 
-## 5.1. Create an Account with AWS SES
+## 5.1. Generate SES Credentials
+
+To authenticate, log into an AWS account for which the relevant domain has been verified. This typically requires access to DNS records. Under Identity and Access Management (IAM), generate a new user with SendEmail and SendRawEmail privileges. An access key must be generated for the new user, selecting 'Third-Party Service' when prompted. Provide a brief description of your use case.
+
+A new access key and secret key will be generated. Be careful, this secret key is only shown once. Using the steps outined in [5.2 Add Credentials to Apache Environment Variables](#52-add-credentials-to-apache-environment-variables), set this access key pair in the Apache configuration.
 
 ## 5.2. Add Credentials to Apache Environment Variables
 
 Add your credentials as environment variables to your Apache configuration. For XAMPP installations, see [2.1.2. Setup Apache Config for XAMPP](#212-setup-apache-config-for-xampp), for stand-alone Apache2 installations, see [2.2.3. Setup Environment Variables in Apache for Standalone Server](#223-setup-environment-variables-in-apache-for-standalone-server).
+
+## 5.3. Configure AWS PHP SDK
+
+This codebase leverages AWS's SDK for PHP to communicate with AWS servers. The recommended installation for this SDK is using Composer, a package manager for PHP dependencies. SimpleXML is not installed by default on all systems, but is necessary for SDK operations.
+
+
+If Composer is not already installed:
+```bash
+sudo apt-get install composer SimpleXML
+```
+
+Then, within the project directory, require the AWS SDK:
+```bash
+composer require aws/aws-sdk-php
+```
+
+After successful installation, the ability to send emails as a password recovery mechanism should be fully functional.
 
 ## 6. (Optional) Github Webhooks
 
